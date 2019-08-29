@@ -3,6 +3,10 @@
 
 #include "CObject.hpp"
 
+#include <GL/gl.h>
+#include <GL/glext.h>
+#include <GL/wglext.h>
+
 namespace cym { namespace uix {
   class CContext : public CObject {
     protected:
