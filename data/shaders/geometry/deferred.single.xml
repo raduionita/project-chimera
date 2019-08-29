@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<program version="420" core="1">
+  <tags>
+    <tag name="GEOMETRY"/>
+    <tag name="DEFERRED"/>
+    <tag name="SINGLE"/>
+  </tags>
+  <shaders>
+    <shader type="vertex">
+      <source type="file">
+        <file src="geometry/deferred.single.vs.glsl" />
+      </source>
+    </shader>
+    <shader type="fragment">
+      <source type="file">
+        <file src="geometry/deferred.fs.glsl" />
+      </source>
+    </shader>
+  </shaders>
+</program>

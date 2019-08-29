@@ -1,0 +1,13 @@
+guard1_body_d.tga
+{
+  diffuse  1.0 boblampclean/guard1_body_d.tga
+  normals  1.0 boblampclean/guard1_body_n.tga
+  specular 0.9 boblampclean/guard1_body_s.tga
+  
+  shininess 64.0
+}
+
+guard1_face_d.tga
+{
+
+}
