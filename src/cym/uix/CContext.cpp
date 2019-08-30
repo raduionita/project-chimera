@@ -2,7 +2,7 @@
 #include "cym/uix/CWindow.hpp"
 
 namespace cym { namespace uix {
-  CContext::CContext(CWindow* pParent, const SOptions& sOptions) : mParent{pParent}, mOptions{sOptions}, mHandle{(HWND)(*pParent)} {
+  CContext::CContext(CWindow* pParent, const SOptions& sOptions) : mWindow{pParent}, mOptions{sOptions}, mHandle{(HWND)(*pParent)} {
     std::cout << "uix::CContext::CContext(CWindow*,SOptions&)::" << this << std::endl;
     init();
   }
@@ -19,7 +19,7 @@ namespace cym { namespace uix {
     
     // need dummy window for ogl 4.x
     
-    LPTSTR szWndcls = (LPTSTR)(*mParent);
+    LPTSTR szWndcls = (LPTSTR)(*mWindow);
     
     HWND tWnd = ::CreateWindowEx(
       0,                     // dwExStyle
@@ -35,15 +35,16 @@ namespace cym { namespace uix {
     
     HDC tDC = ::GetDC(tWnd);
     
-    PFD tPFD;
-    tPFD.nSize        = sizeof(PFD);                                                // WORD
-    tPFD.nVersion     = 1;                                                          // WORD
-    tPFD.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER; // DWORD
-    tPFD.iPixelType   = PFD_TYPE_RGBA;
-    tPFD.cColorBits   = mOptions.nColorBits;
-    tPFD.cDepthBits   = mOptions.nDepthBits;
-    tPFD.cStencilBits = mOptions.nStencilBits;
-    tPFD.cAlphaBits   = mOptions.nAlphaBits;
+    PFD tPFD = {
+      .nSize        = sizeof(PFD),                                                // WORD
+      .nVersion     = 1,                                                          // WORD
+      .dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER, // DWORD
+      .iPixelType   = PFD_TYPE_RGBA,
+      .cColorBits   = mOptions.nColorBits,
+      .cAlphaBits   = mOptions.nAlphaBits,
+      .cDepthBits   = mOptions.nDepthBits,
+      .cStencilBits = mOptions.nStencilBits,
+    };
     
     INT tPFID = ::ChoosePixelFormat(tDC, &tPFD);
     if (tPFID == 0) {
@@ -67,16 +68,14 @@ namespace cym { namespace uix {
       return false;
     }
   
-    PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = nullptr;
-    wglChoosePixelFormatARB = reinterpret_cast<PFNWGLCHOOSEPIXELFORMATARBPROC>(wglGetProcAddress("wglChoosePixelFormatARB"));
+    DEFINE_WGL_FUNCTION(wglChoosePixelFormatARB);
     if (wglChoosePixelFormatARB == nullptr) {
       std::cout << "[CContext] wglChoosePixelFormatARB failed!" << std::endl;
       ::MessageBox(NULL, "[CContext] wglChoosePixelFormatARB failed!", "Error", MB_OK);
       return false;
     }
   
-    PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = nullptr;
-    wglCreateContextAttribsARB = reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(wglGetProcAddress("wglCreateContextAttribsARB"));
+    DEFINE_WGL_FUNCTION(wglCreateContextAttribsARB);
     if (wglCreateContextAttribsARB == nullptr) {
       std::cout << "[CContext] wglCreateContextAttribsARB failed!" << std::endl;
       ::MessageBox(NULL, "[CContext] wglCreateContextAttribsARB failed!", "Error", MB_OK);
@@ -117,6 +116,7 @@ namespace cym { namespace uix {
       WGL_CONTEXT_MINOR_VERSION_ARB, mOptions.nMinorVersion,
       WGL_CONTEXT_PROFILE_MASK_ARB,  WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
    // WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_DEBUG_BIT_ARB,
+   // WGL_STEREO_ARB, GL_TRUE,
       0
     };
     
@@ -140,9 +140,9 @@ namespace cym { namespace uix {
       return false;
     }
   
-    ::glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    ::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    ::SwapBuffers(mDC);
+    // ::glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    // ::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    // ::SwapBuffers(mDC);
     
     return true;
   }
@@ -159,11 +159,11 @@ namespace cym { namespace uix {
   
   bool CContext::swap() const {
     std::cout << "uix::CContext::swap()::" << this << std::endl;
-    return ::SwapBuffers(mDC);
+    return !!::SwapBuffers(mDC);
   }
   
   bool CContext::current() const {
     std::cout << "uix::CContext::current()::" << this << std::endl;
-    return wglMakeCurrent(mDC,mRC);
+    return !!::wglMakeCurrent(mDC,mRC);
   }
 }}

@@ -39,7 +39,7 @@ namespace cym { namespace uix {
   
     mInited = super::init(pParent, sTitle, sShape, nHints);
     
-    mContext = new CContext(this, sOptions);
+    mInited && (mContext = new CContext(this, sOptions));
     
     return mInited;
   }
