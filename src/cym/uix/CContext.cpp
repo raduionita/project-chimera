@@ -2,8 +2,8 @@
 #include "cym/uix/CWindow.hpp"
 
 namespace cym { namespace uix {
-  CContext::CContext(CWindow* pParent, const SOptions& sOptions) : mWindow{pParent}, mOptions{sOptions}, mHandle{(HWND)(*pParent)} {
-    std::cout << "uix::CContext::CContext(CWindow*,SOptions&)::" << this << std::endl;
+  CContext::CContext(CWindow* pWindow, const SConfig& sOptions) : mWindow{pWindow}, mConfig{sOptions}, mHandle{(HWND)(*pWindow)} {
+    std::cout << "uix::CContext::CContext(CWindow*,SConfig&)::" << this << std::endl;
     init();
   }
   
@@ -34,16 +34,16 @@ namespace cym { namespace uix {
     );
     
     HDC tDC = ::GetDC(tWnd);
-    
-    PFD tPFD = {
-      .nSize        = sizeof(PFD),                                                // WORD
+  
+    PIXELFORMATDESCRIPTOR tPFD = {
+      .nSize        = sizeof(PIXELFORMATDESCRIPTOR),                              // WORD
       .nVersion     = 1,                                                          // WORD
       .dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER, // DWORD
       .iPixelType   = PFD_TYPE_RGBA,
-      .cColorBits   = mOptions.nColorBits,
-      .cAlphaBits   = mOptions.nAlphaBits,
-      .cDepthBits   = mOptions.nDepthBits,
-      .cStencilBits = mOptions.nStencilBits,
+      .cColorBits   = mConfig.nColorBits,
+      .cAlphaBits   = mConfig.nAlphaBits,
+      .cDepthBits   = mConfig.nDepthBits,
+      .cStencilBits = mConfig.nStencilBits,
     };
     
     INT tPFID = ::ChoosePixelFormat(tDC, &tPFD);
@@ -87,15 +87,15 @@ namespace cym { namespace uix {
     const int aPixelAttrs[] = {
       WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
       WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
-      WGL_DOUBLE_BUFFER_ARB,  GL_TRUE,
-      WGL_PIXEL_TYPE_ARB,     WGL_TYPE_RGBA_ARB,
-      WGL_ACCELERATION_ARB,   WGL_FULL_ACCELERATION_ARB,
-      WGL_COLOR_BITS_ARB,     mOptions.nColorBits,
-      WGL_ALPHA_BITS_ARB,     mOptions.nAlphaBits,
-      WGL_DEPTH_BITS_ARB,     mOptions.nDepthBits,
-      WGL_STENCIL_BITS_ARB,   mOptions.nStencilBits,
+      WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
+      WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
+      WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
+      WGL_COLOR_BITS_ARB, mConfig.nColorBits,
+      WGL_ALPHA_BITS_ARB, mConfig.nAlphaBits,
+      WGL_DEPTH_BITS_ARB, mConfig.nDepthBits,
+      WGL_STENCIL_BITS_ARB, mConfig.nStencilBits,
       WGL_SAMPLE_BUFFERS_ARB, GL_TRUE,
-      WGL_SAMPLES_ARB,        mOptions.nSamples,
+      WGL_SAMPLES_ARB, mConfig.nSamples,
       0
     };
     
@@ -106,15 +106,15 @@ namespace cym { namespace uix {
       ::MessageBox(NULL, "[CCanvas] wglChoosePixelFormatARB failed!", "Error", MB_OK);
       return false;
     }
-    
-    PFD sPFD;
+  
+    PIXELFORMATDESCRIPTOR sPFD;
     ::DescribePixelFormat(mDC, nPFID, sizeof(sPFD), &sPFD);
     ::SetPixelFormat(mDC, nPFID, &sPFD);
     
     const int aContextAttr[] = {
-      WGL_CONTEXT_MAJOR_VERSION_ARB, mOptions.nMajorVersion,
-      WGL_CONTEXT_MINOR_VERSION_ARB, mOptions.nMinorVersion,
-      WGL_CONTEXT_PROFILE_MASK_ARB,  WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+      WGL_CONTEXT_MAJOR_VERSION_ARB, mConfig.nMajorVersion,
+      WGL_CONTEXT_MINOR_VERSION_ARB, mConfig.nMinorVersion,
+      WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
    // WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_DEBUG_BIT_ARB,
    // WGL_STEREO_ARB, GL_TRUE,
       0

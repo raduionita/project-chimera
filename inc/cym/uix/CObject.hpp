@@ -16,13 +16,14 @@ namespace cym { namespace uix {
     private:
       static CRegistry        sRegistry;
     protected:
-      static std::atomic<int> sId;
-      const int               mId = {++sId};
+      static std::atomic<INT> sId;
+      const INT               mId = {++sId};
     public:
       CObject();
       virtual ~CObject();
       CObject(const CObject&);
       CObject& operator =(const CObject&);
+      operator const INT() const;
     public:
       const int getId() const;
   };  

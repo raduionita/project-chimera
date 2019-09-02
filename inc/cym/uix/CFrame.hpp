@@ -2,20 +2,20 @@
 #define __cym_uix_cframe_hpp__
 
 #include "uix.hpp"
-#include "CToplevel.hpp"
+#include "CWindow.hpp"
 
 namespace cym { namespace uix {
-  class CFrame : public CToplevel {
-    using CToplevel::CToplevel;
-    typedef CToplevel super;
+  class CFrame : public CWindow {
+    using CWindow::CWindow;
+    typedef CWindow super;
     public:
       CFrame() = default;
       CFrame(                                                                int);
-      CFrame(CWindow*, const SString& = "", const SShape& = SShape::DEFAULT, int = 0);
+      CFrame(CWindow*, const TString& = "", const SShape& = SShape::DEFAULT, int = 0);
       ~CFrame();
     protected:
       virtual bool init(CWindow*, const SShape&, int) override;
-              bool init(CWindow*, const SString&, const SShape&, int);
+              bool init(CWindow*, const TString&, const SShape&, int);
   };
 }}
 

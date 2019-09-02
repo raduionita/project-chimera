@@ -55,7 +55,7 @@ namespace cym { namespace uix {
     
     mRunning = init();
     
-    auto start = now();
+    auto start = sys::now();
     
     MSG msg;
     while (mRunning) {
@@ -64,7 +64,7 @@ namespace cym { namespace uix {
         ::DispatchMessage(&msg);
         mRunning = msg.message != WM_QUIT;
       } else {
-        onTick(now() - start);
+        onTick(sys::now() - start);
       }
     }
     

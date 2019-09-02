@@ -6,8 +6,8 @@ namespace cym { namespace uix {
     init(nullptr, "", SShape::DEFAULT, nHints);
   }
   
-  CFrame::CFrame(CWindow* pParent, const SString& sTitle/*=""*/, const SShape& sShape/*=SShape::DEFAULT*/, int nHints/*=0*/) {
-    std::cout << "uix::CFrame::CFrame(CWindow*,SString&,SShape&,int)::" << this << std::endl;
+  CFrame::CFrame(CWindow* pParent, const TString& sTitle/*=""*/, const SShape& sShape/*=SShape::DEFAULT*/, int nHints/*=0*/) {
+    std::cout << "uix::CFrame::CFrame(CWindow*,TString&,SShape&,int)::" << this << std::endl;
     init(pParent, sTitle, sShape, nHints);
   }
   
@@ -17,8 +17,8 @@ namespace cym { namespace uix {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  bool CFrame::init(CWindow* pParent, const SString& sTitle, const SShape& sShape, int nHints) {
-    std::cout << "uix::CFrame::init(CWindow*,SString&,SShape&,int)::" << this << std::endl;
+  bool CFrame::init(CWindow* pParent, const TString& sTitle, const SShape& sShape, int nHints) {
+    std::cout << "uix::CFrame::init(CWindow*,TString&,SShape&,int)::" << this << std::endl;
   
     mInited = init(pParent, sShape, nHints);
     
@@ -38,20 +38,17 @@ namespace cym { namespace uix {
     
     RETURN(!szWndcls, false);
     
-    DWORD dwExStyle = WS_EX_APPWINDOW;
-    DWORD dwStyle   = WS_VISIBLE | WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION | WS_BORDER | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
-    
     mHandle = ::CreateWindowEx(
-      dwExStyle,                                 // DWORD // ex. style (0 = default)
+      0,                                         // DWORD // ex. style (0 = default)
       szWndcls,                                  // LPCSTR window class name
-      mCname.c_str(),                            // LPCSTR window title name
-      dwStyle,                                   // DWORD // style
+      name().c_str(),                            // LPCSTR window title name
+      0,                                         // DWORD // style
       CW_USEDEFAULT, CW_USEDEFAULT,              // (x, y) 
       CW_USEDEFAULT, CW_USEDEFAULT,              // (width, height)
       mParent ? (HWND)(*mParent) : NULL,         // HWND parent handle
       NULL,                                      // HMENU menu handle
       (HINSTANCE)(*CApplication::getInstance()), // HINSTANCE application handle
-      this                                       // LPVOID additional app data (@see WM_CREATE)
+      this                                       // LPVOID additional app data (@see WM_CREATE & CREATESTRUCT)
     );
     
     if (mHandle == NULL) {
@@ -62,9 +59,13 @@ namespace cym { namespace uix {
     
     // add class pointer to handle's user-data // @see CWindow::proc() 
     ::SetWindowLongPtr(mHandle, GWLP_USERDATA, (LONG_PTR)(this));
-    // reset default window styles
-    ::SetWindowLong(mHandle, GWL_STYLE,   dwStyle);
-    ::SetWindowLong(mHandle, GWL_EXSTYLE, dwExStyle);
+  
+    mInited = style(nHints);
+    
+    // @todo: styles
+    // @todo: hints: auto pos + centered + maximize|minimize + visible
+  
+    ::SendMessage(mHandle, CM_INIT, 0, 0);
     
     return mInited;
   }

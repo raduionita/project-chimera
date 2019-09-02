@@ -1,19 +1,39 @@
+// todo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  // editor: /////////////////////////////////////////////////////////////////////////////////////////////////////////
-  = splash window
-    // present editor
-    // preload next window (find projects/apps/games)
-  = project (select window)
-    // - create: init editor/main window + empty/template .xml
-    // - select: init editor/main window + .xml scene
-    // show loading/progress window until (init) main window is done
-  = editor (main) window
-    // can have multiple layouts (different positioned windows)
-    // - init: create opengl context
-    // - init: open scene.xml 
-    //         setup virtual cameras (views) (not saved w/ the scene)
-    //         send asses to be loaded in the background 
-    // - tick: draw scene/objects - once a new one is avaiable added to the draw call
+= hints
+= pozitioning and (re)sizing | windows & widgets
+= layouts
+= copy/move constructors + assignment operators => clone method
+= context on widgets
+= loops: gui/event/game loop
+= fullscreen (F11)
+= hotkeys & keybord shortcuts
+= implements IDrawable
+= styles
+= commands
+= widgets:button
+= custom theme - replace titlebar (icon+menubar+title+sysmenu)
+= hints
+= events + listeners + handlers
+= menus
+= handling errors
+
+
+// app:edit ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+= splash window
+  // present editor
+  // preload next window (find projects/apps/games)
+= project (select window)
+  // - create: init editor/main window + empty/template .xml
+  // - select: init editor/main window + .xml scene
+  // show loading/progress window until (init) main window is done
+= editor (main) window
+  // can have multiple layouts (different positioned windows)
+  // - init: create opengl context
+  // - init: open scene.xml 
+  //         setup virtual cameras (views) (not saved w/ the scene)
+  //         send asses to be loaded in the background 
+  // - tick: draw scene/objects - once a new one is avaiable added to the draw call
 
 +----------------------------------------------------+
 | [O] | File Edit View | project name        | _ # X |
@@ -33,100 +53,72 @@
 |-----+------------------------+---------------------|
 |                                                 [] |
 +----------------------------------------------------+
-
-
-
-// app:edit(or): ///////////////////////////////////////////////////////////////////////////////////////////////////////
-  // splash screen (splash window)
-    // pre-load:
-      // send task to background loader
-        // do read:  available projects
-        // on done: splash window->on done
-    // on done
-      // open: project select window w/ loaded data
-      
-  // project select window
-    // select project > start main window + load project xmls
-  // edit (main) window
-    // on init
-      // init engine(opengl)
-      // dynamic load project.xml/scene.xml
-        // 
-        
-  // multiple windows/views:
-    // each window = view has its own camera
-    // on render:
-      // for each screen/view
-        // use new camera
-        // draw objects
-        
-+----------------------------------------------------+
-| [O] | File Edit View                       | _ # X |
-|-----+--------------------------------------+-------|
-| [a]   [b]   [c]   [d]   [e]                        |
-|-----+------------------------+---------------------|
-| [1] | view 1: 3d             | view 2: top         |
-|     |                        |                     |
-| [2] |                        |                     |
-|     |                        |                     |
-|     |                        +---------------------+
-|     |                        | view 3: side        |
-|     |                        |                     |
-|     |                        |                     |
-|-----+------------------------+---------------------|
-|                                                 [] |
-+----------------------------------------------------+
+  
+// game: ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+// splash screen (window) 
+  // pre-load stuff
+  // create full-screen window (hidden)
+  // on complete: show full-screen window
+// game (full-screen) window (show)
+  // on init:
+    // init engine (opengl context)
+    // start intro screen
+  // intro screen
+    // pre-load menu screen (scene)
+  // menu screen
+    // select start game
+  // loading screen
+    // load scene.xml + saved.xml
+  // game screen
     
-// app:game: ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // splash screen (window) 
-    // pre-load stuff
-    // create full-screen window (hidden)
-    // on complete: show full-screen window
-  // game (full-screen) window (show)
-    // on init:
-      // init engine (opengl context)
-      // start intro screen
-    // intro screen
-      // pre-load menu screen (scene)
-    // menu screen
-      // select start game
-    // loading screen
-      // load scene.xml + saved.xml
-    // game screen
-      
-    
+  
 // engine: /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // needs opengl context
-  // needs build engine - pre-set up stuff (that may change later)
-  // render: // draws using draw calls (mesh + texture info)
-    // for all objects/drawables
-      // add draw call (w/ all necessary info)
-    // render scene (draw calls/what camera sees)
-    
-    
-  // CMeshBuilder
-    // CMD5MeshBuilder
-    // CSphereMeshBuilder::build(CSphereMeshBuilder::EStrategy) -> CMesh 
-        // EStrategy::ICOSPHERE                   // uses icosahedron to build a sphere
-        // EStrategy::CUBESPHERE                  // uses a cube to build a sphere 
-        // EStrategy::UVSPHERE  (this looks hard)
-    // CCubeMeshBuilder
-    // CPyramidMeshBuilder::build(int nSides)     // now many edges the base has // can be used to build a cone
+// needs opengl context
+// needs build engine - pre-set up stuff (that may change later)
+// render: // draws using draw calls (mesh + texture info)
+  // for all objects/drawables
+    // add draw call (w/ all necessary info)
+  // render scene (draw calls/what camera sees)
   
-  // CTextureBuilder
-    // CSimplexTextureBuilder
-    // CDDSTextureBuilder 
-    // CTGATextureBuilder 
-    // CPNGTextureBuilder 
   
-  // CAnimationBuilder
-    // CMD5AnimationBuilder
-  
+// CMeshBuilder
+  // CMD5MeshBuilder
+  // CSphereMeshBuilder::build(CSphereMeshBuilder::EStrategy) -> CMesh 
+      // EStrategy::ICOSPHERE                   // uses icosahedron to build a sphere
+      // EStrategy::CUBESPHERE                  // uses a cube to build a sphere 
+      // EStrategy::UVSPHERE  (this looks hard)
+  // CCubeMeshBuilder
+  // CPyramidMeshBuilder::build(int nSides)     // now many edges the base has // can be used to build a cone
+
+// CTextureBuilder
+  // CSimplexTextureBuilder
+  // CDDSTextureBuilder 
+  // CTGATextureBuilder 
+  // CPNGTextureBuilder 
+
+// CAnimationBuilder
+  // CMD5AnimationBuilder
+
 // loop: ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // create window
-  // make current
-  // while NOT done
-    // update // + inputs
-    // render
-    // swap buffers ON window
-  // destroy window
+// create window
+// make current
+// while NOT done
+  // update // + inputs
+  // render
+  // swap buffers ON window
+// destroy window
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

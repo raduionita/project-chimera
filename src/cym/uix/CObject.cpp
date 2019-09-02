@@ -1,7 +1,7 @@
 #include "cym/uix/CObject.hpp"
 
 namespace cym { namespace uix {
-  std::atomic<int>   CObject::sId{0};
+  std::atomic<INT>   CObject::sId{0};
   CObject::CRegistry CObject::sRegistry;
   
   CObject::CObject() : mId{++sId} {
@@ -24,6 +24,10 @@ namespace cym { namespace uix {
       const_cast<int&>(mId) = that.mId;
     }
     return *this;
+  }
+  
+  CObject::operator const INT() const {
+    return mId;
   }
     
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

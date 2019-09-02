@@ -1,7 +1,7 @@
 #include "cym/uix/CWindow.hpp"
 
 namespace cym { namespace uix {
-  std::map<SString, LPTSTR> CWindow::sRegistry;
+  std::map<TString, LPTSTR> CWindow::sRegistry;
   
   CWindow::CWindow() {
     std::cout << "uix::CWindow::CWindow()::" << this << std::endl;
@@ -44,36 +44,46 @@ namespace cym { namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   bool CWindow::init(CWindow* pParent, const SShape& sShape, int nHints) {
-    std::cout << "uix::CWindow::init(CWindow*,SShape&,int)::" << this << " CNAME:" << mCname << std::endl;
+    std::cout << "uix::CWindow::init(CWindow*,SShape&,int)::" << this << " NAME:" << name() << std::endl;
     
+    // set parent
     mParent = pParent;
+    // add to parent's children list
+    if (mParent != nullptr) { mParent->mChildren.push_back(this); }
     
     return true;
   }
   
   bool CWindow::free() {
     std::cout << "uix::CWindow::free()::" << this << std::endl;
-    
-    // @todo: missing children
-    
-    
+    // delete children
+    for (CWindow*& pChild : mChildren) {
+      DELETE(pChild);
+    }
+    // remove from parent
+    if (mParent != nullptr) {
+      mParent->mChildren.erase(std::remove(mParent->mChildren.begin(), mParent->mChildren.end(), this), mParent->mChildren.end());
+    }
     // release 
     ::ReleaseDC(mHandle, ::GetDC(mHandle));
     // delete handle
     ::DestroyWindow(mHandle);
-    // unregister mCname class
-    ::UnregisterClass(mCname.c_str(), (HINSTANCE)(*CApplication::getInstance()));
-    // return success
-    return true;
+    // unregister name class
+    ::UnregisterClass(name().c_str(), (HINSTANCE)(*CApplication::getInstance()));
+    // clear
+    mHandle = NULL;
+    mInited = false;
+    return !mInited;
   }
   
   LPTSTR CWindow::classify() {
-    auto it = CWindow::sRegistry.find(mCname);
+    auto cls = name(); 
+    auto it  = CWindow::sRegistry.find(cls);
     if (it != CWindow::sRegistry.end()) { // return
-      std::cout << "uix::CWindow::classify()::" << this << "::return CNAME:" << mCname << std::endl;
+      std::cout << "uix::CWindow::classify()::" << this << "::return NAME:" << cls << std::endl;
       return it->second;
     } else {                              // insert
-      std::cout << "uix::CWindow::classify()::" << this << "::insert CNAME:" << mCname << std::endl;
+      std::cout << "uix::CWindow::classify()::" << this << "::insert NAME:" << cls << std::endl;
       WNDCLASSEX wndcls = {
         sizeof(WNDCLASSEX),                       // UINT      // cbSize        // struct size  
         CS_HREDRAW | CS_VREDRAW | CS_OWNDC,       // UINT      // style
@@ -85,7 +95,7 @@ namespace cym { namespace uix {
         ::LoadCursor(NULL, IDC_ARROW),            // HCURSOR   // hCursor
         (HBRUSH)(NULL_BRUSH),                     // HBRUSH    // hbrBackground
         NULL,                                     // LPCTSTR   // lpszMenuName  // no menu
-        mCname.c_str(),                           // LPCTSTR   // lpszClassName
+        cls.c_str(),                              // LPCTSTR   // lpszClassName
         ::LoadIcon(NULL, IDI_APPLICATION)         // HICON     // hIconSm
       };
       // register
@@ -95,84 +105,215 @@ namespace cym { namespace uix {
         std::cout << "[CWindow] RegisterClassEx failed!" << std::endl;
         ::MessageBox(NULL, "[CWindow] RegisterClassEx failed!", "ERROR", MB_OK);
       } else {
-        CWindow::sRegistry.insert(std::make_pair(mCname, szWndCls));
+        CWindow::sRegistry.insert(std::make_pair(cls, szWndCls));
       }
       // return
       return szWndCls;
     }
   }
+  
+  inline TString CWindow::name() const {
+    return sys::concat("uix::CWindow::", mId);
+  }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  CLayout* CWindow::layout() const {
+  bool CWindow::move(int x, int y) {
+    std::cout << "uix::CWindow::move("<< x <<","<< y <<")::" << this << std::endl;
+  
+    RETURN(!mInited, false);
+  
+  
+    // return !(mState & EState::MAXIMIZED) && (::SetWindowPos(mHandle, NULL, x, y, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE));
+    
+    return true;
+  }
+  
+  bool CWindow::size(int w, int h) {
+    std::cout << "uix::CWindow::size("<< w <<","<< h <<")::" << this << std::endl;
+  
+    RETURN(!mInited, false);
+  
+    // return !(mState & EState::MAXIMIZED) && (::SetWindowPos(mHandle, NULL, 0, 0, w, h, SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE));
+    
+    return true;
+  }
+  
+  bool CWindow::center() {
+    std::cout << "uix::CWindow::center()::" << this << std::endl;
+    
+    RETURN(!mInited, false);
+    
+    // SRect sRect;
+    // ::SystemParametersInfo(SPI_GETWORKAREA, 0, &sRect, 0);
+    // x = (sRect.r - w) / 2;
+    // y = (sRect.b - h) / 2;
+    return true;
+  }
+  
+  SRect CWindow::adjust() {
+    std::cout << "uix::CWindow::adjust()::" << this << std::endl;
+    
+    RETURN(!mInited, {});
+  
+    // need the styles for correct window shape adjustment
+    DWORD dwExStyle = (DWORD)::GetWindowLong(mHandle, GWL_EXSTYLE);
+    DWORD dwStyle   = (DWORD)::GetWindowLong(mHandle, GWL_STYLE);
+  
+    RECT sRect;
+    ::AdjustWindowRectEx(&sRect, dwStyle, FALSE, dwExStyle);
+    
+    return {sRect.left, sRect.top, sRect.right, sRect.bottom};
+  }
+  
+  bool CWindow::style(int nHints/*=0*/) {
+    DWORD dwExStyle = 0; // WS_EX_APPWINDOW;
+    DWORD dwStyle   = 0; 
+    
+  
+    dwStyle |= nHints & EHint::MAXBOX   ? WS_MAXIMIZEBOX             : 0;
+    dwStyle |= nHints & EHint::MINBOX   ? WS_MINIMIZEBOX             : 0;
+    dwStyle |= nHints & EHint::SYSMENU  ? WS_SYSMENU                 : 0;
+    dwStyle |= nHints & EHint::FRAME    ? WS_THICKFRAME | WS_SIZEBOX : 0;
+    dwStyle |= nHints & EHint::TITLE    ? WS_CAPTION                 : 0;
+    dwStyle |= nHints & EHint::BORDER   ? WS_BORDER                  : 0; 
+    dwStyle |= nHints & EHint::VISIBLE  ? WS_VISIBLE                 : 0;
+    dwStyle |= nHints & EHint::HSCROLL  ? WS_HSCROLL                 : 0;
+    dwStyle |= nHints & EHint::VSCROLL  ? WS_VSCROLL                 : 0;
+    dwStyle |= nHints & EHint::MINIMIZE ? WS_MINIMIZE                : 0;
+    dwStyle |= nHints & EHint::MAXIMIZE ? WS_MAXIMIZE                : 0;
+    dwStyle |= nHints & EHint::CHILD    ? WS_CHILD                   : 0;
+    dwStyle |= WS_CLIPSIBLINGS;
+    dwStyle |= WS_CLIPCHILDREN;
+    
+    // reset default window styles // requires SetWindowPos + SWP_FRAMECHANGED
+    ::SetWindowLong(mHandle, GWL_STYLE,   dwStyle);
+    ::SetWindowLong(mHandle, GWL_EXSTYLE, dwExStyle);
+    ::SetWindowPos(mHandle, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE);
+    
+    return true;
+  }
+  
+  auto CWindow::layout() const -> decltype(mLayout) {
     return mLayout;
   }
   
-  CWindow* CWindow::parent() const {
+  bool CWindow::layout(CLayout* pLayout) {
+    mLayout = pLayout;
+    return true;
+  }
+  
+  auto CWindow::parent() const -> decltype(mParent) {
     return mParent;
   }
   
-  bool CWindow::title(const SString& sTitle) {
-    return ::SetWindowText(mHandle, sTitle.c_str());
+  auto CWindow::children() const -> decltype(mChildren) {
+    return mChildren;
   }
   
-  SString CWindow::title() const {
+  auto CWindow::siblings() const -> decltype(mChildren) {
+    decltype(mParent->mChildren) aSiblings;
+    // 1 beause if parent has only 1 child then I am it
+    if (mParent != nullptr && mParent->mChildren.size() > 1) {
+      aSiblings.reserve(mParent->mChildren.size()-1);
+      decltype(mParent->mChildren)::size_type nPos = 0;
+      // for each parent's child
+      for (auto it = mParent->mChildren.begin(); it != mParent->mChildren.end(); ++it) {
+        // skip me
+        if (*it != this) {
+          // add sibling
+          aSiblings[nPos] = *it;
+        }
+        nPos++;
+      }
+    }
+    return aSiblings;
+  }
+  
+  bool CWindow::title(const TString& sTitle) {
+    return ::SetWindowText(mHandle, sTitle.c_str());
+  }
+    
+  TString CWindow::title() const {
     CHAR szTitle[256];
     ::GetWindowTextA(mHandle, szTitle, 256);
-    return SString(szTitle);
+    return TString(szTitle);
   }
   
   bool CWindow::show(int nHints/*=1*/) {
+    std::cout << "uix::CWindow::show()::" << this << std::endl;
     // @todo:   0b = hide
     // @todo:   1b = show | make visible
     // @todo:  01b = 2 = maximize
-    return true;
+    return mInited && ::ShowWindow(mHandle, SW_SHOW);
   }
   
   bool CWindow::hide(int nHints/*=1*/) {
+    std::cout << "uix::CWindow::hide()::" << this << std::endl;
     // @todo:   0b = show
     // @todo:   1b = hide | make invisible
     // @todo:  01b = 2 = minimize
+    return mInited && ::ShowWindow(mHandle, SW_HIDE);
+  }
+  
+  bool CWindow::focus(int nHints) {
+    std::cout << "uix::CWindow::focus()::" << this << std::endl;
+    ::SetFocus(mHandle); // returns window w/ previous focus
     return true;
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
-  // CWindow::CRegistry::CRegistry() {
-  //   std::cout << "uix::CWindow::CRegistry::CRegistry()::" << this << std::endl;
-  // }
-  //
-  // CWindow::CRegistry::~CRegistry() {
-  //   std::cout << "uix::CWindow::CRegistry::~CRegistry()::" << this << std::endl;
-  //   // @todo: delete all classes
-  // }
-  //
-  // bool CWindow::CRegistry::insert(WNDCLASSEX* pWndcls) {
-  //   return false;
-  // }
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  CWindow* CWindow::find(const TString& name) {
+    std::cout << "uix::CWindow::find(" << name << ")::" << std::endl;
+    CWindow* found = nullptr;
+    HWND hWnd = ::FindWindow(NULL, name.c_str());
+    return reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+  }
   
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
   LRESULT CWindow::proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-    // @todo: add more events
     switch (uMsg) {
       case WM_NCCREATE: { break; }
-      case WM_CREATE: { break; }
+      case WM_CREATE: {
+        CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
+        CWindow*      pWindow = reinterpret_cast<CWindow*>(pCreate->lpCreateParams);
+        BREAK(!pWindow);
+        std::cout << "   W:WM_CREATE::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << std::endl;
+        // @todo: create event
+        break; 
+      }
       case WM_NOTIFY: { break; }
       case WM_INITDIALOG: { break; }
-      case CM_INIT: { break; }
+      case CM_INIT: {
+        CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        BREAK(!pWindow);
+        std::cout << "   W:CM_INIT::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << std::endl;
+        return 0;
+      }
       case WM_CLOSE: { // called on [x] or window menu [Close] // triggers: WM_DESTROY
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        std::cout << "uix::CWindow::proc(...)::" << pWindow << " ID:" << pWindow->mId <<  " W:WM_CLOSE:" << wParam << ":" << lParam << std::endl;
+        BREAK(!pWindow);
+        std::cout << "   W:WM_CLOSE::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << std::endl;
+        // @todo: close event
         ::PostQuitMessage(0);
         break;
       }
       case WM_ACTIVATE: { break; }
       case WM_DESTROY: { break; }
-      case WM_SETFOCUS: { break; }
-      case WM_KILLFOCUS: { break; }
+      case WM_SETFOCUS: {
+        CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        BREAK(!pWindow);
+        std::cout << "   W:WM_SETFOCUS::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << std::endl;
+        // @todo: focus event
+        break; 
+      }
+      case WM_KILLFOCUS: {
+        CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        BREAK(!pWindow);
+        std::cout << "   W:WM_KILLFOCUS::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << std::endl;
+        // @todo: blur event
+        break; 
+      }
       case WM_SHOWWINDOW: { break; }
       case WM_DRAWITEM: { break; }
       case WM_COMMAND: { break; }

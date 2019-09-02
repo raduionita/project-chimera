@@ -12,13 +12,15 @@ typedef BOOL (WINAPI * wglChoosePixelFormatARB_t)    (HDC,CONST INT*,CONST FLOAT
 
 #define DEFINE_WGL_FUNCTION(name) name##_t name = reinterpret_cast<name##_t>(::wglGetProcAddress(#name))
 
+#define PFD 
+
 namespace cym { namespace uix {
   class CContext : public CObject {
     protected:
       friend class CSurface;
       friend class CCanvas;
     public:
-      struct SOptions {
+      struct SConfig {
         static constexpr int DEFAULT = -1; 
         int  nMajorVersion = {3};
         int  nMinorVersion = {2};
@@ -31,12 +33,12 @@ namespace cym { namespace uix {
       };
     protected:
       CWindow* mWindow  = {nullptr};
-      SOptions mOptions = {};
+      SConfig  mConfig = {};
       HWND     mHandle  = {NULL};
       HDC      mDC      = {NULL}; // device context
       HGLRC    mRC      = {NULL}; // render context
     public: 
-      CContext(CWindow* pParent, const SOptions& = {3,2,1,32,24,8,8,0});
+      CContext(CWindow* pParent, const SConfig& = {3, 2, 1, 32, 24, 8, 8, 0});
       ~CContext();
     protected:
       virtual bool init();

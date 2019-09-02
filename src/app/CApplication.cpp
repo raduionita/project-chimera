@@ -1,5 +1,5 @@
 #include "app/CApplication.hpp"
-#include "cym/uix/CCanvas.hpp"
+#include "cym/uix/CFrame.hpp"
 
 namespace app {
   CApplication::CApplication() {
@@ -15,13 +15,16 @@ namespace app {
   void CApplication::onInit() {
     std::cout << "app::CApplication::onInit()::" << this << std::endl;
     
-    uix::CCanvas* pWindow = new uix::CCanvas(uix::CCanvas::SOptions{});
+    uix::CFrame* pWindow = new uix::CFrame(nullptr);
+    pWindow->move(0,0);
+    pWindow->size(400,300);
+    pWindow->title("test");
+    pWindow->show();
     
-    pWindow->title(reinterpret_cast<LPCSTR>(::glGetString(GL_VERSION)));
   }
   
   void CApplication::onTick(int nDelta) {
-    //std::cout << "app::CApplication::onTick()::" << this << " DELTA:" << nDelta << std::endl; 
+    //sys::cout << "app::CApplication::onTick()::" << this << " DELTA:" << nDelta << sys::endl; 
   }
   
   void CApplication::onExit() {

@@ -8,8 +8,9 @@
 #include <wingdi.h>
 #include <commctrl.h>
 
+#include "cym/sys/sys.hpp"
+
 #include <cassert>
-#include <sstream>
 #include <string>
 #include <iostream>
 #include <iomanip>
@@ -17,12 +18,14 @@
 #include <vector>
 #include <map>
 #include <chrono>
+#include <algorithm>
 
 #define RETURNN(cond)     if(cond)return
 #define RETURNV(cond,out) if(cond)return out
 #define GET3RDARG(arg0,arg1,arg2,...) arg2
 #define CHOOSERETURN(...) GET3RDARG(__VA_ARGS__, RETURNV, RETURNN,) 
 #define RETURN(...)       CHOOSERETURN(__VA_ARGS__)(__VA_ARGS__)
+#define IF(cond,action)   if(cond)action
 #define BREAK(cond)       if(cond)break
 #define CONTINUE(cond)    if(cond)continue
 #undef  DELETE
@@ -31,11 +34,10 @@
 #define CM_INIT      (WM_USER + 0x0001) // custom message
 #define CM_TABCHANGE (CM_INIT + 0x0001)
 
-#define PFD PIXELFORMATDESCRIPTOR 
-
 namespace cym { namespace uix {
   class CHandler;
   class CLoop;
+  class CDisplay;
   class CObject;
     class CModule;
     class CApplication;
@@ -46,26 +48,29 @@ namespace cym { namespace uix {
     class CPainter;
       class CPen;
       class CBrush;
-    class CWindow;          // abstract
-      class CToplevel;
-        class CFrame;       // titlebar + borders (opt: statusbar + menubar + toolbar)
-          class CSplash;    // spalsh screen // no titlebar, no borders, no buttons, only an image
-          class CPreview;   // prevew (like printing)
-          class CCanvas;    // ogl|d3d|vlk // no border no titlebar w/ CGLContext similar to CCanvas but only 1 class
-        class CDialog;
-          class CMessage;
-          class CWizard;        
+    class CWindow;        // abstract
+      class CFrame;       // titlebar + borders (opt: statusbar + menubar + toolbar)
+        class CSplash;    // spalsh screen // no titlebar, no borders, no buttons, only an image
+        class CPreview;   // prevew (like printing)
+        class CCanvas;    // ogl|d3d|vlk // no border no titlebar w/ CGLContext similar to CCanvas but only 1 class
+      class CDialog;      // modal
+        class CMessage;
+        class CWizard;
       class CWidget;
+        class CPanel;       // empty widget/window
+          class CSurface;     // empty widget + context
+        class CTitlebar;
         class CMenubar;     // items are CMenu(s)
         class CToolbar;     // items are CWidget(s) | default bottom | holds info
         class CStatusbar;   // items are CWidget(s) | default top | under menubar
-        class CSurface;
         class CImage;
         class CVideo;
         class CLabel;
+        class CSeparator;   // CDivider
         class CControl;
           class CScroller;  // scroll bar
           class CButton;
+          class CSwitch;
           class CSelect;
           class CInput;
           class CTextarea;
@@ -75,38 +80,109 @@ namespace cym { namespace uix {
     class CLayout;          // CLayout::CItem|SItem
       class CBoxLayout;     // vertical || horizontal
       class CGridLayout;    // how many cells
-  
+      
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  struct SRect;
+  struct SArea;
   
   struct SShape { 
     static constexpr int DEFAULT = -1;
     int w, h;
-    SShape()      : w(DEFAULT), h(DEFAULT) {} 
-    SShape(int v) : w(v),       h(v)       {} 
+    SShape(int v = DEFAULT) : w(v), h(v) {} 
   };
   
   struct SPoint { 
     static constexpr int DEFAULT = -1;
     int x, y;
-    SPoint()      : x(DEFAULT), y(DEFAULT) {} 
-    SPoint(int v) : x(v),       y(v)       {} 
+    SPoint(int v = DEFAULT) : x(v), y(v) {} 
+  };
+    
+  struct SRect {
+    static constexpr int DEFAULT = -1;
+    union {int data[4]; struct {int l, t, r, b;}; struct {int left, top, right, bottom;};};
+    SRect(int v = DEFAULT) : l(v), t(v), r(v), b(v) { }
+    SRect(int l, int t, int r, int b) : l(l), t(t), r(r), b(b) { }
+    operator       RECT()  const;
+    operator const RECT()  const;
+    operator       SArea() const;
+    operator const SArea() const;
   };
   
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  typedef std::string SString;
-  
-  inline SString T(const char* text) { return SString(text); }
-  inline SString T(int num)          { return std::to_string(num); }
-  
-  template <typename T> inline SString concat(const char* text, T frag) { std::ostringstream os; os << text << frag; return os.str(); } 
-
-  inline int64_t now() { return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count(); }
-  
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+  struct SArea {
+    static constexpr int DEFAULT = -1;
+    union {int data[4]; struct {int x, y, w, h;};};
+    SArea(int v = DEFAULT) : x(v), y(v), w(v), h(v) { }
+    SArea(int x, int y, int w, int h) : x(x), y(y), w(w), h(h) { }
+    operator       RECT()  const;
+    operator const RECT()  const;
+    operator       SRect() const; 
+    operator const SRect() const; 
+  };
+    
+  inline SRect::operator       RECT()  const { return RECT{l,t,r,b}; }
+  inline SRect::operator const RECT()  const { return RECT{l,t,r,b}; }
+  inline SRect::operator       SArea() const { return SArea{l,t,r-l,b-t}; }
+  inline SRect::operator const SArea() const { return SArea{l,t,r-l,b-t}; }
+    
+  inline SArea::operator       RECT()  const { return RECT{x,y,x+w,y+h}; }
+  inline SArea::operator const RECT()  const { return RECT{x,y,x+w,y+h}; }
+  inline SArea::operator       SRect() const { return SRect{x,y,x+w,y+h}; }
+  inline SArea::operator const SRect() const { return SRect{x,y,x+w,y+h}; }
+    
   typedef SShape S;
   typedef SPoint P;
+  typedef SArea  A;
+  typedef SRect  R;
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  using TID        = int32_t;
+  using TString    = std::string;
+  template<typename K, typename V> 
+  using TMap       = std::map<K,V>;
+  template<typename T>
+  using TVector    = std::vector<T>;
+  
+  inline TString T(const char* text) { return TString(text); }
+  inline TString T(int num)          { return std::to_string(num); }
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  enum EState {
+    _STATE_   = 0,
+    PUSHED    = 0b00000001,
+    FOCUSED   = 0b00000100,
+    CHECKED   = 0b00010000,
+    MINIMIZED = 0b00100000,
+    MAXIMIZED = 0b01000000,
+  };
+  
+  enum EHint {
+    _HINT_ = 0,
+    BORDER     = 0b00000000000000000000000000000001, // WS_BORDER
+    TITLE      = 0b00000000000000000000000000000010, // WS_CAPTION + WS_BORDER
+    HSCROLL    = 0b00000000000000000000000000000100,
+    VSCROLL    = 0b00000000000000000000000000001000,
+    FRAME      = 0b00000000000000000000000000010000, // WS_THICKFRAME  // thickframe normal sized frame, does not work w/ ::SetWindowLong
+    CHILD      = 0b00000000000000000000000000100000, // widgets
+    GROUP      = 0b00000000000000000000000001000000,
+    SYSMENU    = 0b00000000000000000000000010000010, // WS_SYSMENU // icon + maxbox holder + minbox + close
+    MINBOX     = 0b00000000000000000000000100000000,
+    MAXBOX     = 0b00000000000000000000001000000000,
+    SIZER      = 0b00000000000000000000010000000000,
+    VISIBLE    = 0b00000000000000000000100000000000,
+    HIDDEN     = 0b00000000000000000001000000000000,
+    FRAMELESS  = _HINT_ | VISIBLE,             // NONE
+    WINDOW     = BORDER | TITLE | FRAME | SYSMENU | MINBOX | MAXBOX | SIZER, // WS_OVERLAPPEDWINDOW
+  
+  
+    TOPLEVEL   = 0b00001000000000000000000000000000,
+    MINIMIZE   = 0b00010000000000000000000000000000,
+    MAXIMIZE   = 0b00100000000000000000000000000000,
+  };
+    
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }}
 
 // @here: functions that should have been in win32 
@@ -119,7 +195,7 @@ inline int FindPixelFormat(HDC hDC, int nColorBits = 32, int nDepthBits = 24, in
   int bestScore = 0;
   
   // temp PFD
-  PFD sPFD;
+  PIXELFORMATDESCRIPTOR sPFD;
   
   for (currMode = 1; ::DescribePixelFormat(hDC, currMode, sizeof(sPFD), &sPFD) > 0; ++currMode) {
     CONTINUE(!(sPFD.dwFlags & PFD_SUPPORT_OPENGL));                                    // ignore if no opengl

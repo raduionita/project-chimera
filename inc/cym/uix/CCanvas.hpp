@@ -12,19 +12,19 @@ namespace cym { namespace uix {
       using CFrame::CFrame;
       typedef CFrame super;
     public:
-      typedef CContext::SOptions SOptions; 
+      typedef CContext::SConfig SConfig; 
     protected:
       CContext* mContext = {nullptr};
     public:
       CCanvas() = default;
-      CCanvas(                                                                                               int);
-      CCanvas(                                                              const SShape&,                   int = 0); 
-      CCanvas(                                         const SString&,      const SShape& = SShape::DEFAULT, int = 0);
-      CCanvas(          const SOptions& sOptions,      const SString& = "", const SShape& = SShape::DEFAULT, int = 0);
-      CCanvas(CWindow*, const SOptions& sOptions = {}, const SString& = "", const SShape& = SShape::DEFAULT, int = 0);
+      CCanvas(                                                                                             int);
+      CCanvas(                                                            const SShape&,                   int = 0); 
+      CCanvas(                                       const TString&,      const SShape& = SShape::DEFAULT, int = 0);
+      CCanvas(          const SConfig& sConfig,      const TString& = "", const SShape& = SShape::DEFAULT, int = 0);
+      CCanvas(CWindow*, const SConfig& sConfig = {}, const TString& = "", const SShape& = SShape::DEFAULT, int = 0);
       ~CCanvas();
     protected:
-      bool init(CWindow*, const CContext::SOptions& sOptions, const SString&, const SShape&, int);
+      bool init(CWindow*, const CContext::SConfig&, const TString&, const SShape&, int);
   };  
 }}
 

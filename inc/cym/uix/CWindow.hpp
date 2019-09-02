@@ -9,21 +9,15 @@
 namespace cym { namespace uix { 
   class CWindow : public CObject, CHandler {
     typedef CObject super;
-    // static class CRegistry {
-    //   friend class CWindow;
-    //   static std::map<SString, ATOM> mClasses;  
-    //   CRegistry();
-    //   ~CRegistry();
-    //   bool insert(WNDCLASSEX*);
-    // } xRegistry;
     private:
-      static std::map<SString, LPTSTR> sRegistry;
+      static std::map<TString, LPTSTR> sRegistry;
     protected:
-      bool          mInited = {false};
-      HWND          mHandle = {NULL};
-      CLayout*      mLayout = {nullptr};
-      CWindow*      mParent = {nullptr};
-      const SString mCname  = {concat("uix::CWindow::", mId)};
+      bool               mInited = {false};
+      HWND               mHandle = {NULL};
+      CLayout*           mLayout = {nullptr};
+      CWindow*           mParent = {nullptr};
+      EState             mState  = {EState::_STATE_};
+      TVector<CWindow*>  mChildren;
     public:
       CWindow();
       ~CWindow();
@@ -34,20 +28,30 @@ namespace cym { namespace uix {
       explicit operator const HWND() const;
       explicit operator       LPTSTR();
     protected:
-      virtual bool init(CWindow*, const SShape&, int);
-      virtual bool free() final;
-      LPTSTR       classify();
+      virtual bool    init(CWindow*, const SShape&, int);
+      virtual bool    free() final;
+      virtual LPTSTR  classify();
+      virtual TString name() const final;
     public:
-      bool move(int x, int y);
-      bool show(int = 1);
-      bool hide(int = 1);
-    public:
-      CLayout* layout() const;
-      bool     layout(CLayout* pLayout);
-      CWindow* parent() const;
-      bool     title(const SString&);
-      SString  title() const;
+      bool    move(int, int);
+      bool    size(int, int);
+      bool    center();
+      SRect   adjust();
+      bool    show(int = 1);
+      bool    hide(int = 1);
+      bool    focus(int = 1);
+      bool    style(int = 0);
+      SArea   area() const;
+      SRect   rect() const;
+      auto    layout() const -> decltype(mLayout);
+      bool    layout(CLayout* pLayout);
+      auto    parent() const -> decltype(mParent);
+      auto    children() const -> decltype(mChildren);
+      auto    siblings() const -> decltype(mChildren);
+      bool    title(const TString&);
+      TString title() const;
     protected:
+      static CWindow* find(const TString&);
       static LRESULT CALLBACK proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
   }; 
 }}
