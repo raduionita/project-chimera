@@ -6,16 +6,15 @@
 
 namespace cym { namespace uix {
   class CFrame : public CWindow {
-    using CWindow::CWindow;
-    typedef CWindow super;
+    protected:
+      using CWindow::CWindow;
+      typedef CWindow super;
     public:
-      CFrame() = default;
-      CFrame(                                                                int);
-      CFrame(CWindow*, const TString& = "", const SShape& = SShape::DEFAULT, int = 0);
+      CFrame(          int = EHint::FRAME);
+      CFrame(CWindow*, int = EHint::FRAME);
       ~CFrame();
     protected:
-      virtual bool init(CWindow*, const SShape&, int) override;
-              bool init(CWindow*, const TString&, const SShape&, int);
+      virtual bool init(CWindow*, int) override;
   };
 }}
 

@@ -28,7 +28,7 @@ namespace cym { namespace uix {
       explicit operator const HWND() const;
       explicit operator       LPTSTR();
     protected:
-      virtual bool    init(CWindow*, const SShape&, int);
+      virtual bool    init(CWindow*, int);
       virtual bool    free() final;
       virtual LPTSTR  classify();
       virtual TString name() const final;
@@ -40,7 +40,10 @@ namespace cym { namespace uix {
       bool    show(int = 1);
       bool    hide(int = 1);
       bool    focus(int = 1);
+      bool    pack();
       bool    style(int = 0);
+      bool    minimize();
+      bool    maximize();
       SArea   area() const;
       SRect   rect() const;
       auto    layout() const -> decltype(mLayout);

@@ -43,8 +43,8 @@ namespace cym { namespace uix {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  bool CWindow::init(CWindow* pParent, const SShape& sShape, int nHints) {
-    std::cout << "uix::CWindow::init(CWindow*,SShape&,int)::" << this << " NAME:" << name() << std::endl;
+  bool CWindow::init(CWindow* pParent, int nHints) {
+    std::cout << "uix::CWindow::init(CWindow*,int)::" << this << " NAME:" << name() << std::endl;
     
     // set parent
     mParent = pParent;
@@ -117,26 +117,71 @@ namespace cym { namespace uix {
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+  bool CWindow::show(int nHints/*=1*/) {
+    std::cout << "uix::CWindow::show()::" << this << std::endl;
+    // @todo:   0b = hide
+    // @todo:   1b = show | make visible
+    // @todo:  01b = 2 = maximize
+    return mInited && ::ShowWindow(mHandle, SW_SHOW);
+  }
+  
+  bool CWindow::hide(int nHints/*=1*/) {
+    std::cout << "uix::CWindow::hide()::" << this << std::endl;
+    // @todo:   0b = show
+    // @todo:   1b = hide | make invisible
+    // @todo:  01b = 2 = minimize
+    return mInited && ::ShowWindow(mHandle, SW_HIDE);
+  }
+  
+  bool CWindow::focus(int nHints) {
+    std::cout << "uix::CWindow::focus()::" << this << std::endl;
+    ::SetFocus(mHandle); // returns window w/ previous focus
+    return true;
+  }
   
   bool CWindow::move(int x, int y) {
     std::cout << "uix::CWindow::move("<< x <<","<< y <<")::" << this << std::endl;
   
     RETURN(!mInited, false);
-  
-  
-    // return !(mState & EState::MAXIMIZED) && (::SetWindowPos(mHandle, NULL, x, y, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE));
     
-    return true;
+    HWND hParent = mParent == nullptr ? ::GetDesktopWindow() : mParent->mHandle;
+    HWND hWindow = mHandle;
+    
+    DWORD dwExStyle = (DWORD)::GetWindowLong(mHandle, GWL_EXSTYLE);
+    DWORD dwStyle   = (DWORD)::GetWindowLong(mHandle, GWL_STYLE);
+    
+    RECT sWRect = {x, y, 0, 0};
+    RECT sPRect = {0};
+    ::AdjustWindowRectEx(&sWRect, dwStyle, FALSE, dwExStyle);
+    ::GetClientRect(hParent, &sPRect);
+
+    x = sPRect.left + sWRect.left + 1; // +1 on windows 10
+    y = y + sPRect.top;
+    
+    return !(mState & EState::MAXIMIZED) && (::SetWindowPos(mHandle, NULL, x, y, 0, 0, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOSIZE|SWP_NOACTIVATE));
   }
   
   bool CWindow::size(int w, int h) {
     std::cout << "uix::CWindow::size("<< w <<","<< h <<")::" << this << std::endl;
   
     RETURN(!mInited, false);
-  
-    // return !(mState & EState::MAXIMIZED) && (::SetWindowPos(mHandle, NULL, 0, 0, w, h, SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE));
     
-    return true;
+    DWORD dwExStyle = (DWORD)::GetWindowLong(mHandle, GWL_EXSTYLE);
+    DWORD dwStyle   = (DWORD)::GetWindowLong(mHandle, GWL_STYLE);
+    
+    HWND hParent = mParent == nullptr ? ::GetDesktopWindow() : mParent->mHandle;
+    HWND hWindow = mHandle;
+    
+    RECT  sPRect = {0};
+    RECT  sWRect = {0, 0, w, h};
+    
+    ::GetClientRect(hParent, &sPRect); // client coords (no header)
+    ::AdjustWindowRectEx(&sWRect, dwStyle, FALSE, dwExStyle);
+    
+    w = sWRect.right - sWRect.left; h = sWRect.bottom - sWRect.top;
+    
+    return !(mState & EState::MAXIMIZED) && (::SetWindowPos(mHandle, NULL, 0, 0, w, h, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOMOVE|SWP_NOACTIVATE));
   }
   
   bool CWindow::center() {
@@ -144,11 +189,20 @@ namespace cym { namespace uix {
     
     RETURN(!mInited, false);
     
+    HWND  hParent = mParent == nullptr ? ::GetDesktopWindow() : mParent->mHandle;
+    HWND& hWindow = mHandle;
+    
+    RECT sPRect, sWRect;
+    
+    ::GetClientRect(hParent, &sPRect); // client coords (no header)
+    ::GetClientRect(hWindow, &sWRect);
+    
+    
     // SRect sRect;
     // ::SystemParametersInfo(SPI_GETWORKAREA, 0, &sRect, 0);
     // x = (sRect.r - w) / 2;
     // y = (sRect.b - h) / 2;
-    return true;
+    return move((sPRect.right/2 - sWRect.right/2), (sPRect.bottom/2 - sWRect.bottom/2));
   }
   
   SRect CWindow::adjust() {
@@ -168,12 +222,11 @@ namespace cym { namespace uix {
   
   bool CWindow::style(int nHints/*=0*/) {
     DWORD dwExStyle = 0; // WS_EX_APPWINDOW;
-    DWORD dwStyle   = 0; 
+    DWORD dwStyle   = 0;
     
-  
     dwStyle |= nHints & EHint::MAXBOX   ? WS_MAXIMIZEBOX             : 0;
     dwStyle |= nHints & EHint::MINBOX   ? WS_MINIMIZEBOX             : 0;
-    dwStyle |= nHints & EHint::SYSMENU  ? WS_SYSMENU                 : 0;
+    dwStyle |= nHints & EHint::SYSBOX   ? WS_SYSMENU                 : 0;
     dwStyle |= nHints & EHint::FRAME    ? WS_THICKFRAME | WS_SIZEBOX : 0;
     dwStyle |= nHints & EHint::TITLE    ? WS_CAPTION                 : 0;
     dwStyle |= nHints & EHint::BORDER   ? WS_BORDER                  : 0; 
@@ -192,6 +245,16 @@ namespace cym { namespace uix {
     ::SetWindowPos(mHandle, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE);
     
     return true;
+  }
+  
+  bool CWindow::maximize() {
+    std::cout << "uix::CWindow::maximize()::" << this << std::endl;
+    return /*(mState |= EState::MAXIMIZED) &&*/ ::ShowWindow(mHandle, SW_MAXIMIZE);
+  }
+  
+  bool CWindow::minimize() {
+    std::cout << "uix::CWindow::minimize()::" << this << std::endl;
+    return /*(mState |= EState::MINIMIZED) &&*/ ::ShowWindow(mHandle, SW_MINIMIZE);
   }
   
   auto CWindow::layout() const -> decltype(mLayout) {
@@ -238,28 +301,6 @@ namespace cym { namespace uix {
     CHAR szTitle[256];
     ::GetWindowTextA(mHandle, szTitle, 256);
     return TString(szTitle);
-  }
-  
-  bool CWindow::show(int nHints/*=1*/) {
-    std::cout << "uix::CWindow::show()::" << this << std::endl;
-    // @todo:   0b = hide
-    // @todo:   1b = show | make visible
-    // @todo:  01b = 2 = maximize
-    return mInited && ::ShowWindow(mHandle, SW_SHOW);
-  }
-  
-  bool CWindow::hide(int nHints/*=1*/) {
-    std::cout << "uix::CWindow::hide()::" << this << std::endl;
-    // @todo:   0b = show
-    // @todo:   1b = hide | make invisible
-    // @todo:  01b = 2 = minimize
-    return mInited && ::ShowWindow(mHandle, SW_HIDE);
-  }
-  
-  bool CWindow::focus(int nHints) {
-    std::cout << "uix::CWindow::focus()::" << this << std::endl;
-    ::SetFocus(mHandle); // returns window w/ previous focus
-    return true;
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -317,9 +358,36 @@ namespace cym { namespace uix {
       case WM_SHOWWINDOW: { break; }
       case WM_DRAWITEM: { break; }
       case WM_COMMAND: { break; }
-      case WM_MOVE: { break; }
+      case WM_MOVE: {
+        CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        BREAK(!pWindow);
+        std::cout << "   W:WM_MOVE::" << pWindow << " ID:" << pWindow->mId <<  " x:" << LOWORD(lParam) << " y:" << HIWORD(lParam) << std::endl;
+        // @todo: moved event
+        // lParam: x: (int)(short) LOWORD(lParam)
+        //         y: (int)(short) HIWORD(lParam)
+        // wParam (no used)
+        break; 
+      }
       case WM_MOVING: { break; }
-      case WM_SIZE: { break; }
+      case WM_SIZE: {
+        CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        BREAK(!pWindow);
+        std::cout << "   W:WM_SIZE::" << pWindow << " ID:" << pWindow->mId <<  " x:" << LOWORD(lParam) << " y:" << HIWORD(lParam) << std::endl;
+        
+        // @todo: sized event
+        
+        // EState eState   = (wParam == SIZE_MAXSHOW) ? EState::MAXIMIZED : (wParam == SIZE_MINIMIZED ? EState::MINIMIZED : EState::_STATE_);
+        // pWindow->mState = (pWindow->mState & ~EState::MAXIMIZED & ~EState::MINIMIZED) | eState;
+        
+        // wParam: 4 SIZE_MAXHIDE   to all popup when other window is maximized
+        //         3 SIZE_MAXIMIZED the window has been maximized
+        //         2 SIZE_MAXSHOW   to all popup when other window has been restored
+        //         1 SIZE_MINIMIZED the window has been minimized
+        //         0 SIZE_RESOTRED  resized (but not minimized or maximized)
+        // LOWORD(lParam): width  (client area)
+        // HIWORD(lParam): height (client area)
+        break; 
+      }
       case WM_SIZING: { break; }
       case WM_MOUSEACTIVATE: { break; }
       case WM_MOUSEHOVER: { break; }

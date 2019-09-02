@@ -16,15 +16,15 @@ namespace cym { namespace uix {
     protected:
       CContext* mContext = {nullptr};
     public:
-      CCanvas() = default;
-      CCanvas(                                                                                             int);
-      CCanvas(                                                            const SShape&,                   int = 0); 
-      CCanvas(                                       const TString&,      const SShape& = SShape::DEFAULT, int = 0);
-      CCanvas(          const SConfig& sConfig,      const TString& = "", const SShape& = SShape::DEFAULT, int = 0);
-      CCanvas(CWindow*, const SConfig& sConfig = {}, const TString& = "", const SShape& = SShape::DEFAULT, int = 0);
+      CCanvas(                                       int = EHint::FRAME);
+      CCanvas(          const SConfig& sConfig,      int = EHint::FRAME);
+      CCanvas(CWindow*, const SConfig& sConfig = {}, int = EHint::FRAME);
       ~CCanvas();
     protected:
-      bool init(CWindow*, const CContext::SConfig&, const TString&, const SShape&, int);
+      bool init(CWindow*, const CContext::SConfig&, int);
+    public:
+      bool swap() const;
+      bool current() const;
   };  
 }}
 

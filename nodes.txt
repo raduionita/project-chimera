@@ -1,7 +1,6 @@
 // todo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-= hints
-= pozitioning and (re)sizing | windows & widgets
+= pozitioning and (re)sizing w/ widgets
 = layouts
 = copy/move constructors + assignment operators => clone method
 = context on widgets

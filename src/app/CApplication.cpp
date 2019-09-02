@@ -1,5 +1,5 @@
 #include "app/CApplication.hpp"
-#include "cym/uix/CFrame.hpp"
+#include "cym/uix/CCanvas.hpp"
 
 namespace app {
   CApplication::CApplication() {
@@ -15,10 +15,11 @@ namespace app {
   void CApplication::onInit() {
     std::cout << "app::CApplication::onInit()::" << this << std::endl;
     
-    uix::CFrame* pWindow = new uix::CFrame(nullptr);
+    auto pWindow = new uix::CFrame;
     pWindow->move(0,0);
     pWindow->size(400,300);
-    pWindow->title("test");
+    pWindow->title("frame");
+    pWindow->center();
     pWindow->show();
     
   }

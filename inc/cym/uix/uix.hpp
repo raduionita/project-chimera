@@ -135,6 +135,8 @@ namespace cym { namespace uix {
   typedef SArea  A;
   typedef SRect  R;
   
+  inline std::ostream& operator <<(std::ostream&o, const RECT& r) { return o << "l:" << r.left << " t:" << r.top << " r:" << r.right << " b:" << r.bottom; }
+  
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   using TID        = int32_t;
@@ -164,22 +166,22 @@ namespace cym { namespace uix {
     TITLE      = 0b00000000000000000000000000000010, // WS_CAPTION + WS_BORDER
     HSCROLL    = 0b00000000000000000000000000000100,
     VSCROLL    = 0b00000000000000000000000000001000,
-    FRAME      = 0b00000000000000000000000000010000, // WS_THICKFRAME  // thickframe normal sized frame, does not work w/ ::SetWindowLong
+    SIZEBOX    = 0b00000000000000000000000000010000, // WS_THICKFRAME  // thickframe normal sized frame, does not work w/ ::SetWindowLong
     CHILD      = 0b00000000000000000000000000100000, // widgets
     GROUP      = 0b00000000000000000000000001000000,
-    SYSMENU    = 0b00000000000000000000000010000010, // WS_SYSMENU // icon + maxbox holder + minbox + close
+    SYSBOX     = 0b00000000000000000000000010000010, // WS_SYSMENU // icon + maxbox holder + minbox + close
     MINBOX     = 0b00000000000000000000000100000000,
     MAXBOX     = 0b00000000000000000000001000000000,
     SIZER      = 0b00000000000000000000010000000000,
     VISIBLE    = 0b00000000000000000000100000000000,
     HIDDEN     = 0b00000000000000000001000000000000,
-    FRAMELESS  = _HINT_ | VISIBLE,             // NONE
-    WINDOW     = BORDER | TITLE | FRAME | SYSMENU | MINBOX | MAXBOX | SIZER, // WS_OVERLAPPEDWINDOW
+    FRAME      = BORDER | TITLE | SIZEBOX | SYSBOX | MINBOX | MAXBOX | SIZER, // WS_OVERLAPPEDWINDOW
   
-  
-    TOPLEVEL   = 0b00001000000000000000000000000000,
+    CENTER     = 0b00000000010000000000000000000000,
+    
     MINIMIZE   = 0b00010000000000000000000000000000,
     MAXIMIZE   = 0b00100000000000000000000000000000,
+    PACKED     = 0b01000000000000000000000000000000, // run CWindow::pack() 
   };
     
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

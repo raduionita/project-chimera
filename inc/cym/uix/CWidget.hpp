@@ -6,10 +6,10 @@
 
 namespace cym { namespace uix { 
   class CWidget : public CWindow {
-    using CWindow::CWindow;
-    typedef CWindow super;
+    protected:
+      using CWindow::CWindow;
+      typedef CWindow super;
     public:
-      CWidget() = default;
       ~CWidget();
   };
 }}

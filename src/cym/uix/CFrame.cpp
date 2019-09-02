@@ -1,14 +1,14 @@
 #include "cym/uix/CFrame.hpp"
 
 namespace cym { namespace uix {
-  CFrame::CFrame(int nHints) : CFrame(nullptr, "", SShape::DEFAULT, nHints) {
+  CFrame::CFrame(int nHints/*=EHint::FRAME*/) {
     std::cout << "uix::CFrame::CFrame(int)::" << this << std::endl;
-    init(nullptr, "", SShape::DEFAULT, nHints);
+    init(nullptr, nHints);
   }
   
-  CFrame::CFrame(CWindow* pParent, const TString& sTitle/*=""*/, const SShape& sShape/*=SShape::DEFAULT*/, int nHints/*=0*/) {
-    std::cout << "uix::CFrame::CFrame(CWindow*,TString&,SShape&,int)::" << this << std::endl;
-    init(pParent, sTitle, sShape, nHints);
+  CFrame::CFrame(CWindow* pParent/*=nullptr*/, int nHints/*=EHint::FRAME*/) {
+    std::cout << "uix::CFrame::CFrame(CWindow*,int)::" << this << std::endl;
+    init(pParent, nHints);
   }
   
   CFrame::~CFrame() {
@@ -16,23 +16,13 @@ namespace cym { namespace uix {
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  bool CFrame::init(CWindow* pParent, const TString& sTitle, const SShape& sShape, int nHints) {
-    std::cout << "uix::CFrame::init(CWindow*,TString&,SShape&,int)::" << this << std::endl;
   
-    mInited = init(pParent, sShape, nHints);
-    
-    (mInited) && (::SetWindowText(mHandle, sTitle.c_str()));
-    
-    return mInited; 
-  }
+  bool CFrame::init(CWindow* pParent, int nHints) {
+    std::cout << "uix::CFrame::init(CWindow*,int)::" << this << std::endl;
   
-  bool CFrame::init(CWindow* pParent, const SShape& sShape, int nHints) {
-    std::cout << "uix::CFrame::init(CWindow*,SShape&,int)::" << this << std::endl;
-  
-    if (mInited) return mInited;
+    RETURN(mInited,true);
     
-    mInited = super::init(pParent, sShape, nHints);
+    mInited = super::init(pParent, nHints);
     
     LPTSTR szWndcls = classify();
     
@@ -61,6 +51,11 @@ namespace cym { namespace uix {
     ::SetWindowLongPtr(mHandle, GWLP_USERDATA, (LONG_PTR)(this));
   
     mInited = style(nHints);
+    
+    (nHints & EHint::CENTER)   && center();
+    (nHints & EHint::MAXIMIZE) && maximize();
+    (nHints & EHint::MINIMIZE) && minimize();
+    (nHints & EHint::VISIBLE)  && show();
     
     // @todo: styles
     // @todo: hints: auto pos + centered + maximize|minimize + visible
