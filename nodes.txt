@@ -2,8 +2,10 @@
 
 = pozitioning and (re)sizing w/ widgets
 = layouts
-= copy/move constructors + assignment operators => clone method
 = context on widgets
+= handle ctrl + c // let end-user choose what to do
+= copy/move constructors + assignment operators => clone method
+= maximized & minimized
 = loops: gui/event/game loop
 = fullscreen (F11)
 = hotkeys & keybord shortcuts

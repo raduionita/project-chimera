@@ -15,7 +15,7 @@ namespace app {
   void CApplication::onInit() {
     std::cout << "app::CApplication::onInit()::" << this << std::endl;
     
-    auto pWindow = new uix::CFrame;
+    auto pWindow = new uix::CFrame();
     pWindow->move(0,0);
     pWindow->size(400,300);
     pWindow->title("frame");

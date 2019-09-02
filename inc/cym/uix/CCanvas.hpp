@@ -11,14 +11,15 @@ namespace cym { namespace uix {
       friend class CContext;
       using CFrame::CFrame;
       typedef CFrame super;
+      static constexpr int STYLE = super::STYLE;
     public:
       typedef CContext::SConfig SConfig; 
     protected:
       CContext* mContext = {nullptr};
     public:
-      CCanvas(                                       int = EHint::FRAME);
-      CCanvas(          const SConfig& sConfig,      int = EHint::FRAME);
-      CCanvas(CWindow*, const SConfig& sConfig = {}, int = EHint::FRAME);
+      CCanvas(                                       int = ZERO);
+      CCanvas(          const SConfig& sConfig,      int = ZERO);
+      CCanvas(CWindow*, const SConfig& sConfig = {}, int = ZERO);
       ~CCanvas();
     protected:
       bool init(CWindow*, const CContext::SConfig&, int);

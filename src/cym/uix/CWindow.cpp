@@ -145,19 +145,14 @@ namespace cym { namespace uix {
   
     RETURN(!mInited, false);
     
-    HWND hParent = mParent == nullptr ? ::GetDesktopWindow() : mParent->mHandle;
-    HWND hWindow = mHandle;
-    
     DWORD dwExStyle = (DWORD)::GetWindowLong(mHandle, GWL_EXSTYLE);
     DWORD dwStyle   = (DWORD)::GetWindowLong(mHandle, GWL_STYLE);
     
-    RECT sWRect = {x, y, 0, 0};
-    RECT sPRect = {0};
-    ::AdjustWindowRectEx(&sWRect, dwStyle, FALSE, dwExStyle);
-    ::GetClientRect(hParent, &sPRect);
+    RECT sRect = {x, y, 0, 0};
+    ::AdjustWindowRectEx(&sRect, dwStyle, FALSE, dwExStyle);
 
-    x = sPRect.left + sWRect.left + 1; // +1 on windows 10
-    y = y + sPRect.top;
+    x = sRect.left + 1; // +1 on windows 10
+    // y = y;
     
     return !(mState & EState::MAXIMIZED) && (::SetWindowPos(mHandle, NULL, x, y, 0, 0, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOSIZE|SWP_NOACTIVATE));
   }
@@ -170,16 +165,11 @@ namespace cym { namespace uix {
     DWORD dwExStyle = (DWORD)::GetWindowLong(mHandle, GWL_EXSTYLE);
     DWORD dwStyle   = (DWORD)::GetWindowLong(mHandle, GWL_STYLE);
     
-    HWND hParent = mParent == nullptr ? ::GetDesktopWindow() : mParent->mHandle;
-    HWND hWindow = mHandle;
+    RECT  sRect = {0, 0, w, h};
+    ::AdjustWindowRectEx(&sRect, dwStyle, FALSE, dwExStyle);
     
-    RECT  sPRect = {0};
-    RECT  sWRect = {0, 0, w, h};
-    
-    ::GetClientRect(hParent, &sPRect); // client coords (no header)
-    ::AdjustWindowRectEx(&sWRect, dwStyle, FALSE, dwExStyle);
-    
-    w = sWRect.right - sWRect.left; h = sWRect.bottom - sWRect.top;
+    w = sRect.right  - sRect.left;
+    h = sRect.bottom - sRect.top;
     
     return !(mState & EState::MAXIMIZED) && (::SetWindowPos(mHandle, NULL, 0, 0, w, h, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOMOVE|SWP_NOACTIVATE));
   }
@@ -196,13 +186,13 @@ namespace cym { namespace uix {
     
     ::GetClientRect(hParent, &sPRect); // client coords (no header)
     ::GetClientRect(hWindow, &sWRect);
-    
-    
+  
+    return move((sPRect.right - sWRect.right)/2, (sPRect.bottom - sWRect.bottom)/2);
+  
     // SRect sRect;
     // ::SystemParametersInfo(SPI_GETWORKAREA, 0, &sRect, 0);
     // x = (sRect.r - w) / 2;
     // y = (sRect.b - h) / 2;
-    return move((sPRect.right/2 - sWRect.right/2), (sPRect.bottom/2 - sWRect.bottom/2));
   }
   
   SRect CWindow::adjust() {
@@ -224,6 +214,8 @@ namespace cym { namespace uix {
     DWORD dwExStyle = 0; // WS_EX_APPWINDOW;
     DWORD dwStyle   = 0;
     
+    dwStyle |= nHints & EHint::POPUP    ? WS_POPUP & ~WS_CHILD       : 0;
+    dwStyle |= nHints & EHint::CHILD    ? WS_CHILD & ~WS_POPUP       : 0;
     dwStyle |= nHints & EHint::MAXBOX   ? WS_MAXIMIZEBOX             : 0;
     dwStyle |= nHints & EHint::MINBOX   ? WS_MINIMIZEBOX             : 0;
     dwStyle |= nHints & EHint::SYSBOX   ? WS_SYSMENU                 : 0;
@@ -231,13 +223,13 @@ namespace cym { namespace uix {
     dwStyle |= nHints & EHint::TITLE    ? WS_CAPTION                 : 0;
     dwStyle |= nHints & EHint::BORDER   ? WS_BORDER                  : 0; 
     dwStyle |= nHints & EHint::VISIBLE  ? WS_VISIBLE                 : 0;
+    dwStyle |= nHints & EHint::DISABLE  ? WS_DISABLED                : 0;
     dwStyle |= nHints & EHint::HSCROLL  ? WS_HSCROLL                 : 0;
     dwStyle |= nHints & EHint::VSCROLL  ? WS_VSCROLL                 : 0;
     dwStyle |= nHints & EHint::MINIMIZE ? WS_MINIMIZE                : 0;
     dwStyle |= nHints & EHint::MAXIMIZE ? WS_MAXIMIZE                : 0;
-    dwStyle |= nHints & EHint::CHILD    ? WS_CHILD                   : 0;
-    dwStyle |= WS_CLIPSIBLINGS;
-    dwStyle |= WS_CLIPCHILDREN;
+    dwStyle |= nHints & EHint::NOCLIP   ? 0                          : WS_CLIPSIBLINGS;
+    dwStyle |= nHints & EHint::NOCLIP   ? 0                          : WS_CLIPCHILDREN;
     
     // reset default window styles // requires SetWindowPos + SWP_FRAMECHANGED
     ::SetWindowLong(mHandle, GWL_STYLE,   dwStyle);

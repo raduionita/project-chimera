@@ -2,19 +2,19 @@
 #include "cym/uix/CContext.hpp"
 
 namespace cym { namespace uix {
-  CCanvas::CCanvas(int nHints/*=EHint::FRAME*/) {
+  CCanvas::CCanvas(int nHints/*=ZERO*/) {
     std::cout << "uix::CCanvas::CCanvas(int)::" << this << std::endl;
-    init(nullptr, {}, nHints);
+    init(nullptr, {}, nHints | CCanvas::STYLE);
   }
   
-  CCanvas::CCanvas(const SConfig& sConfig, int nHints/*=EHint::FRAME*/) {
+  CCanvas::CCanvas(const SConfig& sConfig, int nHints/*=ZERO*/) {
     std::cout << "uix::CCanvas::CCanvas(SConfig&,int)::" << this << std::endl;
-    init(nullptr, sConfig, nHints);
+    init(nullptr, sConfig, nHints | CCanvas::STYLE);
   }
   
   CCanvas::CCanvas(CWindow* pParent, const SConfig& sConfig/*={}*/, int nHints/*=EHint::FRAME*/) {
     std::cout << "uix::CCanvas::CCanvas(CWindow*,SConfig&,int)::" << this << std::endl;
-    init(pParent, sConfig, nHints);
+    init(pParent, sConfig, nHints | CCanvas::STYLE);
   }
   
   CCanvas::~CCanvas() {

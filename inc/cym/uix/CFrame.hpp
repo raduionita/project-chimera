@@ -9,9 +9,10 @@ namespace cym { namespace uix {
     protected:
       using CWindow::CWindow;
       typedef CWindow super;
+      static constexpr int STYLE = EHint::POPUP|EHint::BORDER|EHint::TITLE|EHint::FRAME|EHint::SYSBOX|EHint::MINBOX|EHint::MAXBOX|EHint::SIZER;
     public:
-      CFrame(          int = EHint::FRAME);
-      CFrame(CWindow*, int = EHint::FRAME);
+      CFrame(          int = ZERO);
+      CFrame(CWindow*, int = ZERO);
       ~CFrame();
     protected:
       virtual bool init(CWindow*, int) override;

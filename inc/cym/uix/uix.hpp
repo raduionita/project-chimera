@@ -34,6 +34,8 @@
 #define CM_INIT      (WM_USER + 0x0001) // custom message
 #define CM_TABCHANGE (CM_INIT + 0x0001)
 
+#define ZERO 0
+
 namespace cym { namespace uix {
   class CHandler;
   class CLoop;
@@ -49,13 +51,14 @@ namespace cym { namespace uix {
       class CPen;
       class CBrush;
     class CWindow;        // abstract
-      class CFrame;       // titlebar + borders (opt: statusbar + menubar + toolbar)
-        class CSplash;    // spalsh screen // no titlebar, no borders, no buttons, only an image
-        class CPreview;   // prevew (like printing)
-        class CCanvas;    // ogl|d3d|vlk // no border no titlebar w/ CGLContext similar to CCanvas but only 1 class
-      class CDialog;      // modal
-        class CMessage;
-        class CWizard;
+      class CPopup;
+        class CFrame;       // titlebar + borders (opt: statusbar + menubar + toolbar)
+          class CSplash;    // spalsh screen // no titlebar, no borders, no buttons, only an image
+          class CPreview;   // prevew (like printing)
+          class CCanvas;    // ogl|d3d|vlk // no border no titlebar w/ CGLContext similar to CCanvas but only 1 class
+        class CDialog;      // modal
+          class CMessage;
+          class CWizard;
       class CWidget;
         class CPanel;       // empty widget/window
           class CSurface;     // empty widget + context
@@ -152,7 +155,7 @@ namespace cym { namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   enum EState {
-    _STATE_   = 0,
+    _STATE_   = ZERO,
     PUSHED    = 0b00000001,
     FOCUSED   = 0b00000100,
     CHECKED   = 0b00010000,
@@ -161,22 +164,24 @@ namespace cym { namespace uix {
   };
   
   enum EHint {
-    _HINT_ = 0,
-    BORDER     = 0b00000000000000000000000000000001, // WS_BORDER
-    TITLE      = 0b00000000000000000000000000000010, // WS_CAPTION + WS_BORDER
-    HSCROLL    = 0b00000000000000000000000000000100,
-    VSCROLL    = 0b00000000000000000000000000001000,
-    SIZEBOX    = 0b00000000000000000000000000010000, // WS_THICKFRAME  // thickframe normal sized frame, does not work w/ ::SetWindowLong
-    CHILD      = 0b00000000000000000000000000100000, // widgets
-    GROUP      = 0b00000000000000000000000001000000,
-    SYSBOX     = 0b00000000000000000000000010000010, // WS_SYSMENU // icon + maxbox holder + minbox + close
-    MINBOX     = 0b00000000000000000000000100000000,
-    MAXBOX     = 0b00000000000000000000001000000000,
-    SIZER      = 0b00000000000000000000010000000000,
-    VISIBLE    = 0b00000000000000000000100000000000,
-    HIDDEN     = 0b00000000000000000001000000000000,
-    FRAME      = BORDER | TITLE | SIZEBOX | SYSBOX | MINBOX | MAXBOX | SIZER, // WS_OVERLAPPEDWINDOW
-  
+    _HINT_     = ZERO,
+    CHILD      = 0b00000000000000000000000000000001, // WS_CHILD // stays in parent area, moves w/ the parent (oposite 2 WS_POPUP)
+    POPUP      = 0b00000000000000000000000000000010,
+    BORDER     = 0b00000000000000000000000000000100, // WS_BORDER
+    TITLE      = 0b00000000000000000000000000001000, // WS_CAPTION + WS_BORDER
+    HSCROLL    = 0b00000000000000000000000000010000,
+    VSCROLL    = 0b00000000000000000000000000100000,
+    FRAME      = 0b00000000000000000000000001000000, // WS_THICKFRAME // thickframe normal sized frame, does not work w/ ::SetWindowLong
+    GROUP      = 0b00000000000000000000000010000000,
+    SYSBOX     = 0b00000000000000000000000100000000|TITLE, // WS_SYSMENU // icon + maxbox holder + minbox + close
+    MINBOX     = 0b00000000000000000000001000000000,
+    MAXBOX     = 0b00000000000000000000010000000000,
+    SIZER      = 0b00000000000000000000100000000000,
+    VISIBLE    = 0b00000000000000000001000000000000,
+    HIDDEN     = 0b00000000000000000010000000000000,
+    DISABLE    = 0b00000000000000000100000000000000,
+    NOCLIP     = 0b00000000000000001000000000000000,
+    
     CENTER     = 0b00000000010000000000000000000000,
     
     MINIMIZE   = 0b00010000000000000000000000000000,

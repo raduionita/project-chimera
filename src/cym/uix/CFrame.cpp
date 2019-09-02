@@ -1,14 +1,14 @@
 #include "cym/uix/CFrame.hpp"
 
 namespace cym { namespace uix {
-  CFrame::CFrame(int nHints/*=EHint::FRAME*/) {
+  CFrame::CFrame(int nHints/*=ZERO*/) {
     std::cout << "uix::CFrame::CFrame(int)::" << this << std::endl;
-    init(nullptr, nHints);
+    init(nullptr, nHints | CFrame::STYLE);
   }
   
-  CFrame::CFrame(CWindow* pParent/*=nullptr*/, int nHints/*=EHint::FRAME*/) {
+  CFrame::CFrame(CWindow* pParent/*=nullptr*/, int nHints/*=ZERO*/) {
     std::cout << "uix::CFrame::CFrame(CWindow*,int)::" << this << std::endl;
-    init(pParent, nHints);
+    init(pParent, nHints | CFrame::STYLE);
   }
   
   CFrame::~CFrame() {
