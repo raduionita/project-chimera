@@ -1,24 +1,24 @@
 // todo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-= pozitioning and (re)sizing w/ widgets
-= context on widgets
 = layouts
 = handle ctrl + c // let end-user choose what to do
 = copy/move constructors + assignment operators => clone method
-= maximized & minimized
+= maximized & minimized (iffy)
 = loops: gui/event/game loop
 = fullscreen (F11)
-= hotkeys & keybord shortcuts
-= implements IDrawable
+= events + listeners + handlers
+  = hotkeys & keybord shortcuts
+  = mouse actions + clicks
+= implements IDrawable|IRenderable (CCanvas & CSurface)
 = throw exception on windows create failed + loop + try + fatal or warning
 = styles|painter
 = commands
 = widgets:button
 = custom theme - replace titlebar (icon+menubar+title+sysmenu)
-= hints
-= events + listeners + handlers
+= hints (add all of them)
 = menus
 = handling errors
+= on resize/maximized restore canvas/surface'context (render area)
 
 
 // app:edit ////////////////////////////////////////////////////////////////////////////////////////////////////////////

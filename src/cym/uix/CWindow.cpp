@@ -36,11 +36,6 @@ namespace cym { namespace uix {
     return mHandle;
   }
   
-  CWindow::operator LPTSTR() {
-    std::cout << "uix::CWindow::operator LPCSTR()::" << this << std::endl;
-    return classify();
-  }
-  
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   bool CWindow::init(CWindow* pParent, int nHints) {
@@ -49,7 +44,77 @@ namespace cym { namespace uix {
     // set parent
     mParent = pParent;
     // add to parent's children list
-    if (mParent) { mParent->mChildren.push_back(this); }
+    mParent && mParent->child(this);
+  
+    WNDCLASSEX sWndCls = {
+      sizeof(WNDCLASSEX),                       // UINT      // cbSize        // struct size  
+      CS_HREDRAW|CS_VREDRAW|CS_OWNDC,           // UINT      // style
+      CWindow::proc,                            // WNDPROC   // lpfnWndProc   // uix::CWidget::proc
+      0,                                        // int       // cbClsExtra    // no extra bytes after the window class
+      0,                                        // int       // cbWndExtra    // extra bytes to allocate after the win instance 
+      (HINSTANCE)(*CApplication::getInstance()),// HINSTANCE // hInstance     // to identify the dll that loads this module  
+      ::LoadIcon(NULL, IDI_APPLICATION),        // HICON     // hIcon
+      ::LoadCursor(NULL, IDC_ARROW),            // HCURSOR   // hCursor
+      (HBRUSH)(NULL_BRUSH),                     // HBRUSH    // hbrBackground
+      NULL,                                     // LPCTSTR   // lpszMenuName  // no menu
+      name().c_str(),                           // LPCTSTR   // lpszClassName
+      ::LoadIcon(NULL, IDI_APPLICATION)         // HICON     // hIconSm
+    };
+  
+    if (!::RegisterClassEx(&sWndCls)) {
+      std::cout << "[CWindow] ::RegisterClassEx() failed!" << std::endl;
+      ::MessageBox(NULL, "[CWindow] ::RegisterClassEx() failed!", "ERROR", MB_OK);
+      return false;
+    }
+  
+    DWORD dwExStyle = 0; // WS_EX_APPWINDOW;
+    DWORD dwStyle   = 0;
+  
+    dwStyle |= nHints & EHint::POPUP    ? WS_POPUP                   : 0;
+    dwStyle |= nHints & EHint::CHILD    ? WS_CHILD                   : 0;
+    dwStyle |= nHints & EHint::MAXBOX   ? WS_MAXIMIZEBOX             : 0;
+    dwStyle |= nHints & EHint::MINBOX   ? WS_MINIMIZEBOX             : 0;
+    dwStyle |= nHints & EHint::SYSBOX   ? WS_SYSMENU                 : 0;
+    dwStyle |= nHints & EHint::FRAME    ? WS_THICKFRAME | WS_SIZEBOX : 0;
+    dwStyle |= nHints & EHint::TITLE    ? WS_CAPTION                 : 0;
+    dwStyle |= nHints & EHint::BORDER   ? WS_BORDER                  : 0;
+    dwStyle |= nHints & EHint::VISIBLE  ? WS_VISIBLE                 : 0;
+    dwStyle |= nHints & EHint::DISABLE  ? WS_DISABLED                : 0;
+    dwStyle |= nHints & EHint::HSCROLL  ? WS_HSCROLL                 : 0;
+    dwStyle |= nHints & EHint::VSCROLL  ? WS_VSCROLL                 : 0;
+    dwStyle |= nHints & EHint::MINIMIZE ? WS_MINIMIZE                : 0;
+    dwStyle |= nHints & EHint::MAXIMIZE ? WS_MAXIMIZE                : 0;
+    dwStyle |= nHints & EHint::NOCLIP   ? 0                          : WS_CLIPSIBLINGS;
+    dwStyle |= nHints & EHint::NOCLIP   ? 0                          : WS_CLIPCHILDREN;
+  
+    mHandle = ::CreateWindowEx(
+      dwExStyle,                                 // DWORD // ex. style (0 = default)
+      name().c_str(),                            // LPCSTR window class name
+      name().c_str(),                            // LPCSTR window title name
+      dwStyle,                                   // DWORD // style
+      CW_USEDEFAULT, CW_USEDEFAULT,              // (x, y) 
+      CW_USEDEFAULT, CW_USEDEFAULT,              // (width, height)
+      mParent ? (HWND)(*mParent) : NULL,         // HWND parent handle
+      NULL,                                      // HMENU menu handle
+      (HINSTANCE)(*CApplication::getInstance()), // HINSTANCE application handle
+      this                                       // LPVOID additional app data (@see WM_CREATE & CREATESTRUCT)
+    );
+  
+    if (!mHandle) {
+      ::MessageBox(NULL, "[CWindow] ::CreateWindowEx() failed!", "ERROR", MB_OK);
+      std::cout << "[CWindow] ::CreateWindowEx() failed!" << std::endl;
+      return false;
+    }
+  
+    // add class pointer to handle's user-data // @see CWindow::proc() 
+    ::SetWindowLongPtr(mHandle, GWLP_USERDATA, (LONG_PTR)(this));
+  
+    // reset default window styles // requires SetWindowPos + SWP_FRAMECHANGED
+    ::SetWindowLong(mHandle, GWL_STYLE,   dwStyle);
+    ::SetWindowLong(mHandle, GWL_EXSTYLE, dwExStyle);
+    ::SetWindowPos(mHandle, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE);
+  
+    ::SendMessage(mHandle, CM_INIT, 0, 0);
     
     return (mInited = true);
   }
@@ -76,101 +141,8 @@ namespace cym { namespace uix {
     return !mInited;
   }
   
-  LPTSTR CWindow::classify() {
-    auto cls = name(); 
-    auto it  = CWindow::sRegistry.find(cls);
-    if (it != CWindow::sRegistry.end()) { // return
-      std::cout << "uix::CWindow::classify()::" << this << "::return NAME:" << cls << std::endl;
-      return it->second;
-    } else {                              // insert
-      std::cout << "uix::CWindow::classify()::" << this << "::insert NAME:" << cls << std::endl;
-      WNDCLASSEX wndcls = {
-        sizeof(WNDCLASSEX),                       // UINT      // cbSize        // struct size  
-        CS_HREDRAW | CS_VREDRAW,       // UINT      // style
-        CWindow::proc,                            // WNDPROC   // lpfnWndProc   // uix::CWidget::proc
-        0,                                        // int       // cbClsExtra    // no extra bytes after the window class
-        0,                                        // int       // cbWndExtra    // extra bytes to allocate after the win instance 
-        (HINSTANCE)(*CApplication::getInstance()),// HINSTANCE // hInstance     // to identify the dll that loads this module  
-        ::LoadIcon(NULL, IDI_APPLICATION),        // HICON     // hIcon
-        ::LoadCursor(NULL, IDC_ARROW),            // HCURSOR   // hCursor
-        (HBRUSH)(NULL_BRUSH),                     // HBRUSH    // hbrBackground
-        NULL,                                     // LPCTSTR   // lpszMenuName  // no menu
-        cls.c_str(),                              // LPCTSTR   // lpszClassName
-        ::LoadIcon(NULL, IDI_APPLICATION)         // HICON     // hIconSm
-      };
-      // register
-      LPTSTR szWndCls = MAKEINTATOM(::RegisterClassEx(&wndcls));
-      // check
-      if (szWndCls == NULL) {
-        std::cout << "[CWindow] ::RegisterClassEx() failed!" << std::endl;
-        ::MessageBox(NULL, "[CWindow] ::RegisterClassEx() failed!", "ERROR", MB_OK);
-      } else {
-        CWindow::sRegistry.insert(std::make_pair(cls, szWndCls));
-      }
-      // return
-      return szWndCls;
-    }
-  }
-  
   inline TString CWindow::name() const {
     return sys::concat("uix::CWindow::", mId);
-  }
-  
-  bool CWindow::style(int nHints/*=0*/) {
-    std::cout << "uix::CWindow::style("<< nHints <<")::" << this << std::endl;
-    
-    DWORD dwExStyle = 0; // WS_EX_APPWINDOW;
-    DWORD dwStyle   = 0;
-    
-    dwStyle |= nHints & EHint::POPUP    ? WS_POPUP                   : 0;
-    dwStyle |= nHints & EHint::CHILD    ? WS_CHILD                   : 0;
-    dwStyle |= nHints & EHint::MAXBOX   ? WS_MAXIMIZEBOX             : 0;
-    dwStyle |= nHints & EHint::MINBOX   ? WS_MINIMIZEBOX             : 0;
-    dwStyle |= nHints & EHint::SYSBOX   ? WS_SYSMENU                 : 0;
-    dwStyle |= nHints & EHint::FRAME    ? WS_THICKFRAME | WS_SIZEBOX : 0;
-    dwStyle |= nHints & EHint::TITLE    ? WS_CAPTION                 : 0;
-    dwStyle |= nHints & EHint::BORDER   ? WS_BORDER                  : 0; 
-    dwStyle |= nHints & EHint::VISIBLE  ? WS_VISIBLE                 : 0;
-    dwStyle |= nHints & EHint::DISABLE  ? WS_DISABLED                : 0;
-    dwStyle |= nHints & EHint::HSCROLL  ? WS_HSCROLL                 : 0;
-    dwStyle |= nHints & EHint::VSCROLL  ? WS_VSCROLL                 : 0;
-    dwStyle |= nHints & EHint::MINIMIZE ? WS_MINIMIZE                : 0;
-    dwStyle |= nHints & EHint::MAXIMIZE ? WS_MAXIMIZE                : 0;
-    dwStyle |= nHints & EHint::NOCLIP   ? 0                          : WS_CLIPSIBLINGS;
-    dwStyle |= nHints & EHint::NOCLIP   ? 0                          : WS_CLIPCHILDREN;
-    
-    // reset default window styles // requires SetWindowPos + SWP_FRAMECHANGED
-    ::SetWindowLong(mHandle, GWL_STYLE,   dwStyle);
-    ::SetWindowLong(mHandle, GWL_EXSTYLE, dwExStyle);
-    ::SetWindowPos(mHandle, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE);
-    
-    return true;
-  }
-  
-  HWND CWindow::handle() {
-    std::cout << "uix::CWindow::handle()::" << this << std::endl;
-    if (!mHandle) {
-      LPTSTR szWndcls = classify();
-      RETURN(!szWndcls, NULL);
-      mHandle = ::CreateWindowEx(
-        0,                                         // DWORD // ex. style (0 = default)
-        szWndcls,                                  // LPCSTR window class name
-        name().c_str(),                            // LPCSTR window title name
-        0,                                         // DWORD // style
-        CW_USEDEFAULT, CW_USEDEFAULT,              // (x, y) 
-        CW_USEDEFAULT, CW_USEDEFAULT,              // (width, height)
-        mParent ? (HWND)(*mParent) : NULL,         // HWND parent handle
-        NULL,                                      // HMENU menu handle
-        (HINSTANCE)(*CApplication::getInstance()), // HINSTANCE application handle
-        this                                       // LPVOID additional app data (@see WM_CREATE & CREATESTRUCT)
-      );
-      if (mHandle == NULL) {
-        ::MessageBox(NULL, "[CWindow] ::CreateWindowEx() failed!", "ERROR", MB_OK);
-        std::cout << "[CFrame] ::CreateWindowEx() failed!" << std::endl;
-      }
-    }
-    
-    return mHandle;
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -283,6 +255,11 @@ namespace cym { namespace uix {
   
   bool CWindow::layout(CLayout* pLayout) {
     mLayout = pLayout;
+    return true;
+  }
+  
+  bool CWindow::child(CWindow* pChild) {
+    mChildren.push_back(pChild);
     return true;
   }
   

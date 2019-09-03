@@ -28,23 +28,10 @@ namespace cym { namespace uix {
       return false;
     }
     
-    if (!super::handle()) {
-      std::cout << "[CFrame] super::handle() failed!" << std::endl;
-      ::MessageBox(NULL, "[CFrame] super::handle() failed!", "Error", MB_OK);
-      return false;
-    } 
-    
-    // add class pointer to handle's user-data // @see CWindow::proc() 
-    ::SetWindowLongPtr(mHandle, GWLP_USERDATA, (LONG_PTR)(this));
-  
-    mInited = style(nHints);
-    
     (nHints & EHint::CENTER)   && center();
     (nHints & EHint::MAXIMIZE) && maximize();
     (nHints & EHint::MINIMIZE) && minimize();
     (nHints & EHint::VISIBLE)  && show();
-    
-    ::SendMessage(mHandle, CM_INIT, 0, 0);
     
     return mInited;
   }

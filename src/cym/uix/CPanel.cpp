@@ -23,23 +23,9 @@ namespace cym { namespace uix {
       return false;
     }
     
-    if (!super::handle()) {
-      std::cout << "[CPanel] super::handle() failed!" << std::endl;
-      ::MessageBox(NULL, "[CPanel] super::handle() failed!", "Error", MB_OK);
-      return false;
-    }
-    
-    if (!super::style(nHints)) {
-      std::cout << "[CPanel] super::style() failed!" << std::endl;
-      ::MessageBox(NULL, "[CPanel] super::style() failed!", "Error", MB_OK);
-      return false;
-    }
-    
     (nHints & EHint::CENTER)  && center();
     (nHints & EHint::VISIBLE) && show();
     
-    ::SendMessage(mHandle, CM_INIT, 0, 0);
-
     return mInited;
   }
 }}

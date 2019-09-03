@@ -26,14 +26,10 @@ namespace cym { namespace uix {
       CWindow& operator          =(const CWindow&);
       explicit operator       HWND();
       explicit operator const HWND() const;
-      explicit operator       LPTSTR();
     protected:
       virtual bool    init(CWindow*, int);
       virtual bool    free() final;
-      virtual LPTSTR  classify();
       virtual TString name() const final;
-      virtual bool    style(int = 0) final;
-      virtual HWND    handle() final;
     public:
       bool    move(int, int);
       bool    size(int, int);
@@ -50,6 +46,7 @@ namespace cym { namespace uix {
       auto    layout() const -> decltype(mLayout);
       bool    layout(CLayout* pLayout);
       auto    parent() const -> decltype(mParent);
+      bool    child(CWindow*);
       auto    children() const -> decltype(mChildren);
       auto    siblings() const -> decltype(mChildren);
       bool    title(const TString&);

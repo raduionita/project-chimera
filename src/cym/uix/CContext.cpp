@@ -19,11 +19,32 @@ namespace cym { namespace uix {
     
     // need dummy window for ogl 4.x
     
-    LPTSTR szWndcls = (LPTSTR)(*mWindow);
+    LPCSTR szClsName = "uix::CContext::DUMMY";
+  
+    WNDCLASSEX tWndCls = {
+      sizeof(WNDCLASSEX),                       // UINT      // cbSize        // struct size  
+      CS_HREDRAW|CS_VREDRAW|CS_OWNDC,           // UINT      // style
+      ::DefWindowProc,                          // WNDPROC   // lpfnWndProc   // uix::CWidget::proc
+      0,                                        // int       // cbClsExtra    // no extra bytes after the window class
+      0,                                        // int       // cbWndExtra    // extra bytes to allocate after the win instance 
+      (HINSTANCE)(*CApplication::getInstance()),// HINSTANCE // hInstance     // to identify the dll that loads this module  
+      ::LoadIcon(NULL, IDI_APPLICATION),        // HICON     // hIcon
+      ::LoadCursor(NULL, IDC_ARROW),            // HCURSOR   // hCursor
+      (HBRUSH)(NULL_BRUSH),                     // HBRUSH    // hbrBackground
+      NULL,                                     // LPCTSTR   // lpszMenuName  // no menu
+      szClsName,                                // LPCTSTR   // lpszClassName
+      ::LoadIcon(NULL, IDI_APPLICATION)         // HICON     // hIconSm
+    };
+    
+    if (!::RegisterClassEx(&tWndCls)) {
+      std::cout << "[CContext] ::RegisterClassEx() failed!" << std::endl;
+      ::MessageBox(NULL, "[CContext] ::RegisterClassEx() failed!", "ERROR", MB_OK);
+      return false;
+    }
     
     HWND tWnd = ::CreateWindowEx(
       0,                     // dwExStyle
-      szWndcls,              // wndcls
+      szClsName,             // wndcls
       NULL,                  // title
       WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
       0,0,1,1,               // x,y,w,h
@@ -32,6 +53,12 @@ namespace cym { namespace uix {
       (HINSTANCE)(*CApplication::getInstance()),
       NULL
     );
+  
+    if (!tWnd) {
+      ::MessageBox(NULL, "[CContext] ::CreateWindowEx() failed!", "ERROR", MB_OK);
+      std::cout << "[CContext] ::CreateWindowEx() failed!" << std::endl;
+      return false;
+    }
     
     HDC tDC = ::GetDC(tWnd);
   
@@ -47,36 +74,36 @@ namespace cym { namespace uix {
     };
     
     INT tPFID = ::ChoosePixelFormat(tDC, &tPFD);
-    if (tPFID == 0) {
+    if (!tPFID) {
       std::cout << "[CContext] ChoosePixelFormat failed!" << std::endl;
       ::MessageBox(NULL, "[CCanvas] ::ChoosePixelFormat() failed!", "Error", MB_OK);
       return false;
-    } else if (::SetPixelFormat(tDC, tPFID, &tPFD) == 0) {
+    } else if (!::SetPixelFormat(tDC, tPFID, &tPFD)) {
       std::cout << "[CContext] ::SetPixelFormat() failed!" << std::endl;
       ::MessageBox(NULL, "[CContext] ::SetPixelFormat() failed!", "Error", MB_OK);
       return false;
     } 
     
     HGLRC tRC = ::wglCreateContext(tDC);
-    if (tRC == 0) {
+    if (!tRC) {
       std::cout << "[CContext] ::wglCreateContext() failed!" << std::endl;
       ::MessageBox(NULL, "[CContext] ::wglCreateContext() failed!", "Error", MB_OK);
       return false;
-    } else if (::wglMakeCurrent(tDC, tRC) == 0) {
+    } else if (!::wglMakeCurrent(tDC, tRC)) {
       std::cout << "[CContext] ::wglMakeCurrent() failed!" << std::endl;
       ::MessageBox(NULL, "[CContext] ::wglMakeCurrent() failed!", "Error", MB_OK);
       return false;
     }
   
     DEFINE_WGL_FUNCTION(wglChoosePixelFormatARB);
-    if (wglChoosePixelFormatARB == nullptr) {
+    if (!wglChoosePixelFormatARB) {
       std::cout << "[CContext] ::wglChoosePixelFormatARB() failed!" << std::endl;
       ::MessageBox(NULL, "[CContext] ::wglChoosePixelFormatARB() failed!", "Error", MB_OK);
       return false;
     }
   
     DEFINE_WGL_FUNCTION(wglCreateContextAttribsARB);
-    if (wglCreateContextAttribsARB == nullptr) {
+    if (!wglCreateContextAttribsARB) {
       std::cout << "[CContext] ::wglCreateContextAttribsARB() failed!" << std::endl;
       ::MessageBox(NULL, "[CContext] ::wglCreateContextAttribsARB() failed!", "Error", MB_OK);
       return false;
@@ -87,15 +114,15 @@ namespace cym { namespace uix {
     const int aPixelAttrs[] = {
       WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
       WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
-      WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
-      WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
-      WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
-      WGL_COLOR_BITS_ARB, mConfig.nColorBits,
-      WGL_ALPHA_BITS_ARB, mConfig.nAlphaBits,
-      WGL_DEPTH_BITS_ARB, mConfig.nDepthBits,
-      WGL_STENCIL_BITS_ARB, mConfig.nStencilBits,
+      WGL_DOUBLE_BUFFER_ARB,  GL_TRUE,
+      WGL_PIXEL_TYPE_ARB,     WGL_TYPE_RGBA_ARB,
+      WGL_ACCELERATION_ARB,   WGL_FULL_ACCELERATION_ARB,
+      WGL_COLOR_BITS_ARB,     mConfig.nColorBits,
+      WGL_ALPHA_BITS_ARB,     mConfig.nAlphaBits,
+      WGL_DEPTH_BITS_ARB,     mConfig.nDepthBits,
+      WGL_STENCIL_BITS_ARB,   mConfig.nStencilBits,
       WGL_SAMPLE_BUFFERS_ARB, GL_TRUE,
-      WGL_SAMPLES_ARB, mConfig.nSamples,
+      WGL_SAMPLES_ARB,        mConfig.nSamples,
       0
     };
     
@@ -121,7 +148,7 @@ namespace cym { namespace uix {
     };
     
     mRC = wglCreateContextAttribsARB(mDC, 0, aContextAttr);
-    if (mRC == NULL) {
+    if (!mRC) {
       std::cout << "[CCanvas] ::wglCreateContextAttribsARB() failed!" << std::endl;
       ::MessageBox(NULL, "[CCanvas] ::wglCreateContextAttribsARB() failed!", "Error", MB_OK);
       return false;
@@ -132,6 +159,7 @@ namespace cym { namespace uix {
     ::wglDeleteContext(tRC);
     ::ReleaseDC(tWnd, tDC);
     ::DestroyWindow(tWnd);
+    ::UnregisterClass(szClsName, (HINSTANCE)(*CApplication::getInstance()));
     
     // make current
     if (!::wglMakeCurrent(mDC, mRC)) {
