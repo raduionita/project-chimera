@@ -1,27 +1,27 @@
 #ifndef __cym_uix_csurface_hpp__
 #define __cym_uix_csurface_hpp__
 
-#include "uix.hpp"
-#include "CWidget.hpp"
+#include "CPanel.hpp"
 #include "CContext.hpp"
 
 namespace cym { namespace uix {
-  class CSurface : public CWidget {
+  class CSurface : public CPanel {
     protected:
-      using CWidget::CWidget;
-      typedef CWidget super;
-      static constexpr int STYLE  = CWidget::STYLE;
+      using CPanel::CPanel;
+      typedef CPanel super;
+      static constexpr int STYLE  = CPanel::STYLE;
     public:
       typedef CContext::SConfig SConfig;
     protected:
       CContext* mContext = {nullptr};
     public:
-      CSurface(                                       int = ZERO);
-      CSurface(          const SConfig& sConfig,      int = ZERO);
-      CSurface(CWindow*, const SConfig& sConfig = {}, int = ZERO);
+      CSurface(CWindow*, const SConfig& = {}, int = ZERO);
       ~CSurface();
     protected:
       bool init(CWindow*, const CContext::SConfig&, int);
+    public:
+      bool swap()    const;
+      bool current() const;
   };
 }}
 

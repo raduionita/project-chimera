@@ -61,7 +61,7 @@ namespace cym { namespace uix {
           class CWizard;
       class CWidget;
         class CPanel;       // empty widget/window
-          class CSurface;     // empty widget + context
+          class CSurface;   // empty widget + context
         class CTitlebar;
         class CMenubar;     // items are CMenu(s)
         class CToolbar;     // items are CWidget(s) | default bottom | holds info

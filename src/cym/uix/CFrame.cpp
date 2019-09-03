@@ -22,28 +22,15 @@ namespace cym { namespace uix {
   
     RETURN(mInited,true);
     
-    mInited = super::init(pParent, nHints);
+    if (!super::init(pParent, nHints)) {
+      std::cout << "[CFrame] super::init() failed!" << std::endl;
+      ::MessageBox(NULL, "[CFrame] super::init() failed!", "Error", MB_OK);
+      return false;
+    }
     
-    LPTSTR szWndcls = classify();
-    
-    RETURN(!szWndcls, false);
-    
-    mHandle = ::CreateWindowEx(
-      0,                                         // DWORD // ex. style (0 = default)
-      szWndcls,                                  // LPCSTR window class name
-      name().c_str(),                            // LPCSTR window title name
-      0,                                         // DWORD // style
-      CW_USEDEFAULT, CW_USEDEFAULT,              // (x, y) 
-      CW_USEDEFAULT, CW_USEDEFAULT,              // (width, height)
-      mParent ? (HWND)(*mParent) : NULL,         // HWND parent handle
-      NULL,                                      // HMENU menu handle
-      (HINSTANCE)(*CApplication::getInstance()), // HINSTANCE application handle
-      this                                       // LPVOID additional app data (@see WM_CREATE & CREATESTRUCT)
-    );
-    
-    if (mHandle == NULL) {
-      std::cout << "[CFrame] RegisterClassEx failed!" << std::endl;
-      ::MessageBox(NULL, "[CFrame] CreateWindowEx failed!", "Error", MB_OK);
+    if (!super::handle()) {
+      std::cout << "[CFrame] super::handle() failed!" << std::endl;
+      ::MessageBox(NULL, "[CFrame] super::handle() failed!", "Error", MB_OK);
       return false;
     } 
     
@@ -57,9 +44,6 @@ namespace cym { namespace uix {
     (nHints & EHint::MINIMIZE) && minimize();
     (nHints & EHint::VISIBLE)  && show();
     
-    // @todo: styles
-    // @todo: hints: auto pos + centered + maximize|minimize + visible
-  
     ::SendMessage(mHandle, CM_INIT, 0, 0);
     
     return mInited;

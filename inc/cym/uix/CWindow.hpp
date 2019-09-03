@@ -32,6 +32,8 @@ namespace cym { namespace uix {
       virtual bool    free() final;
       virtual LPTSTR  classify();
       virtual TString name() const final;
+      virtual bool    style(int = 0) final;
+      virtual HWND    handle() final;
     public:
       bool    move(int, int);
       bool    size(int, int);
@@ -41,7 +43,6 @@ namespace cym { namespace uix {
       bool    hide(int = 1);
       bool    focus(int = 1);
       bool    pack();
-      bool    style(int = 0);
       bool    minimize();
       bool    maximize();
       SArea   area() const;

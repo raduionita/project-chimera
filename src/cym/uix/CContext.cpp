@@ -49,36 +49,36 @@ namespace cym { namespace uix {
     INT tPFID = ::ChoosePixelFormat(tDC, &tPFD);
     if (tPFID == 0) {
       std::cout << "[CContext] ChoosePixelFormat failed!" << std::endl;
-      ::MessageBox(NULL, "[CCanvas] ChoosePixelFormat failed!", "Error", MB_OK);
+      ::MessageBox(NULL, "[CCanvas] ::ChoosePixelFormat() failed!", "Error", MB_OK);
       return false;
     } else if (::SetPixelFormat(tDC, tPFID, &tPFD) == 0) {
-      std::cout << "[CContext] SetPixelFormat failed!" << std::endl;
-      ::MessageBox(NULL, "[CContext] SetPixelFormat failed!", "Error", MB_OK);
+      std::cout << "[CContext] ::SetPixelFormat() failed!" << std::endl;
+      ::MessageBox(NULL, "[CContext] ::SetPixelFormat() failed!", "Error", MB_OK);
       return false;
     } 
     
     HGLRC tRC = ::wglCreateContext(tDC);
     if (tRC == 0) {
-      std::cout << "[CContext] wglCreateContext failed!" << std::endl;
-      ::MessageBox(NULL, "[CContext] wglCreateContext failed!", "Error", MB_OK);
+      std::cout << "[CContext] ::wglCreateContext() failed!" << std::endl;
+      ::MessageBox(NULL, "[CContext] ::wglCreateContext() failed!", "Error", MB_OK);
       return false;
     } else if (::wglMakeCurrent(tDC, tRC) == 0) {
-      std::cout << "[CContext] wglMakeCurrent failed!" << std::endl;
-      ::MessageBox(NULL, "[CContext] wglMakeCurrent failed!", "Error", MB_OK);
+      std::cout << "[CContext] ::wglMakeCurrent() failed!" << std::endl;
+      ::MessageBox(NULL, "[CContext] ::wglMakeCurrent() failed!", "Error", MB_OK);
       return false;
     }
   
     DEFINE_WGL_FUNCTION(wglChoosePixelFormatARB);
     if (wglChoosePixelFormatARB == nullptr) {
-      std::cout << "[CContext] wglChoosePixelFormatARB failed!" << std::endl;
-      ::MessageBox(NULL, "[CContext] wglChoosePixelFormatARB failed!", "Error", MB_OK);
+      std::cout << "[CContext] ::wglChoosePixelFormatARB() failed!" << std::endl;
+      ::MessageBox(NULL, "[CContext] ::wglChoosePixelFormatARB() failed!", "Error", MB_OK);
       return false;
     }
   
     DEFINE_WGL_FUNCTION(wglCreateContextAttribsARB);
     if (wglCreateContextAttribsARB == nullptr) {
-      std::cout << "[CContext] wglCreateContextAttribsARB failed!" << std::endl;
-      ::MessageBox(NULL, "[CContext] wglCreateContextAttribsARB failed!", "Error", MB_OK);
+      std::cout << "[CContext] ::wglCreateContextAttribsARB() failed!" << std::endl;
+      ::MessageBox(NULL, "[CContext] ::wglCreateContextAttribsARB() failed!", "Error", MB_OK);
       return false;
     }
     
@@ -102,8 +102,8 @@ namespace cym { namespace uix {
     int nPFID; UINT nFormats;
     bool bStatus = wglChoosePixelFormatARB(mDC, aPixelAttrs, NULL, 1, &nPFID, &nFormats);
     if (bStatus == false && nFormats == 0) {
-      std::cout << "[CCanvas] wglChoosePixelFormatARB failed!" << std::endl;
-      ::MessageBox(NULL, "[CCanvas] wglChoosePixelFormatARB failed!", "Error", MB_OK);
+      std::cout << "[CCanvas] ::wglChoosePixelFormatARB() failed!" << std::endl;
+      ::MessageBox(NULL, "[CCanvas] ::wglChoosePixelFormatARB() failed!", "Error", MB_OK);
       return false;
     }
   
@@ -122,8 +122,8 @@ namespace cym { namespace uix {
     
     mRC = wglCreateContextAttribsARB(mDC, 0, aContextAttr);
     if (mRC == NULL) {
-      std::cout << "[CCanvas] wglCreateContextAttribsARB failed!" << std::endl;
-      ::MessageBox(NULL, "[CCanvas] wglCreateContextAttribsARB failed!", "Error", MB_OK);
+      std::cout << "[CCanvas] ::wglCreateContextAttribsARB() failed!" << std::endl;
+      ::MessageBox(NULL, "[CCanvas] ::wglCreateContextAttribsARB() failed!", "Error", MB_OK);
       return false;
     }
     
@@ -135,8 +135,8 @@ namespace cym { namespace uix {
     
     // make current
     if (!::wglMakeCurrent(mDC, mRC)) {
-      std::cout << "[CCanvas] wglMakeCurrent failed! " << std::endl;
-      ::MessageBox(NULL, "[CCanvas] wglMakeCurrent failed!", "Error", MB_OK);
+      std::cout << "[CCanvas] ::wglMakeCurrent() failed! " << std::endl;
+      ::MessageBox(NULL, "[CCanvas] ::wglMakeCurrent() failed!", "Error", MB_OK);
       return false;
     }
   

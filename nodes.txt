@@ -1,8 +1,8 @@
 // todo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 = pozitioning and (re)sizing w/ widgets
-= layouts
 = context on widgets
+= layouts
 = handle ctrl + c // let end-user choose what to do
 = copy/move constructors + assignment operators => clone method
 = maximized & minimized
@@ -10,7 +10,8 @@
 = fullscreen (F11)
 = hotkeys & keybord shortcuts
 = implements IDrawable
-= styles
+= throw exception on windows create failed + loop + try + fatal or warning
+= styles|painter
 = commands
 = widgets:button
 = custom theme - replace titlebar (icon+menubar+title+sysmenu)

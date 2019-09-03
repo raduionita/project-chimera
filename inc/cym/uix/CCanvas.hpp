@@ -1,7 +1,6 @@
 #ifndef __cym_uix_ccanvas_hpp__
 #define __cym_uix_ccanvas_hpp__
 
-#include "uix.hpp"
 #include "CFrame.hpp"
 #include "CContext.hpp"
 
