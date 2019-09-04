@@ -13,6 +13,9 @@ namespace cym { namespace uix {
           BItem(int = 0);
           virtual ~BItem();
           virtual CObject* operator ->() = 0;
+        public:
+          virtual bool move(int, int) = 0;
+          virtual bool size(int, int) = 0;
       };
       template <typename T> class TItem : public BItem {
         protected:
@@ -20,6 +23,9 @@ namespace cym { namespace uix {
         public:
           TItem(T, int = 0);
           virtual CObject* operator ->() override;
+        public:
+          virtual bool move(int, int) override;
+          virtual bool size(int, int) override;
       };
     protected:
       CWindow* mWindow = {nullptr};

@@ -76,11 +76,26 @@ namespace cym { namespace uix {
     int nItems = (int)(mItems.size());
     
     // @todo: get mWindow client w & h
+    RECT sRect; ::GetClientRect((HWND)(*mWindow), &sRect);
+    
+    int nItemW = (int)((sRect.right - sRect.left) / nItems); // item w
+    int nItemH = (int)((sRect.bottom - sRect.top) / nItems); // item h
+    int nModW  = (int)((sRect.right - sRect.left) % nItems); 
+    int nModH  = (int)((sRect.bottom - sRect.top) % nItems); 
     
     if (mDirection == EHint::HORIZONTAL) {
+      int nSumW = 0;
       // for each item
       for (int i = 0; i < nItems; i++) {
         BItem*& pItem = mItems[i];
+        int     nOffW = --nModW >= 0 ? 1 : 0;
+        pItem->move(nSumW + sRect.left, 0 + sRect.top);
+        pItem->size(nItemW + nOffW, (sRect.bottom - sRect.top));
+  
+        nSumW += nItemW + nOffW;
+        
+        
+        
         // @todo: pItem->size() // which delegates to CWindow/CLayout 
         // @todo: pItem->move() // 
       }

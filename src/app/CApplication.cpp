@@ -1,6 +1,7 @@
 #include "app/CApplication.hpp"
 #include "cym/uix/CFrame.hpp"
 #include "cym/uix/CSurface.hpp"
+#include "cym/uix/CPanel.hpp"
 #include "cym/uix/CLayout.hpp"
 
 namespace app {
@@ -20,6 +21,7 @@ namespace app {
     auto pWindow  = new uix::CFrame(uix::EHint::VISIBLE);
     auto pLayout  = dynamic_cast<uix::CBoxLayout*>(pWindow->layout(new uix::CBoxLayout(uix::EHint::VERTICAL)));
     auto pSurface = dynamic_cast<uix::CSurface*>(pLayout->add(new uix::CSurface(pWindow, uix::EHint::VISIBLE), uix::EHint::ADJUST));
+    auto pPanel   = dynamic_cast<uix::CSurface*>(pLayout->add(new uix::CPanel(pWindow, uix::EHint::VISIBLE), uix::EHint::ADJUST));
     pWindow->size(600,400);
     pWindow->layout(pLayout);
     pWindow->move(0,0);
