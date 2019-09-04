@@ -15,6 +15,7 @@ namespace cym { namespace uix {
     protected:
       CContext* mContext = {nullptr};
     public:
+      CSurface(CWindow*,                      int);
       CSurface(CWindow*, const SConfig& = {}, int = ZERO);
       ~CSurface();
     protected:

@@ -27,11 +27,13 @@ namespace cym { namespace uix {
       ::MessageBox(NULL, "[CFrame] super::init() failed!", "Error", MB_OK);
       return false;
     }
-    
-    (nHints & EHint::CENTER)   && center();
+  
+    (nHints & EHint::VISIBLE)  && show();
     (nHints & EHint::MAXIMIZE) && maximize();
     (nHints & EHint::MINIMIZE) && minimize();
-    (nHints & EHint::VISIBLE)  && show();
+    (nHints & EHint::AUTOWH)   && size(500,300);
+    (nHints & EHint::AUTOXY)   && (nHints |= EHint::CENTER);
+    (nHints & EHint::CENTER)   && center();
     
     return mInited;
   }

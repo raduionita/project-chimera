@@ -8,7 +8,9 @@
 
 namespace cym { namespace uix { 
   class CWindow : public CObject, CHandler {
-    typedef CObject super;
+    protected:
+      typedef CObject super;
+      static constexpr int STYLE = EHint::AUTOXY|EHint::AUTOWH;
     private:
       static std::map<TString, LPTSTR> sRegistry;
     protected:
@@ -44,7 +46,7 @@ namespace cym { namespace uix {
       SArea   area() const;
       SRect   rect() const;
       auto    layout() const -> decltype(mLayout);
-      bool    layout(CLayout* pLayout);
+      auto    layout(CLayout* pLayout) -> decltype(mLayout);
       auto    parent() const -> decltype(mParent);
       bool    child(CWindow*);
       auto    children() const -> decltype(mChildren);

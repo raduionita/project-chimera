@@ -8,9 +8,7 @@ namespace cym { namespace uix {
     protected:
       using CWindow::CWindow;
       typedef CWindow super;
-      static constexpr int STYLE  = EHint::CHILD;
-    public:
-      ~CWidget();
+      static constexpr int STYLE  = CWindow::STYLE|EHint::CHILD;
   };
 }}
 

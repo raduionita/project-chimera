@@ -1,14 +1,14 @@
 #ifndef __cym_uix_cframe_hpp__
 #define __cym_uix_cframe_hpp__
 
-#include "CWindow.hpp"
+#include "CPopup.hpp"
 
 namespace cym { namespace uix {
-  class CFrame : public CWindow {
+  class CFrame : public CPopup {
     protected:
-      using CWindow::CWindow;
+      using CPopup::CPopup;
       typedef CWindow super;
-      static constexpr int STYLE = EHint::POPUP|EHint::BORDER|EHint::TITLE|EHint::FRAME|EHint::SYSBOX|EHint::MINBOX|EHint::MAXBOX|EHint::SIZER;
+      static constexpr int STYLE = CPopup::STYLE|EHint::BORDER|EHint::TITLE|EHint::FRAME|EHint::SYSBOX|EHint::MINBOX|EHint::MAXBOX|EHint::SIZER;
     public:
       CFrame(          int = ZERO);
       CFrame(CWindow*, int = ZERO);

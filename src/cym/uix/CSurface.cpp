@@ -1,6 +1,11 @@
 #include "cym/uix/CSurface.hpp"
 
 namespace cym { namespace uix {
+  CSurface::CSurface(CWindow* pParent, int nHints) {
+    std::cout << "uix::CSurface::CSurface(CWindow*,SConfig&,int)::" << this << std::endl;
+    init(pParent, {}, nHints | CSurface::STYLE);
+  }
+  
   CSurface::CSurface(CWindow* pParent, const SConfig& sConfig/*={}*/,int nHints/*=ZERO*/) {
     std::cout << "uix::CSurface::CSurface(CWindow*,SConfig&,int)::" << this << std::endl;
     init(pParent, sConfig, nHints | CSurface::STYLE);

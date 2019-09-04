@@ -19,6 +19,7 @@
 #include <map>
 #include <chrono>
 #include <algorithm>
+#include <bitset>
 
 #define RETURNN(cond)     if(cond)return
 #define RETURNV(cond,out) if(cond)return out
@@ -34,9 +35,11 @@
 #define CM_INIT      (WM_USER + 0x0001) // custom message
 #define CM_TABCHANGE (CM_INIT + 0x0001)
 
-#define ZERO 0
-
 namespace cym { namespace uix {
+  constexpr int ZERO =  0;
+  constexpr int AUTO = -1;
+  constexpr int FULL = -1;
+  
   class CHandler;
   class CLoop;
   class CDisplay;
@@ -50,8 +53,8 @@ namespace cym { namespace uix {
     class CPainter;
       class CPen;
       class CBrush;
-    class CWindow;        // abstract
-      class CPopup;
+    class CWindow;          // abstract
+      class CPopup;         // abstract // toplevel windows
         class CFrame;       // titlebar + borders (opt: statusbar + menubar + toolbar)
           class CSplash;    // spalsh screen // no titlebar, no borders, no buttons, only an image
           class CPreview;   // prevew (like printing)
@@ -59,7 +62,7 @@ namespace cym { namespace uix {
         class CDialog;      // modal
           class CMessage;
           class CWizard;
-      class CWidget;
+      class CWidget;        // abstract // child windows
         class CPanel;       // empty widget/window
           class CSurface;   // empty widget + context
         class CTitlebar;
@@ -166,27 +169,42 @@ namespace cym { namespace uix {
   enum EHint {
     _HINT_     = ZERO,
     CHILD      = 0b00000000000000000000000000000001, // WS_CHILD // stays in parent area, moves w/ the parent (oposite 2 WS_POPUP)
-    POPUP      = 0b00000000000000000000000000000010,
+    POPUP      = 0b00000000000000000000000000000010, // WS_POPUP
     BORDER     = 0b00000000000000000000000000000100, // WS_BORDER
     TITLE      = 0b00000000000000000000000000001000, // WS_CAPTION + WS_BORDER
     HSCROLL    = 0b00000000000000000000000000010000,
     VSCROLL    = 0b00000000000000000000000000100000,
     FRAME      = 0b00000000000000000000000001000000, // WS_THICKFRAME // thickframe normal sized frame, does not work w/ ::SetWindowLong
     GROUP      = 0b00000000000000000000000010000000,
-    SYSBOX     = 0b00000000000000000000000100000000|TITLE, // WS_SYSMENU // icon + maxbox holder + minbox + close
-    MINBOX     = 0b00000000000000000000001000000000,
-    MAXBOX     = 0b00000000000000000000010000000000,
+    MINBOX     = 0b00000000000000000000000100000000,
+    MAXBOX     = 0b00000000000000000000001000000000,
+    SYSBOX     = 0b00000000000000000000010000000000|TITLE|MINBOX|MAXBOX, // WS_SYSMENU // icon + maxbox holder + minbox + close
     SIZER      = 0b00000000000000000000100000000000,
     VISIBLE    = 0b00000000000000000001000000000000,
     HIDDEN     = 0b00000000000000000010000000000000,
-    DISABLE    = 0b00000000000000000100000000000000,
+    DISABLED   = 0b00000000000000000100000000000000,
     NOCLIP     = 0b00000000000000001000000000000000,
+#undef ABSOLUTE
+    ABSOLUTE   = 0b00000000000000010000000000000000,
+#define ABSOLUTE 1
+#undef RELATIVE
+    RELATIVE   = 0b00000000000000100000000000000000,
+#define RELATIVE 2
+    LEFT       = 0b00000000000001000000000000000000,
+    RIGHT      = 0b00000000000010000000000000000000,
+    TOP        = 0b00000000000100000000000000000000,
+    BOTTOM     = 0b00000000001000000000000000000000,
+    VERTICAL   = 0b00000000010000000000000000000000,
+    HORIZONTAL = 0b00000000100000000000000000000000,
+    CENTER     = 0b00000001000000000000000000000000,
+    PACKED     = 0b00000010000000000000000000000000, // run CWindow::pack() 
+    ADJUST     = PACKED,
+      
+    MINIMIZE   = 0b00000100000000000000000000000000,
+    MAXIMIZE   = 0b00001000000000000000000000000000,
     
-    CENTER     = 0b00000000010000000000000000000000,
-    
-    MINIMIZE   = 0b00010000000000000000000000000000,
-    MAXIMIZE   = 0b00100000000000000000000000000000,
-    PACKED     = 0b01000000000000000000000000000000, // run CWindow::pack() 
+    AUTOXY     = 0b00010000000000000000000000000000,
+    AUTOWH     = 0b00100000000000000000000000000000, // 32bit
   };
     
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -23,9 +23,11 @@ namespace cym { namespace uix {
       return false;
     }
     
-    (nHints & EHint::CENTER)  && center();
     (nHints & EHint::VISIBLE) && show();
-    
+    (nHints & EHint::AUTOXY)  && move(AUTO,AUTO);
+    (nHints & EHint::AUTOWH)  && size(AUTO,AUTO); // init w/ parent size
+    (nHints & EHint::CENTER)  && center();
+
     return mInited;
   }
 }}

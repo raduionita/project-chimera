@@ -1,4 +1,5 @@
 #include "cym/uix/CWindow.hpp"
+#include "cym/uix/CLayout.hpp"
 
 namespace cym { namespace uix {
   std::map<TString, LPTSTR> CWindow::sRegistry;
@@ -79,7 +80,7 @@ namespace cym { namespace uix {
     dwStyle |= nHints & EHint::TITLE    ? WS_CAPTION                 : 0;
     dwStyle |= nHints & EHint::BORDER   ? WS_BORDER                  : 0;
     dwStyle |= nHints & EHint::VISIBLE  ? WS_VISIBLE                 : 0;
-    dwStyle |= nHints & EHint::DISABLE  ? WS_DISABLED                : 0;
+    dwStyle |= nHints & EHint::DISABLED ? WS_DISABLED                : 0;
     dwStyle |= nHints & EHint::HSCROLL  ? WS_HSCROLL                 : 0;
     dwStyle |= nHints & EHint::VSCROLL  ? WS_VSCROLL                 : 0;
     dwStyle |= nHints & EHint::MINIMIZE ? WS_MINIMIZE                : 0;
@@ -87,17 +88,17 @@ namespace cym { namespace uix {
     dwStyle |= nHints & EHint::NOCLIP   ? 0                          : WS_CLIPSIBLINGS;
     dwStyle |= nHints & EHint::NOCLIP   ? 0                          : WS_CLIPCHILDREN;
   
-    mHandle = ::CreateWindowEx(
-      dwExStyle,                                 // DWORD // ex. style (0 = default)
-      name().c_str(),                            // LPCSTR window class name
-      name().c_str(),                            // LPCSTR window title name
-      dwStyle,                                   // DWORD // style
-      CW_USEDEFAULT, CW_USEDEFAULT,              // (x, y) 
-      CW_USEDEFAULT, CW_USEDEFAULT,              // (width, height)
-      mParent ? (HWND)(*mParent) : NULL,         // HWND parent handle
-      NULL,                                      // HMENU menu handle
-      (HINSTANCE)(*CApplication::getInstance()), // HINSTANCE application handle
-      this                                       // LPVOID additional app data (@see WM_CREATE & CREATESTRUCT)
+    mHandle = ::CreateWindowExA(
+      dwExStyle,                                 // DWORD     // dwExStyle    // ex. style (0 = default)
+      name().c_str(),                            // LPCSTR    // lpClassName  // window class name
+      name().c_str(),                            // LPCSTR    // lpWindowName // window title name
+      dwStyle,                                   // DWORD     // dwExStyle    // style
+      CW_USEDEFAULT, CW_USEDEFAULT,              // int       // x, y 
+      CW_USEDEFAULT, CW_USEDEFAULT,              // int       // width, height
+      mParent ? (HWND)(*mParent) : NULL,         // HWND      // hWndParent   // parent handle
+      NULL,                                      // HMENU     // hMenu        // menu handle
+      (HINSTANCE)(*CApplication::getInstance()), // HINSTANCE // hInstance    //  application handle
+      this                                       // LPVOID    // lpParam      // additional app data (@see WM_CREATE & CREATESTRUCT)
     );
   
     if (!mHandle) {
@@ -177,10 +178,13 @@ namespace cym { namespace uix {
     DWORD dwExStyle = (DWORD)::GetWindowLong(mHandle, GWL_EXSTYLE);
     DWORD dwStyle   = (DWORD)::GetWindowLong(mHandle, GWL_STYLE);
     
+    x = x == AUTO ? 0 : x;
+    y = y == AUTO ? 0 : y;
+    
     RECT sRect = {x, y, 0, 0};
     ::AdjustWindowRectEx(&sRect, dwStyle, FALSE, dwExStyle);
 
-    x = sRect.left + 1; // +1 on windows 10
+    x = sRect.left; // @todo: +1 issue 'cause of border 
     // y = y;
     
     return !(mState & EState::MAXIMIZED) && (::SetWindowPos(mHandle, NULL, x, y, 0, 0, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOSIZE|SWP_NOACTIVATE));
@@ -191,16 +195,25 @@ namespace cym { namespace uix {
   
     RETURN(!mInited, false);
     
-    DWORD dwExStyle = (DWORD)::GetWindowLong(mHandle, GWL_EXSTYLE);
-    DWORD dwStyle   = (DWORD)::GetWindowLong(mHandle, GWL_STYLE);
+    HWND hWindow = mHandle;
+    HWND hParent = mParent ? mParent->mHandle : ::GetDesktopWindow();
+  
+    RECT sPRect = {0};
+    ::GetClientRect(hParent, &sPRect);
     
-    RECT  sRect = {0, 0, w, h};
-    ::AdjustWindowRectEx(&sRect, dwStyle, FALSE, dwExStyle);
+    w = w == AUTO ? sPRect.right  - sPRect.left : w;
+    h = h == AUTO ? sPRect.bottom - sPRect.top  : h;
     
-    w = sRect.right  - sRect.left;
-    h = sRect.bottom - sRect.top;
+    DWORD dwExStyle = (DWORD)::GetWindowLong(hWindow, GWL_EXSTYLE);
+    DWORD dwStyle   = (DWORD)::GetWindowLong(hWindow, GWL_STYLE);
     
-    return !(mState & EState::MAXIMIZED) && (::SetWindowPos(mHandle, NULL, 0, 0, w, h, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOMOVE|SWP_NOACTIVATE));
+    RECT sWRect = {0, 0, w, h};
+    ::AdjustWindowRectEx(&sWRect, dwStyle, FALSE, dwExStyle);
+    
+    w = sWRect.right - sWRect.left;
+    h = sWRect.bottom - sWRect.top;
+    
+    return !(mState & EState::MAXIMIZED) && (::SetWindowPos(hWindow, NULL, 0, 0, w, h, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOMOVE|SWP_NOACTIVATE));
   }
   
   bool CWindow::center() {
@@ -253,9 +266,10 @@ namespace cym { namespace uix {
     return mLayout;
   }
   
-  bool CWindow::layout(CLayout* pLayout) {
+  auto CWindow::layout(CLayout* pLayout) -> decltype(mLayout) {
     mLayout = pLayout;
-    return true;
+    mLayout->layout(this);
+    return mLayout;
   }
   
   bool CWindow::child(CWindow* pChild) {
