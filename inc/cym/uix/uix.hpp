@@ -44,6 +44,7 @@ namespace cym { namespace uix {
   class CLoop;
   class CDisplay;
   class CObject;
+    class CConsole;
     class CModule;
     class CApplication;
     class CContext;         // ogl|d3d|vlk contex

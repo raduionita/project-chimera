@@ -27,7 +27,7 @@ namespace cym { namespace uix {
       ::DefWindowProc,                          // WNDPROC   // lpfnWndProc   // uix::CWidget::proc
       0,                                        // int       // cbClsExtra    // no extra bytes after the window class
       0,                                        // int       // cbWndExtra    // extra bytes to allocate after the win instance 
-      (HINSTANCE)(*CApplication::getInstance()),// HINSTANCE // hInstance     // to identify the dll that loads this module  
+      (HINSTANCE)(*CApplication::instance()),// HINSTANCE // hInstance     // to identify the dll that loads this module  
       ::LoadIcon(NULL, IDI_APPLICATION),        // HICON     // hIcon
       ::LoadCursor(NULL, IDC_ARROW),            // HCURSOR   // hCursor
       (HBRUSH)(NULL_BRUSH),                     // HBRUSH    // hbrBackground
@@ -50,7 +50,7 @@ namespace cym { namespace uix {
       0,0,1,1,               // x,y,w,h
       NULL,                  // parent
       NULL,                  // menu
-      (HINSTANCE)(*CApplication::getInstance()),
+      (HINSTANCE)(*CApplication::instance()),
       NULL
     );
   
@@ -159,7 +159,7 @@ namespace cym { namespace uix {
     ::wglDeleteContext(tRC);
     ::ReleaseDC(tWnd, tDC);
     ::DestroyWindow(tWnd);
-    ::UnregisterClass(szClsName, (HINSTANCE)(*CApplication::getInstance()));
+    ::UnregisterClass(szClsName, (HINSTANCE)(*CApplication::instance()));
     
     // make current
     if (!::wglMakeCurrent(mDC, mRC)) {

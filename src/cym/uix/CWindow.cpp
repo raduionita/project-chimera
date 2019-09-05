@@ -53,7 +53,7 @@ namespace cym { namespace uix {
       CWindow::proc,                            // WNDPROC   // lpfnWndProc   // uix::CWidget::proc
       0,                                        // int       // cbClsExtra    // no extra bytes after the window class
       0,                                        // int       // cbWndExtra    // extra bytes to allocate after the win instance 
-      (HINSTANCE)(*CApplication::getInstance()),// HINSTANCE // hInstance     // to identify the dll that loads this module  
+      (HINSTANCE)(*CApplication::instance()),// HINSTANCE // hInstance     // to identify the dll that loads this module  
       ::LoadIcon(NULL, IDI_APPLICATION),        // HICON     // hIcon
       ::LoadCursor(NULL, IDC_ARROW),            // HCURSOR   // hCursor
       (HBRUSH)(NULL_BRUSH),                     // HBRUSH    // hbrBackground
@@ -97,7 +97,7 @@ namespace cym { namespace uix {
       CW_USEDEFAULT, CW_USEDEFAULT,              // int       // width, height
       mParent ? (HWND)(*mParent) : NULL,         // HWND      // hWndParent   // parent handle
       NULL,                                      // HMENU     // hMenu        // menu handle
-      (HINSTANCE)(*CApplication::getInstance()), // HINSTANCE // hInstance    //  application handle
+      (HINSTANCE)(*CApplication::instance()), // HINSTANCE // hInstance    //  application handle
       this                                       // LPVOID    // lpParam      // additional app data (@see WM_CREATE & CREATESTRUCT)
     );
   
@@ -135,7 +135,7 @@ namespace cym { namespace uix {
     // delete handle
     ::DestroyWindow(mHandle);
     // unregister name class
-    ::UnregisterClass(name().c_str(), (HINSTANCE)(*CApplication::getInstance()));
+    ::UnregisterClass(name().c_str(), (HINSTANCE)(*CApplication::instance()));
     // clear
     mHandle = NULL;
     mInited = false;

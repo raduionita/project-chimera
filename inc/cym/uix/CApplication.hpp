@@ -1,7 +1,6 @@
 #ifndef __cym_uix_capplication_hpp__
 #define __cym_uix_capplication_hpp__
 
-#include "uix.hpp"
 #include "CObject.hpp"
 #include "CLoop.hpp"
 
@@ -10,10 +9,11 @@ namespace cym { namespace uix {
     protected:
       static CApplication* sInstance;
       HINSTANCE            mHandle   = {NULL};
+      CConsole*            mConsole  = {nullptr};
       bool                 mRunning  = {false};
       CLoop*               mLoop     = {nullptr};
     public:
-      CApplication(HINSTANCE = ::GetModuleHandle(NULL));
+      CApplication(HINSTANCE = ::GetModuleHandle(NULL), int = 0);
       ~CApplication();
       CApplication(const CApplication&);
       CApplication& operator =(const CApplication&);
@@ -26,7 +26,7 @@ namespace cym { namespace uix {
       int  exec(int = 0);
       int  quit(int = 0);
     public:
-      static CApplication* getInstance();
+      static CApplication* instance();
     protected:
       virtual void onInit();
       virtual void onTick(int = 0);
@@ -37,7 +37,7 @@ namespace cym { namespace uix {
 #define DECLARE_APPLICATION(cls)                                                                                       \
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {                      \
   std::cout << "   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << std::endl;                              \
-  auto app   = new cls;                                                                                                \
+  auto app   = new cls();                                                                                              \
   INT result = app->exec();                                                                                            \
   delete app;                                                                                                          \
   return result;                                                                                                       \
