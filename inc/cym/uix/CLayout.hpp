@@ -8,14 +8,15 @@ namespace cym { namespace uix {
     protected:
       class BItem {
         protected:
-          int mHints = {0};
+          int   mHints = {0};
+          SArea mArea  = {0};
         public:
           BItem(int = 0);
           virtual ~BItem();
           virtual CObject* operator ->() = 0;
         public:
-          virtual bool move(int, int) = 0;
-          virtual bool size(int, int) = 0;
+          virtual bool  area(const SArea&) = 0;
+          virtual bool  calc() = 0;
       };
       template <typename T> class TItem : public BItem {
         protected:
@@ -24,19 +25,21 @@ namespace cym { namespace uix {
           TItem(T, int = 0);
           virtual CObject* operator ->() override;
         public:
-          virtual bool move(int, int) override;
-          virtual bool size(int, int) override;
+          virtual bool area(const SArea&) override;
+          virtual bool calc() override;
       };
     protected:
       CWindow* mWindow = {nullptr};
+      SArea    mArea   = {0};
     public:
       CLayout(CWindow* = nullptr);
       ~CLayout();
     protected:
-      virtual bool calc() = 0;
+      virtual SArea area() const;
+      virtual bool  area(const SArea&);
+      virtual bool  calc() = 0;
     public:
-      virtual bool layout(CWindow*, int = 0);
-      virtual bool size(int,int);
+      virtual bool layout(CWindow*);
   };
   
   class CBoxLayout : public CLayout {
@@ -52,7 +55,7 @@ namespace cym { namespace uix {
     protected:
       virtual bool calc() override;
     public:
-      BItem* item(typename decltype(mItems)::size_type i);
+      BItem*   item(typename decltype(mItems)::size_type i);
       CWindow* add(CWindow*, int = 0);
       CLayout* add(CLayout*, int = 0);
   };

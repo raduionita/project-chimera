@@ -164,7 +164,7 @@ namespace cym { namespace uix {
     return mInited && ::ShowWindow(mHandle, SW_HIDE);
   }
   
-  bool CWindow::focus(int nHints) {
+  bool CWindow::focus(int nHints/*=1*/) {
     std::cout << "uix::CWindow::focus()::" << this << std::endl;
     ::SetFocus(mHandle); // returns window w/ previous focus
     return true;
@@ -262,6 +262,16 @@ namespace cym { namespace uix {
     return /*(mState |= EState::MINIMIZED) &&*/ ::ShowWindow(mHandle, SW_MINIMIZE);
   }
   
+  bool CWindow::area(const SArea& sArea) {
+    return move(sArea.x,sArea.y) && size(sArea.w, sArea.h);
+  }
+  
+  SArea CWindow::area() const {
+    RECT sRect;
+    ::GetClientRect(mHandle, &sRect);
+    return {sRect.left,sRect.top,sRect.right-sRect.left,sRect.bottom-sRect.top};
+  }
+  
   auto CWindow::layout() const -> decltype(mLayout) {
     return mLayout;
   }
@@ -318,7 +328,6 @@ namespace cym { namespace uix {
 
   CWindow* CWindow::find(const TString& name) {
     std::cout << "uix::CWindow::find(" << name << ")::" << std::endl;
-    CWindow* found = nullptr;
     HWND hWnd = ::FindWindow(NULL, name.c_str());
     return reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
   }
@@ -387,8 +396,11 @@ namespace cym { namespace uix {
         
         // @todo: sized event
         
+        // @todo: window states
         // EState eState   = (wParam == SIZE_MAXSHOW) ? EState::MAXIMIZED : (wParam == SIZE_MINIMIZED ? EState::MINIMIZED : EState::_STATE_);
         // pWindow->mState = (pWindow->mState & ~EState::MAXIMIZED & ~EState::MINIMIZED) | eState;
+        
+        (pWindow->mLayout) && pWindow->mLayout->layout(pWindow);
         
         // wParam: 4 SIZE_MAXHIDE   to all popup when other window is maximized
         //         3 SIZE_MAXIMIZED the window has been maximized

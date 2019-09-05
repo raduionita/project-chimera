@@ -194,4 +194,10 @@ namespace cym { namespace uix {
     std::cout << "uix::CContext::current()::" << this << std::endl;
     return !!::wglMakeCurrent(mDC,mRC);
   }
+  
+  bool CContext::clear(int nBit/*=GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT*/) const {
+    ::glClearColor(0.f,0.f,0.f,0.f);
+    ::glClear(nBit);
+    return true;
+  }
 }}

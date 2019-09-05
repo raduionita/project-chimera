@@ -43,7 +43,9 @@ namespace cym { namespace uix {
       bool    pack();
       bool    minimize();
       bool    maximize();
+      bool    area(const SArea&);
       SArea   area() const;
+      bool    rect(const SRect&);
       SRect   rect() const;
       auto    layout() const -> decltype(mLayout);
       auto    layout(CLayout* pLayout) -> decltype(mLayout);
