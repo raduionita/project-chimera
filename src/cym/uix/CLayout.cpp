@@ -25,6 +25,15 @@ namespace cym { namespace uix {
   template <typename T> CLayout::TItem<T>::TItem(T item, int hints/*=0*/) : BItem(hints), mItem(item) {}
   
   template <typename T> CObject* CLayout::TItem<T>::operator ->() { return mItem; }
+  
+  template <typename T> bool CLayout::TItem<T>::size(int, int) {
+    
+    
+    
+    
+    
+    return true;
+  }
     
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   

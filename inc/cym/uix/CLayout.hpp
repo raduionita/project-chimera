@@ -36,6 +36,7 @@ namespace cym { namespace uix {
       virtual bool calc() = 0;
     public:
       virtual bool layout(CWindow*, int = 0);
+      virtual bool size(int,int);
   };
   
   class CBoxLayout : public CLayout {
