@@ -14,18 +14,7 @@ namespace cym { namespace uix {
     free();
   }
   
-  CWindow::CWindow(const CWindow&) {
-    std::cout << "uix::CWindow::CWindow(CWindow&)::" << this << std::endl;
-    // @todo: complete this
-  }
-  
-  CWindow& CWindow::operator =(const CWindow& that) {
-    if (this != &that) {
-      std::cout << "uix::CWindow::operator =(CWindow&)::" << this << std::endl;
-      // @todo: complete this
-    }
-    return *this;
-  }
+  // cast ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   CWindow::operator HWND() {
     std::cout << "uix::CWindow::operator HWND()::" << this << std::endl;

@@ -7,6 +7,9 @@
 namespace cym { namespace uix {
   class CApplication : public CObject {
     protected:
+      using CObject::CObject;
+      using CObject::operator=;
+    protected:
       static CApplication* sInstance;
       HINSTANCE            mHandle   = {NULL};
       CConsole*            mConsole  = {nullptr};
@@ -29,7 +32,7 @@ namespace cym { namespace uix {
       static CApplication* instance();
     protected:
       virtual void onInit();
-      virtual void onTick(int = 0);
+      virtual void onTick(long = 0);
       virtual void onExit();
   };  
 }}

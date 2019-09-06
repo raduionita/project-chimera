@@ -51,27 +51,32 @@ namespace cym { namespace uix {
   int CApplication::exec(int nMode/*=0*/) {
     std::cout << "uix::CApplication::exec()::" << this << std::endl;
     
-    // @todo: run mLoop.exec()
-    // @todo: mLoop stops => CApplication stop  
-    
-    mRunning = init();
-    
-    auto start = sys::now();
-    
-    MSG msg;
-    while (mRunning) {
-      if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-        ::TranslateMessage(&msg);
-        ::DispatchMessage(&msg);
-        mRunning = msg.message != WM_QUIT;
-      } else {
-        onTick(sys::now() - start);
+    try {
+      
+      // @todo: run mLoop.exec()
+      // @todo: mLoop stops => CApplication stop  
+      
+      mRunning = init();
+      
+      MSG msg;
+      while (mRunning) {
+        if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+          ::TranslateMessage(&msg);
+          ::DispatchMessage(&msg);
+          mRunning = msg.message != WM_QUIT;
+        } else {
+          onTick(::GetTickCount());
+        }
       }
+      
+      mRunning = !free();
+      
+      return (int)(msg.wParam);
+    } catch (...) {
+      std::cerr << "[ERROR] " << ::GetLastErrorString() << std::endl;
+      return -1;
     }
     
-    mRunning = !free();
-  
-    return (int)(msg.wParam);
   }
   
   int CApplication::quit(int nCode/*=0*/) {
@@ -92,6 +97,6 @@ namespace cym { namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   void CApplication::onInit()    { }
-  void CApplication::onTick(int) { }
+  void CApplication::onTick(long) { }
   void CApplication::onExit()    { }
 }}

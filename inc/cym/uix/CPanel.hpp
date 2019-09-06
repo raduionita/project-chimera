@@ -7,6 +7,8 @@ namespace cym { namespace uix {
   class CPanel : public CWidget {
     protected:
       using CWidget::CWidget;
+      using CWidget::operator=;
+    protected:
       typedef CWidget super;
       static constexpr int STYLE = CWidget::STYLE;
     public:

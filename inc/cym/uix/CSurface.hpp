@@ -8,6 +8,8 @@ namespace cym { namespace uix {
   class CSurface : public CPanel {
     protected:
       using CPanel::CPanel;
+      using CPanel::operator=;
+    protected:
       typedef CPanel super;
       static constexpr int STYLE  = CPanel::STYLE;
     public:
@@ -18,6 +20,12 @@ namespace cym { namespace uix {
       CSurface(CWindow*,                      int);
       CSurface(CWindow*, const SConfig& = {}, int = ZERO);
       ~CSurface();
+      // move
+      CSurface(CSurface&&) noexcept;
+      CSurface& operator =(CSurface&&) noexcept;
+      // copy = deleted
+      CSurface(const CSurface&) = delete;
+      CSurface& operator =(const CSurface&) = delete;
     protected:
       bool init(CWindow*, const CContext::SConfig&, int);
     public:

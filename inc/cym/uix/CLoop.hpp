@@ -6,8 +6,8 @@
 namespace cym { namespace uix {
   class CLoop {
     protected:
-      int64_t mStart   = {std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count()}; 
-      bool    mRunning = {false};
+      DWORD mStart   = {::GetTickCount()};
+      bool  mRunning = {false};
     public:
       CLoop();
       virtual ~CLoop();

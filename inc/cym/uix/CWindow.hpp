@@ -9,6 +9,9 @@
 namespace cym { namespace uix { 
   class CWindow : public CObject, CHandler {
     protected:
+      using CObject::CObject;
+      using CObject::operator=;
+    protected:
       typedef CObject super;
       static constexpr int STYLE = EHint::AUTOXY|EHint::AUTOWH;
     private:
@@ -23,9 +26,7 @@ namespace cym { namespace uix {
     public:
       CWindow();
       ~CWindow();
-      CWindow(const CWindow&);
-      // operators
-      CWindow& operator          =(const CWindow&);
+      // cast
       explicit operator       HWND();
       explicit operator const HWND() const;
     protected:

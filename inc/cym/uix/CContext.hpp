@@ -17,6 +17,9 @@ typedef BOOL (WINAPI * wglChoosePixelFormatARB_t)    (HDC,CONST INT*,CONST FLOAT
 namespace cym { namespace uix {
   class CContext : public CObject {
     protected:
+      using CObject::CObject;
+      using CObject::operator=;
+    protected:
       friend class CSurface;
       friend class CCanvas;
     public:

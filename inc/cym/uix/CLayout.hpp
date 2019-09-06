@@ -6,6 +6,9 @@
 namespace cym { namespace uix {
   class CLayout : public CObject {
     protected:
+      using CObject::CObject;
+      using CObject::operator=;
+    protected:
       class BItem {
         protected:
           int   mHints = {0};
@@ -43,6 +46,9 @@ namespace cym { namespace uix {
   };
   
   class CBoxLayout : public CLayout {
+    protected:
+      using CLayout::CLayout;
+      using CLayout::operator=;
     protected:
       EHint               mDirection = {EHint::VERTICAL};
       std::vector<BItem*> mItems;

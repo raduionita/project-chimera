@@ -18,15 +18,16 @@ namespace app {
   void CApplication::onInit() {
     std::cout << "app::CApplication::onInit()::" << this << std::endl;
     
-    auto pWindow  = new uix::CFrame(uix::EHint::VISIBLE);
+    auto pWindow  = new uix::CFrame();
     auto pLayout  = dynamic_cast<uix::CBoxLayout*>(pWindow->layout(new uix::CBoxLayout(uix::EHint::VERTICAL)));
     auto pSurface = dynamic_cast<uix::CSurface*>(pLayout->add(new uix::CSurface(pWindow, uix::EHint::VISIBLE), uix::EHint::ADJUST));
     auto pPanel   = dynamic_cast<uix::CSurface*>(pLayout->add(new uix::CPanel(pWindow, uix::EHint::VISIBLE), uix::EHint::ADJUST));
     pWindow->size(600,400);
     pWindow->layout(pLayout);
-    pWindow->move(0,0);
+    // pWindow->move(0,0);
     pWindow->title("frame");
     pWindow->center();
+    pWindow->show();
     
     pSurface->current();
     
@@ -35,7 +36,7 @@ namespace app {
     pSurface->swap();
   }
   
-  void CApplication::onTick(int nDelta) {
+  void CApplication::onTick(long nElapsed) {
     //sys::cout << "app::CApplication::onTick()::" << this << " DELTA:" << nDelta << sys::endl; 
   }
   

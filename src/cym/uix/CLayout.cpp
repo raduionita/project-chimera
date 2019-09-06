@@ -10,6 +10,8 @@ namespace cym { namespace uix {
     std::cout << "uix::CLayout::~CLayout()::" << this << std::endl;
   }
   
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   bool CLayout::layout(CWindow* pWindow) {
     std::cout << "uix::CLayout::layout(CWindow*)::" << this << std::endl;
     mWindow  = pWindow;
@@ -37,6 +39,8 @@ namespace cym { namespace uix {
   template <typename T> CLayout::TItem<T>::TItem(T item, int hints/*=0*/) : BItem(hints), mItem(item) {}
   
   template <typename T> CObject* CLayout::TItem<T>::operator ->() { return mItem; }
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   template <typename T> bool CLayout::TItem<T>::area(const SArea& sArea) {
     std::cout << "uix::CLayout::TItem<T>::area(SArea&)" << std::endl;
@@ -84,6 +88,8 @@ namespace cym { namespace uix {
     assert((i < mItems.size()) && "CBoxLayout::operator[i] can't reach that element!");
     return mItems[i];
   }
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   CLayout::BItem* CBoxLayout::item(typename decltype(mItems)::size_type i) {
     assert((i < mItems.size()) && "CBoxLayout::item(i) can't reach that element!");

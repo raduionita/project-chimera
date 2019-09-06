@@ -7,6 +7,8 @@ namespace cym { namespace uix {
   class CWidget : public CWindow {
     protected:
       using CWindow::CWindow;
+      using CWindow::operator=;
+    protected:
       typedef CWindow super;
       static constexpr int STYLE  = CWindow::STYLE|EHint::CHILD;
   };

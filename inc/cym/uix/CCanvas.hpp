@@ -7,8 +7,10 @@
 namespace cym { namespace uix {
   class CCanvas : public CFrame {
     protected:
-      friend class CContext;
       using CFrame::CFrame;
+      using CFrame::operator=;
+    protected:
+      friend class CContext;
       typedef CFrame super;
       static constexpr int STYLE = super::STYLE;
     public:

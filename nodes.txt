@@ -1,9 +1,9 @@
 // todo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-= copy/move constructors + assignment operators => clone method
-= maximized & minimized (iffy)
 = log to file & console // clear (or backup) file on open
+= handling errors + exceptions/crashes 
 = loops: gui/event/game loop
+= registries should init only on app init
 = fullscreen (F11)
 = events + listeners + handlers
   = hotkeys & keybord shortcuts
@@ -16,9 +16,12 @@
 = custom theme - replace titlebar (icon+menubar+title+sysmenu)
 = hints (add all of them)
 = menus
-= handling errors
 = on resize/maximized restore canvas/surface'context (render area)
 = handle ::WinMain + CApplication + CConsole + nCmdShow
+= ::AnimateWindow()
+
+
+
 
 
 // app:edit ////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -14,22 +14,12 @@ namespace cym { namespace uix {
     mId && sRegistry.remove(this); // only if it has a valid mId
   }
   
-  CObject::CObject(const CObject& that) : mId{that.mId} {
-    std::cout << "uix::CObject::CObject(CObject&)::" << this << std::endl;
-  }
-  
-  CObject& CObject::operator =(const CObject& that) {
-    if (this != &that) {
-      std::cout << "uix::CObject::operator =(CObject&)::" << this << std::endl;
-      const_cast<int&>(mId) = that.mId;
-    }
-    return *this;
-  }
+  // cast ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   CObject::operator const INT() const {
     return mId;
   }
-    
+  
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   CObject::CRegistry::CRegistry() {
@@ -64,7 +54,7 @@ namespace cym { namespace uix {
     return mObjects.size() < nSize;
   }
   
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // public //////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  inline const int CObject::getId() const { return mId; }
+  inline const int CObject::id() const { return mId; }
 }}

@@ -21,11 +21,17 @@ namespace cym { namespace uix {
     public:
       CObject();
       virtual ~CObject();
-      CObject(const CObject&);
-      CObject& operator =(const CObject&);
-      operator const INT() const;
+      // move = deleted
+      CObject(CObject&&) = delete;
+      CObject& operator =(CObject&&) = delete;
+      // copy = deleted
+      CObject(const CObject&) = delete;
+      CObject& operator =(const CObject&) = delete;
+      // cast
+      explicit operator const INT() const;
+    protected:
     public:
-      const int getId() const;
+      const int id() const;
   };  
 }}
 

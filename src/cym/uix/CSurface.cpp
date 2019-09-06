@@ -26,7 +26,9 @@ namespace cym { namespace uix {
     
     return mInited;
   }
-    
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   bool CSurface::swap()    const       { return mContext->swap(); }
   bool CSurface::current() const       { return mContext->current(); }
   bool CSurface::clear(int nBit) const { return mContext->clear(nBit); }
