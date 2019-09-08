@@ -2,9 +2,9 @@
 
 = handling errors + exceptions/crashes (sys::CException)
 = loops: timers + gui/event/game loop
-= registries should init only on app init
+= registries should init only on app init | use CSingleton & CPointer
 = fullscreen (F11)
-= events + listeners + handlers
+= WM_XXX + events + listeners + handlers
   = hotkeys & keybord shortcuts
   = mouse actions + clicks
 = implements IDrawable|IRenderable (CCanvas & CSurface)
@@ -15,6 +15,7 @@
 = custom theme - replace titlebar (icon+menubar+title+sysmenu)
 = hints (add all of them)
 = menus
+= multi-threading (::CreateProcess & pthreads)
 = on resize/maximized restore canvas/surface'context (render area)
 = handle ::WinMain + CApplication + CConsole + nCmdShow
 = ::AnimateWindow()

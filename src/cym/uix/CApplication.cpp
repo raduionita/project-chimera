@@ -73,7 +73,7 @@ namespace cym { namespace uix {
       
       return (int)(msg.wParam);
     } catch (...) {
-      log::err << "[ERROR] " << ::GetLastErrorString() << log::end;
+      log::err << "[ERROR] " << log::end;
       return -1;
     }
     
