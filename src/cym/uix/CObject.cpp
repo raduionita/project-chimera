@@ -5,12 +5,12 @@ namespace cym { namespace uix {
   CObject::CRegistry CObject::sRegistry;
   
   CObject::CObject() : mId{++sId} {
-    std::cout << "uix::CObject::CObject()::" << this << " ID:" << mId << std::endl;
+    log::nfo << "uix::CObject::CObject()::" << this << " ID:" << mId << log::end;
     mId && sRegistry.insert(this); // only if it has a valid mId
   }
   
   CObject::~CObject() {
-    std::cout << "uix::CObject::~CObject()::" << this << " ID:" << mId << std::endl;
+    log::nfo << "uix::CObject::~CObject()::" << this << " ID:" << mId << log::end;
     mId && sRegistry.remove(this); // only if it has a valid mId
   }
   
@@ -23,11 +23,11 @@ namespace cym { namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   CObject::CRegistry::CRegistry() {
-    std::cout << "uix::CObject::CRegistry::CRegistry()::" << this << std::endl;
+    log::nfo << "uix::CObject::CRegistry::CRegistry()::" << this << log::end;
   }
   
   CObject::CRegistry::~CRegistry() {
-    std::cout << "uix::CObject::CRegistry::~CRegistry()::" << this << std::endl;
+    log::nfo << "uix::CObject::CRegistry::~CRegistry()::" << this << log::end;
     for (auto it = mObjects.begin(); it != mObjects.end(); ++it) {
       if (*it) {
         delete (*it);
@@ -36,7 +36,7 @@ namespace cym { namespace uix {
   }
   
   bool CObject::CRegistry::insert(CObject* pObject) {
-    std::cout << "uix::CObject::CRegistry::insert(CObject*)::" << pObject << " ID:" << pObject->mId << std::endl;
+    log::nfo << "uix::CObject::CRegistry::insert(CObject*)::" << pObject << " ID:" << pObject->mId << log::end;
     bool nSize = mObjects.size();
     // @todo: seach for nullptr in mObjects or push_back
     mObjects.push_back(pObject);
@@ -44,7 +44,7 @@ namespace cym { namespace uix {
   }
   
   bool CObject::CRegistry::remove(CObject* pObject) {
-    std::cout << "uix::CObject::CRegistry::remove(CObject*)::" << pObject << " ID:" << pObject->mId << std::endl;
+    log::nfo << "uix::CObject::CRegistry::remove(CObject*)::" << pObject << " ID:" << pObject->mId << log::end;
     bool nSize = mObjects.size();
     for (auto it = mObjects.begin(); it != mObjects.end(); ++it) {
       if (pObject == *it) {

@@ -1,6 +1,9 @@
 #ifndef __cym_uix_hpp__
 #define __cym_uix_hpp__
 
+#include "../cym.hpp"
+#include "../sys/CLogger.hpp"
+
 #define WIN32_LEAN_AND_MEAN // before <windows.h> exclude unusable stuff
 #include <windows.h>
 #include <windowsx.h>
@@ -8,18 +11,12 @@
 #include <wingdi.h>
 #include <commctrl.h>
 
-#include "cym/sys/sys.hpp"
-
 #include <cassert>
-#include <string>
-#include <iostream>
 #include <iomanip>
 #include <atomic>
-#include <vector>
 #include <map>
-#include <chrono>
-#include <algorithm>
 #include <bitset>
+#include <vector>
 
 #define RETURNN(cond)     if(cond)return
 #define RETURNV(cond,out) if(cond)return out
@@ -152,6 +149,8 @@ namespace cym { namespace uix {
   using TMap       = std::map<K,V>;
   template<typename T>
   using TVector    = std::vector<T>;
+    
+  using log        = cym::sys::CLogger;
   
   inline TString T(const char* text) { return TString(text); }
   inline TString T(int num)          { return std::to_string(num); }
@@ -209,6 +208,7 @@ namespace cym { namespace uix {
   };
     
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 }}
 
 // @here: functions that should have been in win32 

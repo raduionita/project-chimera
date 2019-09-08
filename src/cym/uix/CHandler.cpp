@@ -2,10 +2,10 @@
 
 namespace cym { namespace uix {
   CHandler::CHandler() {
-    std::cout << "uix::CHandler::CHandler()::" << this << std::endl;
+    log::nfo << "uix::CHandler::CHandler()::" << this << log::end;
   }
   
   CHandler::~CHandler() {
-    std::cout << "uix::CHandler::~CHandler()::" << this << std::endl;
+    log::nfo << "uix::CHandler::~CHandler()::" << this << log::end;
   }
 }}

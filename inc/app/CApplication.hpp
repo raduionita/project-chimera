@@ -1,9 +1,12 @@
 #ifndef __app_capplication_hpp__
 #define __app_capplication_hpp__
 
+#define LOGGING 1
+
 #include "cym/uix/CApplication.hpp"
 
 using namespace cym;
+using log = cym::sys::CLogger;
 
 namespace app {
   class CApplication : public uix::CApplication {

@@ -1,8 +1,7 @@
 // todo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-= log to file & console // clear (or backup) file on open
-= handling errors + exceptions/crashes 
-= loops: gui/event/game loop
+= handling errors + exceptions/crashes (sys::CException)
+= loops: timers + gui/event/game loop
 = registries should init only on app init
 = fullscreen (F11)
 = events + listeners + handlers
@@ -19,7 +18,10 @@
 = on resize/maximized restore canvas/surface'context (render area)
 = handle ::WinMain + CApplication + CConsole + nCmdShow
 = ::AnimateWindow()
-
+= sys: os + fs + timer 
+= logger: custom manipulators + multiple strategies (+file) + loggin w/ defines & macros
+= logger: make CLogger::dbg/nfo/wrn/err reference to CLogger not EType or EType into a class
+= logger: should get instance on app instance / solve the unique_ptr init problem
 
 
 

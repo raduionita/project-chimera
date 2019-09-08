@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 project(cpp:chimera)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD_LIBRARIES "-static-libgcc -static-libstdc++ -lgdi32 -lopengl32 ${CMAKE_CSS_STANDARD_LIBRARIES}") # -lwsock32 -lws2_32
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive")
@@ -13,7 +13,7 @@ link_directories(lib)
 file(GLOB APP "src/main.cpp" "src/app/*.cpp")
 file(GLOB CYM "src/cym/*.cpp" "src/cym/*/*.cpp" "src/cym/*/*/*.cpp")
 
-add_library(cym ${CYM} src/cym/uix/CPopup.cpp inc/cym/uix/CPopup.hpp src/cym/uix/CConsole.cpp inc/cym/uix/CConsole.hpp)
+add_library(cym ${CYM})
 add_executable(app ${APP})
 
 target_link_libraries(app cym) # libglfw3.a libgdi32.a libopengl32.a

@@ -2,17 +2,17 @@
 
 namespace cym { namespace uix {
   CLoop::CLoop() {
-    std::cout << "uix::CLoop::CLoop()::" << this << std::endl;
+    log::nfo << "uix::CLoop::CLoop()::" << this << log::end;
   }
   
   CLoop::~CLoop() {
-    std::cout << "uix::CLoop::~CLoop()::" << this << std::endl;
+    log::nfo << "uix::CLoop::~CLoop()::" << this << log::end;
   }
     
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   int CLoop::exec(int nMode/*=0*/) {
-    std::cout << "uix::CLoop::exec(int)::" << this << std::endl;
+    log::nfo << "uix::CLoop::exec(int)::" << this << log::end;
     
     while (mRunning) {
       
@@ -22,7 +22,7 @@ namespace cym { namespace uix {
   }
   
   int CLoop::quit(int nCode/*=0*/) {
-    std::cout << "uix::CLoop::quit(int)::" << this << std::endl;
+    log::nfo << "uix::CLoop::quit(int)::" << this << log::end;
     mRunning = false;
     return nCode;
   }

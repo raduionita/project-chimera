@@ -3,19 +3,19 @@
 
 namespace cym { namespace uix {
   CContext::CContext(CWindow* pWindow, const SConfig& sOptions) : mWindow{pWindow}, mConfig{sOptions}, mHandle{(HWND)(*pWindow)} {
-    std::cout << "uix::CContext::CContext(CWindow*,SConfig&)::" << this << std::endl;
+    log::nfo << "uix::CContext::CContext(CWindow*,SConfig&)::" << this << log::end;
     init();
   }
   
   CContext::~CContext() {
-    std::cout << "uix::CContext::CContext()::" << this << std::endl;
+    log::nfo << "uix::CContext::CContext()::" << this << log::end;
     free();
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   bool CContext::init() {
-    std::cout << "uix::CContext::init()::" << this << std::endl;
+    log::nfo << "uix::CContext::init()::" << this << log::end;
     
     // need dummy window for ogl 4.x
     
@@ -37,7 +37,7 @@ namespace cym { namespace uix {
     };
     
     if (!::RegisterClassEx(&tWndCls)) {
-      std::cout << "[CContext] ::RegisterClassEx() failed!" << std::endl;
+      log::nfo << "[CContext] ::RegisterClassEx() failed!" << log::end;
       ::MessageBox(NULL, "[CContext] ::RegisterClassEx() failed!", "ERROR", MB_OK);
       return false;
     }
@@ -56,7 +56,7 @@ namespace cym { namespace uix {
   
     if (!tWnd) {
       ::MessageBox(NULL, "[CContext] ::CreateWindowEx() failed!", "ERROR", MB_OK);
-      std::cout << "[CContext] ::CreateWindowEx() failed!" << std::endl;
+      log::nfo << "[CContext] ::CreateWindowEx() failed!" << log::end;
       return false;
     }
     
@@ -75,36 +75,36 @@ namespace cym { namespace uix {
     
     INT tPFID = ::ChoosePixelFormat(tDC, &tPFD);
     if (!tPFID) {
-      std::cout << "[CContext] ChoosePixelFormat failed!" << std::endl;
+      log::nfo << "[CContext] ChoosePixelFormat failed!" << log::end;
       ::MessageBox(NULL, "[CCanvas] ::ChoosePixelFormat() failed!", "Error", MB_OK);
       return false;
     } else if (!::SetPixelFormat(tDC, tPFID, &tPFD)) {
-      std::cout << "[CContext] ::SetPixelFormat() failed!" << std::endl;
+      log::nfo << "[CContext] ::SetPixelFormat() failed!" << log::end;
       ::MessageBox(NULL, "[CContext] ::SetPixelFormat() failed!", "Error", MB_OK);
       return false;
     } 
     
     HGLRC tRC = ::wglCreateContext(tDC);
     if (!tRC) {
-      std::cout << "[CContext] ::wglCreateContext() failed!" << std::endl;
+      log::nfo << "[CContext] ::wglCreateContext() failed!" << log::end;
       ::MessageBox(NULL, "[CContext] ::wglCreateContext() failed!", "Error", MB_OK);
       return false;
     } else if (!::wglMakeCurrent(tDC, tRC)) {
-      std::cout << "[CContext] ::wglMakeCurrent() failed!" << std::endl;
+      log::nfo << "[CContext] ::wglMakeCurrent() failed!" << log::end;
       ::MessageBox(NULL, "[CContext] ::wglMakeCurrent() failed!", "Error", MB_OK);
       return false;
     }
   
     DEFINE_WGL_FUNCTION(wglChoosePixelFormatARB);
     if (!wglChoosePixelFormatARB) {
-      std::cout << "[CContext] ::wglChoosePixelFormatARB() failed!" << std::endl;
+      log::nfo << "[CContext] ::wglChoosePixelFormatARB() failed!" << log::end;
       ::MessageBox(NULL, "[CContext] ::wglChoosePixelFormatARB() failed!", "Error", MB_OK);
       return false;
     }
   
     DEFINE_WGL_FUNCTION(wglCreateContextAttribsARB);
     if (!wglCreateContextAttribsARB) {
-      std::cout << "[CContext] ::wglCreateContextAttribsARB() failed!" << std::endl;
+      log::nfo << "[CContext] ::wglCreateContextAttribsARB() failed!" << log::end;
       ::MessageBox(NULL, "[CContext] ::wglCreateContextAttribsARB() failed!", "Error", MB_OK);
       return false;
     }
@@ -129,7 +129,7 @@ namespace cym { namespace uix {
     int nPFID; UINT nFormats;
     bool bStatus = wglChoosePixelFormatARB(mDC, aPixelAttrs, NULL, 1, &nPFID, &nFormats);
     if (bStatus == false && nFormats == 0) {
-      std::cout << "[CCanvas] ::wglChoosePixelFormatARB() failed!" << std::endl;
+      log::nfo << "[CCanvas] ::wglChoosePixelFormatARB() failed!" << log::end;
       ::MessageBox(NULL, "[CCanvas] ::wglChoosePixelFormatARB() failed!", "Error", MB_OK);
       return false;
     }
@@ -149,7 +149,7 @@ namespace cym { namespace uix {
     
     mRC = wglCreateContextAttribsARB(mDC, 0, aContextAttr);
     if (!mRC) {
-      std::cout << "[CCanvas] ::wglCreateContextAttribsARB() failed!" << std::endl;
+      log::nfo << "[CCanvas] ::wglCreateContextAttribsARB() failed!" << log::end;
       ::MessageBox(NULL, "[CCanvas] ::wglCreateContextAttribsARB() failed!", "Error", MB_OK);
       return false;
     }
@@ -163,7 +163,7 @@ namespace cym { namespace uix {
     
     // make current
     if (!::wglMakeCurrent(mDC, mRC)) {
-      std::cout << "[CCanvas] ::wglMakeCurrent() failed! " << std::endl;
+      log::nfo << "[CCanvas] ::wglMakeCurrent() failed! " << log::end;
       ::MessageBox(NULL, "[CCanvas] ::wglMakeCurrent() failed!", "Error", MB_OK);
       return false;
     }
@@ -176,7 +176,7 @@ namespace cym { namespace uix {
   }
   
   bool CContext::free() {
-    std::cout << "uix::CContext::free()::" << this << std::endl;
+    log::nfo << "uix::CContext::free()::" << this << log::end;
     ::wglMakeCurrent(NULL,NULL);
     mRC && ::wglDeleteContext(mRC);
     mDC && ::ReleaseDC(mHandle, mDC);
@@ -186,12 +186,12 @@ namespace cym { namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   bool CContext::swap() const {
-    std::cout << "uix::CContext::swap()::" << this << std::endl;
+    log::nfo << "uix::CContext::swap()::" << this << log::end;
     return !!::SwapBuffers(mDC);
   }
   
   bool CContext::current() const {
-    std::cout << "uix::CContext::current()::" << this << std::endl;
+    log::nfo << "uix::CContext::current()::" << this << log::end;
     return !!::wglMakeCurrent(mDC,mRC);
   }
   

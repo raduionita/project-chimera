@@ -2,14 +2,12 @@
 #include "cym/uix/CLayout.hpp"
 
 namespace cym { namespace uix {
-  std::map<TString, LPTSTR> CWindow::sRegistry;
-  
   CWindow::CWindow() {
-    std::cout << "uix::CWindow::CWindow()::" << this << std::endl;
+    log::nfo << "uix::CWindow::CWindow()::" << this << log::end;
   }
   
   CWindow::~CWindow() {
-    std::cout << "uix::CWindow::~CWindow()::" << this << std::endl;
+    log::nfo << "uix::CWindow::~CWindow()::" << this << log::end;
     // release
     free();
   }
@@ -17,19 +15,19 @@ namespace cym { namespace uix {
   // cast ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   CWindow::operator HWND() {
-    std::cout << "uix::CWindow::operator HWND()::" << this << std::endl;
+    log::nfo << "uix::CWindow::operator HWND()::" << this << log::end;
     return mHandle;
   }
   
   CWindow::operator const HWND() const {
-    std::cout << "uix::CWindow::operator HWND()::" << this << std::endl;
+    log::nfo << "uix::CWindow::operator HWND()::" << this << log::end;
     return mHandle;
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   bool CWindow::init(CWindow* pParent, int nHints) {
-    std::cout << "uix::CWindow::init(CWindow*,int)::" << this << " NAME:" << name() << std::endl;
+    log::nfo << "uix::CWindow::init(CWindow*,int)::" << this << " NAME:" << name() << log::end;
     
     // set parent
     mParent = pParent;
@@ -52,7 +50,7 @@ namespace cym { namespace uix {
     };
   
     if (!::RegisterClassEx(&sWndCls)) {
-      std::cout << "[CWindow] ::RegisterClassEx() failed!" << std::endl;
+      log::nfo << "[CWindow] ::RegisterClassEx() failed!" << log::end;
       ::MessageBox(NULL, "[CWindow] ::RegisterClassEx() failed!", "ERROR", MB_OK);
       return false;
     }
@@ -92,7 +90,7 @@ namespace cym { namespace uix {
   
     if (!mHandle) {
       ::MessageBox(NULL, "[CWindow] ::CreateWindowEx() failed!", "ERROR", MB_OK);
-      std::cout << "[CWindow] ::CreateWindowEx() failed!" << std::endl;
+      log::nfo << "[CWindow] ::CreateWindowEx() failed!" << log::end;
       return false;
     }
   
@@ -110,7 +108,7 @@ namespace cym { namespace uix {
   }
   
   bool CWindow::free() {
-    std::cout << "uix::CWindow::free()::" << this << std::endl;
+    log::nfo << "uix::CWindow::free()::" << this << log::end;
     // delete children
     for (CWindow*& pChild : mChildren) {
       DELETE(pChild);
@@ -131,14 +129,12 @@ namespace cym { namespace uix {
     return !mInited;
   }
   
-  inline TString CWindow::name() const {
-    return sys::concat("uix::CWindow::", mId);
-  }
+  inline TString CWindow::name() const { return cym::concat("uix::CWindow::", mId); }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
   bool CWindow::show(int nHints/*=1*/) {
-    std::cout << "uix::CWindow::show()::" << this << std::endl;
+    log::nfo << "uix::CWindow::show()::" << this << log::end;
     // @todo:   0b = hide
     // @todo:   1b = show | make visible
     // @todo:  01b = 2 = maximize
@@ -146,7 +142,7 @@ namespace cym { namespace uix {
   }
   
   bool CWindow::hide(int nHints/*=1*/) {
-    std::cout << "uix::CWindow::hide()::" << this << std::endl;
+    log::nfo << "uix::CWindow::hide()::" << this << log::end;
     // @todo:   0b = show
     // @todo:   1b = hide | make invisible
     // @todo:  01b = 2 = minimize
@@ -154,13 +150,13 @@ namespace cym { namespace uix {
   }
   
   bool CWindow::focus(int nHints/*=1*/) {
-    std::cout << "uix::CWindow::focus()::" << this << std::endl;
+    log::nfo << "uix::CWindow::focus()::" << this << log::end;
     ::SetFocus(mHandle); // returns window w/ previous focus
     return true;
   }
   
   bool CWindow::move(int x, int y) {
-    std::cout << "uix::CWindow::move("<< x <<","<< y <<")::" << this << std::endl;
+    log::nfo << "uix::CWindow::move("<< x <<","<< y <<")::" << this << log::end;
   
     RETURN(!mInited, false);
     
@@ -180,7 +176,7 @@ namespace cym { namespace uix {
   }
   
   bool CWindow::size(int w, int h) {
-    std::cout << "uix::CWindow::size("<< w <<","<< h <<")::" << this << std::endl;
+    log::nfo << "uix::CWindow::size("<< w <<","<< h <<")::" << this << log::end;
   
     RETURN(!mInited, false);
     
@@ -206,7 +202,7 @@ namespace cym { namespace uix {
   }
   
   bool CWindow::center() {
-    std::cout << "uix::CWindow::center()::" << this << std::endl;
+    log::nfo << "uix::CWindow::center()::" << this << log::end;
     
     RETURN(!mInited, false);
     
@@ -227,7 +223,7 @@ namespace cym { namespace uix {
   }
   
   SRect CWindow::adjust() {
-    std::cout << "uix::CWindow::adjust()::" << this << std::endl;
+    log::nfo << "uix::CWindow::adjust()::" << this << log::end;
     
     RETURN(!mInited, {});
   
@@ -242,12 +238,12 @@ namespace cym { namespace uix {
   }
 
   bool CWindow::maximize() {
-    std::cout << "uix::CWindow::maximize()::" << this << std::endl;
+    log::nfo << "uix::CWindow::maximize()::" << this << log::end;
     return /*(mState |= EState::MAXIMIZED) &&*/ ::ShowWindow(mHandle, SW_MAXIMIZE);
   }
   
   bool CWindow::minimize() {
-    std::cout << "uix::CWindow::minimize()::" << this << std::endl;
+    log::nfo << "uix::CWindow::minimize()::" << this << log::end;
     return /*(mState |= EState::MINIMIZED) &&*/ ::ShowWindow(mHandle, SW_MINIMIZE);
   }
   
@@ -316,7 +312,7 @@ namespace cym { namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   CWindow* CWindow::find(const TString& name) {
-    std::cout << "uix::CWindow::find(" << name << ")::" << std::endl;
+    log::nfo << "uix::CWindow::find(" << name << ")::" << log::end;
     HWND hWnd = ::FindWindow(NULL, name.c_str());
     return reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
   }
@@ -328,7 +324,7 @@ namespace cym { namespace uix {
         CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
         CWindow*      pWindow = reinterpret_cast<CWindow*>(pCreate->lpCreateParams);
         BREAK(!pWindow);
-        std::cout << "   W:WM_CREATE::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << std::endl;
+        log::nfo << "   W:WM_CREATE::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
         // @todo: create event
         break; 
       }
@@ -337,13 +333,13 @@ namespace cym { namespace uix {
       case CM_INIT: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        std::cout << "   W:CM_INIT::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << std::endl;
+        log::nfo << "   W:CM_INIT::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
         return 0;
       }
       case WM_CLOSE: { // called on [x] or window menu [Close] // triggers: WM_DESTROY
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        std::cout << "   W:WM_CLOSE::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << std::endl;
+        log::nfo << "   W:WM_CLOSE::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
         // @todo: close event
         ::PostQuitMessage(0);
         break;
@@ -353,14 +349,14 @@ namespace cym { namespace uix {
       case WM_SETFOCUS: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        std::cout << "   W:WM_SETFOCUS::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << std::endl;
+        log::nfo << "   W:WM_SETFOCUS::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
         // @todo: focus event
         break; 
       }
       case WM_KILLFOCUS: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        std::cout << "   W:WM_KILLFOCUS::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << std::endl;
+        log::nfo << "   W:WM_KILLFOCUS::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
         // @todo: blur event
         break; 
       }
@@ -370,7 +366,7 @@ namespace cym { namespace uix {
       case WM_MOVE: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        std::cout << "   W:WM_MOVE::" << pWindow << " ID:" << pWindow->mId <<  " x:" << LOWORD(lParam) << " y:" << HIWORD(lParam) << std::endl;
+        log::nfo << "   W:WM_MOVE::" << pWindow << " ID:" << pWindow->mId <<  " x:" << LOWORD(lParam) << " y:" << HIWORD(lParam) << log::end;
         // @todo: moved event
         // lParam: x: (int)(short) LOWORD(lParam)
         //         y: (int)(short) HIWORD(lParam)
@@ -381,7 +377,7 @@ namespace cym { namespace uix {
       case WM_SIZE: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        std::cout << "   W:WM_SIZE::" << pWindow << " ID:" << pWindow->mId <<  " x:" << LOWORD(lParam) << " y:" << HIWORD(lParam) << std::endl;
+        log::nfo << "   W:WM_SIZE::" << pWindow << " ID:" << pWindow->mId <<  " x:" << LOWORD(lParam) << " y:" << HIWORD(lParam) << log::end;
         
         // @todo: sized event
         
@@ -407,7 +403,7 @@ namespace cym { namespace uix {
       case WM_LBUTTONDOWN: { 
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        std::cout << "   W:WM_LBUTTONDOWN::" << pWindow << " ID:" << pWindow->mId <<  " x:" << GET_X_LPARAM(lParam) << " y:" <<GET_Y_LPARAM(lParam) << std::endl;
+        log::nfo << "   W:WM_LBUTTONDOWN::" << pWindow << " ID:" << pWindow->mId <<  " x:" << GET_X_LPARAM(lParam) << " y:" <<GET_Y_LPARAM(lParam) << log::end;
         
         // @todo: mousedown event
         // @todo: click event

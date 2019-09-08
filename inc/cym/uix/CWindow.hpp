@@ -14,8 +14,6 @@ namespace cym { namespace uix {
     protected:
       typedef CObject super;
       static constexpr int STYLE = EHint::AUTOXY|EHint::AUTOWH;
-    private:
-      static std::map<TString, LPTSTR> sRegistry;
     protected:
       bool               mInited = {false};
       HWND               mHandle = {NULL};

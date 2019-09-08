@@ -2,23 +2,23 @@
 
 namespace cym { namespace uix {
   CPanel::CPanel(CWindow* pParent, int nHints/*=ZERO*/) {
-    std::cout << "uix::CPanel::CPanel(CWindow*,int)::" << this << std::endl;
+    log::nfo << "uix::CPanel::CPanel(CWindow*,int)::" << this << log::end;
     init(pParent, nHints | CPanel::STYLE);
   }
   
   CPanel::~CPanel() {
-    std::cout << "uix::CPanel::~CPanel()::" << this << std::endl;
+    log::nfo << "uix::CPanel::~CPanel()::" << this << log::end;
   }
   
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   bool CPanel::init(CWindow* pParent, int nHints) {
-    std::cout << "uix::CPanel::init(CWindow*,int)::" << this << std::endl;
+    log::nfo << "uix::CPanel::init(CWindow*,int)::" << this << log::end;
   
     RETURN(mInited,true);
     
     if (!super::init(pParent, nHints)) {
-      std::cout << "[CPanel] super::init() failed!" << std::endl;
+      log::nfo << "[CPanel] super::init() failed!" << log::end;
       ::MessageBox(NULL, "[CPanel] super::init() failed!", "Error", MB_OK);
       return false;
     }

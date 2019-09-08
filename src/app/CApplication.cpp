@@ -6,17 +6,17 @@
 
 namespace app {
   CApplication::CApplication() {
-    std::cout << "app::CApplication::CApplication()::" << this << std::endl;
+    log::nfo << "app::CApplication::CApplication()::" << this << log::end;
   }
   
   CApplication::~CApplication() {
-    std::cout << "app::CApplication::~CApplication()::" << this << std::endl;
+    log::nfo << "app::CApplication::~CApplication()::" << this << log::end;
   }
   
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   void CApplication::onInit() {
-    std::cout << "app::CApplication::onInit()::" << this << std::endl;
+    log::nfo << "app::CApplication::onInit()::" << this << log::end;
     
     auto pWindow  = new uix::CFrame();
     auto pLayout  = dynamic_cast<uix::CBoxLayout*>(pWindow->layout(new uix::CBoxLayout(uix::EHint::VERTICAL)));
@@ -41,6 +41,6 @@ namespace app {
   }
   
   void CApplication::onExit() {
-    std::cout << "app::CApplication::onInit()::" << this << std::endl;
+    log::nfo << "app::CApplication::onInit()::" << this << log::end;
   }
 }

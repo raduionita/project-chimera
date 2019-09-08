@@ -39,7 +39,7 @@ namespace cym { namespace uix {
 
 #define DECLARE_APPLICATION(cls)                                                                                       \
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {                      \
-  std::cout << "   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << std::endl;                              \
+  log::nfo << "   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << log::end;                                \
   auto app   = new cls();                                                                                              \
   INT result = app->exec();                                                                                            \
   delete app;                                                                                                          \

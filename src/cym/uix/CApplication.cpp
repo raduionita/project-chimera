@@ -5,18 +5,18 @@ namespace cym { namespace uix {
   CApplication* CApplication::sInstance{nullptr};
   
   CApplication::CApplication(HINSTANCE hHandle/*=::GetModuleHandle(NULL)*/, int nCmdShow/*=0*/) : CObject(), mHandle{hHandle} {
-    std::cout << "uix::CApplication::CApplication()::" << this << " INSTANCE:" << mHandle << std::endl;
+    log::nfo << "uix::CApplication::CApplication()::" << this << " INSTANCE:" << mHandle << log::end;
     assert(!sInstance && "CApplication::sIntastace already defined. Only one CApplication instance allowed!");
     mConsole  = new CConsole(this, nCmdShow);
     sInstance = this;
   }
   
   CApplication::~CApplication() {
-    std::cout << "uix::CApplication::~CApplication()::" << this << std::endl;
+    log::nfo << "uix::CApplication::~CApplication()::" << this << log::end;
   }
   
   CApplication::CApplication(const CApplication&) {
-    std::cout << "uix::CApplication::CApplication(CApplication&)::" << this << std::endl;
+    log::nfo << "uix::CApplication::CApplication(CApplication&)::" << this << log::end;
   }
   
   CApplication& CApplication::operator =(const CApplication& that) {
@@ -37,19 +37,19 @@ namespace cym { namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   bool CApplication::init() {
-    std::cout << "uix::CApplication::init()::" << this << std::endl;
+    log::nfo << "uix::CApplication::init()::" << this << log::end;
     onInit();
     return true;
   }
   
   bool CApplication::free() {
-    std::cout << "uix::CApplication::free()::" << this << std::endl;
+    log::nfo << "uix::CApplication::free()::" << this << log::end;
     
     return true;
   }
   
   int CApplication::exec(int nMode/*=0*/) {
-    std::cout << "uix::CApplication::exec()::" << this << std::endl;
+    log::nfo << "uix::CApplication::exec()::" << this << log::end;
     
     try {
       
@@ -73,14 +73,14 @@ namespace cym { namespace uix {
       
       return (int)(msg.wParam);
     } catch (...) {
-      std::cerr << "[ERROR] " << ::GetLastErrorString() << std::endl;
+      log::err << "[ERROR] " << ::GetLastErrorString() << log::end;
       return -1;
     }
     
   }
   
   int CApplication::quit(int nCode/*=0*/) {
-    std::cout << "uix::CApplication::quit(int)::" << this << std::endl;
+    log::nfo << "uix::CApplication::quit(int)::" << this << log::end;
     mRunning = false;
     onExit();
     return nCode;
