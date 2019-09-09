@@ -74,8 +74,8 @@ namespace cym { namespace uix {
       mRunning = !free();
       
       return (int)(msg.wParam);
-    } catch (sys::CException& e) {
-      log::err << e << log::end;
+    } catch (sys::CException& ex) {
+      log::err << ex << log::end;
       return -1;
     }
   }

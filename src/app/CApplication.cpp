@@ -5,16 +5,6 @@
 #include "cym/uix/CLayout.hpp"
 
 namespace app {
-  CApplication::CApplication() {
-    log::nfo << "app::CApplication::CApplication()::" << this << log::end;
-  }
-  
-  CApplication::~CApplication() {
-    log::nfo << "app::CApplication::~CApplication()::" << this << log::end;
-  }
-  
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
   void CApplication::onInit() {
     log::nfo << "app::CApplication::onInit()::" << this << log::end;
     

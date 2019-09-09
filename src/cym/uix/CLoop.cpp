@@ -36,7 +36,7 @@ namespace cym { namespace uix {
   bool CGameLoop::exec(int nMode/*=0*/) {
     log::nfo << "uix::CGameLoop::exec(int)::" << this << log::end;
     mRunning = init();
-    MSG sMsg;
+    MSG sMsg{0};
     while (mRunning) {
       DWORD nCurTicks = ::GetTickCount();
       DWORD nEndTicks = nCurTicks + 1000 / mFPS; // 33ms (30fps)
@@ -59,5 +59,39 @@ namespace cym { namespace uix {
       tick(nCurTicks);
     }
     return exit();
+    
+    
+    DWORD     nNextTick = ::GetTickCount(); // ms since app start
+    DWORD     nCurrTick;
+    int       nLoops;
+    const int cMaxLoops = 10;
+    const int cSkipTime = 1000 / mFPS; // 1s/30  ~ 33ms
+    float     fInterp; // interpolation // for view_pos = pos + (speed * interp)
+    while (mRunning) {
+      // handle events
+      
+      nLoops = 0;
+      nCurrTick = ::GetTickCount(); // should this be inside the loop
+      while (nNextTick < nCurrTick && nLoops < cMaxLoops) {
+        // update
+        nNextTick += cSkipTime;
+        nLoops++;
+      }
+      // interp = float(::GetTickCount() + cSkipTime - nNextTick) / float(cSkipTime)
+      // render(interp) // 
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
   }
 }}
