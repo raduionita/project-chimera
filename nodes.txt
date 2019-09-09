@@ -1,7 +1,8 @@
 // todo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-= handling errors + exceptions/crashes (sys::CException)
 = loops: timers + gui/event/game loop
+= loops: nees a callback or something
+
 = registries should init only on app init | use CSingleton & CPointer
 = fullscreen (F11)
 = WM_XXX + events + listeners + handlers

@@ -4,18 +4,19 @@
 #include "sys.hpp"
 #include "CPointer.hpp"
 
+#include <cassert>
+
 namespace cym { namespace sys {
   template <typename T> class CSingleton {
     protected:
-      static CPointer<T> sInstance;
+    static CPointer<T> sInstance;
+    
     protected:
-      CSingleton() { }
-      virtual ~CSingleton() { }
+    CSingleton() { assert(!sInstance && "CSingleton<T>::sIntastace already defined"); }
+    virtual ~CSingleton() { }
+    
     public:
-      static auto instance() -> decltype(sInstance) {
-        if (!sInstance) sInstance = new T;
-        return sInstance;
-      }
+    static auto instance() -> decltype(sInstance) { return (!sInstance) ? sInstance = new T : sInstance; }
   };
   template<typename T> CPointer<T> CSingleton<T>::sInstance{nullptr};
 }}

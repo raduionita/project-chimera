@@ -3,6 +3,8 @@
 
 #include "../cym.hpp"
 #include "../sys/CLogger.hpp"
+#include "../sys/CException.hpp"
+#include "../sys/CSingleton.hpp"
 
 #define WIN32_LEAN_AND_MEAN // before <windows.h> exclude unusable stuff
 #include <windows.h>
@@ -139,7 +141,7 @@ namespace cym { namespace uix {
   typedef SArea  A;
   typedef SRect  R;
   
-  inline std::ostream& operator <<(std::ostream&o, const RECT& r) { return o << "l:" << r.left << " t:" << r.top << " r:" << r.right << " b:" << r.bottom; }
+  inline std::ostream& operator <<(std::ostream& o, const RECT& r) { return o << "l:" << r.left << " t:" << r.top << " r:" << r.right << " b:" << r.bottom; }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -208,7 +210,7 @@ namespace cym { namespace uix {
   };
     
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+  
 }}
 
 #endif //__cym_uix_hpp__

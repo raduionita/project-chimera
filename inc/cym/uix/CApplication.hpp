@@ -7,33 +7,43 @@
 namespace cym { namespace uix {
   class CApplication : public CObject {
     protected:
-      using CObject::CObject;
-      using CObject::operator=;
+    using CObject::CObject;
+    using CObject::operator=;
+    
     protected:
-      static CApplication* sInstance;
-      HINSTANCE            mHandle   = {NULL};
-      CConsole*            mConsole  = {nullptr};
-      bool                 mRunning  = {false};
-      CLoop*               mLoop     = {nullptr};
+    static CApplication* sInstance;
+    HINSTANCE            mHandle   = {NULL};
+    CConsole*            mConsole  = {nullptr};
+    bool                 mRunning  = {false};
+    CLoop*               mLoop     = {nullptr};
+    
     public:
-      CApplication(HINSTANCE = ::GetModuleHandle(NULL), int = 0);
-      ~CApplication();
-      CApplication(const CApplication&);
-      CApplication& operator =(const CApplication&);
-      explicit operator       HINSTANCE();
-      explicit operator const HINSTANCE() const;
+    CApplication(HINSTANCE = ::GetModuleHandle(NULL), int = 0);
+    CApplication(const CApplication&);
+    ~CApplication();
+    
+    public:
+    CApplication& operator =(const CApplication&);
+    
+    public:
+    explicit operator       HINSTANCE();
+    explicit operator const HINSTANCE() const;
+    
     protected:
-      bool init();
-      bool free();
+    bool init();
+    bool free();
+    
     public:
-      int  exec(int = 0);
-      int  quit(int = 0);
+    int  exec(int = 0);
+    int  quit(int = 0);
+    
     public:
-      static CApplication* instance();
+    static CApplication* instance();  
+    
     protected:
-      virtual void onInit();
-      virtual void onTick(long = 0);
-      virtual void onExit();
+    virtual void onInit();
+    virtual void onTick(long = 0);
+    virtual void onExit();
   };  
 }}
 

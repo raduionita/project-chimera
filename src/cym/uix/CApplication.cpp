@@ -6,17 +6,17 @@ namespace cym { namespace uix {
   
   CApplication::CApplication(HINSTANCE hHandle/*=::GetModuleHandle(NULL)*/, int nCmdShow/*=0*/) : CObject(), mHandle{hHandle} {
     log::nfo << "uix::CApplication::CApplication()::" << this << " INSTANCE:" << mHandle << log::end;
-    assert(!sInstance && "CApplication::sIntastace already defined. Only one CApplication instance allowed!");
+    assert(!sInstance && "CApplication::sIntastace already defined.");
     mConsole  = new CConsole(this, nCmdShow);
     sInstance = this;
   }
   
-  CApplication::~CApplication() {
-    log::nfo << "uix::CApplication::~CApplication()::" << this << log::end;
-  }
-  
   CApplication::CApplication(const CApplication&) {
     log::nfo << "uix::CApplication::CApplication(CApplication&)::" << this << log::end;
+  }
+    
+  CApplication::~CApplication() {
+    log::nfo << "uix::CApplication::~CApplication()::" << this << log::end;
   }
   
   CApplication& CApplication::operator =(const CApplication& that) {
@@ -49,11 +49,13 @@ namespace cym { namespace uix {
   }
   
   int CApplication::exec(int nMode/*=0*/) {
-    log::nfo << "uix::CApplication::exec()::" << this << log::end;
-    
     try {
+      log::nfo << "uix::CApplication::exec()::" << this << log::end;
       
-      // @todo: run mLoop.exec()
+      // @todo: IF mLoop == nullptr THEN mLoop = CEventLoop ELSE mLoop
+      // @todo: mLoop.exec()
+      
+      
       // @todo: mLoop stops => CApplication stop  
       
       mRunning = init();
@@ -72,11 +74,10 @@ namespace cym { namespace uix {
       mRunning = !free();
       
       return (int)(msg.wParam);
-    } catch (...) {
-      log::err << "[ERROR] " << log::end;
+    } catch (sys::CException& e) {
+      log::err << e << log::end;
       return -1;
     }
-    
   }
   
   int CApplication::quit(int nCode/*=0*/) {
@@ -88,11 +89,7 @@ namespace cym { namespace uix {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  CApplication* CApplication::instance() {
-    if (!sInstance) new CApplication;
-    // this will be deleted by the CObject::CRegistry
-    return sInstance;
-  }
+  CApplication* CApplication::instance() { return (!sInstance) ? sInstance = new CApplication : sInstance; }
     
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   

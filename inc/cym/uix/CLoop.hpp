@@ -6,18 +6,36 @@
 namespace cym { namespace uix {
   class CLoop {
     protected:
-      DWORD mStart   = {::GetTickCount()};
-      bool  mRunning = {false};
+    DWORD mStart   = {::GetTickCount()};
+    bool  mRunning = {false};
+    
     public:
-      CLoop();
-      virtual ~CLoop();
+    CLoop();
+    virtual ~CLoop();
+    
     public:
-      virtual int exec(int = 0);
-      virtual int quit(int = 0);
+    virtual bool init(int = 0); // event
+    virtual bool exec(int = 0); // action
+    virtual bool tick(int = 0); // event
+    virtual bool quit(int = 0); // action
+    virtual bool exit(int = 0); // event
+    
     public:
-      virtual bool onInit();
-      virtual bool onTick();
-      virtual bool onExit();
+    virtual void onInit();
+    virtual void onTick();
+    virtual void onExit();
+  };
+  
+  class CEventLoop : public CLoop {
+    public:
+    virtual bool exec(int = 0);
+  };
+  
+  class CGameLoop : public CLoop {
+    protected:
+    int mFPS = {30};
+    public:
+    virtual bool exec(int = 0);
   };
 }}
 

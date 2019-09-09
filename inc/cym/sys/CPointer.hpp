@@ -28,6 +28,7 @@ namespace cym { namespace sys {
       }
       // assignment operator
       CPointer& operator =(const CPointer& that) {
+        // make sure u dont reassing/delete existing pointer
         if (this != &that) {
           // if this already has a ref => decrement
           if ((*mCount) != 0) {
@@ -43,28 +44,31 @@ namespace cym { namespace sys {
           mCount   = that.mCount;
           ++(*mCount);
         }
+        return *this;
         // usage: pObject1 will try to clear then link/ref to pObject0's pointer
         // sys::CPointer<CClass> pObject0{new CClass};
         // sys::CPointer<CClass> pObject1 = {pObject0};
-        return *this;
       }
       // assignment operator
       CPointer& operator =(T* pPointer) {
-        // if this already has a ref => decrement
-        if ((*mCount) != 0) {
-          --(*mCount);
+        // make sure u dont reassing/delete existing pointer
+        if (mPointer != pPointer) {
+          // if this already has a ref => decrement
+          if ((*mCount) != 0) {
+            --(*mCount);
+          }
+          // if at zero => remove old refs
+          if ((*mCount) == 0) {
+            delete mPointer; mPointer = nullptr;
+            delete mCount;   mCount   = nullptr;
+          }
+          // assign...
+          mPointer = pPointer;
+          mCount   = new uint32_t{1};
         }
-        // if at zero => remove old refs
-        if ((*mCount) == 0) {
-          delete mPointer; mPointer = nullptr;
-          delete mCount;   mCount   = nullptr;
-        }
-        // assign...
-        mPointer = pPointer;
-        mCount   = new uint32_t{1};
+        return *this;
         // usage: pObject will try to clear then assign/link to pointer
         // std::CPointer<CClass> pObject = new CClass;
-        return *this;
       }
       // access operators
       T& operator  *() { return *mPointer; }
@@ -76,9 +80,11 @@ namespace cym { namespace sys {
       bool operator ==(bool state) { return state ? mPointer != nullptr : mPointer == nullptr; }
       bool operator  !() { return mPointer == nullptr; }
       // cast operator
-      explicit operator bool() const { return mPointer != nullptr; }
-      explicit operator   T*() const { return mPointer; }
-      explicit operator    T() const { return *mPointer; }
+      operator bool() const { return mPointer != nullptr; }
+      operator   T*() const { return mPointer; }
+      operator    T() const { return *mPointer; }
+      // pointer
+      T* ptr() const noexcept { return mPointer; }
   };
 }}
 
