@@ -6,7 +6,7 @@
 
 namespace app {
   void CApplication::onInit() {
-    log::nfo << "app::CApplication::onInit()::" << this << log::end;
+    log::wrn << "app::CApplication::onInit()::" << this << log::end;
     
     auto pWindow  = new uix::CFrame();
     auto pLayout  = dynamic_cast<uix::CBoxLayout*>(pWindow->layout(new uix::CBoxLayout(uix::EHint::VERTICAL)));
@@ -27,27 +27,27 @@ namespace app {
   }
   
   void CApplication::onTick() {
+    log::nfo << "app::CApplication::onTick()::" << this << log::end;
     // interpolation // for view_pos = pos + (speed * interp)
-    float     fInterp; 
-    int       nLoops;
-    const int cMaxLoops{10};
-    const int cTicksPerSec{25};             // 
-    const int cJumpTime{1000/cTicksPerSec}; // 
-    DWORD nNxtTicks = ::GetTickCount();     // ms since app start
-    while (mRunning) {
-      // game.inputs();
+    float            fInterp; 
+    int              nLoops{0};
+    static const int cMaxLoops{10};
+    static const int cTicksPerSec{25};             // 
+    static const int cJumpTime{1000/cTicksPerSec}; // 
+    DWORD nNxtTicks = ::GetTickCount();            // ms since app start
+    
+    // game.inputs();
+    
+    while (nNxtTicks < ::GetTickCount() && nLoops < cMaxLoops) {
       
-      nLoops = 0;
-      while (nNxtTicks < ::GetTickCount() && nLoops < cMaxLoops) {
-        // game.update();
-        
-        nNxtTicks += cJumpTime;
-        nLoops++;
-      }
-      fInterp = float(::GetTickCount() + cJumpTime - nNxtTicks) / float(cJumpTime);
+      // game.update();
       
-      // game.render(fInterp); 
+      nNxtTicks += cJumpTime;
+      nLoops++;
     }
+    fInterp = float(::GetTickCount() + cJumpTime - nNxtTicks) / float(cJumpTime);
+    
+    // game.render(fInterp); 
   }
   
   void CApplication::onFree() {

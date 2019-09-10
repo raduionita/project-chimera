@@ -1,9 +1,10 @@
 // todo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-= loops: timers + gui/event/game loop
-= loops: nees a callback or something
-
 = registries should init only on app init | use CSingleton & CPointer
+  + logger init on app init
+  + registries init on app init
+
+
 = fullscreen (F11)
 = WM_XXX + events + listeners + handlers
   = hotkeys & keybord shortcuts
@@ -24,7 +25,6 @@
 = logger: custom manipulators + multiple strategies (+file) + loggin w/ defines & macros
 = logger: make CLogger::dbg/nfo/wrn/err reference to CLogger not ELevel or ELevel into a class
 = logger: should get instance on app instance / solve the unique_ptr init problem
-= loops: on pause: no update/only render(but cached) & no inputs
 
 
 

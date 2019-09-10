@@ -37,19 +37,19 @@ namespace cym { namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   bool CApplication::init() {
-    log::nfo << "uix::CApplication::init()::" << this << log::end;
+    // log::dbg << "uix::CApplication::init()::" << this << log::end;
     onInit();
     return true;
   }
   
   bool CApplication::tick() {
-    log::dbg << "uix::CApplication::tick()::" << this << log::end;
+    // log::dbg << "uix::CApplication::tick()::" << this << log::end;
     onTick();
     return true;
   }
   
   bool CApplication::free() {
-    log::nfo << "uix::CApplication::free()::" << this << log::end;
+    // log::dbg << "uix::CApplication::free()::" << this << log::end;
     onFree();
     return true;
   }
@@ -83,8 +83,8 @@ namespace cym { namespace uix {
             nLoop++;
           } else { break; }
         }
-        
-        mRunning = tick();
+        // tick
+        mRunning = mRunning && tick();
       }
       
       mRunning = !free();

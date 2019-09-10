@@ -2,7 +2,7 @@
 #define __app_capplication_hpp__
 
 #define LOGGING 1
-#define LOGGING_LEVEL LOGGING_DEBUG
+#define LOGGING_LEVEL LOGGING_WARN
 
 #include "cym/uix/CApplication.hpp"
 

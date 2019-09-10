@@ -17,42 +17,46 @@ namespace cym { namespace sys {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  const CLogger::ELevel& operator <<(const CLogger::ELevel& type, const CLogger::EManipulator& manipulator) {
+  const CLogger::ELevel& operator <<(const CLogger::ELevel& eLevel, const CLogger::EManipulator& eManipulator) {
     auto sLogger = CLogger::instance();
     
-    if (!sLogger->mOutput.empty() /*&& logging level matches */) {
-      switch(sLogger->mLevel) {
-        default:
-        case CLogger::ELevel::DEBUG: sLogger->mOutput = "[DBG] " + sLogger->mOutput; break;
-        case CLogger::ELevel::INFO : sLogger->mOutput = "[NFO] " + sLogger->mOutput; break;
-        case CLogger::ELevel::WARN : sLogger->mOutput = "[WRN] " + sLogger->mOutput; break;
-        case CLogger::ELevel::FATAL: sLogger->mOutput = "[ERR] " + sLogger->mOutput; break;
-      }
-      
-      time_t nTime  = std::time(nullptr);
-      auto   sLocal = std::localtime(&nTime);
-      
-      char szTime[23];
-      std::strftime(szTime, 23, "[%Y-%m-%d %H:%M:%S] ", sLocal);
-      szTime[22] = '\0';
-      
-      sLogger->mOutput = szTime + sLogger->mOutput;
-      
-      switch (manipulator) {
-        case CLogger::EManipulator::END: {
-          sLogger->mOutput.append("\n");
-          sLogger->mProvider->log(sLogger->mOutput);
-          sLogger->mOutput.clear();
+    if (!sLogger->mOutput.empty()) {
+      // logging level matches
+      if (1 || int(eLevel) <= int(sLogger->mLevel)) {
+        switch(eLevel) {
+          default:
+          case CLogger::ELevel::DEBUG: sLogger->mOutput = "[DBG] " + sLogger->mOutput; break;
+          case CLogger::ELevel::INFO : sLogger->mOutput = "[NFO] " + sLogger->mOutput; break;
+          case CLogger::ELevel::WARN : sLogger->mOutput = "[WRN] " + sLogger->mOutput; break;
+          case CLogger::ELevel::FATAL: sLogger->mOutput = "[ERR] " + sLogger->mOutput; break;
         }
-        default:/*do nothing*/break;
+  
+        time_t nTime  = std::time(nullptr);
+        auto   sLocal = std::localtime(&nTime);
+  
+        char szTime[23];
+        std::strftime(szTime, 23, "[%Y-%m-%d %H:%M:%S] ", sLocal);
+        szTime[22] = '\0';
+  
+        sLogger->mOutput = szTime + sLogger->mOutput;
+  
+        switch (eManipulator) {
+          case CLogger::EManipulator::END: {
+            sLogger->mOutput.append("\n");
+            sLogger->mProvider->log(sLogger->mOutput);
+          }
+          default:/*do nothing*/break;
+        }
       }
+      // clear output
+      sLogger->mOutput.clear();
     }
     
-    return type;
+    return eLevel;
   }
   
   CLogger* operator <<(CLogger*, CLogger::ELevel type) {
-    return CLogger::instance()->type(type);
+    return CLogger::instance();
   }
   
   CLogger* operator <<(CLogger*, const std::string& output) {

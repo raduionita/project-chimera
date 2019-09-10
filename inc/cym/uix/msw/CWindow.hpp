@@ -3,12 +3,12 @@
 
 // @todo namespace should be the same as the ones from uix folder
 
-#include "../uix.hpp"
+#include "msw.hpp"
 
 namespace cym { namespace uix {
-  class MWindow {
+  class CWindow {
     public:
-      MWindow();
+      CWindow();
   };
 }}
 

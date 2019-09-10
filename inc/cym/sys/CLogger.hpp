@@ -6,10 +6,10 @@
 
 #include <memory>
 
-#define LOGGING_DEBUG dbg
-#define LOGGING_INFO  nfo
-#define LOGGING_WARN  wrn
-#define LOGGING_ERROR err
+#define LOGGING_DEBUG CLogger::ELevel::DEBUG
+#define LOGGING_INFO  CLogger::ELevel::INFO
+#define LOGGING_WARN  CLogger::ELevel::WARN
+#define LOGGING_ERROR CLogger::ELevel::ERROR
 #define LOGGING_FATAL LOGGING_ERROR
 
 #ifndef LOGGING
@@ -38,11 +38,11 @@ namespace cym { namespace sys {
         END = 0x0,
       };
       enum class ELevel      : int {
-        DEBUG = 0x01,
-        INFO  = 0x02,
-        WARN  = 0x04,
-        FATAL = 0x10,
+        FATAL = 1,
         ERROR = FATAL,
+        WARN  = 2 | ERROR,
+        INFO  = 4 | WARN,
+        DEBUG = 8 | INFO,
       };
     public:
       static const ELevel       nfo;
@@ -51,18 +51,13 @@ namespace cym { namespace sys {
       static const ELevel       err;
       static const EManipulator end;
     protected:  
-      ELevel          mLevel    = {ELevel::DEBUG};
-      std::string     mOutput;
-      CProvider*      mProvider = {nullptr};
+      ELevel      mLevel    = {LOGGING_LEVEL};
+      std::string mOutput;
+      CProvider*  mProvider = {nullptr};
     public:
       CLogger();
       virtual ~CLogger();
     public:
-      CLogger& operator << (ELevel type) {
-        mLevel = type;
-        return *this;
-      }
-      
       template <typename T> CLogger* operator << (const T& output) {
         return push(output);
       }
@@ -81,8 +76,6 @@ namespace cym { namespace sys {
         mOutput.append(ss.str());
         return this;
       }
-      
-      CLogger* type(ELevel type) { mLevel = type; return this; }
   };
   
   class CFileLoggerProvider : public CLogger::CProvider {
@@ -96,10 +89,9 @@ namespace cym { namespace sys {
   };
   
   template <typename T> const CLogger::ELevel& operator <<(const CLogger::ELevel& type, const T& output) {
-    CLogger::instance()->type(type)->push(output);
+    CLogger::instance()->push(output);
     return type;
   }
 }}
-
 
 #endif //__cym_sys_clogger_hpp__
