@@ -2,7 +2,6 @@
 #define __cym_uix_capplication_hpp__
 
 #include "CObject.hpp"
-#include "CLoop.hpp"
 
 namespace cym { namespace uix {
   class CApplication : public CObject {
@@ -14,8 +13,9 @@ namespace cym { namespace uix {
     static CApplication* sInstance;
     HINSTANCE            mHandle   = {NULL};
     CConsole*            mConsole  = {nullptr};
+    int                  mTPS      = {25};
+    int                  mLoops    = {10};
     bool                 mRunning  = {false};
-    CLoop*               mLoop     = {nullptr};
     
     public:
     CApplication(HINSTANCE = ::GetModuleHandle(NULL), int = 0);
@@ -31,19 +31,19 @@ namespace cym { namespace uix {
     
     protected:
     bool init();
+    bool tick();
     bool free();
-    
     public:
-    int  exec(int = 0);
-    int  quit(int = 0);
+    bool  exec(int=0);
+    bool  quit(int=0);
     
     public:
     static CApplication* instance();  
     
     protected:
     virtual void onInit();
-    virtual void onTick(long = 0);
-    virtual void onExit();
+    virtual void onTick();
+    virtual void onFree();
   };  
 }}
 

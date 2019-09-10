@@ -26,11 +26,31 @@ namespace app {
     pSurface->swap();
   }
   
-  void CApplication::onTick(long nElapsed) {
-    //sys::cout << "app::CApplication::onTick()::" << this << " DELTA:" << nDelta << sys::endl; 
+  void CApplication::onTick() {
+    // interpolation // for view_pos = pos + (speed * interp)
+    float     fInterp; 
+    int       nLoops;
+    const int cMaxLoops{10};
+    const int cTicksPerSec{25};             // 
+    const int cJumpTime{1000/cTicksPerSec}; // 
+    DWORD nNxtTicks = ::GetTickCount();     // ms since app start
+    while (mRunning) {
+      // game.inputs();
+      
+      nLoops = 0;
+      while (nNxtTicks < ::GetTickCount() && nLoops < cMaxLoops) {
+        // game.update();
+        
+        nNxtTicks += cJumpTime;
+        nLoops++;
+      }
+      fInterp = float(::GetTickCount() + cJumpTime - nNxtTicks) / float(cJumpTime);
+      
+      // game.render(fInterp); 
+    }
   }
   
-  void CApplication::onExit() {
-    log::nfo << "app::CApplication::onInit()::" << this << log::end;
+  void CApplication::onFree() {
+    log::nfo << "app::CApplication::onFree()::" << this << log::end;
   }
 }

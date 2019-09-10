@@ -1,10 +1,10 @@
 #include "cym/sys/CLogger.hpp"
 
 namespace cym { namespace sys {
-  const CLogger::EType        CLogger::dbg{EType::DEBUG};
-  const CLogger::EType        CLogger::nfo{EType::INFO};
-  const CLogger::EType        CLogger::wrn{EType::WARN};
-  const CLogger::EType        CLogger::err{EType::ERROR};
+  const CLogger::ELevel       CLogger::dbg{ELevel::DEBUG};
+  const CLogger::ELevel       CLogger::nfo{ELevel::INFO};
+  const CLogger::ELevel       CLogger::wrn{ELevel::WARN};
+  const CLogger::ELevel       CLogger::err{ELevel::ERROR};
   const CLogger::EManipulator CLogger::end{EManipulator::END};
   
   CLogger::CLogger() { mProvider = new LOGGING_PROVIDER; }
@@ -17,16 +17,16 @@ namespace cym { namespace sys {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  const CLogger::EType& operator <<(const CLogger::EType& type, const CLogger::EManipulator& manipulator) {
+  const CLogger::ELevel& operator <<(const CLogger::ELevel& type, const CLogger::EManipulator& manipulator) {
     auto sLogger = CLogger::instance();
     
-    if (!sLogger->mOutput.empty()) {
-      switch(sLogger->mType) {
+    if (!sLogger->mOutput.empty() /*&& logging level matches */) {
+      switch(sLogger->mLevel) {
         default:
-        case CLogger::EType::DEBUG: sLogger->mOutput = "[DBG] " + sLogger->mOutput; break;
-        case CLogger::EType::INFO : sLogger->mOutput = "[NFO] " + sLogger->mOutput; break;
-        case CLogger::EType::WARN : sLogger->mOutput = "[WRN] " + sLogger->mOutput; break;
-        case CLogger::EType::FATAL: sLogger->mOutput = "[ERR] " + sLogger->mOutput; break;
+        case CLogger::ELevel::DEBUG: sLogger->mOutput = "[DBG] " + sLogger->mOutput; break;
+        case CLogger::ELevel::INFO : sLogger->mOutput = "[NFO] " + sLogger->mOutput; break;
+        case CLogger::ELevel::WARN : sLogger->mOutput = "[WRN] " + sLogger->mOutput; break;
+        case CLogger::ELevel::FATAL: sLogger->mOutput = "[ERR] " + sLogger->mOutput; break;
       }
       
       time_t nTime  = std::time(nullptr);
@@ -51,7 +51,7 @@ namespace cym { namespace sys {
     return type;
   }
   
-  CLogger* operator <<(CLogger*, CLogger::EType type) {
+  CLogger* operator <<(CLogger*, CLogger::ELevel type) {
     return CLogger::instance()->type(type);
   }
   

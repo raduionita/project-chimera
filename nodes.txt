@@ -22,9 +22,9 @@
 = ::AnimateWindow()
 = sys: os + fs + timer 
 = logger: custom manipulators + multiple strategies (+file) + loggin w/ defines & macros
-= logger: make CLogger::dbg/nfo/wrn/err reference to CLogger not EType or EType into a class
+= logger: make CLogger::dbg/nfo/wrn/err reference to CLogger not ELevel or ELevel into a class
 = logger: should get instance on app instance / solve the unique_ptr init problem
-
+= loops: on pause: no update/only render(but cached) & no inputs
 
 
 

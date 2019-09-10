@@ -42,49 +42,63 @@ namespace cym { namespace uix {
     return true;
   }
   
-  bool CApplication::free() {
-    log::nfo << "uix::CApplication::free()::" << this << log::end;
-    
+  bool CApplication::tick() {
+    log::dbg << "uix::CApplication::tick()::" << this << log::end;
+    onTick();
     return true;
   }
   
-  int CApplication::exec(int nMode/*=0*/) {
+  bool CApplication::free() {
+    log::nfo << "uix::CApplication::free()::" << this << log::end;
+    onFree();
+    return true;
+  }
+  
+  bool CApplication::exec(int nMode/*=0*/) {
     try {
       log::nfo << "uix::CApplication::exec()::" << this << log::end;
       
-      // @todo: IF mLoop == nullptr THEN mLoop = CEventLoop ELSE mLoop
-      // @todo: mLoop.exec()
-      
-      
-      // @todo: mLoop stops => CApplication stop  
-      
       mRunning = init();
       
-      MSG msg;
+      MSG       sMsg{0};
+      DWORD     nCurTicks{0};
+      DWORD     nNxtTicks{0};
+      const int cJumpTime{1000/mTPS}; // 1s/25 ~ 40ms = how many jumps in 1 sec 
+      int       nLoop;
       while (mRunning) {
-        if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-          ::TranslateMessage(&msg);
-          ::DispatchMessage(&msg);
-          mRunning = msg.message != WM_QUIT;
-        } else {
-          onTick(::GetTickCount());
+        nCurTicks = ::GetTickCount();
+        nNxtTicks = nCurTicks + cJumpTime; // current_ms_count + fraction_of_a_sec_ms
+        nLoop     = 0;
+        // allowed to last max 40ms // AND // max of 10 events
+        while (nCurTicks < nNxtTicks && nLoop < mLoops) { 
+          if (::PeekMessage(&sMsg, NULL, 0, 0, PM_REMOVE)) {
+            if (WM_QUIT == sMsg.message) {
+              mRunning = false;
+              break;
+            } else {
+              ::TranslateMessage(&sMsg);
+              ::DispatchMessage(&sMsg);
+            }
+            nCurTicks = ::GetTickCount();
+            nLoop++;
+          } else { break; }
         }
+        
+        mRunning = tick();
       }
       
       mRunning = !free();
       
-      return (int)(msg.wParam);
+      return (int)(sMsg.wParam);
     } catch (sys::CException& ex) {
       log::err << ex << log::end;
       return -1;
     }
   }
   
-  int CApplication::quit(int nCode/*=0*/) {
+  bool CApplication::quit(int nCode/*=0*/) {
     log::nfo << "uix::CApplication::quit(int)::" << this << log::end;
-    mRunning = false;
-    onExit();
-    return nCode;
+    return !(mRunning = false);
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -93,7 +107,7 @@ namespace cym { namespace uix {
     
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  void CApplication::onInit()    { }
-  void CApplication::onTick(long) { }
-  void CApplication::onExit()    { }
+  void CApplication::onInit() { }
+  void CApplication::onTick() { }
+  void CApplication::onFree() { }
 }}
