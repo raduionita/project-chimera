@@ -5,18 +5,18 @@ namespace cym { namespace uix {
   CApplication* CApplication::sInstance{nullptr};
   
   CApplication::CApplication(HINSTANCE hHandle/*=::GetModuleHandle(NULL)*/, int nCmdShow/*=0*/) : CObject(), mHandle{hHandle} {
-    log::nfo << "uix::CApplication::CApplication()::" << this << " INSTANCE:" << mHandle << log::end;
+    log::dbg << "uix::CApplication::CApplication()::" << this << " INSTANCE:" << mHandle << log::end;
     assert(!sInstance && "CApplication::sIntastace already defined.");
     mConsole  = new CConsole(this, nCmdShow);
     sInstance = this;
   }
   
   CApplication::CApplication(const CApplication&) {
-    log::nfo << "uix::CApplication::CApplication(CApplication&)::" << this << log::end;
+    log::dbg << "uix::CApplication::CApplication(CApplication&)::" << this << log::end;
   }
     
   CApplication::~CApplication() {
-    log::nfo << "uix::CApplication::~CApplication()::" << this << log::end;
+    log::dbg << "uix::CApplication::~CApplication()::" << this << log::end;
   }
   
   CApplication& CApplication::operator =(const CApplication& that) {
@@ -57,7 +57,7 @@ namespace cym { namespace uix {
   
   bool CApplication::exec(int nMode/*=0*/) {
     try {
-      log::nfo << "uix::CApplication::exec()::" << this << log::end;
+      log::dbg << "uix::CApplication::exec()::" << this << log::end;
       
       mRunning = init();
       
@@ -99,7 +99,7 @@ namespace cym { namespace uix {
   }
   
   bool CApplication::quit(int nCode/*=0*/) {
-    log::nfo << "uix::CApplication::quit(int)::" << this << log::end;
+    log::dbg << "uix::CApplication::quit(int)::" << this << log::end;
     return !(mRunning = false);
   }
   

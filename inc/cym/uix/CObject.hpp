@@ -13,25 +13,28 @@ namespace cym { namespace uix {
       bool insert(CObject*);
       bool remove(CObject*);
     };
+    
     private:
-      static CRegistry        sRegistry;
+    static CRegistry        sRegistry;
+    
     protected:
-      static std::atomic<INT> sId;
-      const INT               mId = {++sId};
+    static std::atomic<INT> sId;
+    const INT               mId = {++sId};
+    
     public:
-      CObject();
-      virtual ~CObject();
-      // move = deleted
-      CObject(CObject&&) = delete;
-      CObject& operator =(CObject&&) = delete;
-      // copy = deleted
-      CObject(const CObject&) = delete;
-      CObject& operator =(const CObject&) = delete;
-      // cast
-      explicit operator const INT() const;
-    protected:
-    public:
-      const int id() const;
+    CObject();
+    virtual ~CObject();
+    // move = deleted
+    CObject(CObject&&) = delete;
+    CObject& operator =(CObject&&) = delete;
+    // copy = deleted
+    CObject(const CObject&) = delete;
+    CObject& operator =(const CObject&) = delete;
+    // cast
+    explicit operator const INT() const;
+    
+    public:ss
+    const int id() const;
   };  
 }}
 

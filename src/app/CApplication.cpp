@@ -27,7 +27,7 @@ namespace app {
   }
   
   void CApplication::onTick(int nElapsed/*=0*/) {
-    log::wrn << "app::CApplication::onTick("<< nElapsed <<"ms)::" << this << log::end;
+    log::dbg << "app::CApplication::onTick("<< nElapsed <<"ms)::" << this << log::end;
     // interpolation // for view_pos = pos + (speed * interp)
     float            fInterp; 
     int              nLoops{0};
@@ -54,6 +54,6 @@ namespace app {
   }
   
   void CApplication::onFree() {
-    log::nfo << "app::CApplication::onFree()::" << this << log::end;
+    log::dbg << "app::CApplication::onFree()::" << this << log::end;
   }
 }

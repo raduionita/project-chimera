@@ -85,10 +85,10 @@ namespace cym {
     static const ELevel       err;
     static const EManipulator end;
     
-    protected:  
-    ELevel           mLevel    = {LOGGING_LEVEL};
+    protected:
     std::string      mOutput{""};
-    CLoggerProvider* mProvider = {new LOGGING_PROVIDER};
+    ELevel           mLevel{LOGGING_LEVEL};
+    CLoggerProvider* mProvider{new LOGGING_PROVIDER};
     
     public:
     CLogger();
