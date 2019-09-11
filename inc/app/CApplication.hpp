@@ -1,20 +1,21 @@
 #ifndef __app_capplication_hpp__
 #define __app_capplication_hpp__
 
-#define LOGGING 1
-#define LOGGING_LEVEL LOGGING_WARN
+#define LOGGING
+#define LOGGING_INFO
+#define LOGGING_COUT
 
 #include "cym/uix/CApplication.hpp"
 
 using namespace cym;
-using log = cym::sys::CLogger;
+using log = cym::log;
 
 namespace app {
   class CApplication : public uix::CApplication {
     protected:
-    void onInit() override;
-    void onTick() override;
-    void onFree() override;
+    void onInit()      override;
+    void onTick(int=0) override;
+    void onFree()      override;
   };
 }
 

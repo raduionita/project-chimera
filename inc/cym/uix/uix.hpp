@@ -1,10 +1,12 @@
 #ifndef __cym_uix_hpp__
 #define __cym_uix_hpp__
 
-#include "../cym.hpp"
-#include "../sys/CLogger.hpp"
-#include "../sys/CException.hpp"
-#include "../sys/CSingleton.hpp"
+#include "../CLogger.hpp"
+#include "../CString.hpp"
+#include "../CException.hpp"
+#include "../CSingleton.hpp"
+
+// #include "./SArea.hpp"
 
 #define WIN32_LEAN_AND_MEAN // before <windows.h> exclude unusable stuff
 #include <windows.h>
@@ -145,17 +147,10 @@ namespace cym { namespace uix {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  using TID        = int32_t;
-  using TString    = std::string;
   template<typename K, typename V> 
   using TMap       = std::map<K,V>;
   template<typename T>
   using TVector    = std::vector<T>;
-    
-  using log        = cym::sys::CLogger;
-  
-  inline TString T(const char* text) { return TString(text); }
-  inline TString T(int num)          { return std::to_string(num); }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

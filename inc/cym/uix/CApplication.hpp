@@ -1,6 +1,7 @@
 #ifndef __cym_uix_capplication_hpp__
 #define __cym_uix_capplication_hpp__
 
+#include "uix.hpp"
 #include "CObject.hpp"
 
 namespace cym { namespace uix {
@@ -31,7 +32,7 @@ namespace cym { namespace uix {
     
     protected:
     bool init();
-    bool tick();
+    bool tick(int=0);
     bool free();
     public:
     bool  exec(int=0);
@@ -42,7 +43,7 @@ namespace cym { namespace uix {
     
     protected:
     virtual void onInit();
-    virtual void onTick();
+    virtual void onTick(int=0);
     virtual void onFree();
   };  
 }}

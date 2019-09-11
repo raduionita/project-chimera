@@ -30,7 +30,7 @@ namespace cym { namespace uix {
     protected:
       virtual bool    init(CWindow*, int);
       virtual bool    free() final;
-      virtual TString name() const final;
+      virtual CString name() const final;
     public:
       bool    move(int, int);
       bool    size(int, int);
@@ -52,10 +52,10 @@ namespace cym { namespace uix {
       bool    child(CWindow*);
       auto    children() const -> decltype(mChildren);
       auto    siblings() const -> decltype(mChildren);
-      bool    title(const TString&);
-      TString title() const;
+      bool    title(const CString&);
+      CString title() const;
     protected:
-      static CWindow* find(const TString&);
+      static CWindow* find(const CString&);
       static LRESULT CALLBACK proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
   }; 
 }}

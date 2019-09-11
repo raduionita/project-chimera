@@ -1,12 +1,13 @@
-#ifndef __cym_sys_cexception_hpp__
-#define __cym_sys_cexception_hpp__
+#ifndef __cym_cexception_hpp__
+#define __cym_cexception_hpp__
 
-#include "sys.hpp"
+#include "cym.hpp"
+
 #include <exception>
 #include <string>
 #include <ostream>
 
-namespace cym { namespace sys {
+namespace cym {
   class CException : public std::exception {
     protected:
     std::string mMessage;
@@ -33,8 +34,8 @@ namespace cym { namespace sys {
     public:
     friend std::ostream& operator <<(std::ostream&, const CException&);
   };
-}}
+}
 
-#define EXCEPTION (sys::CException(__FILE__, __LINE__))
+#define EXCEPTION (cym::CException(__FILE__, __LINE__))
 
-#endif //__cym_sys_cexception_hpp__
+#endif //__cym_cexception_hpp__

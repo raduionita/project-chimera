@@ -1,7 +1,9 @@
-#ifndef __cym_sys_cerror_hpp__
-#define __cym_sys_cerror_hpp__
+#ifndef __cym_cerror_hpp__
+#define __cym_cerror_hpp__
 
-namespace cym { namespace sys {
+#include "cym.hpp"
+
+namespace cym {
   class CError {
     protected:
       CError* mOriginal = {nullptr};
@@ -10,6 +12,6 @@ namespace cym { namespace sys {
       CError();
       virtual ~CError();
   };
-}}
+}
 
-#endif //__cym_sys_cerror_hpp__
+#endif //__cym_cerror_hpp__

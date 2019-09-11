@@ -129,7 +129,7 @@ namespace cym { namespace uix {
     return !mInited;
   }
   
-  inline TString CWindow::name() const { return cym::concat("uix::CWindow::", mId); }
+  inline CString CWindow::name() const { return cym::concat("uix::CWindow::", mId); }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
@@ -299,19 +299,19 @@ namespace cym { namespace uix {
     return aSiblings;
   }
   
-  bool CWindow::title(const TString& sTitle) {
+  bool CWindow::title(const CString& sTitle) {
     return ::SetWindowText(mHandle, sTitle.c_str());
   }
     
-  TString CWindow::title() const {
+  CString CWindow::title() const {
     CHAR szTitle[256];
     ::GetWindowTextA(mHandle, szTitle, 256);
-    return TString(szTitle);
+    return CString(szTitle);
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  CWindow* CWindow::find(const TString& name) {
+  CWindow* CWindow::find(const CString& name) {
     log::nfo << "uix::CWindow::find(" << name << ")::" << log::end;
     HWND hWnd = ::FindWindow(NULL, name.c_str());
     return reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));

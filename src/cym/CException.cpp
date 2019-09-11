@@ -1,6 +1,6 @@
-#include "cym/sys/CException.hpp"
+#include "cym/CException.hpp"
 
-namespace cym { namespace sys {
+namespace cym {
   CException::CException() : std::exception() {  }
   
   CException::CException(const std::string& message) : mMessage{message} { } 
@@ -18,4 +18,4 @@ namespace cym { namespace sys {
   CException& CException::line(int line)                      { mLine = line; return *this; }
   
   std::ostream& operator <<(std::ostream& o, const CException& e) { return o << "[EXCEPTION] [" << e.mFile << ":" << e.mLine << "] " << e.mMessage; }
-}}
+}

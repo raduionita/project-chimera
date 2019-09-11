@@ -37,19 +37,20 @@ namespace cym { namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   bool CApplication::init() {
-    // log::dbg << "uix::CApplication::init()::" << this << log::end;
+    log::dbg << "uix::CApplication::init()::" << this << log::end;
+    
     onInit();
     return true;
   }
   
-  bool CApplication::tick() {
+  bool CApplication::tick(int nElapsed/*=0*/) {
     // log::dbg << "uix::CApplication::tick()::" << this << log::end;
-    onTick();
+    onTick(nElapsed);
     return true;
   }
   
   bool CApplication::free() {
-    // log::dbg << "uix::CApplication::free()::" << this << log::end;
+    log::dbg << "uix::CApplication::free()::" << this << log::end;
     onFree();
     return true;
   }
@@ -60,13 +61,14 @@ namespace cym { namespace uix {
       
       mRunning = init();
       
-      MSG       sMsg{0};
-      DWORD     nCurTicks{0};
-      DWORD     nNxtTicks{0};
+      MSG       sMsg;
+      DWORD     nPrvTicks;
+      DWORD     nCurTicks;
+      DWORD     nNxtTicks;
       const int cJumpTime{1000/mTPS}; // 1s/25 ~ 40ms = how many jumps in 1 sec 
       int       nLoop;
       while (mRunning) {
-        nCurTicks = ::GetTickCount();
+        nCurTicks = nPrvTicks = ::GetTickCount();
         nNxtTicks = nCurTicks + cJumpTime; // current_ms_count + fraction_of_a_sec_ms
         nLoop     = 0;
         // allowed to last max 40ms // AND // max of 10 events
@@ -84,13 +86,13 @@ namespace cym { namespace uix {
           } else { break; }
         }
         // tick
-        mRunning = mRunning && tick();
+        mRunning && tick(::GetTickCount() - nPrvTicks);
       }
       
       mRunning = !free();
       
       return (int)(sMsg.wParam);
-    } catch (sys::CException& ex) {
+    } catch (CException& ex) {
       log::err << ex << log::end;
       return -1;
     }
@@ -107,7 +109,7 @@ namespace cym { namespace uix {
     
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  void CApplication::onInit() { }
-  void CApplication::onTick() { }
-  void CApplication::onFree() { }
+  void CApplication::onInit()    { }
+  void CApplication::onTick(int) { }
+  void CApplication::onFree()    { }
 }}

@@ -24,7 +24,10 @@
 = sys: os + fs + timer 
 = logger: custom manipulators + multiple strategies (+file) + loggin w/ defines & macros
 = logger: make CLogger::dbg/nfo/wrn/err reference to CLogger not ELevel or ELevel into a class
-= logger: should get instance on app instance / solve the unique_ptr init problem
+= logger: should get instance on app instance / solve the unique_ptr init problemcccccclctidrvbijekchniftkvffbvndtrivvlfjtduv
+
+= app: 2 panels: 1x canvas +1x buttons (like spawn a sphere)
+
 
 
 

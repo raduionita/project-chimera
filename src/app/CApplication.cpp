@@ -6,7 +6,7 @@
 
 namespace app {
   void CApplication::onInit() {
-    log::wrn << "app::CApplication::onInit()::" << this << log::end;
+    log::dbg << "app::CApplication::onInit()::" << this << log::end;
     
     auto pWindow  = new uix::CFrame();
     auto pLayout  = dynamic_cast<uix::CBoxLayout*>(pWindow->layout(new uix::CBoxLayout(uix::EHint::VERTICAL)));
@@ -26,8 +26,8 @@ namespace app {
     pSurface->swap();
   }
   
-  void CApplication::onTick() {
-    log::nfo << "app::CApplication::onTick()::" << this << log::end;
+  void CApplication::onTick(int nElapsed/*=0*/) {
+    log::wrn << "app::CApplication::onTick("<< nElapsed <<"ms)::" << this << log::end;
     // interpolation // for view_pos = pos + (speed * interp)
     float            fInterp; 
     int              nLoops{0};
@@ -45,7 +45,10 @@ namespace app {
       nNxtTicks += cJumpTime;
       nLoops++;
     }
+    
     fInterp = float(::GetTickCount() + cJumpTime - nNxtTicks) / float(cJumpTime);
+    
+    quit(0);
     
     // game.render(fInterp); 
   }

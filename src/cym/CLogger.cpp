@@ -1,19 +1,22 @@
-#include "cym/sys/CLogger.hpp"
+#include "cym/CLogger.hpp"
 
-namespace cym { namespace sys {
+namespace cym {
   const CLogger::ELevel       CLogger::dbg{ELevel::DEBUG};
   const CLogger::ELevel       CLogger::nfo{ELevel::INFO};
   const CLogger::ELevel       CLogger::wrn{ELevel::WARN};
   const CLogger::ELevel       CLogger::err{ELevel::ERROR};
   const CLogger::EManipulator CLogger::end{EManipulator::END};
   
-  CLogger::CLogger() { mProvider = new LOGGING_PROVIDER; }
+  CLogger::CLogger() { 
+  }
   
-  CLogger::~CLogger() { delete mProvider; mProvider = nullptr; }
+  CLogger::~CLogger() {
+    delete mProvider; 
+  }
   
-  CLogger::CProvider::CProvider() { }
+  CLoggerProvider::CLoggerProvider() { }
   
-  CLogger::CProvider::~CProvider() { }
+  CLoggerProvider::~CLoggerProvider() { }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -22,7 +25,7 @@ namespace cym { namespace sys {
     
     if (!sLogger->mOutput.empty()) {
       // logging level matches
-      if (1 || int(eLevel) <= int(sLogger->mLevel)) {
+      if (int(eLevel) <= int(sLogger->mLevel)) {
         switch(eLevel) {
           default:
           case CLogger::ELevel::DEBUG: sLogger->mOutput = "[DBG] " + sLogger->mOutput; break;
@@ -54,11 +57,7 @@ namespace cym { namespace sys {
     
     return eLevel;
   }
-  
-  CLogger* operator <<(CLogger*, CLogger::ELevel type) {
-    return CLogger::instance();
-  }
-  
+    
   CLogger* operator <<(CLogger*, const std::string& output) {
     return CLogger::instance()->push(output);
   }
@@ -72,4 +71,4 @@ namespace cym { namespace sys {
   void CFileLoggerProvider::log(const std::string& output) {
     
   }
-}}
+}
