@@ -33,7 +33,7 @@ namespace cym { namespace uix {
     // cast
     explicit operator const INT() const;
     
-    public:ss
+    public:
     const int id() const;
   };  
 }}

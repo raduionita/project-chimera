@@ -7,31 +7,35 @@
 namespace cym { namespace uix {
   class CSurface : public CPanel {
     protected:
-      using CPanel::CPanel;
-      using CPanel::operator=;
+    using CPanel::CPanel;
+    using CPanel::operator=;
+    
     protected:
-      typedef CPanel super;
-      static constexpr int STYLE  = CPanel::STYLE;
+    typedef CPanel super;
+    static constexpr int STYLE  = CPanel::STYLE;
+    
     public:
-      typedef CContext::SConfig SConfig;
+    typedef CContext::SConfig SConfig;
+    
     protected:
-      CContext* mContext = {nullptr};
+    CContext* mContext = {nullptr};
+    
     public:
-      CSurface(CWindow*,                      int);
-      CSurface(CWindow*, const SConfig& = {}, int = ZERO);
-      ~CSurface();
-      // move
-      CSurface(CSurface&&) noexcept;
-      CSurface& operator =(CSurface&&) noexcept;
-      // copy = deleted
-      CSurface(const CSurface&) = delete;
-      CSurface& operator =(const CSurface&) = delete;
+    // ctor
+    CSurface(CWindow*,                      int);
+    CSurface(CWindow*, const SConfig& = {}, int = ZERO);
+    ~CSurface();
+    // copy = deleted
+    CSurface(const CSurface&) = delete;
+    CSurface& operator =(const CSurface&) = delete;
+    
     protected:
-      bool init(CWindow*, const CContext::SConfig&, int);
+    bool init(CWindow*, const CContext::SConfig&, int);
+    
     public:
-      bool swap()    const;
-      bool current() const;
-      bool clear(int = GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT) const;
+    bool swap()    const;
+    bool current() const;
+    bool clear(int = GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT) const;
   };
 }}
 

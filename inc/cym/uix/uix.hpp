@@ -21,6 +21,7 @@
 #include <map>
 #include <bitset>
 #include <vector>
+#include <array>
 
 #define RETURNN(cond)     if(cond)return
 #define RETURNV(cond,out) if(cond)return out
@@ -42,7 +43,6 @@ namespace cym { namespace uix {
   constexpr int FULL = -1;
   
   class CHandler;
-  class CLoop;
   class CDisplay;
   class CObject;
     class CConsole;
@@ -151,6 +151,8 @@ namespace cym { namespace uix {
   using TMap       = std::map<K,V>;
   template<typename T>
   using TVector    = std::vector<T>;
+  template<typename T, std::size_t S>
+  using TArray     = std::array<T, S>;
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

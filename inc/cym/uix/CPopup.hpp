@@ -6,10 +6,13 @@
 namespace cym { namespace uix {
   class CPopup : public CWindow {
     protected:
-      using CWindow::CWindow;
-      using CWindow::operator=;
-      typedef CWindow super;
-      static constexpr int STYLE = CWindow::STYLE|EHint::POPUP;
+    using CWindow::CWindow;
+    using CWindow::operator=;
+    typedef CWindow super;
+    static constexpr int STYLE = CWindow::STYLE|EHint::POPUP;
+    
+    public:
+    bool fullscreen(int = 3);
   };
 }}
 

@@ -18,6 +18,7 @@ namespace app {
     pWindow->title("frame");
     pWindow->center();
     pWindow->show();
+    pWindow->fullscreen();
     
     pSurface->current();
     
@@ -34,12 +35,14 @@ namespace app {
     static const int cMaxLoops{10};
     static const int cTicksPerSec{25};             // 
     static const int cJumpTime{1000/cTicksPerSec}; // 
-    DWORD nNxtTicks = ::GetTickCount();            // ms since app start
+    
+    // @todo: this should be outside while(mRunning)
+    DWORD            nNxtTicks{::GetTickCount()};  // ms since app start
     
     // game.inputs();
     
     while (nNxtTicks < ::GetTickCount() && nLoops < cMaxLoops) {
-      
+      log::dbg << "app::CApplication::onTick("<< nElapsed <<"ms)::" << this << " LOOP:" << nLoops << log::end;
       // game.update();
       
       nNxtTicks += cJumpTime;
@@ -48,7 +51,7 @@ namespace app {
     
     fInterp = float(::GetTickCount() + cJumpTime - nNxtTicks) / float(cJumpTime);
     
-    quit(0);
+    // quit(0);
     
     // game.render(fInterp); 
   }

@@ -100,7 +100,7 @@ namespace cym { namespace uix {
     // reset default window styles // requires SetWindowPos + SWP_FRAMECHANGED
     ::SetWindowLong(mHandle, GWL_STYLE,   dwStyle);
     ::SetWindowLong(mHandle, GWL_EXSTYLE, dwExStyle);
-    ::SetWindowPos(mHandle, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE);
+    ::SetWindowPos(mHandle, NULL, 0,0,0,0, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE);
   
     ::SendMessage(mHandle, CM_INIT, 0, 0);
     
@@ -136,8 +136,8 @@ namespace cym { namespace uix {
   bool CWindow::show(int nHints/*=1*/) {
     log::dbg << "uix::CWindow::show()::" << this << log::end;
     // @todo:   0b = hide
-    // @todo:   1b = show | make visible
-    // @todo:  01b = 2 = maximize
+    // @todo:  01b = show | make visible
+    // @todo:  10b = 2 = maximize
     return mInited && ::ShowWindow(mHandle, SW_SHOW);
   }
   
@@ -400,7 +400,7 @@ namespace cym { namespace uix {
       case WM_MOUSEACTIVATE: { break; }
       case WM_MOUSEHOVER: { break; }
       case WM_MOUSELEAVE: { break; }
-      case WM_LBUTTONDOWN: { 
+      case WM_LBUTTONDOWN: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
         log::dbg << "   W:WM_LBUTTONDOWN::" << pWindow << " ID:" << pWindow->mId <<  " x:" << GET_X_LPARAM(lParam) << " y:" <<GET_Y_LPARAM(lParam) << log::end;
@@ -421,8 +421,53 @@ namespace cym { namespace uix {
       case WM_LBUTTONUP: { break; }
       case WM_LBUTTONDBLCLK: { break; }
       case WM_RBUTTONUP: { break; }
-      case WM_KEYDOWN: { break; }
-      case WM_KEYUP: { break; }
+      case WM_KEYDOWN: {
+        CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        log::dbg << "   W:WM_KEYDOWN::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << (char)(wParam) << " lParam:" << lParam << log::end;
+    
+        switch (wParam) {
+          case 'Q'      : ::PostQuitMessage(0); break;
+          case VK_ESCAPE: ::PostQuitMessage(0); break;
+        }
+        
+        // HWND hFocused = ::GetFocus();        // get handle to current keyboard focused window
+        // HWND hActive  = ::GetActiveWindow(); // get handle to current active window
+    
+        // auto pEvent     = new CKeyEvent(EEvent::KEYDOWN, pWindow);
+        // pEvent->mKey    = static_cast<char>(wParam);
+    
+        // bool bTriggered = pWindow->handle(pEvent);
+    
+        // while (pEvent->doPropagation() && pWindow->hasParent()) {
+        //  pWindow    = pWindow->getParent();
+        //  bTriggered = pWindow->handle(pEvent) && bTriggered;
+        //}
+    
+        // if (bTriggered) {_DELETE_(pEvent); return 0;}
+    
+        // wParam: virtual key code 
+        // lParam: 00-15 bits: repeat count of the current key (user holds key pressed)
+        //         16-23 bits: scan code (OEM)
+        //            24 bit : extended key? (right ALT, CTRL) (for 101,102 key keyboard)
+        //         25-28 bits: reserved (DO NOT USE)
+        //            29 bit : context code (0 for WM_KEYDOWN)
+        //            30 bit : prev key state (1 down, 0 up) (1 if down was already pressed)
+        //            31 bit : transition state (0 for WM_KEYDOWN)
+        // MSG sMsg; ::TranslateMessage(&sMsg);
+        break;
+      }
+      case WM_KEYUP: {
+        break;
+        // wParam: virtual key code 
+        // lParam: 00-15 bits: repeat count (1 for WM_KEYUP)
+        //         16-23 bits: scan code (OEM)
+        //            24 bit : extended key? (right ALT, CTRL) (for 101,102 key keyboard)
+        //         25-28 bits: reserved (DO NOT USE)
+        //            29 bit : context code (0 for WM_KEYUP)
+        //            30 bit : prev key state (1 for WM_KEYUP)
+        //            31 bit : transition state (1 for WM_KEYUP)
+        // return 0; if message was processed
+      }
       case WM_ERASEBKGND: { break; }
       case WM_NCPAINT: { break; }
       case WM_PAINT: { break; }

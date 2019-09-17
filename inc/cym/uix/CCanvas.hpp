@@ -7,27 +7,33 @@
 namespace cym { namespace uix {
   class CCanvas : public CFrame {
     protected:
-      using CFrame::CFrame;
-      using CFrame::operator=;
+    using CFrame::CFrame;
+    using CFrame::operator=;
+    
     protected:
-      friend class CContext;
-      typedef CFrame super;
-      static constexpr int STYLE = super::STYLE;
+    friend class CContext;
+    typedef CFrame super;
+    static constexpr int STYLE = super::STYLE;
+    
     public:
-      typedef CContext::SConfig SConfig; 
+    typedef CContext::SConfig SConfig; 
+    
     protected:
-      CContext* mContext = {nullptr};
+    CContext* mContext = {nullptr};
+    
     public:
-      CCanvas(                                       int = ZERO);
-      CCanvas(          const SConfig& sConfig,      int = ZERO);
-      CCanvas(CWindow*, const SConfig& sConfig = {}, int = ZERO);
-      ~CCanvas();
+    CCanvas(                                       int = ZERO);
+    CCanvas(          const SConfig& sConfig,      int = ZERO);
+    CCanvas(CWindow*, const SConfig& sConfig = {}, int = ZERO);
+    ~CCanvas();
+    
     protected:
-      bool init(CWindow*, const CContext::SConfig&, int);
+    bool init(CWindow*, const CContext::SConfig&, int);
+    
     public:
-      bool swap() const;
-      bool current() const;
-      bool clear(int = GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT) const;
+    bool swap() const;
+    bool current() const;
+    bool clear(int = GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT) const;
   };  
 }}
 
