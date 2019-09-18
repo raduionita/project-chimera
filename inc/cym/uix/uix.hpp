@@ -1,6 +1,7 @@
 #ifndef __cym_uix_hpp__
 #define __cym_uix_hpp__
 
+#include "../cym.hpp"
 #include "../CLogger.hpp"
 #include "../CString.hpp"
 #include "../CException.hpp"
@@ -22,6 +23,7 @@
 #include <bitset>
 #include <vector>
 #include <array>
+#include <tuple>
 
 #define RETURNN(cond)     if(cond)return
 #define RETURNV(cond,out) if(cond)return out
@@ -94,6 +96,11 @@ namespace cym { namespace uix {
   struct SRect;
   struct SArea;
   
+  struct SStyle {
+    DWORD dwStyle{0};
+    DWORD dwExStyle{0};
+  };
+  
   struct SShape { 
     static constexpr int DEFAULT = -1;
     int w, h;
@@ -156,16 +163,22 @@ namespace cym { namespace uix {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  enum EState {
-    _STATE_   = ZERO,
-    PUSHED    = 0b00000001,
-    FOCUSED   = 0b00000100,
-    CHECKED   = 0b00010000,
-    MINIMIZED = 0b00100000,
-    MAXIMIZED = 0b01000000,
+  enum class EState : uint {
+    _STATE_    = ZERO,
+    PUSHED     = 0b00000001,
+    FOCUSED    = 0b00000100,
+    CHECKED    = 0b00010000,
+    MINIMIZED  = 0b00100000,
+    MAXIMIZED  = 0b01000000,
+    FULLSCREEN = 0b10000000,
   };
   
-  enum EHint {
+  inline uint operator |(EState lhs, EState rhs) { return static_cast<int>(lhs) | static_cast<int>(rhs); }
+  inline uint operator |(int    lhs, EState rhs) { return lhs                   | static_cast<int>(rhs); }
+  inline uint operator &(EState lhs, EState rhs) { return static_cast<int>(lhs) & static_cast<int>(rhs); }
+  inline uint operator &(int    lhs, EState rhs) { return lhs                   & static_cast<int>(rhs); }
+  
+  enum EHint : uint {
     _HINT_     = ZERO,
     CHILD      = 0b00000000000000000000000000000001, // WS_CHILD // stays in parent area, moves w/ the parent (oposite 2 WS_POPUP)
     POPUP      = 0b00000000000000000000000000000010, // WS_POPUP
@@ -203,17 +216,25 @@ namespace cym { namespace uix {
     MAXIMIZE   = 0b00001000000000000000000000000000,
     
     AUTOXY     = 0b00010000000000000000000000000000,
-    AUTOWH     = 0b00100000000000000000000000000000, // 32bit
+    AUTOWH     = 0b00100000000000000000000000000000,
+    
+    FULLSCREEN = 0b01000000000000000000000000000000, // 32bit
   };
   
-  enum EFullscreen {
+  enum class EFullscreen : uint {
     _FULLSCREEN_ = 0,
     WINDOWED     = 0b000,
     FULLSCREEN   = 0b001,
     CURSOR       = 0b010,
     MONITOR      = 0b100,
+    GAMING       = FULLSCREEN|CURSOR,
   };
-    
+  
+  inline uint operator |(EFullscreen lhs, EFullscreen rhs) { return int(lhs) | int(rhs); }
+  inline uint operator |(int         lhs, EFullscreen rhs) { return lhs      | int(rhs); }
+  inline uint operator &(EFullscreen lhs, EFullscreen rhs) { return int(lhs) & int(rhs); }
+  inline uint operator &(int         lhs, EFullscreen rhs) { return lhs      & int(rhs); }
+
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
 }}

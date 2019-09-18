@@ -2,23 +2,23 @@
 
 namespace cym { namespace uix {
   CSurface::CSurface(CWindow* pParent, int nHints) {
-    log::dbg << "uix::CSurface::CSurface(CWindow*,SConfig&,int)::" << this << log::end;
+    log::nfo << "uix::CSurface::CSurface(CWindow*,SConfig&,int)::" << this << log::end;
     init(pParent, {}, nHints | CSurface::STYLE);
   }
   
   CSurface::CSurface(CWindow* pParent, const SConfig& sConfig/*={}*/,int nHints/*=ZERO*/) {
-    log::dbg << "uix::CSurface::CSurface(CWindow*,SConfig&,int)::" << this << log::end;
+    log::nfo << "uix::CSurface::CSurface(CWindow*,SConfig&,int)::" << this << log::end;
     init(pParent, sConfig, nHints | CSurface::STYLE);
   }
   
   CSurface::~CSurface() {
-    log::dbg << "uix::CSurface::~CSurface()::" << this << log::end;
+    log::nfo << "uix::CSurface::~CSurface()::" << this << log::end;
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   bool CSurface::init(CWindow* pParent, const CContext::SConfig& sConfig, int nHints) {
-    log::dbg << "uix::CSurface::init(CWindow*,SConfig&,int)::" << this << log::end;
+    log::nfo << "uix::CSurface::init(CWindow*,SConfig&,int)::" << this << log::end;
     
     mInited = super::init(pParent, nHints);
     

@@ -6,20 +6,18 @@
 
 namespace app {
   void CApplication::onInit() {
-    log::dbg << "app::CApplication::onInit()::" << this << log::end;
+    log::nfo << "app::CApplication::onInit()::" << this << log::end;
     
     auto pWindow  = new uix::CFrame();
     auto pLayout  = dynamic_cast<uix::CBoxLayout*>(pWindow->layout(new uix::CBoxLayout(uix::EHint::VERTICAL)));
     auto pSurface = dynamic_cast<uix::CSurface*>(pLayout->add(new uix::CSurface(pWindow, uix::EHint::VISIBLE), uix::EHint::ADJUST));
-    auto pPanel   = dynamic_cast<uix::CSurface*>(pLayout->add(new uix::CPanel(pWindow, uix::EHint::VISIBLE), uix::EHint::ADJUST));
-    pWindow->size(600,400);
+    auto pPanel   = dynamic_cast<uix::CPanel*>(pLayout->add(new uix::CPanel(pWindow, uix::EHint::VISIBLE), uix::EHint::ADJUST));
     pWindow->layout(pLayout);
-    // pWindow->move(0,0);
     pWindow->title("frame");
-    pWindow->center();
+    // pWindow->fullscreen();
     pWindow->show();
-    pWindow->fullscreen();
     
+    pSurface->focus();
     pSurface->current();
     
     pSurface->clear();
@@ -42,7 +40,7 @@ namespace app {
     // game.inputs();
     
     while (nNxtTicks < ::GetTickCount() && nLoops < cMaxLoops) {
-      log::dbg << "app::CApplication::onTick("<< nElapsed <<"ms)::" << this << " LOOP:" << nLoops << log::end;
+      log::nfo << "app::CApplication::onTick("<< nElapsed <<"ms)::" << this << " LOOP:" << nLoops << log::end;
       // game.update();
       
       nNxtTicks += cJumpTime;
@@ -57,6 +55,6 @@ namespace app {
   }
   
   void CApplication::onFree() {
-    log::dbg << "app::CApplication::onFree()::" << this << log::end;
+    log::nfo << "app::CApplication::onFree()::" << this << log::end;
   }
 }

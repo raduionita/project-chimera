@@ -1,45 +1,56 @@
 #include "cym/uix/CPopup.hpp"
 
 namespace cym { namespace uix {
-  bool CPopup::fullscreen(int nHints/*=7*/) {
-    log::dbg << "uix::CWindow::fullscreen(int)::" << this << log::end;
-    // @todo:   000b = 0 = windowed    // center of windowed
-    // @todo:   001b = 1 = fullscreen
-    // @todo:   010b = 2 = w/ cursor
-    // @todo:   100b = 4 = use monitor rez
+  bool CPopup::fullscreen(uint nHints/*=7*/) {
+    log::nfo << "uix::CWindow::fullscreen(int)::" << this << log::end;
+    // @todo: chromium/window-style fullscreen
     
-    RECT sRect;
-    ::GetClientRect(mHandle, &sRect); // for remembering windows pos
+    // @todo: GET current state
     
-    int nWidth  = sRect.right - sRect.left;
-    int nHeight = sRect.bottom - sRect.top;
+    // @todo: IF hint == state THEN return
     
-    ::SetWindowLong(mHandle, GWL_EXSTYLE, 0);
-    ::SetWindowLong(mHandle, GWL_STYLE,   WS_POPUP|WS_CLIPCHILDREN|WS_CLIPSIBLINGS);
+    // @todo: temp state = curr state
     
-    ::SetWindowPos(mHandle, HWND_TOPMOST, 0,0,0,0, SWP_NOMOVE|SWP_NOSIZE|SWP_FRAMECHANGED|SWP_SHOWWINDOW);
-    ::SetWindowPos(mHandle, HWND_TOPMOST, 0,0,nWidth,nHeight, SWP_SHOWWINDOW);
+    // @todo: IF hint == fullscreen THEN: 
+      // @todo: curr state = fullscreen (style & xy & wh)
+    // @todo: IF hint == windowed THEN:
+      // @todo: GET style & xy & wh &  from prev state
+      // @todo: curr state = windowed (style & xy & wh)
+      
+    // @todo: prev state = temp state
     
-    ::ShowCursor(FALSE);
     
-    DEVMODE sDM;
-    sDM.dmSize       = sizeof(DEVMODE);
-    sDM.dmPelsWidth  = nWidth;
-    sDM.dmPelsHeight = nHeight;
-    sDM.dmFields     = DM_PELSWIDTH | DM_PELSHEIGHT;
+    // @todo: on (app) exit/quit revert
     
-    // ::EnumDisplayDevices
-    // ::EnumDisplaySettings
     
-    // ::GetSystemMetrics(SM_CXSCREEN) // width px  // primary monitor
-    // ::GetSystemMetrics(SM_CYSCREEN) // height px // primary monitor
+    if (nHints & EFullscreen::FULLSCREEN) {
+      // @todo: GWL_STYLE   remove ~(WS_CAPTION | WS_THICKFRAME)
+      // @todo: GWL_EXSTYLE remove ~(WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE)
     
-    // ::GetDeviceCaps 
-  
-    // ::SystemParametersInfo // working area w/o taskbar
+      ::SetWindowLong(mHandle, GWL_STYLE, WS_POPUP|WS_CLIPCHILDREN|WS_CLIPSIBLINGS);
+      ::SetWindowLong(mHandle, GWL_EXSTYLE, 0);
+      MONITORINFO sMI;
+      sMI.cbSize = sizeof(sMI);
+      ::GetMonitorInfo(::MonitorFromWindow(mHandle,MONITOR_DEFAULTTONEAREST), &sMI);
+      return TRUE == ::SetWindowPos(mHandle, HWND_TOPMOST, sMI.rcMonitor.left, sMI.rcMonitor.top, sMI.rcMonitor.right-sMI.rcMonitor.left, sMI.rcMonitor.bottom-sMI.rcMonitor.top, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOACTIVATE);
+    } else {
+      // @todo: restore styles
+      // @todo: restore rect (shape & position)
+      
+      ::SetWindowLong(mHandle, GWL_STYLE,   0); // restore dwStyle
+      ::SetWindowLong(mHandle, GWL_EXSTYLE, 0); // restore dwExStyle
+      return TRUE == ::SetWindowPos(mHandle, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOACTIVATE); // restore xywh
     
-    // ::GetMonitorInfo // specific monitor
+      // @todo: IF maxmized THEN:
+      // ::ShowWindow(mHandle, SW_MAXIMIZE)
+    }
     
-    return ::ChangeDisplaySettings(&sDM,0) == DISP_CHANGE_SUCCESSFUL;
+    // @todo: remember:
+      // dwStyle   // or hints
+      // dwExStyle // but we need a method to convert from hints to DWORD style/exStyle
+      // x, y
+      // width, height
+    
+    return false;
   }
 }}

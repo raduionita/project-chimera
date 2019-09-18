@@ -1,9 +1,15 @@
 // todo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-= fullscreen (F11)
+= fullscreen:off -> back to windowed + need to remember prev. state
+= fix loop
+
+
+
 = WM_XXX + events + listeners + handlers
   = hotkeys & keybord shortcuts
   = mouse actions + clicks
+  = propagate all the way to the app
+= fullscreen:gaming (DEVMODE)
 = implements IDrawable|IRenderable (CCanvas & CSurface)
 = throw exception on windows create failed + loop + try + fatal or warning
 = styles|painter

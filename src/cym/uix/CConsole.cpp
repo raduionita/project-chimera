@@ -3,21 +3,21 @@
 
 namespace cym { namespace uix {
   CConsole::CConsole(CApplication* pApp, int nCmdShow/*=0*/) : mApp{pApp} {
-    log::dbg << "uix::CConsole::CConsole(CApplication*)::" << this << log::end;
+    log::nfo << "uix::CConsole::CConsole(CApplication*)::" << this << log::end;
     init();
   }
   
   CConsole::~CConsole() {
-    log::dbg << "uix::CConsole::CConsole()::" << this << log::end;
+    log::nfo << "uix::CConsole::CConsole()::" << this << log::end;
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   bool CConsole::init() {
-    log::dbg << "uix::CConsole::init()::" << this << log::end;
+    log::nfo << "uix::CConsole::init()::" << this << log::end;
     
     if (!::SetConsoleCtrlHandler(CConsole::ctrl, TRUE)) {
-      log::dbg << "[CConsole] ::SetConsoleCtrlHandler() failed!" << log::end;
+      log::nfo << "[CConsole] ::SetConsoleCtrlHandler() failed!" << log::end;
       ::MessageBox(NULL, "[CConsole] ::SetConsoleCtrlHandler() failed!", "Error", MB_OK);
     }
     
@@ -25,7 +25,7 @@ namespace cym { namespace uix {
   }
   
   BOOL WINAPI CConsole::ctrl(DWORD dwSignal) {
-    log::dbg << "uix::CConsole::ctrl(DWORD)" << " SIGNAL:" << dwSignal << log::end;
+    log::nfo << "uix::CConsole::ctrl(DWORD)" << " SIGNAL:" << dwSignal << log::end;
     
     switch (dwSignal) {
       case CTRL_C_EVENT: {

@@ -3,29 +3,29 @@
 
 namespace cym { namespace uix {
   CLayout::CLayout(CWindow* pWindow/*=nullptr*/) : mWindow{pWindow} {
-    log::dbg << "uix::CLayout::CLayout(CWindow*)::" << this << log::end;
+    log::nfo << "uix::CLayout::CLayout(CWindow*)::" << this << log::end;
   }
   
   CLayout::~CLayout() {
-    log::dbg << "uix::CLayout::~CLayout()::" << this << log::end;
+    log::nfo << "uix::CLayout::~CLayout()::" << this << log::end;
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   bool CLayout::layout(CWindow* pWindow) {
-    log::dbg << "uix::CLayout::layout(CWindow*)::" << this << log::end;
+    log::nfo << "uix::CLayout::layout(CWindow*)::" << this << log::end;
     mWindow  = pWindow;
     mArea    = mWindow->area();
     return calc();
   }
   
   SArea CLayout::area() const {
-    log::dbg << "uix::CLayout::area()::" << this << log::end;
+    log::nfo << "uix::CLayout::area()::" << this << log::end;
     return mArea;
   }
   
   bool CLayout::area(const SArea& sArea) {
-    log::dbg << "uix::CLayout::area(SArea&)::" << this << log::end;
+    log::nfo << "uix::CLayout::area(SArea&)::" << this << log::end;
     mArea = sArea;
     return calc();
   }
@@ -43,14 +43,14 @@ namespace cym { namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   template <typename T> bool CLayout::TItem<T>::area(const SArea& sArea) {
-    log::dbg << "uix::CLayout::TItem<T>::area(SArea&)" << log::end;
+    log::nfo << "uix::CLayout::TItem<T>::area(SArea&)" << log::end;
     mArea = sArea;
     // require recalculation for the child
     return calc();
   }
   
   template <typename T> bool CLayout::TItem<T>::calc() {
-    log::dbg << "uix::CLayout::TItem<T>::calc()" << log::end;
+    log::nfo << "uix::CLayout::TItem<T>::calc()" << log::end;
     
     auto  sArea = mItem->area(); // cur child (window/layout)
     
@@ -73,15 +73,15 @@ namespace cym { namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   CBoxLayout::CBoxLayout(CWindow* pWindow/*=nullptr*/, EHint eDirection/*EHint::VERTICAL*/) : CLayout(pWindow), mDirection{eDirection} {
-    log::dbg << "uix::CBoxLayout::CBoxLayout(CWindow*,EHint)::" << this << log::end;
+    log::nfo << "uix::CBoxLayout::CBoxLayout(CWindow*,EHint)::" << this << log::end;
   }
   
   CBoxLayout::CBoxLayout(EHint eDirection) : CLayout(nullptr), mDirection{eDirection} {
-    log::dbg << "uix::CBoxLayout::CBoxLayout(EHint)::" << this << log::end;
+    log::nfo << "uix::CBoxLayout::CBoxLayout(EHint)::" << this << log::end;
   }
   
   CBoxLayout::~CBoxLayout() {
-    log::dbg << "uix::CBoxLayout::~CBoxLayout()::" << this << log::end;
+    log::nfo << "uix::CBoxLayout::~CBoxLayout()::" << this << log::end;
   }
   
   CLayout::BItem* CBoxLayout::operator[](typename decltype(mItems)::size_type i) {
@@ -97,7 +97,7 @@ namespace cym { namespace uix {
   }
   
   CWindow* CBoxLayout::add(CWindow* pItem, int nHints/*=0*/) {
-    log::dbg << "uix::CBoxLayout::add(CWindow*, hints)::" << this << log::end;
+    log::nfo << "uix::CBoxLayout::add(CWindow*, hints)::" << this << log::end;
     
     mItems.push_back(new TItem<CWindow*>(pItem,nHints));
     // @todo: do I need to do something here...like resizing or something?!
@@ -106,7 +106,7 @@ namespace cym { namespace uix {
   }
   
   CLayout* CBoxLayout::add(CLayout* pItem, int nHints/*=0*/) {
-    log::dbg << "uix::CBoxLayout::add(CLayout*, hints)::" << this << log::end;
+    log::nfo << "uix::CBoxLayout::add(CLayout*, hints)::" << this << log::end;
     
     mItems.push_back(new TItem<CLayout*>(pItem,nHints));
     // @todo: do I need to do something here...like resizing or something?!
@@ -115,7 +115,7 @@ namespace cym { namespace uix {
   }
   
   bool CBoxLayout::calc() {
-    log::dbg << "uix::CBoxLayout::calc()::" << this << " DIR:0b" << std::bitset<32>(mDirection) << " COUNT:" << mItems.size() << log::end;
+    log::nfo << "uix::CBoxLayout::calc()::" << this << " DIR:0b" << std::bitset<32>(mDirection) << " COUNT:" << mItems.size() << log::end;
     
     RETURN(!mItems.size(),false);
     

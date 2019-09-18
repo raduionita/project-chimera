@@ -10,11 +10,13 @@ namespace cym { namespace uix {
   class CWindow : public CObject, CHandler {
     protected:
     struct SState {
-      static constexpr int PREV = -1;
-      static constexpr int CURR =  0;
-      static constexpr int FUTR =  1;
-      EState eState{EState::_STATE_};
-      
+      static constexpr byte PREV = -1;
+      static constexpr byte CURR =  0;
+      static constexpr byte NEXT =  1;
+      // values
+      uint   eState{ZERO};
+      uint   nStyle{ZERO}; // EHint/EStyle/EWindow
+      SArea  sArea;    
     };
     
     protected:
@@ -58,6 +60,8 @@ namespace cym { namespace uix {
     bool    pack();
     bool    minimize();
     bool    maximize();
+    bool    style(int = 0);
+    SStyle  style() const;
     bool    area(const SArea&);
     SArea   area() const;
     bool    rect(const SRect&);

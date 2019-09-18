@@ -3,11 +3,11 @@
 
 namespace cym { namespace uix {
   CWindow::CWindow() {
-    log::dbg << "uix::CWindow::CWindow()::" << this << log::end;
+    log::nfo << "uix::CWindow::CWindow()::" << this << log::end;
   }
   
   CWindow::~CWindow() {
-    log::dbg << "uix::CWindow::~CWindow()::" << this << log::end;
+    log::nfo << "uix::CWindow::~CWindow()::" << this << log::end;
     // release
     free();
   }
@@ -15,19 +15,19 @@ namespace cym { namespace uix {
   // cast ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   CWindow::operator HWND() {
-    log::dbg << "uix::CWindow::operator HWND()::" << this << log::end;
+    log::nfo << "uix::CWindow::operator HWND()::" << this << log::end;
     return mHandle;
   }
   
   CWindow::operator const HWND() const {
-    log::dbg << "uix::CWindow::operator HWND()::" << this << log::end;
+    log::nfo << "uix::CWindow::operator HWND()::" << this << log::end;
     return mHandle;
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   bool CWindow::init(CWindow* pParent, int nHints) {
-    log::dbg << "uix::CWindow::init(CWindow*,int)::" << this << " NAME:" << name() << log::end;
+    log::nfo << "uix::CWindow::init(CWindow*,int)::" << this << " NAME:" << name() << log::end;
     
     // set parent
     mParent = pParent;
@@ -50,7 +50,7 @@ namespace cym { namespace uix {
     };
   
     if (!::RegisterClassEx(&sWndCls)) {
-      log::dbg << "[CWindow] ::RegisterClassEx() failed!" << log::end;
+      log::nfo << "[CWindow] ::RegisterClassEx() failed!" << log::end;
       ::MessageBox(NULL, "[CWindow] ::RegisterClassEx() failed!", "ERROR", MB_OK);
       return false;
     }
@@ -75,7 +75,7 @@ namespace cym { namespace uix {
     dwStyle |= nHints & EHint::NOCLIP   ? 0                          : WS_CLIPSIBLINGS;
     dwStyle |= nHints & EHint::NOCLIP   ? 0                          : WS_CLIPCHILDREN;
   
-    mHandle = ::CreateWindowExA(
+    mHandle = ::CreateWindowEx(
       dwExStyle,                                 // DWORD     // dwExStyle    // ex. style (0 = default)
       name().c_str(),                            // LPCSTR    // lpClassName  // window class name
       name().c_str(),                            // LPCSTR    // lpWindowName // window title name
@@ -90,7 +90,7 @@ namespace cym { namespace uix {
   
     if (!mHandle) {
       ::MessageBox(NULL, "[CWindow] ::CreateWindowEx() failed!", "ERROR", MB_OK);
-      log::dbg << "[CWindow] ::CreateWindowEx() failed!" << log::end;
+      log::nfo << "[CWindow] ::CreateWindowEx() failed!" << log::end;
       return false;
     }
   
@@ -108,7 +108,7 @@ namespace cym { namespace uix {
   }
   
   bool CWindow::free() {
-    log::dbg << "uix::CWindow::free()::" << this << log::end;
+    log::nfo << "uix::CWindow::free()::" << this << log::end;
     // delete children
     for (CWindow*& pChild : mChildren) {
       DELETE(pChild);
@@ -134,7 +134,7 @@ namespace cym { namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
   bool CWindow::show(int nHints/*=1*/) {
-    log::dbg << "uix::CWindow::show()::" << this << log::end;
+    log::nfo << "uix::CWindow::show()::" << this << log::end;
     // @todo:   0b = hide
     // @todo:  01b = show | make visible
     // @todo:  10b = 2 = maximize
@@ -142,7 +142,7 @@ namespace cym { namespace uix {
   }
   
   bool CWindow::hide(int nHints/*=1*/) {
-    log::dbg << "uix::CWindow::hide()::" << this << log::end;
+    log::nfo << "uix::CWindow::hide()::" << this << log::end;
     // @todo:   0b = show
     // @todo:   1b = hide | make invisible
     // @todo:  01b = 2 = minimize
@@ -150,13 +150,13 @@ namespace cym { namespace uix {
   }
   
   bool CWindow::focus(int nHints/*=1*/) {
-    log::dbg << "uix::CWindow::focus()::" << this << log::end;
+    log::nfo << "uix::CWindow::focus()::" << this << log::end;
     ::SetFocus(mHandle); // returns window w/ previous focus
     return true;
   }
   
   bool CWindow::move(int x, int y) {
-    log::dbg << "uix::CWindow::move("<< x <<","<< y <<")::" << this << log::end;
+    log::nfo << "uix::CWindow::move("<< x <<","<< y <<")::" << this << log::end;
   
     RETURN(!mInited, false);
     
@@ -176,7 +176,7 @@ namespace cym { namespace uix {
   }
   
   bool CWindow::size(int w, int h) {
-    log::dbg << "uix::CWindow::size("<< w <<","<< h <<")::" << this << log::end;
+    log::nfo << "uix::CWindow::size("<< w <<","<< h <<")::" << this << log::end;
   
     RETURN(!mInited, false);
     
@@ -202,7 +202,7 @@ namespace cym { namespace uix {
   }
   
   bool CWindow::center() {
-    log::dbg << "uix::CWindow::center()::" << this << log::end;
+    log::nfo << "uix::CWindow::center()::" << this << log::end;
     
     RETURN(!mInited, false);
     
@@ -223,7 +223,7 @@ namespace cym { namespace uix {
   }
   
   SRect CWindow::adjust() {
-    log::dbg << "uix::CWindow::adjust()::" << this << log::end;
+    log::nfo << "uix::CWindow::adjust()::" << this << log::end;
     
     RETURN(!mInited, {});
   
@@ -238,12 +238,12 @@ namespace cym { namespace uix {
   }
 
   bool CWindow::maximize() {
-    log::dbg << "uix::CWindow::maximize()::" << this << log::end;
+    log::nfo << "uix::CWindow::maximize()::" << this << log::end;
     return /*(mState |= EState::MAXIMIZED) &&*/ ::ShowWindow(mHandle, SW_MAXIMIZE);
   }
   
   bool CWindow::minimize() {
-    log::dbg << "uix::CWindow::minimize()::" << this << log::end;
+    log::nfo << "uix::CWindow::minimize()::" << this << log::end;
     return /*(mState |= EState::MINIMIZED) &&*/ ::ShowWindow(mHandle, SW_MINIMIZE);
   }
   
@@ -312,7 +312,7 @@ namespace cym { namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   CWindow* CWindow::find(const CString& name) {
-    log::dbg << "uix::CWindow::find(" << name << ")::" << log::end;
+    log::nfo << "uix::CWindow::find(" << name << ")::" << log::end;
     HWND hWnd = ::FindWindow(NULL, name.c_str());
     return reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
   }
@@ -324,7 +324,7 @@ namespace cym { namespace uix {
         CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
         CWindow*      pWindow = reinterpret_cast<CWindow*>(pCreate->lpCreateParams);
         BREAK(!pWindow);
-        log::dbg << "   W:WM_CREATE::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
+        log::nfo << "   W:WM_CREATE::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
         // @todo: create event
         break; 
       }
@@ -333,13 +333,13 @@ namespace cym { namespace uix {
       case CM_INIT: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        log::dbg << "   W:CM_INIT::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
+        log::nfo << "   W:CM_INIT::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
         return 0;
       }
       case WM_CLOSE: { // called on [x] or window menu [Close] // triggers: WM_DESTROY
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        log::dbg << "   W:WM_CLOSE::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
+        log::nfo << "   W:WM_CLOSE::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
         // @todo: close event
         ::PostQuitMessage(0);
         break;
@@ -349,14 +349,14 @@ namespace cym { namespace uix {
       case WM_SETFOCUS: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        log::dbg << "   W:WM_SETFOCUS::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
+        log::nfo << "   W:WM_SETFOCUS::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
         // @todo: focus event
         break; 
       }
       case WM_KILLFOCUS: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        log::dbg << "   W:WM_KILLFOCUS::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
+        log::nfo << "   W:WM_KILLFOCUS::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
         // @todo: blur event
         break; 
       }
@@ -366,7 +366,7 @@ namespace cym { namespace uix {
       case WM_MOVE: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        log::dbg << "   W:WM_MOVE::" << pWindow << " ID:" << pWindow->mId <<  " x:" << LOWORD(lParam) << " y:" << HIWORD(lParam) << log::end;
+        log::nfo << "   W:WM_MOVE::" << pWindow << " ID:" << pWindow->mId <<  " x:" << LOWORD(lParam) << " y:" << HIWORD(lParam) << log::end;
         // @todo: moved event
         // lParam: x: (int)(short) LOWORD(lParam)
         //         y: (int)(short) HIWORD(lParam)
@@ -377,7 +377,7 @@ namespace cym { namespace uix {
       case WM_SIZE: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        log::dbg << "   W:WM_SIZE::" << pWindow << " ID:" << pWindow->mId <<  " x:" << LOWORD(lParam) << " y:" << HIWORD(lParam) << log::end;
+        log::nfo << "   W:WM_SIZE::" << pWindow << " ID:" << pWindow->mId <<  " x:" << LOWORD(lParam) << " y:" << HIWORD(lParam) << log::end;
         
         // @todo: sized event
         
@@ -403,7 +403,7 @@ namespace cym { namespace uix {
       case WM_LBUTTONDOWN: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        log::dbg << "   W:WM_LBUTTONDOWN::" << pWindow << " ID:" << pWindow->mId <<  " x:" << GET_X_LPARAM(lParam) << " y:" <<GET_Y_LPARAM(lParam) << log::end;
+        log::nfo << "   W:WM_LBUTTONDOWN::" << pWindow << " ID:" << pWindow->mId <<  " x:" << GET_X_LPARAM(lParam) << " y:" <<GET_Y_LPARAM(lParam) << log::end;
         
         // @todo: mousedown event
         // @todo: click event
@@ -423,7 +423,7 @@ namespace cym { namespace uix {
       case WM_RBUTTONUP: { break; }
       case WM_KEYDOWN: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        log::dbg << "   W:WM_KEYDOWN::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << (char)(wParam) << " lParam:" << lParam << log::end;
+        log::nfo << "   W:WM_KEYDOWN::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << (char)(wParam) << " lParam:" << lParam << log::end;
     
         switch (wParam) {
           case 'Q'      : ::PostQuitMessage(0); break;

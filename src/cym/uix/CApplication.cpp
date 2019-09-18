@@ -5,18 +5,18 @@ namespace cym { namespace uix {
   CApplication* CApplication::sInstance{nullptr};
   
   CApplication::CApplication(HINSTANCE hHandle/*=::GetModuleHandle(NULL)*/, int nCmdShow/*=0*/) : CObject(), mHandle{hHandle} {
-    log::dbg << "uix::CApplication::CApplication()::" << this << " INSTANCE:" << mHandle << log::end;
+    log::nfo << "uix::CApplication::CApplication()::" << this << " INSTANCE:" << mHandle << log::end;
     assert(!sInstance && "CApplication::sIntastace already defined.");
     mConsole  = new CConsole(this, nCmdShow);
     sInstance = this;
   }
   
   CApplication::CApplication(const CApplication&) {
-    log::dbg << "uix::CApplication::CApplication(CApplication&)::" << this << log::end;
+    log::nfo << "uix::CApplication::CApplication(CApplication&)::" << this << log::end;
   }
     
   CApplication::~CApplication() {
-    log::dbg << "uix::CApplication::~CApplication()::" << this << log::end;
+    log::nfo << "uix::CApplication::~CApplication()::" << this << log::end;
   }
   
   CApplication& CApplication::operator =(const CApplication& that) {
@@ -37,28 +37,28 @@ namespace cym { namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   bool CApplication::init() {
-    log::dbg << "uix::CApplication::init()::" << this << log::end;
+    log::nfo << "uix::CApplication::init()::" << this << log::end;
     
     onInit();
     return true;
   }
   
   bool CApplication::tick(int nElapsed/*=0*/) {
-    // log::dbg << "uix::CApplication::tick()::" << this << log::end;
+    // log::dbg << "uix::CApplication::tick("<< nElapsed <<")::" << this << log::end;
     onTick(nElapsed);
     return true;
   }
   
   bool CApplication::free() {
-    log::dbg << "uix::CApplication::free()::" << this << log::end;
+    log::nfo << "uix::CApplication::free()::" << this << log::end;
     onFree();
     return true;
   }
   
   bool CApplication::exec(int nMode/*=0*/) {
+    log::nfo << "uix::CApplication::exec()::" << this << log::end;
+    
     try {
-      log::dbg << "uix::CApplication::exec()::" << this << log::end;
-      
       mRunning = init();
       
       MSG       sMsg;
@@ -99,7 +99,7 @@ namespace cym { namespace uix {
   }
   
   bool CApplication::quit(int nCode/*=0*/) {
-    log::dbg << "uix::CApplication::quit(int)::" << this << log::end;
+    log::nfo << "uix::CApplication::quit(int)::" << this << log::end;
     return !(mRunning = false);
   }
   
