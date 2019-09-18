@@ -12,7 +12,7 @@ namespace cym { namespace uix {
     static constexpr int STYLE = CWindow::STYLE|EHint::POPUP;
     
     public:
-    bool fullscreen(int = 3);
+    bool fullscreen(int = EFullscreen::FULLSCREEN|EFullscreen::CURSOR|EFullscreen::MONITOR);
   };
 }}
 
