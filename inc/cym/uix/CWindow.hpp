@@ -7,76 +7,59 @@
 #include "CApplication.hpp"
 
 namespace cym { namespace uix { 
-  class CWindow : public CObject, CHandler {
+  class CWindow : public CObject, public CHandler {
+    protected:
+      using CObject::CObject;
+      using CObject::operator=;
+      typedef CObject super;
+      static constexpr int STYLE = EHint::AUTOXY|EHint::AUTOWH;
+    protected:
+      bool              mInited = {false};
+      HWND              mHandle = {NULL};
+      CLayout*          mLayout = {nullptr};
+      CWindow*          mParent = {nullptr};
+      uint              mState{ZERO};
+      TVector<CWindow*> mChildren;
+    public: // ctor
+      CWindow();
+      ~CWindow();
+    public: // cast
+      explicit operator       HWND();
+      explicit operator const HWND() const;
+    protected:
+      virtual bool    init(CWindow*, int);
+      virtual bool    free() final;
+      virtual CString name() const final;
     public:
-    struct SState {
-      static constexpr byte PREV = -1;
-      static constexpr byte CURR =  0;
-      static constexpr byte NEXT =  1;
-      // values
-      uint   eState{ZERO};
-      uint   nStyle{ZERO}; // EHint/EStyle/EWindow
-      SArea  sArea;    
-    };
-    
+      bool         move(int, int);
+      bool         size(int, int);
+      bool         center();
+      SRect        adjust();
+      bool         show(int = 1);
+      bool         hide(int = 1);
+      bool         focus(int = 1);
+      bool         pack();
+      bool         minimize();
+      bool         maximize();
+      virtual bool fullscreen(int=0);
+      bool         style(int = 0);
+      SStyle       style() const;
+      STATE        state() const;
+      bool         area(const SArea&);
+      SArea        area() const;
+      bool         rect(const SRect&);
+      SRect        rect() const;
+      auto         layout() const -> decltype(mLayout);
+      auto         layout(CLayout* pLayout) -> decltype(mLayout);
+      auto         parent() const -> decltype(mParent);
+      bool         child(CWindow*);
+      auto         children() const -> decltype(mChildren);
+      auto         siblings() const -> decltype(mChildren);
+      bool         title(const CString&);
+      CString      title() const;
     protected:
-    using CObject::CObject;
-    using CObject::operator=;
-    typedef CObject super;
-    static constexpr int STYLE = EHint::AUTOXY|EHint::AUTOWH;
-    
-    protected:
-    bool              mInited = {false};
-    HWND              mHandle = {NULL};
-    CLayout*          mLayout = {nullptr};
-    CWindow*          mParent = {nullptr};
-    TArray<SState, 3> mStates;
-    TVector<CWindow*> mChildren;
-    
-    public:
-    // ctor
-    CWindow();
-    ~CWindow();
-    // cast
-    explicit operator       HWND();
-    explicit operator const HWND() const;
-    
-    protected:
-    virtual bool    init(CWindow*, int);
-    virtual bool    free() final;
-    virtual CString name() const final;
-    
-    public:
-    bool         move(int, int);
-    bool         size(int, int);
-    bool         center();
-    SRect        adjust();
-    bool         show(int = 1);
-    bool         hide(int = 1);
-    bool         focus(int = 1);
-    bool         pack();
-    bool         minimize();
-    bool         maximize();
-    virtual bool fullscreen(int=0);
-    bool         style(int = 0);
-    SStyle       style() const;
-    SState       state(int=SState::CURR) const;
-    bool         area(const SArea&);
-    SArea        area() const;
-    bool         rect(const SRect&);
-    SRect        rect() const;
-    auto         layout() const -> decltype(mLayout);
-    auto         layout(CLayout* pLayout) -> decltype(mLayout);
-    auto         parent() const -> decltype(mParent);
-    bool         child(CWindow*);
-    auto         children() const -> decltype(mChildren);
-    auto         siblings() const -> decltype(mChildren);
-    bool         title(const CString&);
-    CString      title() const;
-    
-    protected:
-    static CWindow* find(const CString&);
-    static LRESULT CALLBACK proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+      static CWindow* find(const CString&);
+      static LRESULT CALLBACK proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
   }; 
 }}
 

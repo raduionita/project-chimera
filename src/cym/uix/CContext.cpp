@@ -203,4 +203,8 @@ namespace cym { namespace uix {
     ::glClear(nBit);
     return true;
   }
+  
+  bool CContext::reset() const {
+    return current() && clear() && swap();
+  }
 }}

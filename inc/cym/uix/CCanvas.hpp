@@ -7,36 +7,28 @@
 namespace cym { namespace uix {
   class CCanvas : public CFrame {
     protected:
-    using CFrame::CFrame;
-    using CFrame::operator=;
-    
+      using CFrame::CFrame;
+      using CFrame::operator=;
+      friend class CContext;
+      typedef CFrame super;
+      static constexpr int STYLE = super::STYLE;
+      typedef CContext::SConfig SConfig;
     protected:
-    friend class CContext;
-    typedef CFrame super;
-    static constexpr int STYLE = super::STYLE;
-    
+      CContext* mContext = {nullptr};
     public:
-    typedef CContext::SConfig SConfig; 
-    
+      CCanvas(                                       int = ZERO);
+      CCanvas(          const SConfig& sConfig,      int = ZERO);
+      CCanvas(CWindow*, const SConfig& sConfig = {}, int = ZERO);
+      ~CCanvas();
     protected:
-    CContext* mContext = {nullptr};
-    
+      bool init(CWindow*, const CContext::SConfig&, int);
     public:
-    CCanvas(                                       int = ZERO);
-    CCanvas(          const SConfig& sConfig,      int = ZERO);
-    CCanvas(CWindow*, const SConfig& sConfig = {}, int = ZERO);
-    ~CCanvas();
-    
-    protected:
-    bool init(CWindow*, const CContext::SConfig&, int);
-    
+      virtual bool fullscreen(uint = EFullscreen::FULLSCREEN|EFullscreen::CURSOR) override;
     public:
-    virtual bool fullscreen(uint = EFullscreen::FULLSCREEN|EFullscreen::CURSOR) override;
-    
-    public:
-    bool swap() const;
-    bool current() const;
-    bool clear(int = GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT) const;
+      bool swap() const;
+      bool current() const;
+      bool clear(int = GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT) const;
+      bool reset() const;
   };  
 }}
 

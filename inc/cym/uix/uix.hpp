@@ -51,6 +51,11 @@ namespace cym { namespace uix {
   
   class CHandler;
   class CDisplay;
+  class CEvent;
+    class CKeyEvent;
+    class CCloseEvent;
+    class CResizeEvent;
+    class CMouseEvent;
   class CObject;
     class CConsole;
     class CModule;
@@ -168,7 +173,7 @@ namespace cym { namespace uix {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  enum class EState : uint {
+  enum class EState : int {
     _STATE_    = ZERO,
     PUSHED     = 0b00000001,
     FOCUSED    = 0b00000010,
@@ -178,10 +183,11 @@ namespace cym { namespace uix {
     FULLSCREEN = 0b00100000,
   };
   
-  inline uint operator |(EState lhs, EState rhs) { return static_cast<int>(lhs) | static_cast<int>(rhs); }
-  inline uint operator |(int    lhs, EState rhs) { return lhs                   | static_cast<int>(rhs); }
-  inline uint operator &(EState lhs, EState rhs) { return static_cast<int>(lhs) & static_cast<int>(rhs); }
-  inline uint operator &(int    lhs, EState rhs) { return lhs                   & static_cast<int>(rhs); }
+  inline int operator |(EState lhs, EState rhs) { return static_cast<int>(lhs) | static_cast<int>(rhs); }
+  inline int operator |(uint   lhs, EState rhs) { return lhs                   | static_cast<int>(rhs); }
+  inline int operator &(EState lhs, EState rhs) { return static_cast<int>(lhs) & static_cast<int>(rhs); }
+  inline int operator &(uint   lhs, EState rhs) { return lhs                   & static_cast<int>(rhs); }
+  inline int operator ~(EState rhs) { return ~(static_cast<int>(rhs)); }
   
   enum EHint : uint {
     _HINT_     = ZERO,
@@ -226,7 +232,7 @@ namespace cym { namespace uix {
     FULLSCREEN = 0b01000000000000000000000000000000, // 32bit
   };
   
-  enum class EFullscreen : uint {
+  enum class EFullscreen : int {
     _FULLSCREEN_ = 0,
     WINDOWED     = 0b000,
     FULLSCREEN   = 0b001,
@@ -235,11 +241,48 @@ namespace cym { namespace uix {
     GAMING       = FULLSCREEN|CURSOR,
   };
   
-  inline uint operator |(EFullscreen lhs, EFullscreen rhs) { return int(lhs) | int(rhs); }
-  inline uint operator |(int         lhs, EFullscreen rhs) { return lhs      | int(rhs); }
-  inline uint operator &(EFullscreen lhs, EFullscreen rhs) { return int(lhs) & int(rhs); }
-  inline uint operator &(int         lhs, EFullscreen rhs) { return lhs      & int(rhs); }
-
+  inline int operator |(EFullscreen lhs, EFullscreen rhs) { return int(lhs) | int(rhs); }
+  inline int operator |(int         lhs, EFullscreen rhs) { return lhs      | int(rhs); }
+  inline int operator &(EFullscreen lhs, EFullscreen rhs) { return int(lhs) & int(rhs); }
+  inline int operator &(int         lhs, EFullscreen rhs) { return lhs      & int(rhs); }
+  inline int operator ~(EFullscreen rhs) { return ~(static_cast<int>(rhs)); }
+  
+  enum class EModifier : int {
+    _MODIFIER_ = ZERO,
+    RBUTTON    = MK_RBUTTON,  //  2
+    SHIFT      = MK_SHIFT,    //  4
+    CONTROL    = MK_CONTROL,  //  8
+    MBUTTON    = MK_MBUTTON,  // 10
+    X1BUTTON   = MK_XBUTTON1, // 20
+    X2BUTTON   = MK_XBUTTON2  // 40
+  };
+  
+  enum class EEvent : int {
+    _EVENT_ = ZERO,
+    CLOSE,
+    QUIT,
+    KEYDOWN,
+    KEYUP,
+    KEYPRESS,
+    MOVE,
+    MOVING,
+    RESIZE, SIZE = RESIZE,
+    SIZING,
+    FOCUS,
+    UNFOCUS, BLUR = UNFOCUS,
+    LBDOWN, LBUTTONDOWN = LBDOWN,
+    LBUP, LBUTTONUP = LBUP,
+    RBDOWN, RBUTTONDOWN = RBDOWN,
+    RBUP, RBUTTONUP = RBUP,
+    CLICK, LCLICK = CLICK, // LBUTTONDOWN + LBUTTONUP
+    RCLICK,
+    DBLCLICK,
+    PAINT, DRAW = PAINT,
+    SHOW,
+    HIDE,
+    COMMAND,
+  };
+  
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
 }}

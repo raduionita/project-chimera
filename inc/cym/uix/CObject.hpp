@@ -15,27 +15,24 @@ namespace cym { namespace uix {
     };
     
     private:
-    static CRegistry        sRegistry;
-    
+      static CRegistry        sRegistry;
     protected:
-    static std::atomic<INT> sId;
-    const INT               mId = {++sId};
-    
+      static std::atomic<INT> sId;
+      const INT               mId = {++sId};
+    public: // ctor
+      CObject();
+      virtual ~CObject();
+    public: // move = deleted
+      CObject(CObject&&) = delete;
+      CObject& operator =(CObject&&) = delete;
+    public: // copy = deleted
+      CObject(const CObject&) = delete;
+      CObject& operator =(const CObject&) = delete;
+    public: // cast
+      explicit operator const INT() const;
     public:
-    CObject();
-    virtual ~CObject();
-    // move = deleted
-    CObject(CObject&&) = delete;
-    CObject& operator =(CObject&&) = delete;
-    // copy = deleted
-    CObject(const CObject&) = delete;
-    CObject& operator =(const CObject&) = delete;
-    // cast
-    explicit operator const INT() const;
-    
-    public:
-    const int id() const;
-  };  
+      const int id() const;
+  };
 }}
 
 #endif //__cym_uix_cobject_hpp__

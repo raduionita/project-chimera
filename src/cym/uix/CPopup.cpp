@@ -3,61 +3,39 @@
 namespace cym { namespace uix {
   bool CPopup::fullscreen(uint nHints/*=7*/) {
     log::nfo << "uix::CPopup::fullscreen(int)::" << this << log::end;
-    // @todo: chromium/window-style fullscreen
-    
-    // @todo: GET current state
-    
-    // @todo: IF hint == state THEN return
-    
-    // @todo: temp state = curr state
-    
-    // @todo: IF hint == fullscreen THEN: 
-      // @todo: curr state = fullscreen (style & xy & wh)
-    // @todo: IF hint == windowed THEN:
-      // @todo: GET style & xy & wh &  from prev state
-      // @todo: curr state = windowed (style & xy & wh)
-      
-    // @todo: prev state = temp state
-    
     
     // @todo: on (app) exit/quit revert
     
-    WINBOOL bStatus = FALSE;
-    
     if (nHints & EFullscreen::FULLSCREEN) {
-      // @todo: GWL_STYLE   remove ~(WS_CAPTION | WS_THICKFRAME)
-      // @todo: GWL_EXSTYLE remove ~(WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE)
-    
-      ::SetWindowLong(mHandle, GWL_STYLE, WS_POPUP|WS_CLIPCHILDREN|WS_CLIPSIBLINGS);
-      ::SetWindowLong(mHandle, GWL_EXSTYLE, 0);
+      // if cur state = new state: do nothing
+      if (mState & EState::FULLSCREEN) return false;
+      // swap curr state w/ old state // return curr state
+      STATE sState = ::SwapWindowState(mHandle);
+      // set new styles
+      ::SetWindowLong(mHandle, GWL_STYLE,   sState.dwStyle & ~(WS_CAPTION | WS_THICKFRAME));
+      ::SetWindowLong(mHandle, GWL_EXSTYLE, sState.dwExStyle & ~(WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE));
       MONITORINFO sMI;
       sMI.cbSize = sizeof(sMI);
       ::GetMonitorInfo(::MonitorFromWindow(mHandle,MONITOR_DEFAULTTONEAREST), &sMI);
-      bStatus = ::SetWindowPos(mHandle, HWND_TOPMOST, sMI.rcMonitor.left, sMI.rcMonitor.top, sMI.rcMonitor.right-sMI.rcMonitor.left, sMI.rcMonitor.bottom-sMI.rcMonitor.top, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOACTIVATE);
-  
+      // set new xywh
+      ::SetWindowPos(mHandle, HWND_TOPMOST, sMI.rcMonitor.left, sMI.rcMonitor.top, sMI.rcMonitor.right-sMI.rcMonitor.left, sMI.rcMonitor.bottom-sMI.rcMonitor.top, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOACTIVATE);
+      // send fullscreen message
       ::SendMessage(mHandle, CM_FULLSCREEN, 0, 0/*,WPARAM wParam,LPARAM lParam*/);
     } else {
-      // @todo: restore styles
-      // @todo: restore rect (shape & position)
-      
-      ::SetWindowLong(mHandle, GWL_STYLE,   0); // restore dwStyle
-      ::SetWindowLong(mHandle, GWL_EXSTYLE, 0); // restore dwExStyle
-      bStatus = ::SetWindowPos(mHandle, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOACTIVATE); // restore xywh
-  
+      // if cur state = new state: do nothing
+      if (!(mState & EState::FULLSCREEN)) return false;
+      // swap curr state w/ old state // return prev state
+      STATE sState = ::SwapWindowState(mHandle);
+      // restore styles
+      ::SetWindowLong(mHandle, GWL_STYLE,   sState.dwStyle); // restore dwStyle
+      ::SetWindowLong(mHandle, GWL_EXSTYLE, sState.dwExStyle); // restore dwExStyle
+      ::SetWindowPos(mHandle, NULL, sState.rc.left, sState.rc.top, sState.rc.right-sState.rc.left, sState.rc.bottom-sState.rc.top, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOACTIVATE); // restore xywh
+      // send windowed message
       ::SendMessage(mHandle, CM_WINDOWED, 0, 0/*,WPARAM wParam,LPARAM lParam*/);
       
       // @todo: IF maxmized THEN:
-      // ::ShowWindow(mHandle, SW_MAXIMIZE)
-  
-      
+      // ::ShowWindow(mHandle, SW_MAXIMIZE) 
     }
-    
-    // @todo: remember:
-      // dwStyle   // or hints
-      // dwExStyle // but we need a method to convert from hints to DWORD style/exStyle
-      // x, y
-      // width, height
-    
-    return bStatus == TRUE;
+    return true;
   }
 }}

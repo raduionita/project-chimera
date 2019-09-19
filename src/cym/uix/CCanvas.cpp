@@ -99,4 +99,5 @@ namespace cym { namespace uix {
   bool CCanvas::swap()    const       { return mContext->swap(); }
   bool CCanvas::current() const       { return mContext->current(); }
   bool CCanvas::clear(int nBit) const { return mContext->clear(nBit); }
+  bool CCanvas::reset() const         { return mContext->reset(); }
 }}

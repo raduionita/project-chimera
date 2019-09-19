@@ -3,48 +3,41 @@
 
 #include "uix.hpp"
 #include "CObject.hpp"
+#include "CHandler.hpp"
 
 namespace cym { namespace uix {
-  class CApplication : public CObject {
+  class CApplication : public CObject, public CHandler {
     protected:
-    using CObject::CObject;
-    using CObject::operator=;
-    
+      using CObject::CObject;
+      using CObject::operator=;
     protected:
-    static CApplication* sInstance;
-    HINSTANCE            mHandle   = {NULL};
-    CConsole*            mConsole  = {nullptr};
-    int                  mTPS      = {25};
-    int                  mLoops    = {10};
-    bool                 mRunning  = {false};
-    
-    public:
-    CApplication(HINSTANCE = ::GetModuleHandle(NULL), int = 0);
-    CApplication(const CApplication&);
-    ~CApplication();
-    
-    public:
-    CApplication& operator =(const CApplication&);
-    
-    public:
-    explicit operator       HINSTANCE();
-    explicit operator const HINSTANCE() const;
-    
+      static CApplication* sInstance;
+      HINSTANCE            mHandle   = {NULL};
+      CConsole*            mConsole  = {nullptr};
+      bool                 mRunning  = {false};
+    public: // ctor
+      CApplication(HINSTANCE = ::GetModuleHandle(NULL), int = 0);
+      ~CApplication();
+    public: // copy
+      CApplication(const CApplication&);
+    public: // assign
+      CApplication& operator =(const CApplication&);
+    public: // cast
+      explicit operator       HINSTANCE();
+      explicit operator const HINSTANCE() const;
     protected:
-    bool init();
-    bool tick(int=0);
-    bool free();
+      bool init();
+      bool tick(int=0);
+      bool free();
     public:
-    bool  exec(int=0);
-    bool  quit(int=0);
-    
+      bool  exec(int=0);
+      bool  quit(int=0);
     public:
-    static CApplication* instance();  
-    
+      static CApplication* instance();
     protected:
-    virtual void onInit();
-    virtual void onTick(int=0);
-    virtual void onFree();
+      virtual void onInit();
+      virtual void onTick(int=0);
+      virtual void onFree();
   };  
 }}
 

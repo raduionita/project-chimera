@@ -55,7 +55,8 @@ namespace cym { namespace uix {
     public:
     bool swap()    const;
     bool current() const;
-    bool clear(int = GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT) const;
+    bool clear(int = GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT) const;
+    bool reset() const;
   };  
 }}
 

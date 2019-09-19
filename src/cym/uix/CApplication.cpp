@@ -57,22 +57,24 @@ namespace cym { namespace uix {
   
   bool CApplication::exec(int nMode/*=0*/) {
     log::nfo << "uix::CApplication::exec()::" << this << log::end;
-    
     try {
       mRunning = init();
-      
+      // prepare
       MSG       sMsg;
       DWORD     nPrvTicks;
       DWORD     nCurTicks;
       DWORD     nNxtTicks;
-      const int cJumpTime{1000/mTPS}; // 1s/25 ~ 40ms = how many jumps in 1 sec 
-      int       nLoop;
+      const int cTPS{25};
+      const int cJumpTime{1000/cTPS}; // 1s/25 ~ 40ms = how many jumps in 1 sec 
+      const int cMaxLoops{5};
+      int       nLoops;
+      // the run loop
       while (mRunning) {
         nCurTicks = nPrvTicks = ::GetTickCount();
         nNxtTicks = nCurTicks + cJumpTime; // current_ms_count + fraction_of_a_sec_ms
-        nLoop     = 0;
-        // allowed to last max 40ms // AND // max of 10 events
-        while (nCurTicks < nNxtTicks && nLoop < mLoops) { 
+        nLoops    = 0;
+        // the message loop // allowed to last max 40ms // AND // max of 10 events
+        while (nCurTicks < nNxtTicks && nLoops < cMaxLoops) { 
           if (::PeekMessage(&sMsg, NULL, 0, 0, PM_REMOVE)) {
             if (WM_QUIT == sMsg.message) {
               mRunning = false;
@@ -82,7 +84,7 @@ namespace cym { namespace uix {
               ::DispatchMessage(&sMsg);
             }
             nCurTicks = ::GetTickCount();
-            nLoop++;
+            nLoops++;
           } else { break; }
         }
         // tick

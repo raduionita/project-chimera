@@ -12,10 +12,6 @@ namespace cym { namespace uix {
     free();
   }
   
-  inline int operator &(const CWindow::SState& sState, const EState& eState) {
-    return sState.eState & eState;
-  }
-  
   // cast ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   CWindow::operator HWND() {
@@ -176,7 +172,7 @@ namespace cym { namespace uix {
     x = sRect.left; // @todo: +1 issue 'cause of border 
     // y = y;
     
-    return !(mStates[SState::CURR] & EState::MAXIMIZED) && !(mStates[SState::CURR] & EState::FULLSCREEN)
+    return !(mState & EState::MAXIMIZED) && !(mState & EState::FULLSCREEN)
         && (::SetWindowPos(mHandle, NULL, x, y, 0, 0, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOSIZE|SWP_NOACTIVATE));
   }
   
@@ -203,7 +199,7 @@ namespace cym { namespace uix {
     w = sWRect.right - sWRect.left;
     h = sWRect.bottom - sWRect.top;
     
-    return !(mStates[SState::CURR] & EState::MAXIMIZED) && !(mStates[SState::CURR] & EState::FULLSCREEN)
+    return !(mState & EState::MAXIMIZED) && !(mState & EState::FULLSCREEN)
         && (::SetWindowPos(hWindow, NULL, 0, 0, w, h, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOMOVE|SWP_NOACTIVATE));
   }
   
@@ -258,9 +254,8 @@ namespace cym { namespace uix {
     return false;
   }
   
-  CWindow::SState CWindow::state(int what/*=SState::CURR*/) const {
-    assert(SState::PREV <= what && what <= SState::NEXT && "CWindow::mStates[what] out of bounds!");
-    return mStates[what];
+  STATE CWindow::state() const {
+    return ::GetWindowState(mHandle);
   }
   
   bool CWindow::area(const SArea& sArea) {
@@ -352,10 +347,22 @@ namespace cym { namespace uix {
         log::nfo << "   W:CM_INIT::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
         return 0;
       }
-      case CM_STATE: {
+      case CM_FULLSCREEN: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        log::nfo << "   W:CM_STATE::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
+        log::nfo << "   W:CM_FULLSCREEN::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
+        
+        pWindow->mState = pWindow->mState | EState::FULLSCREEN;
+        
+        return 0;
+      }
+      case CM_WINDOWED: {
+        CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        BREAK(!pWindow);
+        log::nfo << "   W:CM_WINDOWED::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
+        
+        pWindow->mState = pWindow->mState & ~EState::FULLSCREEN;
+        
         return 0;
       }
       case WM_CLOSE: { // called on [x] or window menu [Close] // triggers: WM_DESTROY
@@ -403,9 +410,8 @@ namespace cym { namespace uix {
         
         // @todo: sized event
         
-        // @todo: window states
-        // EState eState   = (wParam == SIZE_MAXSHOW) ? EState::MAXIMIZED : (wParam == SIZE_MINIMIZED ? EState::MINIMIZED : EState::_STATE_);
-        // pWindow->mState = (pWindow->mState & ~EState::MAXIMIZED & ~EState::MINIMIZED) | eState;
+        EState eState   = (wParam == SIZE_MAXSHOW) ? EState::MAXIMIZED : (wParam == SIZE_MINIMIZED ? EState::MINIMIZED : EState::_STATE_);
+        pWindow->mState = (pWindow->mState & ~EState::MAXIMIZED & ~EState::MINIMIZED) | eState;
         
         (pWindow->mLayout) && pWindow->mLayout->layout(pWindow);
         
@@ -446,26 +452,24 @@ namespace cym { namespace uix {
       case WM_KEYDOWN: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         log::nfo << "   W:WM_KEYDOWN::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << (char)(wParam) << " lParam:" << lParam << log::end;
-    
-        switch (wParam) {
-          case 'Q'      : ::PostQuitMessage(0); break;
-          case VK_ESCAPE: ::PostQuitMessage(0); break;
-        }
         
         // HWND hFocused = ::GetFocus();        // get handle to current keyboard focused window
         // HWND hActive  = ::GetActiveWindow(); // get handle to current active window
     
-        // auto pEvent     = new CKeyEvent(EEvent::KEYDOWN, pWindow);
-        // pEvent->mKey    = static_cast<char>(wParam);
+        auto pEvent     = new CKeyEvent(EEvent::KEYDOWN, pWindow);
+        pEvent->mKey    = static_cast<char>(wParam);
     
-        // bool bTriggered = pWindow->handle(pEvent);
+        bool bTriggered = pWindow->handle(pEvent);
     
-        // while (pEvent->doPropagation() && pWindow->hasParent()) {
-        //  pWindow    = pWindow->getParent();
-        //  bTriggered = pWindow->handle(pEvent) && bTriggered;
-        //}
+        while (pEvent->propagate() && (pWindow = pWindow->parent())) {
+          bTriggered = pWindow->handle(pEvent) && bTriggered;
+        }
+        
+        if (pEvent->propagate()) {
+          bTriggered = CApplication::instance()->handle(pEvent) && bTriggered;
+        }
     
-        // if (bTriggered) {_DELETE_(pEvent); return 0;}
+        if (bTriggered) {DELETE(pEvent); return 0;}
     
         // wParam: virtual key code 
         // lParam: 00-15 bits: repeat count of the current key (user holds key pressed)

@@ -8,18 +8,20 @@ namespace app {
   void CApplication::onInit() {
     log::nfo << "app::CApplication::onInit()::" << this << log::end;
     
-    auto pWindow  = new uix::CFrame();
-    auto pLayout  = dynamic_cast<uix::CBoxLayout*>(pWindow->layout(new uix::CBoxLayout(uix::EHint::VERTICAL)));
-    auto pSurface = dynamic_cast<uix::CSurface*>(pLayout->add(new uix::CSurface(pWindow, uix::EHint::VISIBLE), uix::EHint::ADJUST));
-    auto pPanel   = dynamic_cast<uix::CPanel*>(pLayout->add(new uix::CPanel(pWindow, uix::EHint::VISIBLE), uix::EHint::ADJUST));
-    pWindow->layout(pLayout);
-    pWindow->title("frame");
-    // pWindow->fullscreen();
-    pWindow->show();
+         mFrame   = new uix::CFrame();
+    auto pLayout  = dynamic_cast<uix::CBoxLayout*>(mFrame->layout(new uix::CBoxLayout(uix::EHint::VERTICAL)));
+         mSurface = dynamic_cast<uix::CSurface*>(pLayout->add(new uix::CSurface(mFrame, uix::EHint::VISIBLE), uix::EHint::ADJUST));
+    auto pPanel   = dynamic_cast<uix::CPanel*>(pLayout->add(new uix::CPanel(mFrame, uix::EHint::VISIBLE), uix::EHint::ADJUST));
     
-    pSurface->current();
-    pSurface->clear();
-    pSurface->swap();
+    mFrame->layout(pLayout);
+    mFrame->title("frame");
+    mFrame->show();
+    
+    mSurface->current();
+    mSurface->clear();
+    mSurface->swap();
+    
+    attach(mFrame, uix::EEvent::KEYDOWN, &CApplication::onKeydown);
   }
   
   void CApplication::onTick(int nElapsed/*=0*/) {
@@ -36,6 +38,7 @@ namespace app {
     
     // game.inputs();
     
+    // the update loop
     while (nNxtTicks < ::GetTickCount() && nLoops < cMaxLoops) {
       log::nfo << "app::CApplication::onTick("<< nElapsed <<"ms)::" << this << " LOOP:" << nLoops << log::end;
       // game.update();
@@ -53,5 +56,16 @@ namespace app {
   
   void CApplication::onFree() {
     log::nfo << "app::CApplication::onFree()::" << this << log::end;
+  }
+  
+  void CApplication::onKeydown(uix::CKeyEvent* pEvent) {
+    log::nfo << "app::CApplication::onKeydown(CKeyEvent*)::" << this << " KEY:" << pEvent->key() << log::end;
+    
+    switch (pEvent->key()) {
+      case 'Q'      : quit(0); break;
+      case VK_ESCAPE: quit(0); break;
+      case VK_F5    : mSurface->reset(); break;
+      case VK_F11   : mFrame->fullscreen(); break;
+    }
   }
 }
