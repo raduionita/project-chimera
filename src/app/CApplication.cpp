@@ -17,11 +17,8 @@ namespace app {
     // pWindow->fullscreen();
     pWindow->show();
     
-    pSurface->focus();
     pSurface->current();
-    
     pSurface->clear();
-    
     pSurface->swap();
   }
   

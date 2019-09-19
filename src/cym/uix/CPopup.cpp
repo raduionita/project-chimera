@@ -2,7 +2,7 @@
 
 namespace cym { namespace uix {
   bool CPopup::fullscreen(uint nHints/*=7*/) {
-    log::nfo << "uix::CWindow::fullscreen(int)::" << this << log::end;
+    log::nfo << "uix::CPopup::fullscreen(int)::" << this << log::end;
     // @todo: chromium/window-style fullscreen
     
     // @todo: GET current state
@@ -22,6 +22,7 @@ namespace cym { namespace uix {
     
     // @todo: on (app) exit/quit revert
     
+    WINBOOL bStatus = FALSE;
     
     if (nHints & EFullscreen::FULLSCREEN) {
       // @todo: GWL_STYLE   remove ~(WS_CAPTION | WS_THICKFRAME)
@@ -32,17 +33,23 @@ namespace cym { namespace uix {
       MONITORINFO sMI;
       sMI.cbSize = sizeof(sMI);
       ::GetMonitorInfo(::MonitorFromWindow(mHandle,MONITOR_DEFAULTTONEAREST), &sMI);
-      return TRUE == ::SetWindowPos(mHandle, HWND_TOPMOST, sMI.rcMonitor.left, sMI.rcMonitor.top, sMI.rcMonitor.right-sMI.rcMonitor.left, sMI.rcMonitor.bottom-sMI.rcMonitor.top, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOACTIVATE);
+      bStatus = ::SetWindowPos(mHandle, HWND_TOPMOST, sMI.rcMonitor.left, sMI.rcMonitor.top, sMI.rcMonitor.right-sMI.rcMonitor.left, sMI.rcMonitor.bottom-sMI.rcMonitor.top, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOACTIVATE);
+  
+      ::SendMessage(mHandle, CM_FULLSCREEN, 0, 0/*,WPARAM wParam,LPARAM lParam*/);
     } else {
       // @todo: restore styles
       // @todo: restore rect (shape & position)
       
       ::SetWindowLong(mHandle, GWL_STYLE,   0); // restore dwStyle
       ::SetWindowLong(mHandle, GWL_EXSTYLE, 0); // restore dwExStyle
-      return TRUE == ::SetWindowPos(mHandle, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOACTIVATE); // restore xywh
-    
+      bStatus = ::SetWindowPos(mHandle, NULL, 0, 0, 0, 0, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOACTIVATE); // restore xywh
+  
+      ::SendMessage(mHandle, CM_WINDOWED, 0, 0/*,WPARAM wParam,LPARAM lParam*/);
+      
       // @todo: IF maxmized THEN:
       // ::ShowWindow(mHandle, SW_MAXIMIZE)
+  
+      
     }
     
     // @todo: remember:
@@ -51,6 +58,6 @@ namespace cym { namespace uix {
       // x, y
       // width, height
     
-    return false;
+    return bStatus == TRUE;
   }
 }}

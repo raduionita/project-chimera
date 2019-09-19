@@ -16,6 +16,8 @@
 #include <wingdi.h>
 #include <commctrl.h>
 
+#include "../fix/msw.hpp"
+
 #include <cassert>
 #include <iomanip>
 #include <atomic>
@@ -36,8 +38,11 @@
 #undef  DELETE
 #define DELETE(what)      delete what;what = nullptr
 
-#define CM_INIT      (WM_USER + 0x0001) // custom message
-#define CM_TABCHANGE (CM_INIT + 0x0001)
+#define CM_INIT       (WM_USER       + 0x0001) // custom message
+#define CM_TABCHANGE  (CM_INIT       + 0x0001)
+#define CM_STATE      (CM_TABCHANGE  + 0x0001)
+#define CM_FULLSCREEN (CM_STATE      + 0x0001)
+#define CM_WINDOWED   (CM_FULLSCREEN + 0x0001)
 
 namespace cym { namespace uix {
   constexpr int ZERO =  0;
@@ -166,11 +171,11 @@ namespace cym { namespace uix {
   enum class EState : uint {
     _STATE_    = ZERO,
     PUSHED     = 0b00000001,
-    FOCUSED    = 0b00000100,
-    CHECKED    = 0b00010000,
-    MINIMIZED  = 0b00100000,
-    MAXIMIZED  = 0b01000000,
-    FULLSCREEN = 0b10000000,
+    FOCUSED    = 0b00000010,
+    CHECKED    = 0b00000100,
+    MINIMIZED  = 0b00001000,
+    MAXIMIZED  = 0b00010000,
+    FULLSCREEN = 0b00100000,
   };
   
   inline uint operator |(EState lhs, EState rhs) { return static_cast<int>(lhs) | static_cast<int>(rhs); }
@@ -238,5 +243,7 @@ namespace cym { namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
 }}
+
+
 
 #endif //__cym_uix_hpp__

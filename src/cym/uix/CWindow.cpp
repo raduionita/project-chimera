@@ -12,6 +12,10 @@ namespace cym { namespace uix {
     free();
   }
   
+  inline int operator &(const CWindow::SState& sState, const EState& eState) {
+    return sState.eState & eState;
+  }
+  
   // cast ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   CWindow::operator HWND() {
@@ -172,7 +176,8 @@ namespace cym { namespace uix {
     x = sRect.left; // @todo: +1 issue 'cause of border 
     // y = y;
     
-    return !(mState & EState::MAXIMIZED) && (::SetWindowPos(mHandle, NULL, x, y, 0, 0, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOSIZE|SWP_NOACTIVATE));
+    return !(mStates[SState::CURR] & EState::MAXIMIZED) && !(mStates[SState::CURR] & EState::FULLSCREEN)
+        && (::SetWindowPos(mHandle, NULL, x, y, 0, 0, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOSIZE|SWP_NOACTIVATE));
   }
   
   bool CWindow::size(int w, int h) {
@@ -198,7 +203,8 @@ namespace cym { namespace uix {
     w = sWRect.right - sWRect.left;
     h = sWRect.bottom - sWRect.top;
     
-    return !(mState & EState::MAXIMIZED) && (::SetWindowPos(hWindow, NULL, 0, 0, w, h, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOMOVE|SWP_NOACTIVATE));
+    return !(mStates[SState::CURR] & EState::MAXIMIZED) && !(mStates[SState::CURR] & EState::FULLSCREEN)
+        && (::SetWindowPos(hWindow, NULL, 0, 0, w, h, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOMOVE|SWP_NOACTIVATE));
   }
   
   bool CWindow::center() {
@@ -245,6 +251,16 @@ namespace cym { namespace uix {
   bool CWindow::minimize() {
     log::nfo << "uix::CWindow::minimize()::" << this << log::end;
     return /*(mState |= EState::MINIMIZED) &&*/ ::ShowWindow(mHandle, SW_MINIMIZE);
+  }
+  
+  bool CWindow::fullscreen(int) {
+    log::nfo << "uix::CWindow::fullscreen()::" << this << log::end;
+    return false;
+  }
+  
+  CWindow::SState CWindow::state(int what/*=SState::CURR*/) const {
+    assert(SState::PREV <= what && what <= SState::NEXT && "CWindow::mStates[what] out of bounds!");
+    return mStates[what];
   }
   
   bool CWindow::area(const SArea& sArea) {
@@ -334,6 +350,12 @@ namespace cym { namespace uix {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
         log::nfo << "   W:CM_INIT::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
+        return 0;
+      }
+      case CM_STATE: {
+        CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        BREAK(!pWindow);
+        log::nfo << "   W:CM_STATE::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
         return 0;
       }
       case WM_CLOSE: { // called on [x] or window menu [Close] // triggers: WM_DESTROY
