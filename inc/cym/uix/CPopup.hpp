@@ -11,7 +11,7 @@ namespace cym { namespace uix {
       typedef CWindow super;
       static constexpr int STYLE = CWindow::STYLE|EHint::POPUP;
     public:
-      virtual bool fullscreen(uint = EFullscreen::FULLSCREEN|EFullscreen::CURSOR|EFullscreen::MONITOR);
+      virtual bool fullscreen(uint = EFullscreen::FULLSCREEN|EFullscreen::CURSOR);
   };
 }}
 

@@ -233,7 +233,7 @@ namespace cym { namespace uix {
   };
   
   enum class EFullscreen : int {
-    _FULLSCREEN_ = 0,
+    EMPTY        = ZERO,
     WINDOWED     = 0b000,
     FULLSCREEN   = 0b001,
     CURSOR       = 0b010,
@@ -263,7 +263,7 @@ namespace cym { namespace uix {
     QUIT,
     KEYDOWN,
     KEYUP,
-    KEYPRESS,
+    KEYPRESS, // keyup + keydown
     MOVE,
     MOVING,
     RESIZE, SIZE = RESIZE,
@@ -286,7 +286,5 @@ namespace cym { namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
 }}
-
-
 
 #endif //__cym_uix_hpp__

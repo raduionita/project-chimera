@@ -21,6 +21,8 @@ namespace cym { namespace uix {
       ::SetWindowPos(mHandle, HWND_TOPMOST, sMI.rcMonitor.left, sMI.rcMonitor.top, sMI.rcMonitor.right-sMI.rcMonitor.left, sMI.rcMonitor.bottom-sMI.rcMonitor.top, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOACTIVATE);
       // send fullscreen message
       ::SendMessage(mHandle, CM_FULLSCREEN, 0, 0/*,WPARAM wParam,LPARAM lParam*/);
+      // hide/show cursor
+      ::ShowCursor(nHints & EFullscreen::CURSOR);
     } else {
       // if cur state = new state: do nothing
       if (!(mState & EState::FULLSCREEN)) return false;
@@ -32,7 +34,8 @@ namespace cym { namespace uix {
       ::SetWindowPos(mHandle, NULL, sState.rc.left, sState.rc.top, sState.rc.right-sState.rc.left, sState.rc.bottom-sState.rc.top, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOACTIVATE); // restore xywh
       // send windowed message
       ::SendMessage(mHandle, CM_WINDOWED, 0, 0/*,WPARAM wParam,LPARAM lParam*/);
-      
+      // hide/show cursor
+      ::ShowCursor(nHints & EFullscreen::CURSOR);
       // @todo: IF maxmized THEN:
       // ::ShowWindow(mHandle, SW_MAXIMIZE) 
     }

@@ -34,7 +34,7 @@ namespace cym { namespace uix {
     return mInited;
   }
   
-  bool CCanvas::fullscreen(uint nHints/*=3*/) {
+  bool CCanvas::fullscreen(uint nHints/*=1*/) {
     log::nfo << "uix::CCanvas::fullscreen(int)::" << this << log::end;
     // @todo: game-style fullscreen
     
@@ -55,9 +55,6 @@ namespace cym { namespace uix {
       nHeight = sRect.bottom - sRect.top;
     }
     
-    // @todo: GWL_STYLE   remove ~(WS_CAPTION | WS_THICKFRAME)
-    // @todo: GWL_EXSTYLE remove ~(WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE)
-
     if (nHints & EFullscreen::FULLSCREEN) {
       // hint: 001b = 1 = fullscreen
       ::SetWindowLong(mHandle, GWL_EXSTYLE, 0);
@@ -73,7 +70,8 @@ namespace cym { namespace uix {
       sDM.dmSize       = sizeof(DEVMODE);
       sDM.dmPelsWidth  = nWidth;
       sDM.dmPelsHeight = nHeight;
-      sDM.dmFields     = DM_PELSWIDTH | DM_PELSHEIGHT;
+      sDM.dmBitsPerPel = 24;
+      sDM.dmFields     = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL;
       
       // ::EnumDisplayDevices
       // ::EnumDisplaySettings

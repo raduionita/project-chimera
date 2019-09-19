@@ -6,7 +6,7 @@
   = mouse actions + clicks
   = propagate all the way to the app
 
-= fullscreen:gaming (DEVMODE)
+= fullscreen: gaming (DEVMODE)
 = implements IDrawable|IRenderable (CCanvas & CSurface)
 = throw exception on windows create failed + loop + try + fatal or warning
 = styles|painter
