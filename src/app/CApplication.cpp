@@ -32,9 +32,8 @@ namespace app {
     static const int cMaxLoops{10};
     static const int cTicksPerSec{25};             // 
     static const int cJumpTime{1000/cTicksPerSec}; // 
-    
-    // @todo: this should be outside while(mRunning)
-    DWORD            nNxtTicks{::GetTickCount()};  // ms since app start
+    // this should be outside while(mRunning)
+    static DWORD     nNxtTicks{::GetTickCount()};  // ms since app start
     
     // game.inputs();
     
@@ -58,8 +57,8 @@ namespace app {
     log::nfo << "app::CApplication::onFree()::" << this << log::end;
   }
   
-  void CApplication::onKeydown(uix::CKeyEvent* pEvent) {
-    log::nfo << "app::CApplication::onKeydown(CKeyEvent*)::" << this << " KEY:" << pEvent->key() << log::end;
+  void CApplication::onKeydown(uix::CEvent* pEvent) {
+    log::nfo << "app::CApplication::onKeydown(CEvent*)::" << this << " KEY:" << pEvent->key() << log::end;
     
     switch (pEvent->key()) {
       case 'Q'      : quit(0); break;

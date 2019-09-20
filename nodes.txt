@@ -1,19 +1,19 @@
 // todo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-= fix loop
 = WM_XXX + events + listeners + handlers
   = hotkeys & keybord shortcuts
   = mouse actions + clicks
   = propagate all the way to the app
 
-= fullscreen: gaming (DEVMODE)
+= fix exit code 1
+
 = implements IDrawable|IRenderable (CCanvas & CSurface)
 = throw exception on windows create failed + loop + try + fatal or warning
 = styles|painter
-= commands
 = widgets:button
+= commands
+= fullscreen: gaming (DEVMODE)
 = custom theme - replace titlebar (icon+menubar+title+sysmenu)
-= hints (add all of them)
 = menus
 = multi-threading (::CreateProcess & pthreads)
 = on resize/maximized restore canvas/surface'context (render area)

@@ -21,7 +21,7 @@ namespace app {
       void onTick(int=0) override;
       void onFree()      override;
     protected:
-      void onKeydown(uix::CKeyEvent*);
+      void onKeydown(uix::CEvent*);
   };
 }
 

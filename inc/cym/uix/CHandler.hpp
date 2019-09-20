@@ -16,7 +16,7 @@ namespace cym { namespace uix {
       virtual ~CHandler();
     protected:
       // @todo: template <typename L> bool attach(CHandler* pTarget, const EEvent& eEvent, L&& callback);
-      template <typename T, typename E> bool attach(CHandler* pTarget, const EEvent& eEvent, void(T::*callback)(E*)) {
+      template <typename T> bool attach(CHandler* pTarget, const EEvent& eEvent, void(T::*callback)(CEvent*)) {
         log::nfo << "uix::CHandler::attach(CHandler*, EEvent, void(T::*callback)(CEvent*))::" << this << log::end;
         // eg: T = CApplication & E = CKeyEvent
         
@@ -26,8 +26,7 @@ namespace cym { namespace uix {
         // wrap callback to a cast(ed) callback
         auto fCallback  = [this,callback] (CEvent* pEvent) {
           T* pHandler = dynamic_cast<T*>(this);
-          E* pCasted  = dynamic_cast<E*>(pEvent);
-          (pHandler->*callback)(pCasted);
+          (pHandler->*callback)(pEvent);
         };
         
         // if has queued (already triggered)

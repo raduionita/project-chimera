@@ -16,7 +16,7 @@ namespace cym { namespace uix {
       CListener() = default;
       virtual ~CListener() = default;
     protected:
-      template <typename T, typename E> bool attach(CListener* pTarget, const EEvent& eEvent, void(T::*callback)(E*)) {
+      template <typename T> bool attach(CListener* pTarget, const EEvent& eEvent, void(T::*callback)(CEvent*)) {
         log::nfo << "uix::CListener::attach(CListener*, EEvent, void(T::*callback)(CEvent*))::" << this << log::end;
         // eg: T = CApplication & E = CKeyEvent
       
@@ -26,8 +26,7 @@ namespace cym { namespace uix {
         // wrap callback to a cast(ed) callback
         auto fCallback  = [this,callback] (CEvent* pEvent) {
           T* pHandler = dynamic_cast<T*>(this);
-          E* pCasted  = dynamic_cast<E*>(pEvent);
-          (pHandler->*callback)(pCasted);
+          (pHandler->*callback)(pEvent);
         };
       
         // if has queued (already triggered)
@@ -49,14 +48,14 @@ namespace cym { namespace uix {
     public:
       COnKeydownListener() { attach(this, EEvent::KEYDOWN, &COnKeydownListener::onKeydown); }
     public:
-      virtual void onKeydown(CKeyEvent*) = 0;
+      virtual void onKeydown(CEvent*) = 0;
   };
   
   class COnClickListener : public CListener {
     public:
       COnClickListener() { attach(this, EEvent::CLICK, &COnClickListener::onClick); }
     public:
-      virtual void onClick(CMouseEvent*) = 0;
+      virtual void onClick(CEvent*) = 0;
   };
 }}
 

@@ -52,10 +52,6 @@ namespace cym { namespace uix {
   class CHandler;
   class CDisplay;
   class CEvent;
-    class CKeyEvent;
-    class CCloseEvent;
-    class CResizeEvent;
-    class CMouseEvent;
   class CObject;
     class CConsole;
     class CModule;

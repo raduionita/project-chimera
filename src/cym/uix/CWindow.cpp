@@ -456,7 +456,7 @@ namespace cym { namespace uix {
         // HWND hFocused = ::GetFocus();        // get handle to current keyboard focused window
         // HWND hActive  = ::GetActiveWindow(); // get handle to current active window
     
-        auto pEvent     = new CKeyEvent(EEvent::KEYDOWN, pWindow);
+        auto pEvent     = new CEvent(EEvent::KEYDOWN, pWindow);
         pEvent->mKey    = static_cast<char>(wParam);
     
         bool bTriggered = pWindow->handle(pEvent);
