@@ -22,6 +22,7 @@ namespace app {
       void onFree()      override;
     protected:
       void onKeydown(uix::CEvent*);
+      void onClick(uix::CEvent*);
   };
 }
 

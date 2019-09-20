@@ -22,6 +22,7 @@ namespace app {
     mSurface->swap();
     
     attach(mFrame, uix::EEvent::KEYDOWN, &CApplication::onKeydown);
+    attach(mFrame, uix::EEvent::LCLICK, &CApplication::onClick);
   }
   
   void CApplication::onTick(int nElapsed/*=0*/) {
@@ -58,7 +59,7 @@ namespace app {
   }
   
   void CApplication::onKeydown(uix::CEvent* pEvent) {
-    log::nfo << "app::CApplication::onKeydown(CEvent*)::" << this << " KEY:" << pEvent->key() << log::end;
+    log::nfo << "app::CApplication::onKeydown(CEvent*)::" << this << " K:" << pEvent->key() << log::end;
     
     switch (pEvent->key()) {
       case 'Q'      : quit(0); break;
@@ -66,5 +67,9 @@ namespace app {
       case VK_F5    : mSurface->reset(); break;
       case VK_F11   : mFrame->fullscreen(); break;
     }
+  }
+  
+  void CApplication::onClick(uix::CEvent* pEvent) {
+    log::nfo << "app::CApplication::onClick(CEvent*)::" << this << " B:" << int(pEvent->button()) << " X:" << pEvent->clientX() << " Y:" << pEvent->clientY() << log::end;
   }
 }

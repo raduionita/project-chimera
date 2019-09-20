@@ -8,32 +8,36 @@ namespace cym { namespace uix {
       friend std::ostream& operator <<(std::ostream&, const CEvent&);
       friend class CWindow;
     protected:
-      bool      mPropagate {true};
-      EEvent    mType      {EEvent::_EVENT_};
-      CHandler* mTarget    {nullptr};
-      char      mKey       {'\0'};
-      int       mClientX   {0};
-      int       mClientY   {0};
-      EModifier mModifier  {EModifier::_MODIFIER_};
-      int       mWidth     {0};
-      int       mHeight    {0};
-      EState    mState     {EState::_STATE_};
+      bool       mPropagate {true};
+      EEvent     mType      {EEvent::EMPTY};
+      CListener* mTarget    {nullptr};
+      char       mKey       {'\0'};
+      int        mClientX   {0};
+      int        mClientY   {0};
+      int        mModifier  {ZERO};
+      EMouse     mButton    {EMouse::EMPTY};
+      int        mWidth     {0};
+      int        mHeight    {0};
+      EState     mState     {EState::EMPTY};
     public:
-      CEvent(const EEvent& type, CHandler* target = nullptr);
-      virtual ~CEvent() = default;
+      CEvent(const EEvent& type, CListener* target = nullptr);
+      virtual ~CEvent();
     protected:
-      inline void      type(const EEvent& type)             { mType = type; }
-      inline void      key(char key)                        { mKey = key;  }
-      inline void      modifier(const EModifier& eModifier) { mModifier = eModifier; }
+      inline void      type(const EEvent& eType)  { mType = eType; }
+      inline void      key(char cKey)             { mKey = cKey;  }
+      inline void      modifier(int nModifier)    { mModifier = nModifier; }
     public:
-      inline EEvent    type() const              { return mType; }
-      inline bool      propagate() const         { return mPropagate; }
-      inline void      propagate(bool propagate) { mPropagate = propagate; }
-      inline char      key() const               { return mKey; }
-      inline EModifier modifier() const          { return mModifier; }
-      inline int       width()  const            { return mWidth;  }
-      inline int       height() const            { return mHeight; }
-      inline EState    state()  const            { return mState;  }
+      inline EEvent    type() const               { return mType; }
+      inline bool      propagate() const          { return mPropagate; }
+      inline void      propagate(bool bPropagate) { mPropagate = bPropagate; }
+      inline char      key() const                { return mKey; }
+      inline int       modifier() const           { return mModifier; }
+      inline int       width()  const             { return mWidth;  }
+      inline int       height() const             { return mHeight; }
+      inline EState    state()  const             { return mState;  }
+      inline EMouse    button() const             { return mButton; }
+      inline int       clientX() const            { return mClientX; }
+      inline int       clientY() const            { return mClientY; }
   };
 }}
 

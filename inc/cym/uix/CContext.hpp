@@ -23,6 +23,7 @@ namespace cym { namespace uix {
     protected:
     friend class CSurface;
     friend class CCanvas;
+    friend class CRender;
     
     public:
     struct SConfig {

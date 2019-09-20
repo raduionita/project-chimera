@@ -1,21 +1,15 @@
 // todo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-= WM_XXX + events + listeners + handlers
-  = hotkeys & keybord shortcuts
-  = mouse actions + clicks
-  = propagate all the way to the app
-
-= fix exit code 1
-
-= implements IDrawable|IRenderable (CCanvas & CSurface)
-= throw exception on windows create failed + loop + try + fatal or warning
 = styles|painter
 = widgets:button
 = commands
+
+= glx: draw something
+
 = fullscreen: gaming (DEVMODE)
 = custom theme - replace titlebar (icon+menubar+title+sysmenu)
 = menus
-= multi-threading (::CreateProcess & pthreads)
+= multithreading (::CreateProcess & pthreads)
 = on resize/maximized restore canvas/surface'context (render area)
 = handle ::WinMain + CApplication + CConsole + nCmdShow
 = ::AnimateWindow()
@@ -24,6 +18,12 @@
 = logger: make CLogger::dbg/nfo/wrn/err reference to CLogger not ELevel or ELevel into a class
 = logger: should get instance on app instance / solve the unique_ptr init problemcccccclctidrvbijekchniftkvffbvndtrivvlfjtduv
 = registries should init only on app init | use CSingleton & CPointer
+
+= finish: mouse click events // pair events (mouse click, key press/tab) 
+= finish: window events
+
+= surface != panel // need something above (or just use widget) // panel for controls // surface for opengl
+= throw exception on windows create failed + loop + try + fatal or warning // where to use them
 
 = app: 2 panels: 1x canvas +1x buttons (like spawn a sphere)
 
@@ -110,17 +110,22 @@
 // CAnimationBuilder
   // CMD5AnimationBuilder
 
-// loop: ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// create window
-// make current
-// while NOT done
-  // update // + inputs
-  // render
-  // swap buffers ON window
-// destroy window
+// psx: ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
+// bodies
+  = rigid body   // w/ physics // w/ gravity (or other forces) // mass & weight(mass & gravity acc)
+  = dynamic body // kinematic/animated // can be moved // no default physics // needs own physics rules 
+  = static body  // doesnt move + other bodies can interact w/ it // no gravity (force) interaction
+  = vehicul body
+  = soft body 
+// collision
+  = polygon
+  = shape
+// material // physics material
+  = friction
+  = rough
+  = bounce
+  = absorb
 
 
 

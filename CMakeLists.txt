@@ -13,7 +13,7 @@ link_directories(lib)
 file(GLOB APP "src/main.cpp" "src/app/*.cpp")
 file(GLOB CYM "src/cym/*.cpp" "src/cym/*/*.cpp" "src/cym/*/*/*.cpp")
 
-add_library(cym ${CYM} src/cym/uix/CEvent.cpp src/cym/uix/CListener.cpp)
-add_executable(app ${APP} inc/cym/uix/CListener.hpp)
+add_library(cym ${CYM})
+add_executable(app ${APP})
 
 target_link_libraries(app cym) # libglfw3.a libgdi32.a libopengl32.a

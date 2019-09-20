@@ -8,16 +8,17 @@
 #include <vector>
 #include <algorithm>
 
-#define RETURNN(cond)     if(cond)return
-#define RETURNV(cond,out) if(cond)return out
+#define RETURNCN(cond)      if(cond)return
+#define RETURNCV(cond,val)  if(cond)return val
 #define GET3RDARG(arg0,arg1,arg2,...) arg2
-#define CHOOSERETURN(...) GET3RDARG(__VA_ARGS__, RETURNV, RETURNN,)
-#define RETURN(...)       CHOOSERETURN(__VA_ARGS__)(__VA_ARGS__)
-#define IF(cond,action)   if(cond)action
-#define BREAK(cond)       if(cond)break
-#define CONTINUE(cond)    if(cond)continue
+#define CHOOSERETURN(...)   GET3RDARG(__VA_ARGS__, RETURNCV, RETURNCN,)
+#define RETURN(...)         CHOOSERETURN(__VA_ARGS__)(__VA_ARGS__)
+#define IF(cond,action)     if(cond)action
+#define WHILE(cond,action)  while(cond)action
+#define BREAK(cond)         if(cond)break
+#define CONTINUE(cond)      if(cond)continue
 #undef  DELETE
-#define DELETE(what)      delete what;what = nullptr
+#define DELETE(what)        delete what;what=nullptr
 
 namespace cym { 
   

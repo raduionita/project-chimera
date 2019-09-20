@@ -19,18 +19,6 @@ namespace cym { namespace uix {
   
   bool CSurface::init(CWindow* pParent, const CContext::SConfig& sConfig, int nHints) {
     log::nfo << "uix::CSurface::init(CWindow*,SConfig&,int)::" << this << log::end;
-    
-    mInited = super::init(pParent, nHints);
-    
-    mInited && (mContext = new CContext(this, sConfig));
-    
-    return mInited;
+    return mInited = (CPanel::init(pParent, nHints) && CRender::init(this, sConfig));
   }
-  
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
-  bool CSurface::swap()    const       { return mContext->swap(); }
-  bool CSurface::current() const       { return mContext->current(); }
-  bool CSurface::clear(int nBit) const { return mContext->clear(nBit); }
-  bool CSurface::reset() const         { return mContext->reset(); }
 }}

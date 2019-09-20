@@ -19,19 +19,13 @@ namespace cym { namespace uix {
   
   CCanvas::~CCanvas() {
     log::nfo << "uix::CCanvas::~CCanvas()::" << this << log::end;
-    DELETE(mContext);
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   bool CCanvas::init(CWindow* pParent, const SConfig& sConfig, int nHints) {
     log::nfo << "uix::CCanvas::init(CWindow*,SConfig&,int)::" << this << log::end;
-  
-    mInited = super::init(pParent, nHints);
-    
-    mInited && (mContext = new CContext(this, sConfig));
-    
-    return mInited;
+    return mInited = (CFrame::init(pParent, nHints) && CRender::init(this, sConfig));
   }
   
   bool CCanvas::fullscreen(uint nHints/*=1*/) {
@@ -93,9 +87,4 @@ namespace cym { namespace uix {
       
     }
   }
-  
-  bool CCanvas::swap()    const       { return mContext->swap(); }
-  bool CCanvas::current() const       { return mContext->current(); }
-  bool CCanvas::clear(int nBit) const { return mContext->clear(nBit); }
-  bool CCanvas::reset() const         { return mContext->reset(); }
 }}

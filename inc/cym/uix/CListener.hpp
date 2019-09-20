@@ -1,47 +1,38 @@
-#ifndef __cym_uix_clistener_hpp__
-#define __cym_uix_clistener_hpp__
+#ifndef __cym_uix_chandler_hpp__
+#define __cym_uix_chandler_hpp__
 
+#include "uix.hpp"
 #include "CEvent.hpp"
 
-#include <map>
 #include <functional>
-#include <vector>
 
 namespace cym { namespace uix {
   class CListener {
+      typedef void(*TCallback)(CEvent*);
+      typedef std::function<void(CEvent*)> THandler;
     private:
-      std::map<EEvent, std::vector<std::function<void(CEvent*)>>> mCallbacks;
-      std::map<EEvent, CEvent*>                                   mPrequeued;
+      std::map<EEvent,THandler> mHandlers;
     public:
-      CListener() = default;
-      virtual ~CListener() = default;
+      CListener();
+      virtual ~CListener();
     protected:
-      template <typename T> bool attach(CListener* pTarget, const EEvent& eEvent, void(T::*callback)(CEvent*)) {
-        log::nfo << "uix::CListener::attach(CListener*, EEvent, void(T::*callback)(CEvent*))::" << this << log::end;
-        // eg: T = CApplication & E = CKeyEvent
-      
-        // pointer to vector inside map
-        auto aCallbacks =& pTarget->mCallbacks[eEvent];
-      
-        // wrap callback to a cast(ed) callback
-        auto fCallback  = [this,callback] (CEvent* pEvent) {
+      // attach: lambda
+      bool attach(CListener*, const EEvent&, TCallback&&);
+      // attach: method // eg: T = CApplication
+      template <typename T> bool attach(CListener* pTarget, const EEvent& eEvent, void(T::*fCallback)(CEvent*)) {
+        log::nfo << "uix::CListener::attach(CListener*, EEvent, void(T::*fCallback)(CEvent*))::" << this << log::end;
+        // wrap callback to a cast(ed) callback // add to list of calbacks
+        pTarget->mHandlers.insert(std::move(std::pair(eEvent, [this,fCallback] (CEvent* pEvent) {
           T* pHandler = dynamic_cast<T*>(this);
-          (pHandler->*callback)(pEvent);
-        };
-      
-        // if has queued (already triggered)
-        auto it = mPrequeued.find(eEvent);
-        // pre-trigger the previously enqueued event
-        if(it != mPrequeued.end()) { fCallback(it->second); }
-      
-        // add to list of calbacks
-        aCallbacks->push_back(std::move(fCallback));
-      
+          (pHandler->*fCallback)(pEvent);
+        }))); 
         return true;
       }
-      bool detach(CHandler*, const EEvent&);
+      // detach
+      bool detach(CListener*, const EEvent&);
     public:
       bool handle(CEvent*);
+      bool listens(const EEvent&) const;
   };
   
   class COnKeydownListener : public CListener {
@@ -59,4 +50,4 @@ namespace cym { namespace uix {
   };
 }}
 
-#endif //__cym_uix_clistener_hpp__
+#endif //__cym_uix_chandler_hpp__

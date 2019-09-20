@@ -9,6 +9,8 @@
 
 // #include "./SArea.hpp"
 
+
+// @todo: move this to CWindow
 #define WIN32_LEAN_AND_MEAN // before <windows.h> exclude unusable stuff
 #include <windows.h>
 #include <windowsx.h>
@@ -27,16 +29,17 @@
 #include <array>
 #include <tuple>
 
-#define RETURNN(cond)     if(cond)return
-#define RETURNV(cond,out) if(cond)return out
+#define RETURNCN(cond)      if(cond)return
+#define RETURNCV(cond,val)  if(cond)return val
 #define GET3RDARG(arg0,arg1,arg2,...) arg2
-#define CHOOSERETURN(...) GET3RDARG(__VA_ARGS__, RETURNV, RETURNN,) 
-#define RETURN(...)       CHOOSERETURN(__VA_ARGS__)(__VA_ARGS__)
-#define IF(cond,action)   if(cond)action
-#define BREAK(cond)       if(cond)break
-#define CONTINUE(cond)    if(cond)continue
+#define CHOOSERETURN(...)   GET3RDARG(__VA_ARGS__, RETURNCV, RETURNCN,)
+#define RETURN(...)         CHOOSERETURN(__VA_ARGS__)(__VA_ARGS__)
+#define IF(cond,action)     if(cond)action
+#define WHILE(cond,action)  while(cond)action
+#define BREAK(cond)         if(cond)break
+#define CONTINUE(cond)      if(cond)continue
 #undef  DELETE
-#define DELETE(what)      delete what;what = nullptr
+#define DELETE(what)        delete what;what=nullptr
 
 #define CM_INIT       (WM_USER       + 0x0001) // custom message
 #define CM_TABCHANGE  (CM_INIT       + 0x0001)
@@ -49,9 +52,10 @@ namespace cym { namespace uix {
   constexpr int AUTO = -1;
   constexpr int FULL = -1;
   
-  class CHandler;
+  class CListener;
   class CDisplay;
   class CEvent;
+  class CRender;
   class CObject;
     class CConsole;
     class CModule;
@@ -73,7 +77,8 @@ namespace cym { namespace uix {
           class CMessage;
           class CWizard;
       class CWidget;        // abstract // child windows
-        class CPanel;       // empty widget/window
+        // class CSection;
+        class CPanel;     // empty widget/window
           class CSurface;   // empty widget + context
         class CTitlebar;
         class CMenubar;     // items are CMenu(s)
@@ -83,7 +88,7 @@ namespace cym { namespace uix {
         class CVideo;
         class CLabel;
         class CSeparator;   // CDivider
-        class CControl;
+        class CControl;     // abstract
           class CScroller;  // scroll bar
           class CButton;
           class CSwitch;
@@ -101,11 +106,6 @@ namespace cym { namespace uix {
   
   struct SRect;
   struct SArea;
-  
-  struct SStyle {
-    DWORD dwStyle{0};
-    DWORD dwExStyle{0};
-  };
   
   struct SShape { 
     static constexpr int DEFAULT = -1;
@@ -170,7 +170,7 @@ namespace cym { namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   enum class EState : int {
-    _STATE_    = ZERO,
+    EMPTY      = ZERO,
     PUSHED     = 0b00000001,
     FOCUSED    = 0b00000010,
     CHECKED    = 0b00000100,
@@ -183,9 +183,9 @@ namespace cym { namespace uix {
   inline int operator |(uint   lhs, EState rhs) { return lhs                   | static_cast<int>(rhs); }
   inline int operator &(EState lhs, EState rhs) { return static_cast<int>(lhs) & static_cast<int>(rhs); }
   inline int operator &(uint   lhs, EState rhs) { return lhs                   & static_cast<int>(rhs); }
-  inline int operator ~(EState rhs) { return ~(static_cast<int>(rhs)); }
+  inline int operator ~(EState rhs)             { return ~(static_cast<int>(rhs)); }
   
-  enum EHint : uint {
+  enum EHint : int {
     _HINT_     = ZERO,
     CHILD      = 0b00000000000000000000000000000001, // WS_CHILD // stays in parent area, moves w/ the parent (oposite 2 WS_POPUP)
     POPUP      = 0b00000000000000000000000000000010, // WS_POPUP
@@ -237,14 +237,15 @@ namespace cym { namespace uix {
     GAMING       = FULLSCREEN|CURSOR,
   };
   
-  inline int operator |(EFullscreen lhs, EFullscreen rhs) { return int(lhs) | int(rhs); }
-  inline int operator |(int         lhs, EFullscreen rhs) { return lhs      | int(rhs); }
-  inline int operator &(EFullscreen lhs, EFullscreen rhs) { return int(lhs) & int(rhs); }
-  inline int operator &(int         lhs, EFullscreen rhs) { return lhs      & int(rhs); }
-  inline int operator ~(EFullscreen rhs) { return ~(static_cast<int>(rhs)); }
+  inline int operator |(EFullscreen lhs, EFullscreen rhs) { return static_cast<int>(lhs) | static_cast<int>(rhs); }
+  inline int operator |(int         lhs, EFullscreen rhs) { return lhs                   | static_cast<int>(rhs); }
+  inline int operator &(EFullscreen lhs, EFullscreen rhs) { return static_cast<int>(lhs) & static_cast<int>(rhs); }
+  inline int operator &(int         lhs, EFullscreen rhs) { return lhs                   & static_cast<int>(rhs); }
+  inline int operator ~(EFullscreen rhs)                  { return ~(static_cast<int>(rhs)); }
   
-  enum class EModifier : int {
-    _MODIFIER_ = ZERO,
+  enum class EMouse : int {
+    EMPTY      = ZERO,
+    LBUTTON    = MK_LBUTTON,  //  2
     RBUTTON    = MK_RBUTTON,  //  2
     SHIFT      = MK_SHIFT,    //  4
     CONTROL    = MK_CONTROL,  //  8
@@ -253,8 +254,14 @@ namespace cym { namespace uix {
     X2BUTTON   = MK_XBUTTON2  // 40
   };
   
+  inline int operator |(EMouse lhs, EMouse rhs)      { return static_cast<int>(lhs) | static_cast<int>(rhs); }
+  inline int operator |(int         lhs, EMouse rhs) { return lhs                   | static_cast<int>(rhs); }
+  inline int operator &(EMouse lhs, EMouse rhs)      { return static_cast<int>(lhs) & static_cast<int>(rhs); }
+  inline int operator &(int         lhs, EMouse rhs) { return lhs                   & static_cast<int>(rhs); }
+  inline int operator ~(EMouse rhs)                  { return ~(static_cast<int>(rhs)); }
+  
   enum class EEvent : int {
-    _EVENT_ = ZERO,
+    EMPTY = ZERO,
     CLOSE,
     QUIT,
     KEYDOWN,
@@ -266,12 +273,10 @@ namespace cym { namespace uix {
     SIZING,
     FOCUS,
     UNFOCUS, BLUR = UNFOCUS,
-    LBDOWN, LBUTTONDOWN = LBDOWN,
+    LBDOWN, LBUTTONDOWN = LBDOWN, CLICK = LBDOWN, LCLICK = LBDOWN,
     LBUP, LBUTTONUP = LBUP,
-    RBDOWN, RBUTTONDOWN = RBDOWN,
+    RBDOWN, RBUTTONDOWN = RBDOWN, RCLICK = RBDOWN,
     RBUP, RBUTTONUP = RBUP,
-    CLICK, LCLICK = CLICK, // LBUTTONDOWN + LBUTTONUP
-    RCLICK,
     DBLCLICK,
     PAINT, DRAW = PAINT,
     SHOW,

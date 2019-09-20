@@ -3,10 +3,10 @@
 
 #include "uix.hpp"
 #include "CObject.hpp"
-#include "CHandler.hpp"
+#include "CListener.hpp"
 
 namespace cym { namespace uix {
-  class CApplication : public CObject, public CHandler {
+  class CApplication : public CObject, public CListener {
     protected:
       using CObject::CObject;
       using CObject::operator=;
@@ -38,15 +38,16 @@ namespace cym { namespace uix {
       virtual void onInit();
       virtual void onTick(int=0);
       virtual void onFree();
-  };  
+  };
 }}
 
 #define DECLARE_APPLICATION(cls)                                                                                       \
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {                      \
-  log::nfo << "   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << log::end;                                \
+  log::nfo << "   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " INIT" << log::end;                     \
   auto app   = new cls();                                                                                              \
   INT result = app->exec();                                                                                            \
   delete app;                                                                                                          \
+  log::nfo << "   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " EXIT" << log::end;                     \
   return result;                                                                                                       \
 }                                                                                                                     //
 

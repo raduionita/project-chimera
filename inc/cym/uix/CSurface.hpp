@@ -3,40 +3,25 @@
 
 #include "CPanel.hpp"
 #include "CContext.hpp"
+#include "CRender.hpp"
 
 namespace cym { namespace uix {
-  class CSurface : public CPanel {
+  class CSurface : public CPanel, public CRender {
     protected:
-    using CPanel::CPanel;
-    using CPanel::operator=;
-    
+      using CPanel::CPanel;
+      using CPanel::operator=;
+      typedef CPanel super;
+      static constexpr int STYLE  = CPanel::STYLE;
+    public: // ctor
+      CSurface(CWindow*,                      int);
+      CSurface(CWindow*, const SConfig& = {}, int = ZERO);
+      ~CSurface();
+    public: // copy = deleted
+      CSurface(const CSurface&) = delete;
+      CSurface& operator =(const CSurface&) = delete;
     protected:
-    typedef CPanel super;
-    static constexpr int STYLE  = CPanel::STYLE;
-    
-    public:
-    typedef CContext::SConfig SConfig;
-    
-    protected:
-    CContext* mContext = {nullptr};
-    
-    public:
-    // ctor
-    CSurface(CWindow*,                      int);
-    CSurface(CWindow*, const SConfig& = {}, int = ZERO);
-    ~CSurface();
-    // copy = deleted
-    CSurface(const CSurface&) = delete;
-    CSurface& operator =(const CSurface&) = delete;
-    
-    protected:
-    bool init(CWindow*, const CContext::SConfig&, int);
-    
-    public:
-    bool swap()    const;
-    bool current() const;
-    bool clear(int = GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT) const;
-    bool reset() const;
+      bool init(CWindow*, const CContext::SConfig&, int);
+
   };
 }}
 

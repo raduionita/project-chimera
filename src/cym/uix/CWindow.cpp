@@ -323,8 +323,10 @@ namespace cym { namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   CWindow* CWindow::find(const CString& name) {
-    log::nfo << "uix::CWindow::find(" << name << ")::" << log::end;
-    HWND hWnd = ::FindWindow(NULL, name.c_str());
+    return reinterpret_cast<CWindow*>(::GetWindowLongPtr(::FindWindow(NULL, name.c_str()), GWLP_USERDATA));
+  }
+  
+  CWindow* CWindow::find(HWND hWnd) {
     return reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
   }
   
@@ -410,7 +412,7 @@ namespace cym { namespace uix {
         
         // @todo: sized event
         
-        EState eState   = (wParam == SIZE_MAXSHOW) ? EState::MAXIMIZED : (wParam == SIZE_MINIMIZED ? EState::MINIMIZED : EState::_STATE_);
+        EState eState   = (wParam == SIZE_MAXSHOW) ? EState::MAXIMIZED : (wParam == SIZE_MINIMIZED ? EState::MINIMIZED : EState::EMPTY);
         pWindow->mState = (pWindow->mState & ~EState::MAXIMIZED & ~EState::MINIMIZED) | eState;
         
         (pWindow->mLayout) && pWindow->mLayout->layout(pWindow);
@@ -429,47 +431,90 @@ namespace cym { namespace uix {
       case WM_MOUSEHOVER: { break; }
       case WM_MOUSELEAVE: { break; }
       case WM_LBUTTONDOWN: {
-        CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        CWindow* pWindow = find(hWnd);
         BREAK(!pWindow);
         log::nfo << "   W:WM_LBUTTONDOWN::" << pWindow << " ID:" << pWindow->mId <<  " x:" << GET_X_LPARAM(lParam) << " y:" <<GET_Y_LPARAM(lParam) << log::end;
+        BREAK(!pWindow->listens(EEvent::LBUTTONDOWN));
         
-        // @todo: mousedown event
+        // mousedown event
+        auto pEvent       = new CEvent(EEvent::LBUTTONDOWN, pWindow);
+        pEvent->mClientX  = GET_X_LPARAM(lParam);
+        pEvent->mClientY  = GET_Y_LPARAM(lParam);
+        pEvent->mModifier = wParam;
+        pEvent->mButton   = EMouse::LBUTTON;
+        
+        bool bHandled    = pWindow->handle(pEvent);
+        
+        while (pEvent->propagate() && (pWindow = pWindow->parent())) {
+          bHandled = pWindow->handle(pEvent) && bHandled;
+        }
+        
+        if (pEvent->propagate()) {
+          bHandled = CApplication::instance()->handle(pEvent) && bHandled;
+        }
+        
+        DELETE(pEvent);
+        
+        RETURN(bHandled,0);
+        
+        break;
+        // wParam: 0x0001 MK_LBUTTON
+        //         0x0002 MK_RBUTTON  (virtual keys)
+        //         0x0004 MK_SHIFT
+        //         0x0008 MK_CONTROL
+        //         0x0010 MK_MBUTTON
+        //         0x0020 MK_XBUTTON1
+        //         0x0040 MK_XBUTTON2
+        // problematic w/ multiple monitors
+        // GET_X_LPARAM(lParam): x mouse position (reltive to the upper left conner of the client area)
+        // GET_Y_LPARAM(lParam): y mouse position
+      }
+      case WM_LBUTTONUP: { 
+        CWindow* pWindow = find(hWnd);
+        BREAK(!pWindow);
+        log::nfo << "   W:WM_LBUTTONUP::" << pWindow << " ID:" << pWindow->mId <<  " x:" << GET_X_LPARAM(lParam) << " y:" <<GET_Y_LPARAM(lParam) << log::end;
+        
         // @todo: click event
-        
+        break; 
         // wParam: 0x0002 MK_RBUTTON  (virtual keys)
         //         0x0004 MK_SHIFT
         //         0x0008 MK_CONTROL
         //         0x0010 MK_MBUTTON
         //         0x0020 MK_XBUTTON1
         //         0x0040 MK_XBUTTON2
-        // LOWORD(lParam): x mouse position (reltive to the upper left conner of the client area)
-        // HIWORD(lParam): y mouse position
-        break;
+        // problematic w/ multiple monitors
+        // GET_X_LPARAM(lParam): x mouse position (reltive to the upper left conner of the client area)
+        // GET_Y_LPARAM(lParam): y mouse position
       }
-      case WM_LBUTTONUP: { break; }
       case WM_LBUTTONDBLCLK: { break; }
+      case WM_RBUTTONDOWN: { break; }
       case WM_RBUTTONUP: { break; }
+      case WM_RBUTTONDBLCLK: { break; }
       case WM_KEYDOWN: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        BREAK(!pWindow);
         log::nfo << "   W:WM_KEYDOWN::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << (char)(wParam) << " lParam:" << lParam << log::end;
+        BREAK(!pWindow->listens(EEvent::KEYDOWN));
         
         // HWND hFocused = ::GetFocus();        // get handle to current keyboard focused window
         // HWND hActive  = ::GetActiveWindow(); // get handle to current active window
     
-        auto pEvent     = new CEvent(EEvent::KEYDOWN, pWindow);
-        pEvent->mKey    = static_cast<char>(wParam);
+        auto pEvent   = new CEvent(EEvent::KEYDOWN, pWindow);
+        pEvent->mKey  = static_cast<char>(wParam);
     
-        bool bTriggered = pWindow->handle(pEvent);
+        bool bHandled = pWindow->handle(pEvent);
     
         while (pEvent->propagate() && (pWindow = pWindow->parent())) {
-          bTriggered = pWindow->handle(pEvent) && bTriggered;
+          bHandled = pWindow->handle(pEvent) && bHandled;
         }
         
         if (pEvent->propagate()) {
-          bTriggered = CApplication::instance()->handle(pEvent) && bTriggered;
+          bHandled = CApplication::instance()->handle(pEvent) && bHandled;
         }
+        
+        DELETE(pEvent);
     
-        if (bTriggered) {DELETE(pEvent); return 0;}
+        RETURN(bHandled,0);
     
         // wParam: virtual key code 
         // lParam: 00-15 bits: repeat count of the current key (user holds key pressed)
@@ -496,7 +541,24 @@ namespace cym { namespace uix {
       }
       case WM_ERASEBKGND: { break; }
       case WM_NCPAINT: { break; }
-      case WM_PAINT: { break; }
+      case WM_PAINT: { 
+        CWindow* pWindow = find(hWnd);
+        BREAK(!pWindow);
+        log::nfo << "   W:WM_PAINT::" << pWindow << " ID:" << pWindow->mId << log::end;
+        BREAK(!pWindow->listens(EEvent::PAINT));
+        
+        UNREFERENCED_PARAMETER(lParam); 
+        UNREFERENCED_PARAMETER(wParam);
+        
+        auto pEvent = new CEvent(EEvent::PAINT, pWindow);
+        
+        
+        
+        
+        DELETE(pEvent);
+        
+        break; 
+      }
       default: break;
     }
     return ::DefWindowProc(hWnd, uMsg, wParam, lParam); // "For all message I did not handle above, do nothing!"

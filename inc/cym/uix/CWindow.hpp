@@ -3,11 +3,11 @@
 
 #include "uix.hpp"
 #include "CObject.hpp"
-#include "CHandler.hpp"
+#include "CListener.hpp"
 #include "CApplication.hpp"
 
 namespace cym { namespace uix { 
-  class CWindow : public CObject, public CHandler {
+  class CWindow : public CObject, public CListener {
     protected:
       using CObject::CObject;
       using CObject::operator=;
@@ -42,8 +42,6 @@ namespace cym { namespace uix {
       bool         minimize();
       bool         maximize();
       virtual bool fullscreen(int=0);
-      bool         style(int = 0);
-      SStyle       style() const;
       STATE        state() const;
       bool         area(const SArea&);
       SArea        area() const;
@@ -58,7 +56,8 @@ namespace cym { namespace uix {
       bool         title(const CString&);
       CString      title() const;
     protected:
-      static CWindow* find(const CString&);
+      static CWindow*         find(const CString&);
+      static CWindow*         find(HWND);
       static LRESULT CALLBACK proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
   }; 
 }}

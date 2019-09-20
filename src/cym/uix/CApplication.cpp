@@ -102,7 +102,8 @@ namespace cym { namespace uix {
   
   bool CApplication::quit(int nCode/*=0*/) {
     log::nfo << "uix::CApplication::quit(int)::" << this << log::end;
-    return !(mRunning = false);
+    ::PostQuitMessage(nCode);
+    return true;
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
