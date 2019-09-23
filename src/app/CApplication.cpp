@@ -20,9 +20,9 @@ namespace app {
     mSurface->current();
     mSurface->clear();
     mSurface->swap();
-    
+  
+    attach(mFrame, uix::EEvent::LBUTTONDOWN, &CApplication::onClick);
     attach(mFrame, uix::EEvent::KEYDOWN, &CApplication::onKeydown);
-    attach(mFrame, uix::EEvent::LCLICK, &CApplication::onClick);
   }
   
   void CApplication::onTick(int nElapsed/*=0*/) {
@@ -71,5 +71,6 @@ namespace app {
   
   void CApplication::onClick(uix::CEvent* pEvent) {
     log::nfo << "app::CApplication::onClick(CEvent*)::" << this << " B:" << int(pEvent->button()) << " X:" << pEvent->clientX() << " Y:" << pEvent->clientY() << log::end;
+    quit();
   }
 }

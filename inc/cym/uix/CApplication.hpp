@@ -1,37 +1,28 @@
 #ifndef __cym_uix_capplication_hpp__
 #define __cym_uix_capplication_hpp__
 
-#include "uix.hpp"
-#include "CObject.hpp"
+#include "CModule.hpp"
 #include "CListener.hpp"
 
 namespace cym { namespace uix {
-  class CApplication : public CObject, public CListener {
+  class CApplication : public CModule, public CListener {
     protected:
-      using CObject::CObject;
-      using CObject::operator=;
+      using CModule::CModule;
+      using CModule::operator=;
     protected:
       static CApplication* sInstance;
-      HINSTANCE            mHandle   = {NULL};
       CConsole*            mConsole  = {nullptr};
       bool                 mRunning  = {false};
     public: // ctor
-      CApplication(HINSTANCE = ::GetModuleHandle(NULL), int = 0);
+      CApplication(int = 0);
       ~CApplication();
-    public: // copy
-      CApplication(const CApplication&);
-    public: // assign
-      CApplication& operator =(const CApplication&);
-    public: // cast
-      explicit operator       HINSTANCE();
-      explicit operator const HINSTANCE() const;
     protected:
-      bool init();
+      bool init() override;
       bool tick(int=0);
-      bool free();
+      bool free() override;
     public:
-      bool  exec(int=0);
-      bool  quit(int=0);
+      bool exec(int=0);
+      bool quit(int=0);
     public:
       static CApplication* instance();
     protected:

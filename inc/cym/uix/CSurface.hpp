@@ -13,8 +13,8 @@ namespace cym { namespace uix {
       typedef CPanel super;
       static constexpr int STYLE  = CPanel::STYLE;
     public: // ctor
-      CSurface(CWindow*,                      int);
-      CSurface(CWindow*, const SConfig& = {}, int = ZERO);
+      CSurface(CWindow*,                                int);
+      CSurface(CWindow*, const CContext::SConfig& = {}, int = ZERO);
       ~CSurface();
     public: // copy = deleted
       CSurface(const CSurface&) = delete;

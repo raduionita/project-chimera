@@ -7,13 +7,13 @@ namespace cym { namespace uix {
     init(nullptr, {}, nHints | CCanvas::STYLE);
   }
   
-  CCanvas::CCanvas(const SConfig& sConfig, int nHints/*=ZERO*/) {
-    log::nfo << "uix::CCanvas::CCanvas(SConfig&,int)::" << this << log::end;
+  CCanvas::CCanvas(const CContext::SConfig& sConfig, int nHints/*=ZERO*/) {
+    log::nfo << "uix::CCanvas::CCanvas(CContext::SConfig&,int)::" << this << log::end;
     init(nullptr, sConfig, nHints | CCanvas::STYLE);
   }
   
-  CCanvas::CCanvas(CWindow* pParent, const SConfig& sConfig/*={}*/, int nHints/*=EHint::FRAME*/) {
-    log::nfo << "uix::CCanvas::CCanvas(CWindow*,SConfig&,int)::" << this << log::end;
+  CCanvas::CCanvas(CWindow* pParent, const CContext::SConfig& sConfig/*={}*/, int nHints/*=EHint::FRAME*/) {
+    log::nfo << "uix::CCanvas::CCanvas(CWindow*,CContext::SConfig&,int)::" << this << log::end;
     init(pParent, sConfig, nHints | CCanvas::STYLE);
   }
   
@@ -23,8 +23,8 @@ namespace cym { namespace uix {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  bool CCanvas::init(CWindow* pParent, const SConfig& sConfig, int nHints) {
-    log::nfo << "uix::CCanvas::init(CWindow*,SConfig&,int)::" << this << log::end;
+  bool CCanvas::init(CWindow* pParent, const CContext::SConfig& sConfig, int nHints) {
+    log::nfo << "uix::CCanvas::init(CWindow*,CContext::SConfig&,int)::" << this << log::end;
     return mInited = (CFrame::init(pParent, nHints) && CRender::init(this, sConfig));
   }
   

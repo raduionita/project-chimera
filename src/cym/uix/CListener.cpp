@@ -12,7 +12,7 @@ namespace cym { namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   bool CListener::attach(CListener* pTarget, const EEvent& eEvent, TCallback&& fCallback) {
-    log::nfo << "uix::CListener::attach(CListener*, EEvent, TCallback&&)::" << this << log::end;
+    log::nfo << "uix::CListener::attach(CListener*, EEvent&, TCallback&&)::" << this << log::end;
     // add to list of calbacks
     pTarget->mHandlers.insert(std::move(std::pair(eEvent,fCallback))); 
     // done
@@ -32,12 +32,15 @@ namespace cym { namespace uix {
   
   bool CListener::handle(CEvent* pEvent) {
     log::nfo << "app::CListener::handle(CEvent*)::" << this << log::end;
-    if (listens(pEvent->type())) {
+    if (mHandlers.count(pEvent->type()) > 0) {
       mHandlers[pEvent->type()](pEvent);
       return true;
     }
     return false;
   }
   
-  bool CListener::listens(const EEvent& eEvent) const { return mHandlers.count(eEvent) > 0; }
+  bool CListener::listens(const EEvent& eEvent) const { 
+    log::nfo << "uix::CListener::listens(EEvent&)::" << this << " EVT:" << int(eEvent) << " " << mHandlers.count(eEvent) << log::end;
+    return mHandlers.count(eEvent) > 0; 
+  }
 }}

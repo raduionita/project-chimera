@@ -1,5 +1,6 @@
 #include "cym/uix/CWindow.hpp"
 #include "cym/uix/CLayout.hpp"
+#include "cym/uix/CStyle.hpp"
 
 namespace cym { namespace uix {
   CWindow::CWindow() {
@@ -11,6 +12,11 @@ namespace cym { namespace uix {
     // release
     free();
   }
+  
+  CWindow::SConfig::SConfig(int nHints) : nHints{nHints} { }
+  CWindow::SConfig::SConfig(const SArea& sArea, int nHints) : nHints{nHints}, sArea{sArea} { }
+  CWindow::SConfig::SConfig(const CString& oTitle, const SArea& sArea, int nHints) : nHints{nHints}, sArea{sArea}, oTitle{oTitle} { }
+  CWindow::SConfig::SConfig(const CString& oTitle, int nHints) : nHints{nHints}, oTitle{oTitle} { }
   
   // cast ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -35,18 +41,18 @@ namespace cym { namespace uix {
     mParent && mParent->child(this);
   
     WNDCLASSEX sWndCls = {
-      sizeof(WNDCLASSEX),                       // UINT      // cbSize        // struct size  
-      CS_HREDRAW|CS_VREDRAW|CS_OWNDC,           // UINT      // style
-      CWindow::proc,                            // WNDPROC   // lpfnWndProc   // uix::CWidget::proc
-      0,                                        // int       // cbClsExtra    // no extra bytes after the window class
-      0,                                        // int       // cbWndExtra    // extra bytes to allocate after the win instance 
-      (HINSTANCE)(*CApplication::instance()),// HINSTANCE // hInstance     // to identify the dll that loads this module  
-      ::LoadIcon(NULL, IDI_APPLICATION),        // HICON     // hIcon
-      ::LoadCursor(NULL, IDC_ARROW),            // HCURSOR   // hCursor
-      (HBRUSH)(NULL_BRUSH),                     // HBRUSH    // hbrBackground
-      NULL,                                     // LPCTSTR   // lpszMenuName  // no menu
-      name().c_str(),                           // LPCTSTR   // lpszClassName
-      ::LoadIcon(NULL, IDI_APPLICATION)         // HICON     // hIconSm
+      sizeof(WNDCLASSEX),                // UINT      // cbSize        // struct size  
+      CS_HREDRAW|CS_VREDRAW|CS_OWNDC,    // UINT      // style
+      CWindow::proc,                     // WNDPROC   // lpfnWndProc   // uix::CWidget::proc
+      0,                                 // int       // cbClsExtra    // no extra bytes after the window class
+      0,                                 // int       // cbWndExtra    // extra bytes to allocate after the win instance 
+      (HINSTANCE)(*mApplication),        // HINSTANCE // hInstance     // to identify the dll that loads this module  
+      ::LoadIcon(NULL, IDI_APPLICATION), // HICON     // hIcon
+      ::LoadCursor(NULL, IDC_ARROW),     // HCURSOR   // hCursor
+      (HBRUSH)(NULL_BRUSH),              // HBRUSH    // hbrBackground
+      NULL,                              // LPCTSTR   // lpszMenuName  // no menu
+      name().c_str(),                    // LPCTSTR   // lpszClassName
+      ::LoadIcon(NULL, IDI_APPLICATION)  // HICON     // hIconSm
     };
   
     if (!::RegisterClassEx(&sWndCls)) {
@@ -76,16 +82,16 @@ namespace cym { namespace uix {
     dwStyle |= nHints & EHint::NOCLIP   ? 0                          : WS_CLIPCHILDREN;
   
     mHandle = ::CreateWindowEx(
-      dwExStyle,                                 // DWORD     // dwExStyle    // ex. style (0 = default)
-      name().c_str(),                            // LPCSTR    // lpClassName  // window class name
-      name().c_str(),                            // LPCSTR    // lpWindowName // window title name
-      dwStyle,                                   // DWORD     // dwExStyle    // style
-      CW_USEDEFAULT, CW_USEDEFAULT,              // int       // x, y 
-      CW_USEDEFAULT, CW_USEDEFAULT,              // int       // width, height
-      mParent ? (HWND)(*mParent) : NULL,         // HWND      // hWndParent   // parent handle
-      NULL,                                      // HMENU     // hMenu        // menu handle
-      (HINSTANCE)(*CApplication::instance()), // HINSTANCE // hInstance    //  application handle
-      this                                       // LPVOID    // lpParam      // additional app data (@see WM_CREATE & CREATESTRUCT)
+      dwExStyle,                         // DWORD     // dwExStyle    // ex. style (0 = default)
+      name().c_str(),                    // LPCSTR    // lpClassName  // window class name
+      name().c_str(),                    // LPCSTR    // lpWindowName // window title name
+      dwStyle,                           // DWORD     // dwExStyle    // style
+      CW_USEDEFAULT, CW_USEDEFAULT,      // int       // x, y 
+      CW_USEDEFAULT, CW_USEDEFAULT,      // int       // width, height
+      mParent ? (HWND)(*mParent) : NULL, // HWND      // hWndParent   // parent handle
+      NULL,                              // HMENU     // hMenu        // menu handle
+      (HINSTANCE)(*mApplication),        // HINSTANCE // hInstance    //  application handle
+      this                               // LPVOID    // lpParam      // additional app data (@see WM_CREATE & CREATESTRUCT)
     );
   
     if (!mHandle) {
@@ -319,6 +325,16 @@ namespace cym { namespace uix {
     ::GetWindowTextA(mHandle, szTitle, 256);
     return CString(szTitle);
   }
+    
+  bool    CWindow::style(CStyle* pStyle) {
+    DELETE(mStyle);
+    mStyle = pStyle;
+    return true;
+  }
+  
+  CStyle* CWindow::style() { 
+    return !mStyle ? (mStyle = new CStyle) : mStyle;
+  };
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -434,7 +450,6 @@ namespace cym { namespace uix {
         CWindow* pWindow = find(hWnd);
         BREAK(!pWindow);
         log::nfo << "   W:WM_LBUTTONDOWN::" << pWindow << " ID:" << pWindow->mId <<  " x:" << GET_X_LPARAM(lParam) << " y:" <<GET_Y_LPARAM(lParam) << log::end;
-        BREAK(!pWindow->listens(EEvent::LBUTTONDOWN));
         
         // mousedown event
         auto pEvent       = new CEvent(EEvent::LBUTTONDOWN, pWindow);
@@ -494,7 +509,8 @@ namespace cym { namespace uix {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
         log::nfo << "   W:WM_KEYDOWN::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << (char)(wParam) << " lParam:" << lParam << log::end;
-        BREAK(!pWindow->listens(EEvent::KEYDOWN));
+        
+        // @todo: check if child or ancestors listen to this event
         
         // HWND hFocused = ::GetFocus();        // get handle to current keyboard focused window
         // HWND hActive  = ::GetActiveWindow(); // get handle to current active window
@@ -545,22 +561,36 @@ namespace cym { namespace uix {
         CWindow* pWindow = find(hWnd);
         BREAK(!pWindow);
         log::nfo << "   W:WM_PAINT::" << pWindow << " ID:" << pWindow->mId << log::end;
-        BREAK(!pWindow->listens(EEvent::PAINT));
-        
         UNREFERENCED_PARAMETER(lParam); 
         UNREFERENCED_PARAMETER(wParam);
         
+        // @todo: apply style here
+        
+        // @todo: default style bound to CApplication
+        
+        // @todo: if no custom style then use default
+        // @todo: let developer define new default style otherwise use win32 default (no) style 
+        
+        // @todo: if win32 default style: DO NOTHING (dont draw/style anything)
+        
+        // @todo: paint background
+        
+        
+        
+        // end style
+        
         auto pEvent = new CEvent(EEvent::PAINT, pWindow);
-        
-        
-        
+  
+        bool bHandled = pWindow->handle(pEvent);
         
         DELETE(pEvent);
+  
+        RETURN(bHandled,0);
         
         break; 
       }
       default: break;
     }
     return ::DefWindowProc(hWnd, uMsg, wParam, lParam); // "For all message I did not handle above, do nothing!"
-  }  
+  }
 }}

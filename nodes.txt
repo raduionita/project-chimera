@@ -1,6 +1,7 @@
 // todo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 = styles|painter
+= replace window hints w/ config
 = widgets:button
 = commands
 
@@ -18,6 +19,8 @@
 = logger: make CLogger::dbg/nfo/wrn/err reference to CLogger not ELevel or ELevel into a class
 = logger: should get instance on app instance / solve the unique_ptr init problemcccccclctidrvbijekchniftkvffbvndtrivvlfjtduv
 = registries should init only on app init | use CSingleton & CPointer
+
+= style (window) switcher
 
 = finish: mouse click events // pair events (mouse click, key press/tab) 
 = finish: window events

@@ -8,9 +8,8 @@ namespace cym { namespace uix {
   class CRender {
     protected:
       friend class CContext;
-      typedef CContext::SConfig SConfig;
     protected:
-      CContext* mContext = {nullptr};
+      CContext* mContext {nullptr};
     public:
       CRender();
       virtual ~CRender();

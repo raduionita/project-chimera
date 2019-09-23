@@ -1,4 +1,4 @@
-#include "cym/uix/unx/UWindow.hpp"
+#include "cym/uix/unx/CWindow.hpp"
 
 namespace cym { namespace uix {
 

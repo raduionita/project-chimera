@@ -14,9 +14,9 @@ namespace cym { namespace uix {
       typedef CFrame super;
       static constexpr int STYLE = super::STYLE;
     public:
-      CCanvas(                                       int = ZERO);
-      CCanvas(          const SConfig& sConfig,      int = ZERO);
-      CCanvas(CWindow*, const SConfig& sConfig = {}, int = ZERO);
+      CCanvas(                                                 int = ZERO);
+      CCanvas(          const CContext::SConfig& sConfig,      int = ZERO);
+      CCanvas(CWindow*, const CContext::SConfig& sConfig = {}, int = ZERO);
       ~CCanvas();
     protected:
       bool init(CWindow*, const CContext::SConfig&, int);

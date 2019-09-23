@@ -1,10 +1,10 @@
 #ifndef __cym_uix_cwindow_hpp__
 #define __cym_uix_cwindow_hpp__
 
-#include "uix.hpp"
 #include "CObject.hpp"
 #include "CListener.hpp"
 #include "CApplication.hpp"
+#include "CStyle.hpp"
 
 namespace cym { namespace uix { 
   class CWindow : public CObject, public CListener {
@@ -12,14 +12,27 @@ namespace cym { namespace uix {
       using CObject::CObject;
       using CObject::operator=;
       typedef CObject super;
-      static constexpr int STYLE = EHint::AUTOXY|EHint::AUTOWH;
+      static constexpr int STYLE = EHint::AUTOXY|EHint::AUTOWH; // @todo: rename this to HINTS or WINDOW or CONFIG
+    public:
+      struct SConfig {
+        int     nHints {ZERO};
+        SArea   sArea  {CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT};
+        CString oTitle {"CWindow"};
+        CStyle  oStyle; // use std::move
+        SConfig(                                                                                          int = ZERO);
+        SConfig(                const SArea&,                                                             int = ZERO);
+        SConfig(const CString&, const SArea& = {CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT}, int = ZERO);
+        SConfig(const CString&,                                                                           int);
+      };
     protected:
-      bool              mInited = {false};
-      HWND              mHandle = {NULL};
-      CLayout*          mLayout = {nullptr};
-      CWindow*          mParent = {nullptr};
-      uint              mState{ZERO};
-      TVector<CWindow*> mChildren;
+      bool                mInited      {false};
+      const CApplication* mApplication {CApplication::instance()};
+      HWND                mHandle      {NULL};
+      CLayout*            mLayout      {nullptr};
+      CWindow*            mParent      {nullptr};
+      uint                mState       {ZERO};
+      CStyle*             mStyle       {nullptr};
+      TVector<CWindow*>   mChildren;
     public: // ctor
       CWindow();
       ~CWindow();
@@ -55,6 +68,8 @@ namespace cym { namespace uix {
       auto         siblings() const -> decltype(mChildren);
       bool         title(const CString&);
       CString      title() const;
+      bool         style(CStyle*);
+      CStyle*      style();
     protected:
       static CWindow*         find(const CString&);
       static CWindow*         find(HWND);

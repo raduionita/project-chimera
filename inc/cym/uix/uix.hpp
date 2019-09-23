@@ -65,8 +65,10 @@ namespace cym { namespace uix {
     class CTooltip;
     class CStyle;
     class CPainter;
-      class CPen;
+    class CTool;
       class CBrush;
+      class CPen;
+      class CPalette;
     class CWindow;          // abstract
       class CPopup;         // abstract // toplevel windows
         class CFrame;       // titlebar + borders (opt: statusbar + menubar + toolbar)
@@ -262,21 +264,21 @@ namespace cym { namespace uix {
   
   enum class EEvent : int {
     EMPTY = ZERO,
-    CLOSE,
-    QUIT,
-    KEYDOWN,
-    KEYUP,
-    KEYPRESS, // keyup + keydown
-    MOVE,
-    MOVING,
-    RESIZE, SIZE = RESIZE,
-    SIZING,
-    FOCUS,
-    UNFOCUS, BLUR = UNFOCUS,
-    LBDOWN, LBUTTONDOWN = LBDOWN, CLICK = LBDOWN, LCLICK = LBDOWN,
-    LBUP, LBUTTONUP = LBUP,
-    RBDOWN, RBUTTONDOWN = RBDOWN, RCLICK = RBDOWN,
-    RBUP, RBUTTONUP = RBUP,
+    CLOSE = 1,
+    QUIT  = 2,
+    KEYDOWN = 3,
+    KEYUP = 4,
+    KEYPRESS = 5, // keyup + keydown
+    MOVE = 6,
+    MOVING = 7,
+    RESIZE = 8, SIZE = RESIZE,
+    SIZING = 9,
+    FOCUS = 10,
+    UNFOCUS = 11, BLUR = UNFOCUS,
+    LBDOWN = 12, LBUTTONDOWN = LBDOWN, CLICK = LBDOWN, LCLICK = LBDOWN,
+    LBUP = 13, LBUTTONUP = LBUP,
+    RBDOWN = 14, RBUTTONDOWN = RBDOWN, RCLICK = RBDOWN,
+    RBUP = 15, RBUTTONUP = RBUP,
     DBLCLICK,
     PAINT, DRAW = PAINT,
     SHOW,

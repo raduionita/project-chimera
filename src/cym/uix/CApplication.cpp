@@ -4,40 +4,27 @@
 namespace cym { namespace uix {
   CApplication* CApplication::sInstance{nullptr};
   
-  CApplication::CApplication(HINSTANCE hHandle/*=::GetModuleHandle(NULL)*/, int nCmdShow/*=0*/) : CObject(), mHandle{hHandle} {
-    log::nfo << "uix::CApplication::CApplication()::" << this << " INSTANCE:" << mHandle << log::end;
+  CApplication::CApplication(int nCmdShow/*=0*/) : CModule() {
+    log::nfo << "uix::CApplication::CApplication()::" << this << log::end;
     assert(!sInstance && "CApplication::sIntastace already defined.");
     mConsole  = new CConsole(this, nCmdShow);
     sInstance = this;
   }
   
-  CApplication::CApplication(const CApplication&) {
-    log::nfo << "uix::CApplication::CApplication(CApplication&)::" << this << log::end;
-  }
-    
   CApplication::~CApplication() {
     log::nfo << "uix::CApplication::~CApplication()::" << this << log::end;
-  }
-  
-  CApplication& CApplication::operator =(const CApplication& that) {
-    if (this != &that) {
-      
-    }
-    return *this;
-  }
-  
-  CApplication::operator HINSTANCE() {
-    return mHandle;
-  }
-  
-  CApplication::operator const HINSTANCE() const {
-    return mHandle;
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   bool CApplication::init() {
     log::nfo << "uix::CApplication::init()::" << this << log::end;
+  
+    if (!CModule::init()) {
+      log::nfo << "[CApplication] CModel::init() failed!" << log::end;
+      ::MessageBox(NULL, "[CApplication] CModel::init() failed!", "Error", MB_OK);
+      return false;
+    }
     
     onInit();
     return true;
@@ -52,7 +39,7 @@ namespace cym { namespace uix {
   bool CApplication::free() {
     log::nfo << "uix::CApplication::free()::" << this << log::end;
     onFree();
-    return true;
+    return CModule::free();
   }
   
   bool CApplication::exec(int nMode/*=0*/) {
