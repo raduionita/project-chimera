@@ -6,39 +6,39 @@
 
 #include <memory>
 
-#ifndef LOGGING
+#ifndef CYM_LOGGER
 // not defined...no logging
-#endif//LOGGING
+#endif//CYM_LOGGER
 
-#ifdef LOGGING_DEBUG
-#  define LOGGING_LEVEL cym::CLogger::ELevel::DEBUG
-#endif//LOGGING_DEBUG
-#ifdef LOGGING_INFO
-#  define LOGGING_LEVEL cym::CLogger::ELevel::INFO
-#endif//LOGGING_INFO
-#ifdef LOGGING_WARN
-#  define LOGGING_LEVEL cym::CLogger::ELevel::WARN
-#endif//LOGGING_WARN
-#ifdef LOGGING_ERROR
-#  define LOGGING_LEVEL cym::CLogger::ELevel::ERROR
-#endif//LOGGING_ERROR
-#ifdef LOGGING_FATAL
-#  define LOGGING_LEVEL cym::CLogger::ELevel::ERROR
-#endif//LOGGING_FATAL
-#ifdef LOGGING_NONE
-#  define LOGGING_LEVEL cym::CLogger::ELevel::NONE
-#endif//LOGGING_NONE
+#ifdef CYM_LOGGER_DEBUG
+#  define CYM_LOGGER_LEVEL cym::CLogger::ELevel::DEBUG
+#endif//CYM_LOGGER_DEBUG
+#ifdef CYM_LOGGER_INFO
+#  define CYM_LOGGER_LEVEL cym::CLogger::ELevel::INFO
+#endif//CYM_LOGGER_INFO
+#ifdef CYM_LOGGER_WARN
+#  define CYM_LOGGER_LEVEL cym::CLogger::ELevel::WARN
+#endif//CYM_LOGGER_WARN
+#ifdef CYM_LOGGER_ERROR
+#  define CYM_LOGGER_LEVEL cym::CLogger::ELevel::ERROR
+#endif//CYM_LOGGER_ERROR
+#ifdef CYM_LOGGER_FATAL
+#  define CYM_LOGGER_LEVEL cym::CLogger::ELevel::ERROR
+#endif//CYM_LOGGER_FATAL
+#ifdef CYM_LOGGER_NONE
+#  define CYM_LOGGER_LEVEL cym::CLogger::ELevel::NONE
+#endif//CYM_LOGGER_NONE
 
-#ifdef LOGGING_COUT
-#  define LOGGING_PROVIDER cym::CCoutLoggerProvider
-#endif//LOGGING_COUT
+#ifdef CYM_LOGGER_COUT
+#  define CYM_LOGGER_PROVIDER cym::CCoutLoggerProvider
+#endif//CYM_LOGGER_COUT
 
-#ifndef LOGGING_LEVEL
-#  define LOGGING_LEVEL cym::CLogger::ELevel::DEBUG
-#endif//LOGGING_LEVEL
-#ifndef LOGGING_PROVIDER
-#  define LOGGING_PROVIDER cym::CCoutLoggerProvider
-#endif//LOGGING_PROVIDER
+#ifndef CYM_LOGGER_LEVEL
+#  define CYM_LOGGER_LEVEL cym::CLogger::ELevel::DEBUG
+#endif//CYM_LOGGER_LEVEL
+#ifndef CYM_LOGGER_PROVIDER
+#  define CYM_LOGGER_PROVIDER cym::CCoutLoggerProvider
+#endif//CYM_LOGGER_PROVIDER
 
 namespace cym {
   class CLogger;
@@ -87,8 +87,8 @@ namespace cym {
     
     protected:
     std::string      mOutput{""};
-    ELevel           mLevel{LOGGING_LEVEL};
-    CLoggerProvider* mProvider{new LOGGING_PROVIDER};
+    ELevel           mLevel{CYM_LOGGER_LEVEL};
+    CLoggerProvider* mProvider{new CYM_LOGGER_PROVIDER};
     
     public:
     CLogger();
@@ -102,19 +102,19 @@ namespace cym {
     
     public:
     template <typename T> CLogger* push(const T& output) {
-#if   defined(LOGGING_DEBUG)
+#if   defined(CYM_LOGGER_DEBUG)
       mLevel = ELevel::DEBUG;
-#elif defined(LOGGING_INFO)
+#elif defined(CYM_LOGGER_INFO)
       mLevel = ELevel::INFO;
-#elif defined(LOGGING_WARN)
+#elif defined(CYM_LOGGER_WARN)
       mLevel = ELevel::WARN;
-#elif defined(LOGGING_ERROR)
+#elif defined(CYM_LOGGER_ERROR)
       mLevel = ELevel::ERROR;
-#elif defined(LOGGING_FATAL)
+#elif defined(CYM_LOGGER_FATAL)
       mLevel = ELevel::ERROR;
-#elif defined(LOGGING_NONE)
+#elif defined(CYM_LOGGER_NONE)
       mLevel = ELevel::NONE;
-#endif//LOGGING_NONE
+#endif//CYM_LOGGER_NONE
       std::stringstream ss;
       ss << output;
       mOutput.append(ss.str());

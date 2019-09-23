@@ -24,6 +24,8 @@
 #include <iomanip>
 #include <atomic>
 #include <map>
+#include <unordered_map>
+#include <unordered_set>
 #include <bitset>
 #include <vector>
 #include <array>
@@ -57,7 +59,7 @@ namespace cym { namespace uix {
   constexpr int FULL = -1;
 #ifdef UIX_STYLE
   constexpr int STYLE = 1;
-#else
+#else//!UIX_STYLE
   constexpr int STYLE = 0;
 #endif//UIX_STYLE
   
@@ -171,12 +173,14 @@ namespace cym { namespace uix {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
+  template<typename V>
+  using CSet       = std::unordered_set<V>;
   template<typename K, typename V> 
-  using TMap       = std::map<K,V>;
-  template<typename T>
-  using TVector    = std::vector<T>;
-  template<typename T, std::size_t S>
-  using TArray     = std::array<T, S>;
+  using CMap       = std::unordered_map<K,V>;
+  template<typename V>
+  using CVector    = std::vector<V>;
+  template<typename V, std::size_t S>
+  using CArray     = std::array<V, S>;
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -297,7 +301,8 @@ namespace cym { namespace uix {
   };
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
+    
+  using log = cym::log;
 }}
 
 #endif //__cym_uix_hpp__

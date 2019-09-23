@@ -1,9 +1,11 @@
 #ifndef __app_capplication_hpp__
 #define __app_capplication_hpp__
 
-#define LOGGING
-#define LOGGING_INFO
-#define LOGGING_COUT
+#define CYM_LOGGER
+#define CYM_LOGGER_INFO
+#define CYM_LOGGER_COUT
+
+#define UIX_STYLE
 
 #include "cym/uix/CApplication.hpp"
 #include "cym/uix/CEvent.hpp"

@@ -6,6 +6,7 @@
 namespace cym { namespace uix {
   class CStyle : public CObject {
     protected:
+      
       CBrush* mBackground {nullptr};
     public:
       CStyle();

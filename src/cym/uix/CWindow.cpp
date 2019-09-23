@@ -583,6 +583,7 @@ namespace cym { namespace uix {
             ::FillRect(hDC, &sPS.rcPaint, hThisBrush);
             ::SelectObject(hDC, hPrevBrush);
           }
+          
           { // trigger event
             auto pEvent = new CEvent(EEvent::PAINT, pWindow);
     

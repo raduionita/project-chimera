@@ -35,7 +35,7 @@ namespace cym { namespace uix {  // acme { gui { win, unx, osx } }
       CWindow*          mParent      {nullptr};
       uint              mState       {ZERO};
       CStyle*           mStyle       {nullptr};
-      TVector<CWindow*> mChildren;
+      CVector<CWindow*> mChildren;
     public: // ctor
       CWindow();
       ~CWindow();

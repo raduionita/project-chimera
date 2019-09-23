@@ -1,9 +1,10 @@
 // todo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 = styles|painter
-= replace window hints w/ config
 = widgets:button
 = commands
+= config: replace window hints w/ config
+= state: window & application states for persistance
 
 = glx: draw something
 
