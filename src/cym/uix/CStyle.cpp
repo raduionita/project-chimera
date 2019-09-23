@@ -4,6 +4,8 @@
 namespace cym { namespace uix {
   CStyle::CStyle() {
     log::nfo << "uix::CStyle::CStyle()::" << this << log::end;
+    
+    // @todo: if nothing specific, define as a null style...empty (default win32 style) don't draw anything
   }
   
   CStyle::~CStyle() {
@@ -11,7 +13,9 @@ namespace cym { namespace uix {
   }
   
   void CStyle::background(CBrush* pBrush) {
-    DELETE(mBackground);
+    if (mBackground != nullptr && mBackground != pBrush) {
+      DELETE(mBackground);
+    }
     mBackground = pBrush;
   }
   

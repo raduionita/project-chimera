@@ -1,5 +1,6 @@
 #include "cym/uix/CApplication.hpp"
 #include "cym/uix/CConsole.hpp"
+#include "cym/uix/CStyle.hpp"
 
 namespace cym { namespace uix {
   CApplication* CApplication::sInstance{nullptr};
@@ -16,6 +17,18 @@ namespace cym { namespace uix {
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  CStyle* CApplication::style() {
+    return !mStyle ? (mStyle = new CStyle) : mStyle;
+  }
+  
+  bool CApplication::style(CStyle* pStyle) {
+    if (mStyle != nullptr && mStyle != pStyle) {
+      DELETE(mStyle);
+    }
+    mStyle = pStyle;
+    return true;
+  }
   
   bool CApplication::init() {
     log::nfo << "uix::CApplication::init()::" << this << log::end;

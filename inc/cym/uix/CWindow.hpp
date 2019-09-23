@@ -6,7 +6,7 @@
 #include "CApplication.hpp"
 #include "CStyle.hpp"
 
-namespace cym { namespace uix { 
+namespace cym { namespace uix {  // acme { gui { win, unx, osx } }
   class CWindow : public CObject, public CListener {
     protected:
       using CObject::CObject;
@@ -14,6 +14,9 @@ namespace cym { namespace uix {
       typedef CObject super;
       static constexpr int STYLE = EHint::AUTOXY|EHint::AUTOWH; // @todo: rename this to HINTS or WINDOW or CONFIG
     public:
+      struct SState {
+        // @todo: window state
+      };
       struct SConfig {
         int     nHints {ZERO};
         SArea   sArea  {CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT};
@@ -25,14 +28,14 @@ namespace cym { namespace uix {
         SConfig(const CString&,                                                                           int);
       };
     protected:
-      bool                mInited      {false};
-      const CApplication* mApplication {CApplication::instance()};
-      HWND                mHandle      {NULL};
-      CLayout*            mLayout      {nullptr};
-      CWindow*            mParent      {nullptr};
-      uint                mState       {ZERO};
-      CStyle*             mStyle       {nullptr};
-      TVector<CWindow*>   mChildren;
+      bool              mInited      {false};
+      CApplication*     mApplication {CApplication::instance()};
+      HWND              mHandle      {NULL};
+      CLayout*          mLayout      {nullptr};
+      CWindow*          mParent      {nullptr};
+      uint              mState       {ZERO};
+      CStyle*           mStyle       {nullptr};
+      TVector<CWindow*> mChildren;
     public: // ctor
       CWindow();
       ~CWindow();
@@ -48,13 +51,13 @@ namespace cym { namespace uix {
       bool         size(int, int);
       bool         center();
       SRect        adjust();
-      bool         show(int = 1);
-      bool         hide(int = 1);
-      bool         focus(int = 1);
+      bool         show(int=1);
+      bool         hide(int=1);
+      bool         focus(int=1);
       bool         pack();
       bool         minimize();
       bool         maximize();
-      virtual bool fullscreen(int=0);
+      virtual bool fullscreen(int=ZERO);
       STATE        state() const;
       bool         area(const SArea&);
       SArea        area() const;

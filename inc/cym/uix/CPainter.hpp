@@ -4,6 +4,8 @@
 #include "CObject.hpp"
 #include "CWindow.hpp"
 
+// @todo: use CWindow* style & DC
+
 namespace cym { namespace uix {
   class CPainter : public CObject {
     public:
@@ -26,7 +28,6 @@ namespace cym { namespace uix {
       void rectangle();
       void squircle(); // rounded rectangle
       void gradient(); // rectangle filled w/ a gradient
-      
   };
 }}
 

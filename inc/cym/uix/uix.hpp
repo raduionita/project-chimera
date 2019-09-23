@@ -47,10 +47,19 @@
 #define CM_FULLSCREEN (CM_STATE      + 0x0001)
 #define CM_WINDOWED   (CM_FULLSCREEN + 0x0001)
 
+#ifdef UIX_STYLE
+  
+#endif//UIX_STYLE
+
 namespace cym { namespace uix {
   constexpr int ZERO =  0;
   constexpr int AUTO = -1;
   constexpr int FULL = -1;
+#ifdef UIX_STYLE
+  constexpr int STYLE = 1;
+#else
+  constexpr int STYLE = 0;
+#endif//UIX_STYLE
   
   class CListener;
   class CDisplay;
@@ -179,6 +188,7 @@ namespace cym { namespace uix {
     MINIMIZED  = 0b00001000,
     MAXIMIZED  = 0b00010000,
     FULLSCREEN = 0b00100000,
+    PAINTING   = 0b01000000,
   };
   
   inline int operator |(EState lhs, EState rhs) { return static_cast<int>(lhs) | static_cast<int>(rhs); }

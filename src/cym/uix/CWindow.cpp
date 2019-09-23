@@ -326,14 +326,16 @@ namespace cym { namespace uix {
     return CString(szTitle);
   }
     
-  bool    CWindow::style(CStyle* pStyle) {
-    DELETE(mStyle);
+  bool CWindow::style(CStyle* pStyle) {
+    if (mStyle != nullptr && mStyle != pStyle && mStyle != mApplication->style()) {
+      DELETE(mStyle); 
+    } 
     mStyle = pStyle;
     return true;
   }
   
-  CStyle* CWindow::style() { 
-    return !mStyle ? (mStyle = new CStyle) : mStyle;
+  CStyle* CWindow::style() {
+    return !mStyle ? mApplication->style() : mStyle;
   };
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -561,32 +563,43 @@ namespace cym { namespace uix {
         CWindow* pWindow = find(hWnd);
         BREAK(!pWindow);
         log::nfo << "   W:WM_PAINT::" << pWindow << " ID:" << pWindow->mId << log::end;
-        UNREFERENCED_PARAMETER(lParam); 
+        UNREFERENCED_PARAMETER(lParam);
         UNREFERENCED_PARAMETER(wParam);
-        
-        // @todo: apply style here
-        
-        // @todo: default style bound to CApplication
         
         // @todo: if no custom style then use default
         // @todo: let developer define new default style otherwise use win32 default (no) style 
         
-        // @todo: if win32 default style: DO NOTHING (dont draw/style anything)
-        
-        // @todo: paint background
-        
-        
-        
-        // end style
-        
-        auto pEvent = new CEvent(EEvent::PAINT, pWindow);
+        pWindow->mState = pWindow->mState | EState::PAINTING;
+        { // start paint (window in painting state)
+          PAINTSTRUCT sPS;
+          HDC         hDC {::BeginPaint(hWnd, &sPS)};
+          
+          // @todo: if win32 default style: DO NOTHING (dont draw/style anything)
+          { // default styles
+            HBRUSH hThisBrush = (HBRUSH)(pWindow->style()->background());
+            HBRUSH hPrevBrush = (HBRUSH)(::SelectObject(hDC, hThisBrush));
+            // paint background
+            // ::Rectangle(hDC, sPS.rcPaint.left, sPS.rcPaint.top, sPS.rcPaint.right, sPS.rcPaint.bottom);
+            ::FillRect(hDC, &sPS.rcPaint, hThisBrush);
+            ::SelectObject(hDC, hPrevBrush);
+          }
+          { // trigger event
+            auto pEvent = new CEvent(EEvent::PAINT, pWindow);
+    
+            bool bHandled = pWindow->handle(pEvent);
+            
+            DELETE(pEvent);
+          }
+          
+          ::EndPaint(hWnd, &sPS);
+        } // end paint (remove window painting state) 
+        pWindow->mState = pWindow->mState & ~EState::PAINTING;
   
-        bool bHandled = pWindow->handle(pEvent);
+        // RETURN(bHandled,0);
         
-        DELETE(pEvent);
-  
-        RETURN(bHandled,0);
-        
+        // ::UpdateWindow(HWND);
+        // ::RedrawWindow(HWND, const RECT*, HRGN, UINT); // WM_ERASEBKGND, WM_NCPAINT, WM_PAINT
+        // ::InvalidateRect(HWND, const RECT*, WINBOOL);
         break; 
       }
       default: break;

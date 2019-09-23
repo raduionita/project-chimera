@@ -6,17 +6,24 @@
 
 namespace cym { namespace uix {
   class CApplication : public CModule, public CListener {
+      class SState {
+          // @todo: application state
+      };
     protected:
       using CModule::CModule;
       using CModule::operator=;
     protected:
       static CApplication* sInstance;
-      CConsole*            mConsole  = {nullptr};
-      bool                 mRunning  = {false};
+      CConsole*            mConsole  {nullptr};
+      bool                 mRunning  {false};
+      CStyle*              mStyle    {nullptr};
     public: // ctor
-      CApplication(int = 0);
+      CApplication(int=0);
       ~CApplication();
-    protected:
+    public: // set/get
+      CStyle* style();
+      bool    style(CStyle*);
+    protected: // events  
       bool init() override;
       bool tick(int=0);
       bool free() override;
