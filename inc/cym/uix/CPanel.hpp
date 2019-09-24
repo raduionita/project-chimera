@@ -9,7 +9,7 @@ namespace cym { namespace uix {
       using CWidget::CWidget;
       using CWidget::operator=;
       typedef CWidget super;
-      static constexpr int STYLE = CWidget::STYLE;
+      static constexpr int WINDOW = CWidget::WINDOW;
     public:
       CPanel(CWindow*, int = ZERO);
       ~CPanel();

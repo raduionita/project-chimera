@@ -11,7 +11,7 @@ namespace cym { namespace uix {
       using CPanel::CPanel;
       using CPanel::operator=;
       typedef CPanel super;
-      static constexpr int STYLE  = CPanel::STYLE;
+      static constexpr int WINDOW = CPanel::WINDOW;
     public: // ctor
       CSurface(CWindow*,                                int);
       CSurface(CWindow*, const CContext::SConfig& = {}, int = ZERO);

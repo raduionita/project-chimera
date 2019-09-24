@@ -6,13 +6,17 @@
 namespace cym { namespace uix {
   class CStyle : public CObject {
     protected:
-      
-      CBrush* mBackground {nullptr};
+      CBrush*  mBackground {nullptr}; // HBRUSH
+      CPen*    mBorder     {nullptr}; // HPEN
+      CColor*  mColor      {nullptr};
+      CFont*   mFont       {nullptr}; // HFONT
+      CCursor* mCursor     {nullptr}; // HCURSOR
+      CIcon*   mIcon       {nullptr}; // HICON
     public:
-      CStyle();
+      CStyle(int=ZERO);
       ~CStyle();
     public:
-      void    background(CBrush*);
+      void    background(CBrush*&&);
       CBrush* background();
   };
 }}

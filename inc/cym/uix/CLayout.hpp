@@ -50,11 +50,11 @@ namespace cym { namespace uix {
       using CLayout::CLayout;
       using CLayout::operator=;
     protected:
-      EHint               mDirection = {EHint::VERTICAL};
+      ELayout             mDirection = {ELayout::VERTICAL};
       std::vector<BItem*> mItems;
     public:
-      CBoxLayout(                    EHint);
-      CBoxLayout(CWindow* = nullptr, EHint = EHint::VERTICAL);
+      CBoxLayout(                    ELayout);
+      CBoxLayout(CWindow* = nullptr, ELayout = ELayout::VERTICAL);
       ~CBoxLayout();
     public:
       BItem* operator [](typename decltype(mItems)::size_type i);
@@ -62,7 +62,9 @@ namespace cym { namespace uix {
       virtual bool calc() override;
     public:
       BItem*   item(typename decltype(mItems)::size_type i);
+      CWindow* add(CWindow*, const ELayout& = ELayout::EMPTY);
       CWindow* add(CWindow*, int = 0);
+      CLayout* add(CLayout*, const ELayout& = ELayout::EMPTY);
       CLayout* add(CLayout*, int = 0);
   };
 }}

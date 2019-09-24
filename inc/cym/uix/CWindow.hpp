@@ -12,7 +12,7 @@ namespace cym { namespace uix {  // acme { gui { win, unx, osx } }
       using CObject::CObject;
       using CObject::operator=;
       typedef CObject super;
-      static constexpr int STYLE = EHint::AUTOXY|EHint::AUTOWH; // @todo: rename this to HINTS or WINDOW or CONFIG
+      static constexpr int WINDOW = EWindow::AUTOXY|EWindow::AUTOWH; // @todo: rename this to HINTS or WINDOW or CONFIG
     public:
       struct SState {
         // @todo: window state

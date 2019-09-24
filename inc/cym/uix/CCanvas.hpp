@@ -12,7 +12,7 @@ namespace cym { namespace uix {
       using CFrame::operator=;
       friend class CContext;
       typedef CFrame super;
-      static constexpr int STYLE = super::STYLE;
+      static constexpr int WINDOW = super::WINDOW;
     public:
       CCanvas(                                                 int = ZERO);
       CCanvas(          const CContext::SConfig& sConfig,      int = ZERO);

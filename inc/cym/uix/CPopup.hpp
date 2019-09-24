@@ -9,7 +9,7 @@ namespace cym { namespace uix {
       using CWindow::CWindow;
       using CWindow::operator=;
       typedef CWindow super;
-      static constexpr int STYLE = CWindow::STYLE|EHint::POPUP;
+      static constexpr int WINDOW = CWindow::WINDOW|EWindow::POPUP;
     public:
       virtual bool fullscreen(uint = EFullscreen::FULLSCREEN|EFullscreen::CURSOR);
   };

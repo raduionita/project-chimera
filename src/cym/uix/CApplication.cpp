@@ -19,15 +19,21 @@ namespace cym { namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   CStyle* CApplication::style() {
-    return !mStyle ? (mStyle = new CStyle) : mStyle;
+    if (!mStyle) {
+      log::nfo << "uix::CApplication::style()::" << this << " STYLE:" << uix::STYLE << log::end;
+      mStyle = new CStyle;
+      if (uix::STYLE) {
+        
+      }
+    }
+    return mStyle;
   }
   
   bool CApplication::style(CStyle* pStyle) {
     if (mStyle != nullptr && mStyle != pStyle) {
       DELETE(mStyle);
     }
-    mStyle = pStyle;
-    return true;
+    return !!(mStyle = pStyle);
   }
   
   bool CApplication::init() {

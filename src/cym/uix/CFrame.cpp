@@ -3,12 +3,12 @@
 namespace cym { namespace uix {
   CFrame::CFrame(int nHints/*=ZERO*/) {
     log::nfo << "uix::CFrame::CFrame(int)::" << this << log::end;
-    init(nullptr, nHints | CFrame::STYLE);
+    init(nullptr, nHints | CFrame::WINDOW);
   }
   
   CFrame::CFrame(CWindow* pParent/*=nullptr*/, int nHints/*=ZERO*/) {
     log::nfo << "uix::CFrame::CFrame(CWindow*,int)::" << this << log::end;
-    init(pParent, nHints | CFrame::STYLE);
+    init(pParent, nHints | CFrame::WINDOW);
   }
   
   CFrame::~CFrame() {
@@ -28,13 +28,13 @@ namespace cym { namespace uix {
       return false;
     }
   
-    (nHints & EHint::VISIBLE)    && show();
-    (nHints & EHint::MAXIMIZE)   && maximize();
-    (nHints & EHint::MINIMIZE)   && minimize();
-    (nHints & EHint::AUTOWH)     && size(640,480);
-    (nHints & EHint::AUTOXY)     && (nHints |= EHint::CENTER);
-    (nHints & EHint::CENTER)     && center();
-    (nHints & EHint::FULLSCREEN) && fullscreen();
+    (nHints & EWindow::VISIBLE) && show();
+    (nHints & EWindow::MAXIMIZE) && maximize();
+    (nHints & EWindow::MINIMIZE) && minimize();
+    (nHints & EWindow::AUTOWH) && size(640, 480);
+    (nHints & EWindow::AUTOXY) && (nHints |= EWindow::CENTER);
+    (nHints & EWindow::CENTER) && center();
+    (nHints & EWindow::FULLSCREEN) && fullscreen();
     
     return mInited;
   }

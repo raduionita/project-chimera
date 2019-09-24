@@ -1,9 +1,10 @@
 #include "cym/uix/CStyle.hpp"
 #include "cym/uix/CBrush.hpp"
+#include "cym/uix/CPen.hpp"
 
 namespace cym { namespace uix {
-  CStyle::CStyle() {
-    log::nfo << "uix::CStyle::CStyle()::" << this << log::end;
+  CStyle::CStyle(int nHints) {
+    log::nfo << "uix::CStyle::CStyle(int)::" << this << log::end;
     
     // @todo: if nothing specific, define as a null style...empty (default win32 style) don't draw anything
   }
@@ -12,11 +13,11 @@ namespace cym { namespace uix {
     log::nfo << "uix::CStyle::~CStyle()::" << this << log::end;
   }
   
-  void CStyle::background(CBrush* pBrush) {
+  void CStyle::background(CBrush*&& pBrush) {
     if (mBackground != nullptr && mBackground != pBrush) {
       DELETE(mBackground);
     }
-    mBackground = pBrush;
+    mBackground = std::move(pBrush);
   }
   
   CBrush* CStyle::background() {

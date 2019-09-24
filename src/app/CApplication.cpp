@@ -9,9 +9,9 @@ namespace app {
     log::nfo << "app::CApplication::onInit()::" << this << log::end;
     
          mFrame   = new uix::CFrame();
-    auto pLayout  = dynamic_cast<uix::CBoxLayout*>(mFrame->layout(new uix::CBoxLayout(uix::EHint::VERTICAL)));
-         mSurface = dynamic_cast<uix::CSurface*>(pLayout->add(new uix::CSurface(mFrame, uix::EHint::VISIBLE), uix::EHint::ADJUST));
-    auto pPanel   = dynamic_cast<uix::CPanel*>(pLayout->add(new uix::CPanel(mFrame, uix::EHint::VISIBLE), uix::EHint::ADJUST));
+    auto pLayout  = dynamic_cast<uix::CBoxLayout*>(mFrame->layout(new uix::CBoxLayout(uix::ELayout::VERTICAL)));
+         mSurface = dynamic_cast<uix::CSurface*>(pLayout->add(new uix::CSurface(mFrame, uix::EWindow::VISIBLE), uix::ELayout::ADJUST));
+    auto pPanel   = dynamic_cast<uix::CPanel*>(pLayout->add(new uix::CPanel(mFrame, uix::EWindow::VISIBLE), uix::ELayout::ADJUST));
     
     mFrame->layout(pLayout);
     mFrame->title("frame");

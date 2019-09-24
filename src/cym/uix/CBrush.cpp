@@ -1,4 +1,6 @@
 #include "cym/uix/CBrush.hpp"
+#include "cym/uix/CBitmap.hpp"
+#include "cym/uix/CColor.hpp"
 
 namespace cym { namespace uix {
   CBrush::CBrush() {

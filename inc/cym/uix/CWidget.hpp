@@ -10,7 +10,7 @@ namespace cym { namespace uix {
       using CWindow::operator=;
     protected:
       typedef CWindow super;
-      static constexpr int STYLE  = CWindow::STYLE|EHint::CHILD;
+      static constexpr int WINDOW = CWindow::WINDOW|EWindow::CHILD;
   };
 }}
 

@@ -3,7 +3,7 @@
 namespace cym { namespace uix {
   CPanel::CPanel(CWindow* pParent, int nHints/*=ZERO*/) {
     log::nfo << "uix::CPanel::CPanel(CWindow*,int)::" << this << log::end;
-    init(pParent, nHints | CPanel::STYLE);
+    init(pParent, nHints | CPanel::WINDOW);
   }
   
   CPanel::~CPanel() {
@@ -22,11 +22,11 @@ namespace cym { namespace uix {
       ::MessageBox(NULL, "[CPanel] super::init() failed!", "Error", MB_OK);
       return false;
     }
-    
-    (nHints & EHint::VISIBLE) && show();
-    (nHints & EHint::AUTOXY)  && move(AUTO,AUTO);
-    (nHints & EHint::AUTOWH)  && size(AUTO,AUTO); // init w/ parent size
-    (nHints & EHint::CENTER)  && center();
+  
+    (nHints & EWindow::VISIBLE) && show();
+    (nHints & EWindow::AUTOXY) && move(AUTO, AUTO);
+    (nHints & EWindow::AUTOWH) && size(AUTO, AUTO); // init w/ parent size
+    (nHints & EWindow::CENTER) && center();
 
     return mInited;
   }

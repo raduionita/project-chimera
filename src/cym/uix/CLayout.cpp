@@ -55,29 +55,29 @@ namespace cym { namespace uix {
     auto  sArea = mItem->area(); // cur child (window/layout)
     
     // win.area.xy = itm.area.xy + ...
-    sArea.x = mArea.x + ((mHints & EHint::ADJUST) || (mHints & EHint::LEFT) ? 0 // 0 = don't add anyting // if ADJUST or LEFT 
-                                                                            : ((mHints & EHint::RIGHT)  ? (mArea.w - sArea.w) // itm.w - win.w = where x should be // if RIGHT
-                                                                                                        : ((mHints & EHint::CENTER) ? ((mArea.w - sArea.w)/2) // mid x = half itm.w - half wnd.x //
+    sArea.x = mArea.x + ((mHints & ELayout::ADJUST) || (mHints & ELayout::LEFT) ? 0 // 0 = don't add anyting // if ADJUST or LEFT 
+                                                                            : ((mHints & ELayout::RIGHT)  ? (mArea.w - sArea.w) // itm.w - win.w = where x should be // if RIGHT
+                                                                                                        : ((mHints & ELayout::CENTER) ? ((mArea.w - sArea.w)/2) // mid x = half itm.w - half wnd.x //
                                                                                                                                     : (sArea.x)))); // wnd.x pos inside itm
-    sArea.y = mArea.y + ((mHints & EHint::ADJUST) || (mHints & EHint::TOP)  ? 0
-                                                                            : ((mHints & EHint::BOTTOM) ? (mArea.h - sArea.h) 
-                                                                                                        : ((mHints & EHint::CENTER) ? ((mArea.h - sArea.h)/2)
+    sArea.y = mArea.y + ((mHints & ELayout::ADJUST) || (mHints & ELayout::TOP)  ? 0
+                                                                            : ((mHints & ELayout::BOTTOM) ? (mArea.h - sArea.h) 
+                                                                                                        : ((mHints & ELayout::CENTER) ? ((mArea.h - sArea.h)/2)
                                                                                                                                     : (sArea.y))));
     // win.area.wh = itm.area.wh OR same
-    sArea.w = (mHints & EHint::ADJUST) ? mArea.w : sArea.w;
-    sArea.h = (mHints & EHint::ADJUST) ? mArea.h : sArea.h; 
+    sArea.w = (mHints & ELayout::ADJUST) ? mArea.w : sArea.w;
+    sArea.h = (mHints & ELayout::ADJUST) ? mArea.h : sArea.h; 
     
     return mItem->area({std::max(0, sArea.x), std::max(0, sArea.y), sArea.w, sArea.h}); 
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  CBoxLayout::CBoxLayout(CWindow* pWindow/*=nullptr*/, EHint eDirection/*EHint::VERTICAL*/) : CLayout(pWindow), mDirection{eDirection} {
-    log::nfo << "uix::CBoxLayout::CBoxLayout(CWindow*,EHint)::" << this << log::end;
+  CBoxLayout::CBoxLayout(CWindow* pWindow/*=nullptr*/, ELayout eDirection/*ELayout::VERTICAL*/) : CLayout(pWindow), mDirection{eDirection} {
+    log::nfo << "uix::CBoxLayout::CBoxLayout(CWindow*,ELayout)::" << this << log::end;
   }
   
-  CBoxLayout::CBoxLayout(EHint eDirection) : CLayout(nullptr), mDirection{eDirection} {
-    log::nfo << "uix::CBoxLayout::CBoxLayout(EHint)::" << this << log::end;
+  CBoxLayout::CBoxLayout(ELayout eDirection) : CLayout(nullptr), mDirection{eDirection} {
+    log::nfo << "uix::CBoxLayout::CBoxLayout(ELayout)::" << this << log::end;
   }
   
   CBoxLayout::~CBoxLayout() {
@@ -96,6 +96,10 @@ namespace cym { namespace uix {
     return mItems[i];
   }
   
+  CWindow* CBoxLayout::add(CWindow* pItem, const ELayout& eLayout/*=ELayout::EMPTY*/) {
+    return add(pItem, int(eLayout));
+  }
+  
   CWindow* CBoxLayout::add(CWindow* pItem, int nHints/*=0*/) {
     log::nfo << "uix::CBoxLayout::add(CWindow*, hints)::" << this << log::end;
     
@@ -103,6 +107,10 @@ namespace cym { namespace uix {
     // @todo: do I need to do something here...like resizing or something?!
     
     return pItem;
+  }
+  
+  CLayout* CBoxLayout::add(CLayout* pItem, const ELayout& eLayout/*=ELayout::EMPTY*/) {
+    return add(pItem, int(eLayout));
   }
   
   CLayout* CBoxLayout::add(CLayout* pItem, int nHints/*=0*/) {
@@ -115,7 +123,7 @@ namespace cym { namespace uix {
   }
   
   bool CBoxLayout::calc() {
-    log::nfo << "uix::CBoxLayout::calc()::" << this << " DIR:0b" << std::bitset<32>(mDirection) << " COUNT:" << mItems.size() << log::end;
+    log::nfo << "uix::CBoxLayout::calc()::" << this << " DIR:0b" << std::bitset<32>(int(mDirection)) << " COUNT:" << mItems.size() << log::end;
     
     RETURN(!mItems.size(),false);
     
@@ -126,7 +134,7 @@ namespace cym { namespace uix {
     int nModW  = (int)(mArea.w % nItems); // remaining pixels w
     int nModH  = (int)(mArea.h % nItems); // remaining pixels h
     
-    if (mDirection == EHint::HORIZONTAL) {
+    if (mDirection == ELayout::HORIZONTAL) {
       // total (offset) w so far
       int nOffW = 0;
       // for each item
@@ -139,7 +147,7 @@ namespace cym { namespace uix {
         // offset width by new width
         nOffW += nItemW + nAdjW;
       }
-    } else { // mDirection == EHint::VERTICAL // default
+    } else { // mDirection == ELayout::VERTICAL // default
       int nOffH = 0;
       for (int i = 0; i < nItems; i++) {
         BItem*& pItem = mItems[i];

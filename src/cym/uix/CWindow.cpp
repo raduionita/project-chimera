@@ -64,30 +64,30 @@ namespace cym { namespace uix {
     DWORD dwExStyle = 0; // WS_EX_APPWINDOW;
     DWORD dwStyle   = 0;
   
-    dwStyle |= nHints & EHint::POPUP    ? WS_POPUP                   : 0;
-    dwStyle |= nHints & EHint::CHILD    ? WS_CHILD                   : 0;
-    dwStyle |= nHints & EHint::MAXBOX   ? WS_MAXIMIZEBOX             : 0;
-    dwStyle |= nHints & EHint::MINBOX   ? WS_MINIMIZEBOX             : 0;
-    dwStyle |= nHints & EHint::SYSBOX   ? WS_SYSMENU                 : 0;
-    dwStyle |= nHints & EHint::FRAME    ? WS_THICKFRAME | WS_SIZEBOX : 0;
-    dwStyle |= nHints & EHint::TITLE    ? WS_CAPTION                 : 0;
-    dwStyle |= nHints & EHint::BORDER   ? WS_BORDER                  : 0;
-    dwStyle |= nHints & EHint::VISIBLE  ? WS_VISIBLE                 : 0;
-    dwStyle |= nHints & EHint::DISABLED ? WS_DISABLED                : 0;
-    dwStyle |= nHints & EHint::HSCROLL  ? WS_HSCROLL                 : 0;
-    dwStyle |= nHints & EHint::VSCROLL  ? WS_VSCROLL                 : 0;
-    dwStyle |= nHints & EHint::MINIMIZE ? WS_MINIMIZE                : 0;
-    dwStyle |= nHints & EHint::MAXIMIZE ? WS_MAXIMIZE                : 0;
-    dwStyle |= nHints & EHint::NOCLIP   ? 0                          : WS_CLIPSIBLINGS;
-    dwStyle |= nHints & EHint::NOCLIP   ? 0                          : WS_CLIPCHILDREN;
+    dwStyle |= nHints & EWindow::POPUP    ? WS_POPUP                 : 0;
+    dwStyle |= nHints & EWindow::CHILD    ? WS_CHILD                 : 0;
+    dwStyle |= nHints & EWindow::MAXBOX   ? WS_MAXIMIZEBOX           : 0;
+    dwStyle |= nHints & EWindow::MINBOX   ? WS_MINIMIZEBOX           : 0;
+    dwStyle |= nHints & EWindow::SYSBOX   ? WS_SYSMENU               : 0;
+    dwStyle |= nHints & EWindow::FRAME    ? WS_THICKFRAME|WS_SIZEBOX : 0;
+    dwStyle |= nHints & EWindow::TITLE    ? WS_CAPTION               : 0;
+    dwStyle |= nHints & EWindow::BORDER   ? WS_BORDER                : 0;
+    dwStyle |= nHints & EWindow::VISIBLE  ? WS_VISIBLE               : 0;
+    dwStyle |= nHints & EWindow::DISABLED ? WS_DISABLED              : 0;
+    dwStyle |= nHints & EWindow::HSCROLL  ? WS_HSCROLL               : 0;
+    dwStyle |= nHints & EWindow::VSCROLL  ? WS_VSCROLL               : 0;
+    dwStyle |= nHints & EWindow::MINIMIZE ? WS_MINIMIZE              : 0;
+    dwStyle |= nHints & EWindow::MAXIMIZE ? WS_MAXIMIZE              : 0;
+    dwStyle |= nHints & EWindow::NOCLIP   ? 0                        : WS_CLIPSIBLINGS;
+    dwStyle |= nHints & EWindow::NOCLIP   ? 0                        : WS_CLIPCHILDREN;
   
     mHandle = ::CreateWindowEx(
       dwExStyle,                         // DWORD     // dwExStyle    // ex. style (0 = default)
       name().c_str(),                    // LPCSTR    // lpClassName  // window class name
       name().c_str(),                    // LPCSTR    // lpWindowName // window title name
       dwStyle,                           // DWORD     // dwExStyle    // style
-      CW_USEDEFAULT, CW_USEDEFAULT,      // int       // x, y 
-      CW_USEDEFAULT, CW_USEDEFAULT,      // int       // width, height
+      UIX_WINDOW_AREA_X, UIX_WINDOW_AREA_Y, // int       // x, y 
+      UIX_WINDOW_AREA_W, UIX_WINDOW_AREA_H, // int       // width, height
       mParent ? (HWND)(*mParent) : NULL, // HWND      // hWndParent   // parent handle
       NULL,                              // HMENU     // hMenu        // menu handle
       (HINSTANCE)(*mApplication),        // HINSTANCE // hInstance    //  application handle
@@ -574,8 +574,23 @@ namespace cym { namespace uix {
           PAINTSTRUCT sPS;
           HDC         hDC {::BeginPaint(hWnd, &sPS)};
           
-          // @todo: if win32 default style: DO NOTHING (dont draw/style anything)
-          { // default styles
+          // @todo: if UIX_STYLE (default uix style) set app style
+          
+          
+          // check if styles should be used
+          
+          // get window style
+          
+          // if empty: 
+          
+          // get app styles 
+          
+          // if empty:
+          
+          // no style (skip bg)
+          
+          // use default styles
+          if (pWindow->style()) {
             HBRUSH hThisBrush = (HBRUSH)(pWindow->style()->background());
             HBRUSH hPrevBrush = (HBRUSH)(::SelectObject(hDC, hThisBrush));
             // paint background
@@ -583,17 +598,18 @@ namespace cym { namespace uix {
             ::FillRect(hDC, &sPS.rcPaint, hThisBrush);
             ::SelectObject(hDC, hPrevBrush);
           }
-          
-          { // trigger event
+          // trigger event
+          if (pWindow->listens(EEvent::PAINT)) {
             auto pEvent = new CEvent(EEvent::PAINT, pWindow);
-    
-            bool bHandled = pWindow->handle(pEvent);
-            
+            // handle event
+            pWindow->handle(pEvent);
+            // no propagation
             DELETE(pEvent);
           }
-          
+          // end paint
           ::EndPaint(hWnd, &sPS);
-        } // end paint (remove window painting state) 
+        } 
+        // remove window painting state 
         pWindow->mState = pWindow->mState & ~EState::PAINTING;
   
         // RETURN(bHandled,0);

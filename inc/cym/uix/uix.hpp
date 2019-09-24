@@ -48,10 +48,26 @@
 #define CM_STATE      (CM_TABCHANGE  + 0x0001)
 #define CM_FULLSCREEN (CM_STATE      + 0x0001)
 #define CM_WINDOWED   (CM_FULLSCREEN + 0x0001)
+#define CM_REPAINT    (CM_WINDOWED   + 0x0001) // triggers invalidate rect + WM_PAINT
 
 #ifdef UIX_STYLE
-  
+#define UIX_STYLE_BACKGROUND_COLOR RGB(0,0,0)
+#define UIX_STYLE_BORDER_COLOR RGB(90,90,90)
+#define UIX_STYLE_BORDER_SIZE 1
+#define UIX_STYLE_BORDER_TYPE EStyle::SOLID
 #endif//UIX_STYLE
+
+#ifdef UIX_WINDOW
+#define UIX_WINDOW_AREA_X  10
+#define UIX_WINDOW_AREA_Y  10
+#define UIX_WINDOW_AREA_W 640
+#define UIX_WINDOW_AREA_H 480
+#else//!UIX_WINDOW
+#define UIX_WINDOW_AREA_X CW_USEDEFAULT
+#define UIX_WINDOW_AREA_Y CW_USEDEFAULT
+#define UIX_WINDOW_AREA_W CW_USEDEFAULT
+#define UIX_WINDOW_AREA_H CW_USEDEFAULT
+#endif//UIX_WINDOW
 
 namespace cym { namespace uix {
   constexpr int ZERO =  0;
@@ -67,6 +83,7 @@ namespace cym { namespace uix {
   class CDisplay;
   class CEvent;
   class CRender;
+  class CColor;
   class CObject;
     class CConsole;
     class CModule;
@@ -77,9 +94,13 @@ namespace cym { namespace uix {
     class CStyle;
     class CPainter;
     class CTool;
+      class CBitmap;
       class CBrush;
       class CPen;
       class CPalette;
+      class CFont;
+      class CCursor;
+      class CIcon;
     class CWindow;          // abstract
       class CPopup;         // abstract // toplevel windows
         class CFrame;       // titlebar + borders (opt: statusbar + menubar + toolbar)
@@ -201,7 +222,7 @@ namespace cym { namespace uix {
   inline int operator &(uint   lhs, EState rhs) { return lhs                   & static_cast<int>(rhs); }
   inline int operator ~(EState rhs)             { return ~(static_cast<int>(rhs)); }
   
-  enum EHint : int {
+  enum EWindow : int {
     _HINT_     = ZERO,
     CHILD      = 0b00000000000000000000000000000001, // WS_CHILD // stays in parent area, moves w/ the parent (oposite 2 WS_POPUP)
     POPUP      = 0b00000000000000000000000000000010, // WS_POPUP
@@ -298,6 +319,30 @@ namespace cym { namespace uix {
     SHOW,
     HIDE,
     COMMAND,
+  };
+  
+  enum class ELayout : short {
+    EMPTY      = ZERO,
+    LEFT       = 0b0000000000000001,
+    RIGHT      = 0b0000000000000010,
+    TOP        = 0b0000000000000100,
+    BOTTOM     = 0b0000000000001000,
+    VERTICAL   = 0b0000000000010000,
+    HORIZONTAL = 0b0000000000100000,
+    ADJUST     = 0b0000000001000000,
+    CENTER     = 0b0000000010000000,
+  };
+  
+  inline int operator |(ELayout lhs, ELayout rhs) { return static_cast<int>(lhs) | static_cast<int>(rhs); }
+  inline int operator |(int     lhs, ELayout rhs) { return lhs                   | static_cast<int>(rhs); }
+  inline int operator &(ELayout lhs, ELayout rhs) { return static_cast<int>(lhs) & static_cast<int>(rhs); }
+  inline int operator &(int     lhs, ELayout rhs) { return lhs                   & static_cast<int>(rhs); }
+  inline int operator ~(ELayout rhs)              { return ~(static_cast<int>(rhs)); }
+  
+  enum class EStyle : short {
+    EMPTY = ZERO,
+    SOLID = 0b0000000000000001,
+    DASH  = 0b0000000000000010,
   };
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

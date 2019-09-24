@@ -4,17 +4,17 @@
 namespace cym { namespace uix {
   CCanvas::CCanvas(int nHints/*=ZERO*/) {
     log::nfo << "uix::CCanvas::CCanvas(int)::" << this << log::end;
-    init(nullptr, {}, nHints | CCanvas::STYLE);
+    init(nullptr, {}, nHints | CCanvas::WINDOW);
   }
   
   CCanvas::CCanvas(const CContext::SConfig& sConfig, int nHints/*=ZERO*/) {
     log::nfo << "uix::CCanvas::CCanvas(CContext::SConfig&,int)::" << this << log::end;
-    init(nullptr, sConfig, nHints | CCanvas::STYLE);
+    init(nullptr, sConfig, nHints | CCanvas::WINDOW);
   }
   
-  CCanvas::CCanvas(CWindow* pParent, const CContext::SConfig& sConfig/*={}*/, int nHints/*=EHint::FRAME*/) {
+  CCanvas::CCanvas(CWindow* pParent, const CContext::SConfig& sConfig/*={}*/, int nHints/*=EWindow::FRAME*/) {
     log::nfo << "uix::CCanvas::CCanvas(CWindow*,CContext::SConfig&,int)::" << this << log::end;
-    init(pParent, sConfig, nHints | CCanvas::STYLE);
+    init(pParent, sConfig, nHints | CCanvas::WINDOW);
   }
   
   CCanvas::~CCanvas() {

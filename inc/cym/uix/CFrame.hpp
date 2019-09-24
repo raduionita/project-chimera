@@ -10,7 +10,7 @@ namespace cym { namespace uix {
       using CPopup::operator=;
     protected:
       typedef CWindow super;
-      static constexpr int STYLE = CPopup::STYLE|EHint::BORDER|EHint::TITLE|EHint::FRAME|EHint::SYSBOX|EHint::MINBOX|EHint::MAXBOX|EHint::SIZER;
+      static constexpr int WINDOW = CPopup::WINDOW|EWindow::BORDER|EWindow::TITLE|EWindow::FRAME|EWindow::SYSBOX|EWindow::MINBOX|EWindow::MAXBOX|EWindow::SIZER;
     public:
       CFrame(          int = ZERO);
       CFrame(CWindow*, int = ZERO);
