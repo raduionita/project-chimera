@@ -7,27 +7,32 @@
 // @todo: use CWindow* style & DC
 
 namespace cym { namespace uix {
+  enum class EShape : int {
+      NONE = 0,
+      ARC  = 1,
+  };
+  
   class CPainter : public CObject {
     public:
       CPainter(CWindow* pWindow);
       ~CPainter();
     public:
-      void palette(CPalette*);
-      void clear();
-      void arc();
-      void circle();
-      void ellipse();
-      void bitmap();
-      void icon();
-      void label();
-      void text();
-      void point();
-      void line();
-      void spline();
-      void polygon();
-      void rectangle();
-      void squircle(); // rounded rectangle
-      void gradient(); // rectangle filled w/ a gradient
+      bool palette(CPalette*);
+      bool clear();
+      bool arc();
+      bool circle();
+      bool ellipse();
+      bool bitmap();
+      bool icon();
+      bool label();
+      bool text();
+      bool point();
+      bool line();
+      bool spline();
+      bool polygon();
+      bool rectangle();
+      bool squircle(); // rounded rectangle
+      bool gradient(); // rectangle filled w/ a gradient
   };
 }}
 

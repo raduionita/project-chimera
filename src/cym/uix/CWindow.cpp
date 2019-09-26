@@ -49,6 +49,7 @@ namespace cym { namespace uix {
       (HINSTANCE)(*mApplication),        // HINSTANCE // hInstance     // to identify the dll that loads this module  
       ::LoadIcon(NULL, IDI_APPLICATION), // HICON     // hIcon
       ::LoadCursor(NULL, IDC_ARROW),     // HCURSOR   // hCursor
+      // @todo: replace by style()->background()
       (HBRUSH)(NULL_BRUSH),              // HBRUSH    // hbrBackground
       NULL,                              // LPCTSTR   // lpszMenuName  // no menu
       name().c_str(),                    // LPCTSTR   // lpszClassName
@@ -109,6 +110,10 @@ namespace cym { namespace uix {
     ::SetWindowPos(mHandle, NULL, 0,0,0,0, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE);
   
     ::SendMessage(mHandle, CM_INIT, 0, 0);
+    
+    // @todo: Make this window 70% alpha
+    // SetWindowLong(mHandle, GWL_EXSTYLE, GetWindowLong(mHandle, GWL_EXSTYLE) | WS_EX_LAYERED);
+    // SetLayeredWindowAttributes(hwnd, 0, (255 * 70) / 100, LWA_ALPHA);
     
     return (mInited = true);
   }
@@ -576,7 +581,6 @@ namespace cym { namespace uix {
           
           // @todo: if UIX_STYLE (default uix style) set app style
           
-          
           // check if styles should be used
           
           // get window style
@@ -591,8 +595,8 @@ namespace cym { namespace uix {
           
           // use default styles
           if (pWindow->style()) {
-            HBRUSH hThisBrush = (HBRUSH)(pWindow->style()->background());
-            HBRUSH hPrevBrush = (HBRUSH)(::SelectObject(hDC, hThisBrush));
+            HBRUSH hThisBrush = HBRUSH(*(pWindow->style()->background()));
+            HBRUSH hPrevBrush = HBRUSH(::SelectObject(hDC, hThisBrush));
             // paint background
             // ::Rectangle(hDC, sPS.rcPaint.left, sPS.rcPaint.top, sPS.rcPaint.right, sPS.rcPaint.bottom);
             ::FillRect(hDC, &sPS.rcPaint, hThisBrush);

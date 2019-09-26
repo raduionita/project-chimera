@@ -1,31 +1,29 @@
 #ifndef __cym_uix_cbrush_hpp__
 #define __cym_uix_cbrush_hpp__
 
-#include "CObject.hpp"
-#include "CColor.hpp"
+#include "CGdio.hpp"
 
 namespace cym { namespace uix {
-  class CBrush : public CObject {
+  enum class EBrush {
+    SOLID   = 1,
+    HATCH   = 2,
+    PATTERN = 3,
+  };
+  
+  class CBrush : public CGdio<HBRUSH> {
     protected:
-      enum EType {
-        SOLID   = 1,
-        HATCH   = 2,
-        PATTERN = 3,
-      };
-    protected:
-      HBRUSH   mHandle {HBRUSH(NULL_BRUSH)};
-      EType    mType   {EType::SOLID};
+      EBrush    mType   {EBrush::SOLID};
+      int       mHatch  {0};
+      SColor    mColor  {0};
+      CBitmap*  mBitmap {nullptr};
     public: // ctor
       CBrush();
-      CBrush(const CColor&);
-      CBrush(const CColor&, int);
-      CBrush(const CBitmap&);
+      CBrush(SColor&& sColor) : mColor{std::move(sColor)} {}
+      CBrush(SColor&& sColor, int&& nHatch) : mColor{std::move(sColor)}, mHatch{nHatch} { }
+      CBrush(CBitmap*&& pBitmap) : mBitmap{std::move(pBitmap)} { } 
       ~CBrush();
-    public: // cast
-      explicit operator       HBRUSH();
-      explicit operator const HBRUSH() const;
     protected:
-      
+      virtual bool init() override;
   };
 }}
 

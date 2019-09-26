@@ -41,11 +41,11 @@ namespace cym { namespace uix {
 
 #define DECLARE_APPLICATION(cls)                                                                                       \
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {                      \
-  log::nfo << "   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " INIT" << log::end;                     \
+  cym::log::nfo << "   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " INIT" << cym::log::end;           \
   auto app   = new cls();                                                                                              \
   INT result = app->exec();                                                                                            \
   delete app;                                                                                                          \
-  log::nfo << "   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " EXIT" << log::end;                     \
+  cym::log::nfo << "   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " EXIT" << cym::log::end;           \
   return result;                                                                                                       \
 }                                                                                                                     //
 

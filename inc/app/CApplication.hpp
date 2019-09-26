@@ -11,10 +11,10 @@
 #include "cym/uix/CApplication.hpp"
 #include "cym/uix/CEvent.hpp"
 
-using namespace cym;
-using log = cym::log;
-
 namespace app {
+  using namespace cym;
+  using log = cym::log;
+  
   class CApplication : public uix::CApplication {
     protected:
       uix::CFrame*   mFrame;
@@ -26,6 +26,7 @@ namespace app {
     protected:
       void onKeydown(uix::CEvent*);
       void onClick(uix::CEvent*);
+      void onDraw(uix::CEvent*);
   };
 }
 

@@ -22,6 +22,7 @@
 = registries should init only on app init | use CSingleton & CPointer
 
 = style (window) switcher
+= window: alpha/transparency usin' layered windows
 
 = finish: mouse click events // pair events (mouse click, key press/tab) 
 = finish: window events

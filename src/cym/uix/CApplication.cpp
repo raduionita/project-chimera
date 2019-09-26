@@ -20,16 +20,14 @@ namespace cym { namespace uix {
   
   CStyle* CApplication::style() {
     if (!mStyle) {
-      log::nfo << "uix::CApplication::style()::" << this << " STYLE:" << uix::STYLE << log::end;
-      mStyle = new CStyle;
-      if (uix::STYLE) {
-        
-      }
+      log::nfo << "uix::CApplication::style()::" << this << log::end;
+      style(new CStyle);
     }
     return mStyle;
   }
   
   bool CApplication::style(CStyle* pStyle) {
+    log::nfo << "uix::CApplication::style(CStyle*)::" << this << log::end;
     if (mStyle != nullptr && mStyle != pStyle) {
       DELETE(mStyle);
     }

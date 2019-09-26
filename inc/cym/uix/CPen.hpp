@@ -1,17 +1,15 @@
 #ifndef __cym_uix_cpen_hpp__
 #define __cym_uix_cpen_hpp__
 
-#include "CObject.hpp"
+#include "CGdio.hpp"
 
 namespace cym { namespace uix {
-  class CPen : public CObject {
-    protected:
-      HPEN mHandle {HPEN(NULL_PEN)};
+  class CPen : public CGdio<HPEN> {
     public: // ctor
       CPen();
-    public: // cast
-      explicit operator       HPEN();
-      explicit operator const HPEN() const;
+      ~CPen();
+    protected:
+      virtual bool init() override;
   };
 }}
 

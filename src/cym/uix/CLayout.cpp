@@ -96,7 +96,7 @@ namespace cym { namespace uix {
     return mItems[i];
   }
   
-  CWindow* CBoxLayout::add(CWindow* pItem, const ELayout& eLayout/*=ELayout::EMPTY*/) {
+  CWindow* CBoxLayout::add(CWindow* pItem, const ELayout& eLayout/*=ELayout::NONE*/) {
     return add(pItem, int(eLayout));
   }
   
@@ -109,7 +109,7 @@ namespace cym { namespace uix {
     return pItem;
   }
   
-  CLayout* CBoxLayout::add(CLayout* pItem, const ELayout& eLayout/*=ELayout::EMPTY*/) {
+  CLayout* CBoxLayout::add(CLayout* pItem, const ELayout& eLayout/*=ELayout::NONE*/) {
     return add(pItem, int(eLayout));
   }
   

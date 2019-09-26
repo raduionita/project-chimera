@@ -1,22 +1,26 @@
 #include "cym/uix/CBrush.hpp"
 #include "cym/uix/CBitmap.hpp"
-#include "cym/uix/CColor.hpp"
 
 namespace cym { namespace uix {
   CBrush::CBrush() {
     log::nfo << "uix::CBrush::CBrush()::" << this << log::end;
+    mHandle = HBRUSH(NULL_BRUSH);
   }
     
   CBrush::~CBrush() {
     log::nfo << "uix::CBrush::~CBrush()::" << this << log::end;
+    DELETE(mBitmap);
   }
-  
-  // cast ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  CBrush::operator HBRUSH()             { return mHandle; }
-  CBrush::operator const HBRUSH() const { return mHandle; }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  
+  bool CBrush::init() {
+    log::nfo << "uix::CBrush::init()" << log::end;
+    switch(mType) { 
+      case EBrush::SOLID:   { mHandle = ::CreateSolidBrush(mColor);         break; }
+      case EBrush::HATCH:   { mHandle = ::CreateHatchBrush(mHatch, mColor); break; }
+      case EBrush::PATTERN: { mHandle = ::CreatePatternBrush(HBITMAP(*mBitmap));     break; }
+    }
+    return (mHandle != NULL);
+  }
 }}

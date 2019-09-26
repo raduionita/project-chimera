@@ -3,6 +3,7 @@
 #include "cym/uix/CSurface.hpp"
 #include "cym/uix/CPanel.hpp"
 #include "cym/uix/CLayout.hpp"
+#include "cym/uix/CPainter.hpp"
 
 namespace app {
   void CApplication::onInit() {
@@ -23,6 +24,7 @@ namespace app {
   
     attach(mFrame, uix::EEvent::LBUTTONDOWN, &CApplication::onClick);
     attach(mFrame, uix::EEvent::KEYDOWN, &CApplication::onKeydown);
+    attach(mFrame, uix::EEvent::DRAW, &CApplication::onDraw);
   }
   
   void CApplication::onTick(int nElapsed/*=0*/) {
@@ -72,5 +74,13 @@ namespace app {
   void CApplication::onClick(uix::CEvent* pEvent) {
     log::nfo << "app::CApplication::onClick(CEvent*)::" << this << " B:" << int(pEvent->button()) << " X:" << pEvent->clientX() << " Y:" << pEvent->clientY() << log::end;
     quit();
+  }
+  
+  void CApplication::onDraw(uix::CEvent*) {
+    log::nfo << "app::CApplication::onDraw(CEvent*)::" << this << log::end;
+    
+    uix::CPainter oPainter(mFrame);
+    
+    // oPainter.circle();
   }
 }

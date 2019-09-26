@@ -50,40 +50,63 @@
 #define CM_WINDOWED   (CM_FULLSCREEN + 0x0001)
 #define CM_REPAINT    (CM_WINDOWED   + 0x0001) // triggers invalidate rect + WM_PAINT
 
-#ifdef UIX_STYLE
-#define UIX_STYLE_BACKGROUND_COLOR RGB(0,0,0)
-#define UIX_STYLE_BORDER_COLOR RGB(90,90,90)
-#define UIX_STYLE_BORDER_SIZE 1
-#define UIX_STYLE_BORDER_TYPE EStyle::SOLID
-#endif//UIX_STYLE
+// #ifdef UIX_STYLE
+#ifndef UIX_STYLE_BACKGROUND
+#define UIX_STYLE_BACKGROUND       NULL_BRUSH
+#endif//UIX_STYLE_BACKGROUND
 
-#ifdef UIX_WINDOW
-#define UIX_WINDOW_AREA_X  10
-#define UIX_WINDOW_AREA_Y  10
-#define UIX_WINDOW_AREA_W 640
-#define UIX_WINDOW_AREA_H 480
-#else//!UIX_WINDOW
+#ifndef UIX_STYLE_BACKGROUND_COLOR
+#define UIX_STYLE_BACKGROUND_COLOR RGB( 0, 0, 0)
+#endif//UIX_STYLE_BACKGROUND_COLOR
+
+#ifndef UIX_STYLE_BORDER
+#define UIX_STYLE_BORDER           NULL_PEN
+#endif//UIX_STYLE_BORDER
+
+#ifndef UIX_STYLE_BORDER_COLOR
+#define UIX_STYLE_BORDER_COLOR     RGB(90,90,90)
+#endif//UIX_STYLE_BORDER_COLOR
+
+#ifndef UIX_STYLE_BORDER_SIZE
+#define UIX_STYLE_BORDER_SIZE      1
+#endif//UIX_STYLE_BORDER_SIZE
+
+#ifndef UIX_STYLE_BORDER_TYPE
+#define UIX_STYLE_BORDER_TYPE      EStyle::SOLID
+#endif//UIX_STYLE_BORDER_TYPE
+
+// #ifdef UIX_WINDOW
+#ifndef UIX_WINDOW_AREA_X
 #define UIX_WINDOW_AREA_X CW_USEDEFAULT
+#endif//UIX_WINDOW_AREA_X
+
+#ifndef UIX_WINDOW_AREA_Y
 #define UIX_WINDOW_AREA_Y CW_USEDEFAULT
+#endif//UIX_WINDOW_AREA_Y
+
+#ifndef UIX_WINDOW_AREA_W
 #define UIX_WINDOW_AREA_W CW_USEDEFAULT
+#endif//UIX_WINDOW_AREA_W
+
+#ifndef UIX_WINDOW_AREA_H
 #define UIX_WINDOW_AREA_H CW_USEDEFAULT
-#endif//UIX_WINDOW
+#endif//UIX_WINDOW_AREA_H
 
 namespace cym { namespace uix {
   constexpr int ZERO =  0;
   constexpr int AUTO = -1;
   constexpr int FULL = -1;
+
 #ifdef UIX_STYLE
   constexpr int STYLE = 1;
 #else//!UIX_STYLE
   constexpr int STYLE = 0;
 #endif//UIX_STYLE
-  
+
   class CListener;
   class CDisplay;
   class CEvent;
   class CRender;
-  class CColor;
   class CObject;
     class CConsole;
     class CModule;
@@ -93,7 +116,7 @@ namespace cym { namespace uix {
     class CTooltip;
     class CStyle;
     class CPainter;
-    class CTool;
+    template <typename T> class CGdio;         // graphics device interface object
       class CBitmap;
       class CBrush;
       class CPen;
@@ -158,9 +181,9 @@ namespace cym { namespace uix {
     union {int data[4]; struct {int l, t, r, b;}; struct {int left, top, right, bottom;};};
     SRect(int v = DEFAULT) : l(v), t(v), r(v), b(v) { }
     SRect(int l, int t, int r, int b) : l(l), t(t), r(r), b(b) { }
-    operator       RECT()  const;
+    operator       RECT();
     operator const RECT()  const;
-    operator       SArea() const;
+    operator       SArea();
     operator const SArea() const;
   };
   
@@ -169,26 +192,39 @@ namespace cym { namespace uix {
     union {int data[4]; struct {int x, y, w, h;};};
     SArea(int v = DEFAULT) : x(v), y(v), w(v), h(v) { }
     SArea(int x, int y, int w, int h) : x(x), y(y), w(w), h(h) { }
-    operator       RECT()  const;
+    operator       RECT();
     operator const RECT()  const;
-    operator       SRect() const; 
+    operator       SRect(); 
     operator const SRect() const; 
   };
+  
+  struct SColor {
+    static constexpr int DEFAULT = 0;
+    union { COLORREF rgb; struct { BYTE r; BYTE g; BYTE b; BYTE a; };};
+    SColor(COLORREF rgb = DEFAULT) : rgb(rgb) { }
+    SColor(BYTE r, BYTE g, BYTE b, BYTE a = DEFAULT) : rgb(RGB(r, g, b)) { }
+    operator       COLORREF();
+    operator const COLORREF() const;
+  };
     
-  inline SRect::operator       RECT()  const { return RECT{l,t,r,b}; }
+  inline SRect::operator       RECT()        { return RECT{l,t,r,b}; }
   inline SRect::operator const RECT()  const { return RECT{l,t,r,b}; }
-  inline SRect::operator       SArea() const { return SArea{l,t,r-l,b-t}; }
+  inline SRect::operator       SArea()       { return SArea{l,t,r-l,b-t}; }
   inline SRect::operator const SArea() const { return SArea{l,t,r-l,b-t}; }
     
-  inline SArea::operator       RECT()  const { return RECT{x,y,x+w,y+h}; }
+  inline SArea::operator       RECT()        { return RECT{x,y,x+w,y+h}; }
   inline SArea::operator const RECT()  const { return RECT{x,y,x+w,y+h}; }
-  inline SArea::operator       SRect() const { return SRect{x,y,x+w,y+h}; }
+  inline SArea::operator       SRect()       { return SRect{x,y,x+w,y+h}; }
   inline SArea::operator const SRect() const { return SRect{x,y,x+w,y+h}; }
+  
+  inline SColor::operator       COLORREF()       { return rgb; }
+  inline SColor::operator const COLORREF() const { return rgb; }
     
   typedef SShape S;
   typedef SPoint P;
   typedef SArea  A;
   typedef SRect  R;
+  typedef SColor C;
   
   inline std::ostream& operator <<(std::ostream& o, const RECT& r) { return o << "l:" << r.left << " t:" << r.top << " r:" << r.right << " b:" << r.bottom; }
   
@@ -262,7 +298,8 @@ namespace cym { namespace uix {
     AUTOXY     = 0b00010000000000000000000000000000,
     AUTOWH     = 0b00100000000000000000000000000000,
     
-    FULLSCREEN = 0b01000000000000000000000000000000, // 32bit
+    FULLSCREEN = 0b01000000000000000000000000000000,
+    LAYERED    = 0b1000000000000000000000000000000, // 32bit // @todo...
   };
   
   enum class EFullscreen : int {
@@ -340,7 +377,7 @@ namespace cym { namespace uix {
   inline int operator ~(ELayout rhs)              { return ~(static_cast<int>(rhs)); }
   
   enum class EStyle : short {
-    EMPTY = ZERO,
+    NONE  = ZERO,
     SOLID = 0b0000000000000001,
     DASH  = 0b0000000000000010,
   };
