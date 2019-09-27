@@ -50,7 +50,10 @@
 #define CM_WINDOWED   (CM_FULLSCREEN + 0x0001)
 #define CM_REPAINT    (CM_WINDOWED   + 0x0001) // triggers invalidate rect + WM_PAINT
 
-// #ifdef UIX_STYLE
+#ifndef UIX_STYLE
+#define UIX_STYLE false
+#endif//UIX_STYLE
+
 #ifndef UIX_STYLE_BACKGROUND
 #define UIX_STYLE_BACKGROUND       NULL_BRUSH
 #endif//UIX_STYLE_BACKGROUND
@@ -75,7 +78,10 @@
 #define UIX_STYLE_BORDER_TYPE      EStyle::SOLID
 #endif//UIX_STYLE_BORDER_TYPE
 
-// #ifdef UIX_WINDOW
+#ifndef UIX_WINDOW
+#define UIX_WINDOW false
+#endif//UIX_WINDOW
+
 #ifndef UIX_WINDOW_AREA_X
 #define UIX_WINDOW_AREA_X CW_USEDEFAULT
 #endif//UIX_WINDOW_AREA_X
@@ -97,11 +103,11 @@ namespace cym { namespace uix {
   constexpr int AUTO = -1;
   constexpr int FULL = -1;
 
-#ifdef UIX_STYLE
-  constexpr int STYLE = 1;
-#else//!UIX_STYLE
-  constexpr int STYLE = 0;
-#endif//UIX_STYLE
+  constexpr bool STYLE                  {UIX_STYLE};
+  constexpr auto STYLE_BACKGROUND_COLOR {UIX_STYLE_BACKGROUND_COLOR};
+  constexpr auto STYLE_BORDER_COLOR     {UIX_STYLE_BORDER_COLOR};
+    
+  // @todo: #ifdef set something in the app from here // like set styles
 
   class CListener;
   class CDisplay;
@@ -377,10 +383,19 @@ namespace cym { namespace uix {
   inline int operator ~(ELayout rhs)              { return ~(static_cast<int>(rhs)); }
   
   enum class EStyle : short {
-    NONE  = ZERO,
-    SOLID = 0b0000000000000001,
-    DASH  = 0b0000000000000010,
+    NONE        = ZERO,
+    SOLID       = 0b00000000000001,
+    DASH        = 0b00000000000010,
+    WINDOW      = 0b010000000000000,
+    APPLICATION = 0b110000000000000,
   };
+  
+  inline int operator |(EStyle lhs, EStyle rhs) { return static_cast<int>(lhs) | static_cast<int>(rhs); }
+  inline int operator |(int    lhs, EStyle rhs) { return lhs                   | static_cast<int>(rhs); }
+  inline int operator &(EStyle lhs, EStyle rhs) { return static_cast<int>(lhs) & static_cast<int>(rhs); }
+  inline int operator &(int    lhs, EStyle rhs) { return lhs                   & static_cast<int>(rhs); }
+  inline int operator ~(EStyle rhs)             { return ~(static_cast<int>(rhs)); }
+  
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     

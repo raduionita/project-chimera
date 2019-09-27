@@ -9,7 +9,7 @@ namespace cym { namespace uix {
     protected:
       T mHandle {NULL};
     public: // ctor
-      CGdio(T hHandle = NULL) : mHandle{T(hHandle)}  { }
+      CGdio(T hHandle = NULL) : mHandle{hHandle} { }
       ~CGdio() { free(); }
     public: // cast
       explicit operator T() { if (mHandle == NULL) init(); return mHandle; }
@@ -17,6 +17,7 @@ namespace cym { namespace uix {
       virtual bool init() = 0;
     public:
       virtual bool free() { return ::DeleteObject(mHandle) != FALSE; }
+              bool empty() { return mHandle == NULL; }
   };
 }}
 

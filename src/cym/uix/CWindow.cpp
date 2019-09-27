@@ -13,10 +13,10 @@ namespace cym { namespace uix {
     free();
   }
   
-  CWindow::SConfig::SConfig(int nHints) : nHints{nHints} { }
-  CWindow::SConfig::SConfig(const SArea& sArea, int nHints) : nHints{nHints}, sArea{sArea} { }
-  CWindow::SConfig::SConfig(const CString& oTitle, const SArea& sArea, int nHints) : nHints{nHints}, sArea{sArea}, oTitle{oTitle} { }
-  CWindow::SConfig::SConfig(const CString& oTitle, int nHints) : nHints{nHints}, oTitle{oTitle} { }
+  CWindow::SConfig::SConfig(int nHints) : nHints{nHints}, oStyle{} { }
+  CWindow::SConfig::SConfig(const SArea& sArea, int nHints) : nHints{nHints}, sArea{sArea}, oStyle{} { }
+  CWindow::SConfig::SConfig(const CString& oTitle, const SArea& sArea, int nHints) : nHints{nHints}, sArea{sArea}, oTitle{oTitle}, oStyle{} { }
+  CWindow::SConfig::SConfig(const CString& oTitle, int nHints) : nHints{nHints}, oTitle{oTitle}, oStyle{} { }
   
   // cast ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -65,7 +65,7 @@ namespace cym { namespace uix {
     DWORD dwExStyle = 0; // WS_EX_APPWINDOW;
     DWORD dwStyle   = 0;
   
-    dwStyle |= nHints & EWindow::POPUP    ? WS_POPUP                 : 0;
+    dwStyle |= nHints & EWindow::POPUP    ? WS_POPUP|WS_OVERLAPPED   : 0;
     dwStyle |= nHints & EWindow::CHILD    ? WS_CHILD                 : 0;
     dwStyle |= nHints & EWindow::MAXBOX   ? WS_MAXIMIZEBOX           : 0;
     dwStyle |= nHints & EWindow::MINBOX   ? WS_MINIMIZEBOX           : 0;
@@ -79,8 +79,8 @@ namespace cym { namespace uix {
     dwStyle |= nHints & EWindow::VSCROLL  ? WS_VSCROLL               : 0;
     dwStyle |= nHints & EWindow::MINIMIZE ? WS_MINIMIZE              : 0;
     dwStyle |= nHints & EWindow::MAXIMIZE ? WS_MAXIMIZE              : 0;
-    dwStyle |= nHints & EWindow::NOCLIP   ? 0                        : WS_CLIPSIBLINGS;
-    dwStyle |= nHints & EWindow::NOCLIP   ? 0                        : WS_CLIPCHILDREN;
+    dwStyle |= nHints & EWindow::NOCLIP   ? 0                        : 0; //WS_CLIPSIBLINGS;
+    dwStyle |= nHints & EWindow::NOCLIP   ? 0                        : 0; //WS_CLIPCHILDREN;
   
     mHandle = ::CreateWindowEx(
       dwExStyle,                         // DWORD     // dwExStyle    // ex. style (0 = default)
@@ -144,7 +144,7 @@ namespace cym { namespace uix {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-  bool CWindow::show(int nHints/*=1*/) {
+  bool CWindow::show(int /*nHints=1*/) {
     log::nfo << "uix::CWindow::show()::" << this << log::end;
     // @todo:   0b = hide
     // @todo:  01b = show | make visible
@@ -152,7 +152,7 @@ namespace cym { namespace uix {
     return mInited && ::ShowWindow(mHandle, SW_SHOW);
   }
   
-  bool CWindow::hide(int nHints/*=1*/) {
+  bool CWindow::hide(int /*nHints=1*/) {
     log::nfo << "uix::CWindow::hide()::" << this << log::end;
     // @todo:   0b = show
     // @todo:   1b = hide | make invisible
@@ -160,7 +160,7 @@ namespace cym { namespace uix {
     return mInited && ::ShowWindow(mHandle, SW_HIDE);
   }
   
-  bool CWindow::focus(int nHints/*=1*/) {
+  bool CWindow::focus(int /*nHints=1*/) {
     log::nfo << "uix::CWindow::focus()::" << this << log::end;
     ::SetFocus(mHandle); // returns window w/ previous focus
     return true;
@@ -562,7 +562,13 @@ namespace cym { namespace uix {
         //            31 bit : transition state (1 for WM_KEYUP)
         // return 0; if message was processed
       }
-      case WM_ERASEBKGND: { break; }
+      case WM_ERASEBKGND: { 
+        CWindow* pWindow = find(hWnd);
+        BREAK(!pWindow);
+        log::nfo << "   W:WM_ERASEBKGND::" << pWindow << " ID:" << pWindow->mId << log::end;
+        UNREFERENCED_PARAMETER(lParam);
+        break; 
+      }
       case WM_NCPAINT: { break; }
       case WM_PAINT: { 
         CWindow* pWindow = find(hWnd);
@@ -571,30 +577,23 @@ namespace cym { namespace uix {
         UNREFERENCED_PARAMETER(lParam);
         UNREFERENCED_PARAMETER(wParam);
         
-        // @todo: if no custom style then use default
-        // @todo: let developer define new default style otherwise use win32 default (no) style 
+// @todo: CRender should not draw
+
+// @todo: draw if window has style // remove app style or check if it's empty
+
+// @todo: begin (EState::PAINTING) if window has style & listens
+
+        const bool bStyled = !pWindow->style()->background()->empty();
+        const bool bListen = pWindow->listens(EEvent::PAINT);
         
-        pWindow->mState = pWindow->mState | EState::PAINTING;
-        { // start paint (window in painting state)
+        if (bStyled || bListen) {
+          // state: +paiting
+          pWindow->mState = pWindow->mState | EState::PAINTING;
+          // start paint
           PAINTSTRUCT sPS;
           HDC         hDC {::BeginPaint(hWnd, &sPS)};
-          
-          // @todo: if UIX_STYLE (default uix style) set app style
-          
-          // check if styles should be used
-          
-          // get window style
-          
-          // if empty: 
-          
-          // get app styles 
-          
-          // if empty:
-          
-          // no style (skip bg)
-          
-          // use default styles
-          if (pWindow->style()) {
+          // draw style
+          if (bStyled) {
             HBRUSH hThisBrush = HBRUSH(*(pWindow->style()->background()));
             HBRUSH hPrevBrush = HBRUSH(::SelectObject(hDC, hThisBrush));
             // paint background
@@ -602,8 +601,8 @@ namespace cym { namespace uix {
             ::FillRect(hDC, &sPS.rcPaint, hThisBrush);
             ::SelectObject(hDC, hPrevBrush);
           }
-          // trigger event
-          if (pWindow->listens(EEvent::PAINT)) {
+          // handle event
+          if (bListen) {
             auto pEvent = new CEvent(EEvent::PAINT, pWindow);
             // handle event
             pWindow->handle(pEvent);
@@ -612,12 +611,11 @@ namespace cym { namespace uix {
           }
           // end paint
           ::EndPaint(hWnd, &sPS);
-        } 
-        // remove window painting state 
-        pWindow->mState = pWindow->mState & ~EState::PAINTING;
-  
-        // RETURN(bHandled,0);
-        
+          // state: -paiting
+          pWindow->mState = pWindow->mState & ~EState::PAINTING;
+          // return 0 = handled
+          return 0;
+        }
         // ::UpdateWindow(HWND);
         // ::RedrawWindow(HWND, const RECT*, HRGN, UINT); // WM_ERASEBKGND, WM_NCPAINT, WM_PAINT
         // ::InvalidateRect(HWND, const RECT*, WINBOOL);

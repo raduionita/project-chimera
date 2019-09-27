@@ -41,6 +41,12 @@
 #endif//CYM_LOGGER_PROVIDER
 
 namespace cym {
+#ifdef CYM_LOGGER
+  constexpr bool LOGGER {true};
+#else // CYM_LOGGER
+  constexpr bool LOGGER {false};
+#endif//CYM_LOGGER
+  
   class CLogger;
   
   class CLoggerProvider {
@@ -66,10 +72,10 @@ namespace cym {
   
   class CLogger : public CSingleton<CLogger> {
     public:
-    enum class EManipulator: int {
-      END = 0x0,
-    };
-    enum class ELevel      : int {
+      enum class EManipulator: int {
+        END = 0x0,
+      };
+      enum class ELevel      : int {
       NONE  = 0,         //  0
       FATAL = 1,         //  1
       ERROR = FATAL,     //  1
@@ -77,29 +83,24 @@ namespace cym {
       INFO  = 4 | WARN,  //  7
       DEBUG = 8 | INFO,  // 15
     };
-    
     public:
-    static const ELevel       nfo;
-    static const ELevel       dbg;
-    static const ELevel       wrn;
-    static const ELevel       err;
-    static const EManipulator end;
-    
+      static const ELevel       nfo;
+      static const ELevel       dbg;
+      static const ELevel       wrn;
+      static const ELevel       err;
+      static const EManipulator end;
     protected:
-    std::string      mOutput{""};
-    ELevel           mLevel{CYM_LOGGER_LEVEL};
-    CLoggerProvider* mProvider{new CYM_LOGGER_PROVIDER};
-    
+      std::string      mOutput   {""};
+      ELevel           mLevel    {CYM_LOGGER_LEVEL};
+      CLoggerProvider* mProvider {nullptr};
     public:
-    CLogger();
-    virtual ~CLogger();
-    
+      CLogger();
+      virtual ~CLogger();
     public:
-    template <typename T> CLogger* operator << (const T& output) { return push(output); }
-    friend const CLogger::ELevel& operator <<(const CLogger::ELevel&, const CLogger::EManipulator&);
-    template <typename T> friend const CLogger::ELevel& operator <<(const CLogger::ELevel&, const T&);
-    friend CLogger* operator <<(CLogger*, const std::string&);
-    
+      template <typename T> CLogger* operator << (const T& output) { return push(output); }
+      friend const CLogger::ELevel& operator <<(const CLogger::ELevel&, const CLogger::EManipulator&);
+      template <typename T> friend const CLogger::ELevel& operator <<(const CLogger::ELevel&, const T&);
+      friend CLogger* operator <<(CLogger*, const std::string&);
     public:
     template <typename T> CLogger* push(const T& output) {
 #if   defined(CYM_LOGGER_DEBUG)
@@ -120,9 +121,11 @@ namespace cym {
       mOutput.append(ss.str());
       return this;
     }
-    
-    void level(ELevel&& eLevel) { mLevel = std::move(eLevel); }
-    void provider(CLoggerProvider*&& pProvider) { delete mProvider; mProvider = std::move(pProvider); }
+    public: // get&set
+      void   level(ELevel&& eLevel) { mLevel = std::move(eLevel); }
+      ELevel level()                { return mLevel; }
+      void             provider(CLoggerProvider*&& pProvider) { delete mProvider; mProvider = std::move(pProvider); }
+      CLoggerProvider* provider() { if (!mProvider) mProvider = new CYM_LOGGER_PROVIDER; return mProvider; }
   };
   
   template <typename T> const CLogger::ELevel& operator <<(const CLogger::ELevel& type, const T& output) {

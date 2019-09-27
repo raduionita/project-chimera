@@ -13,14 +13,15 @@ namespace cym { namespace uix {
       CFont*   mFont       {nullptr}; // HFONT
       CCursor* mCursor     {nullptr}; // HCURSOR
       CIcon*   mIcon       {nullptr}; // HICON
-    public:
-      CStyle(int=ZERO);
+    public: // ctor
+      CStyle();
       ~CStyle();
     public:
+      void    background(SColor&&);
       void    background(CBrush*&&);
       CBrush* background();
     public:
-      static CStyle* merge(CStyle* lhs, CStyle* rhs); 
+      static CStyle*& merge(CStyle*& lhs, const CStyle*& rhs);
   };
 }}
 

@@ -25,7 +25,7 @@ namespace cym {
     
     if (!sLogger->mOutput.empty()) {
       // logging level matches
-      if (int(eLevel) <= int(sLogger->mLevel)) {
+      if (int(eLevel) <= int(sLogger->level())) {
         switch(eLevel) {
           default:
           case CLogger::ELevel::DEBUG: sLogger->mOutput = "[DBG] " + sLogger->mOutput; break;
@@ -46,7 +46,7 @@ namespace cym {
         switch (eManipulator) {
           case CLogger::EManipulator::END: {
             sLogger->mOutput.append("\n");
-            sLogger->mProvider->log(sLogger->mOutput);
+            sLogger->provider()->log(sLogger->mOutput);
           }
           default:/*do nothing*/break;
         }

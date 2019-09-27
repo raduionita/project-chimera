@@ -1,11 +1,11 @@
 #ifndef __app_capplication_hpp__
 #define __app_capplication_hpp__
 
-#define CYM_LOGGER
+#define CYM_LOGGER 1
 #define CYM_LOGGER_INFO
 #define CYM_LOGGER_COUT
 
-#define UIX_STYLE
+#define UIX_STYLE 1
 #define UIX_STYLE_BACKGROUND_COLOR RGB(33,33,33)
 
 #include "cym/uix/CApplication.hpp"

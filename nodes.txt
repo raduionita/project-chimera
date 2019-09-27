@@ -5,6 +5,7 @@
 = commands
 = config: replace window hints w/ config
 = state: window & application states for persistance
+= context: has not paint and is not affected by paint event
 
 = glx: draw something
 
