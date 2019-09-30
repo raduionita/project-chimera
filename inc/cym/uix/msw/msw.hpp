@@ -12,11 +12,11 @@
 
 #include <string>
 
-namespace cym { namespace uix { namespace msw {
+namespace cym::uix { namespace msw {
  
   
   
-}}}
+}}
 
 
 // @here: functions that should have been in win32 

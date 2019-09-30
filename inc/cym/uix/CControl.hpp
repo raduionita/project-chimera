@@ -3,7 +3,7 @@
 
 #include "CWidget.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CControl : public CWidget {
     protected:
       using CWidget::CWidget;
@@ -12,6 +12,6 @@ namespace cym { namespace uix {
       typedef CWidget super;
       static constexpr int WINDOW = CWidget::WINDOW;
   };
-}}
+}
 
 #endif //__cym_uix_ccontrol_hpp__

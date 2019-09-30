@@ -3,13 +3,14 @@
 
 #include "CObject.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CModule : public CObject {
     protected:
       using CObject::CObject;
       using CObject::operator=;
     protected:
-      HINSTANCE            mHandle {NULL};
+      bool      mInited {false};
+      HINSTANCE mHandle {NULL};
     public: // ctor
       CModule(HINSTANCE = ::GetModuleHandle(NULL));
       ~CModule();
@@ -20,7 +21,7 @@ namespace cym { namespace uix {
       virtual bool init();
       virtual bool free();
   };
-}}
+}
 
 
 

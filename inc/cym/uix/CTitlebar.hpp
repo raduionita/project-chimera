@@ -3,10 +3,10 @@
 
 #include "CWidget.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CTitlebar : public CWidget {
       
   };
-}}
+}
 
 #endif //__cym_uix_ctitlebar_hpp__

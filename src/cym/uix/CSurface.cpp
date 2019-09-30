@@ -1,6 +1,6 @@
 #include "cym/uix/CSurface.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   CSurface::CSurface(CWindow* pParent, int nHints) {
     log::nfo << "uix::CSurface::CSurface(CWindow*,CContext::SConfig&,int)::" << this << log::end;
     init(pParent, {}, nHints | CSurface::WINDOW);
@@ -21,4 +21,4 @@ namespace cym { namespace uix {
     log::nfo << "uix::CSurface::init(CWindow*,CContext::SConfig&,int)::" << this << log::end;
     return mInited = (CPanel::init(pParent, nHints) && CRender::init(this, sConfig));
   }
-}}
+}

@@ -1,6 +1,6 @@
 #include "cym/uix/CModule.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   CModule::CModule(HINSTANCE hHandle/*=::GetModuleHandle(NULL)*/) : CObject(), mHandle{hHandle} {
     log::nfo << "uix::CModule::CModule()::" << this << " INSTANCE:" << mHandle << log::end;
   }
@@ -21,11 +21,12 @@ namespace cym { namespace uix {
   
   bool CModule::init() {
     log::nfo << "uix::CModule::init()::" << this << log::end;
-    return true;
+    mInited = true;
+    return mInited;
   }
   
   bool CModule::free() {
-    log::nfo << "uix::CModule::init()::" << this << log::end;
+    log::nfo << "uix::CModule::free()::" << this << log::end;
     return true;
   }
-}}
+}

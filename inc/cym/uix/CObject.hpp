@@ -3,7 +3,7 @@
 
 #include "uix.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CObject {
     class CRegistry {
       friend class CObject;
@@ -33,6 +33,6 @@ namespace cym { namespace uix {
     public:
       const int id() const;
   };
-}}
+}
 
 #endif //__cym_uix_cobject_hpp__

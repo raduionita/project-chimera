@@ -3,7 +3,7 @@
 
 #include "CControl.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CButton : public CControl {
     protected:
       using CControl::CControl;
@@ -17,8 +17,8 @@ namespace cym { namespace uix {
     protected:
       bool init(CWindow*, const CString&, const SArea&, CIcon*&&, int);
     protected:
-      static LRESULT CALLBACK proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+      static LRESULT CALLBACK proc(HWND, UINT, WPARAM, LPARAM, UINT_PTR, DWORD_PTR);
   };
-}}
+}
 
 #endif //__cym_uix_cbutton_hpp__

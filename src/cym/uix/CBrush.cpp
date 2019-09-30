@@ -1,7 +1,7 @@
 #include "cym/uix/CBrush.hpp"
 #include "cym/uix/CBitmap.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   CBrush::CBrush() {
     log::nfo << "uix::CBrush::CBrush()::" << this << " TYPE:" << int(mType) << log::end;
     mInited = true; // for quick exiting
@@ -20,7 +20,7 @@ namespace cym { namespace uix {
   } 
     
   CBrush::~CBrush() {
-    log::nfo << "uix::CBrush::~CBrush()::" << this << " TYPE" << int(mType) << log::end;
+    log::nfo << "uix::CBrush::~CBrush()::" << this << " TYPE:" << int(mType) << log::end;
     DELETE(mBitmap);
   }
   
@@ -37,4 +37,4 @@ namespace cym { namespace uix {
     }
     return true;
   }
-}}
+}

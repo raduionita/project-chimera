@@ -1,7 +1,7 @@
 #include "cym/uix/CCanvas.hpp"
 #include "cym/uix/CContext.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   CCanvas::CCanvas(int nHints/*=ZERO*/) {
     log::nfo << "uix::CCanvas::CCanvas(int)::" << this << log::end;
     init(nullptr, {}, nHints | CCanvas::WINDOW);
@@ -87,4 +87,4 @@ namespace cym { namespace uix {
       
     }
   }
-}}
+}

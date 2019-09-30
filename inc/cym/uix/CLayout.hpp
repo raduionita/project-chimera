@@ -3,7 +3,7 @@
 
 #include "CObject.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CLayout : public CObject {
     protected:
       using CObject::CObject;
@@ -78,12 +78,12 @@ namespace cym { namespace uix {
       virtual bool calc() override;
     public:
       BItem*   item(typename decltype(mItems)::size_type i);
-      template <typename T> T* add(T* item, const ELayout& eLayout = ELayout::EMPTY) {
+      template <typename T> decltype(auto) add(T* item, const ELayout& eLayout = ELayout::EMPTY) {
         log::nfo << "uix::CBoxLayout::add(T*,int)::" << this << log::end;
         mItems.push_back(std::move(new TItem<T*>(item,int(eLayout))));
         return item;
       }
   };
-}}
+}
 
 #endif //__cym_uix_clayout_hpp__

@@ -3,7 +3,7 @@
 
 #include "CObject.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CConsole : public CObject {
     protected:
       CApplication* mApp = {nullptr};
@@ -15,7 +15,7 @@ namespace cym { namespace uix {
     protected:
       static BOOL WINAPI ctrl(DWORD);
   };
-}}
+}
 
 
 

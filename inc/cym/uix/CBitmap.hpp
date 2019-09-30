@@ -3,7 +3,7 @@
 
 #include "CGdio.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CBitmap : public CGdio<HBITMAP> {
     public: // ctor
       CBitmap();
@@ -11,6 +11,6 @@ namespace cym { namespace uix {
     protected:
       virtual bool init() override;
   };
-}}
+}
 
 #endif //__cym_uix_cbitmap_hpp__

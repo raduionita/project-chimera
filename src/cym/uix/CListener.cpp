@@ -1,12 +1,12 @@
 #include "cym/uix/CListener.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   CListener::CListener() {
     log::nfo << "uix::CListener::CListener()::" << this << log::end;
   }
   
   CListener::~CListener() {
-    log::nfo << "uix::CListener::CListener()::" << this << log::end;
+    log::nfo << "uix::CListener::~CListener()::" << this << log::end;
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,4 +43,4 @@ namespace cym { namespace uix {
     log::nfo << "uix::CListener::listens(EEvent&)::" << this << " EVT:" << int(eEvent) << " " << mHandlers.count(eEvent) << log::end;
     return mHandlers.count(eEvent) > 0; 
   }
-}}
+}

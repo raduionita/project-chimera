@@ -1,7 +1,7 @@
 #include "cym/uix/CLayout.hpp"
 #include "cym/uix/CWindow.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   CLayout::CLayout(CWindow* pWindow/*=nullptr*/) : mWindow{pWindow} {
     log::nfo << "uix::CLayout::CLayout(CWindow*)::" << this << log::end;
   }
@@ -102,4 +102,4 @@ namespace cym { namespace uix {
     
     return true;
   }
-}}
+}

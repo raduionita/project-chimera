@@ -2,9 +2,12 @@
 
 = widgets:button
 = commands
+= object: reverse iterator & app delete
 = move window create logic from CWindow to CFrame (first concrete child) and others
 = config: replace window hints w/ config
 = state: window & application states for persistance
+
+= fix: leak: all ::GetDC() MUST have a ::ReleaseDC()
 
 = glx: draw something // start the gl framework
 

@@ -3,14 +3,16 @@
 
 #include "uix.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CEvent {
       friend std::ostream& operator <<(std::ostream&, const CEvent&);
       friend class CWindow;
+      friend class CButton;
     protected:
       bool       mPropagate {true};
       EEvent     mType      {EEvent::EMPTY};
       CWindow*   mTarget    {nullptr};
+      CControl*  mControl   {nullptr};
       char       mKey       {'\0'};
       int        mClientX   {0};
       int        mClientY   {0};
@@ -31,6 +33,7 @@ namespace cym { namespace uix {
       inline bool       propagate() const          { return mPropagate; }
       inline void       propagate(bool bPropagate) { mPropagate = bPropagate; }
       inline CWindow*   target() const             { return mTarget; }
+      inline CControl*  control() const            { return mControl; }
       inline char       key() const                { return mKey; }
       inline int        modifier() const           { return mModifier; }
       inline int        width()  const             { return mWidth;  }
@@ -40,6 +43,6 @@ namespace cym { namespace uix {
       inline int        clientX() const            { return mClientX; }
       inline int        clientY() const            { return mClientY; }
   };
-}}
+}
 
 #endif //__cym_uix_cevent_hpp__

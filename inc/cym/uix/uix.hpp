@@ -102,7 +102,7 @@
 #define UIX_WINDOW_AREA_H CW_USEDEFAULT
 #endif//UIX_WINDOW_AREA_H
 
-namespace cym { namespace uix {
+namespace cym::uix {
   constexpr int ZERO =  0;
   constexpr int AUTO = -1;
   constexpr int FULL = -1;
@@ -253,13 +253,18 @@ namespace cym { namespace uix {
 
   enum class EState : int {
     EMPTY      = ZERO,
-    PUSHED     = 0b00000001,
-    FOCUSED    = 0b00000010,
-    CHECKED    = 0b00000100,
-    MINIMIZED  = 0b00001000,
-    MAXIMIZED  = 0b00010000,
-    FULLSCREEN = 0b00100000,
-    PAINTING   = 0b01000000,
+    PUSHED     = 0b00000000'00000001,
+    RELEASED   = 0b00000000'00000010,
+    FOCUSED    = 0b00000000'00000100,
+    BLURRED    = 0b00000000'00001000,
+    CHECKED    = 0b00000000'00010000,
+    MINIMIZED  = 0b00000000'00100000,
+    MAXIMIZED  = 0b00000000'01000000,
+    FULLSCREEN = 0b00000000'10000000,
+    PAINTING   = 0b00000001'00000000, 
+    CLICKED    = 0b00000010'00000000, 
+    DBLCLICKED = 0b00000100'00000000, 
+    DISABLE    = 0b00001000'00000000, 
   };
   
   inline int operator |(EState lhs, EState rhs) { return static_cast<int>(lhs) | static_cast<int>(rhs); }
@@ -386,12 +391,12 @@ namespace cym { namespace uix {
   inline int operator &(int     lhs, ELayout rhs) { return lhs                   & static_cast<int>(rhs); }
   inline int operator ~(ELayout rhs)              { return ~(static_cast<int>(rhs)); }
   
-  enum class EStyle : short {
+  enum class EStyle : short { // 2byte
     NONE        = ZERO,
-    SOLID       = 0b00000000000001,
-    DASH        = 0b00000000000010,
-    WINDOW      = 0b010000000000000,
-    APPLICATION = 0b110000000000000,
+    SOLID       = 0b00000000'00000001,
+    DASH        = 0b00000000'00000010,
+    WINDOW      = 0b00100000'00000000,
+    APPLICATION = 0b01100000'00000000,
   };
   
   inline int operator |(EStyle lhs, EStyle rhs) { return static_cast<int>(lhs) | static_cast<int>(rhs); }
@@ -404,6 +409,6 @@ namespace cym { namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
   using log = cym::log;
-}}
+}
 
 #endif //__cym_uix_hpp__

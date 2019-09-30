@@ -5,11 +5,11 @@
 
 #include "msw.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CWindow {
     public:
       CWindow();
   };
-}}
+}
 
 #endif //__cym_uix_msw_mwindow_hpp__

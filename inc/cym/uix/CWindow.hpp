@@ -7,7 +7,7 @@
 #include "CStyle.hpp"
 #include "CLayout.hpp"
 
-namespace cym { namespace uix {  // acme { gui { win, unx, osx } }
+namespace cym::uix {  // acme { gui { win, unx, osx } }
   class CWindow : public CObject, public CListener {
     protected:
       using CObject::CObject;
@@ -83,7 +83,7 @@ namespace cym { namespace uix {  // acme { gui { win, unx, osx } }
       static CWindow*         find(HWND);
       static LRESULT CALLBACK proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
   }; 
-}}
+}
 
 // @todo: this should be the base
 

@@ -3,10 +3,10 @@
 
 #include "CGdio.hpp" 
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CFont {
       
   };
-}}
+}
 
 #endif //__cym_uix_cfont_hpp__

@@ -4,7 +4,7 @@
 #include "CObject.hpp"
 #include "CBrush.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CStyle : public CObject {
     protected:
       CBrush*  mBackground {nullptr}; // HBRUSH
@@ -23,6 +23,6 @@ namespace cym { namespace uix {
     public:
       static CStyle*& merge(CStyle*& lhs, const CStyle*& rhs);
   };
-}}
+}
 
 #endif //__cym_uix_cstyle_hpp__

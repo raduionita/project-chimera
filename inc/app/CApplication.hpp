@@ -26,6 +26,7 @@ namespace app {
     protected:
       void onKeydown(uix::CEvent*);
       void onClick(uix::CEvent*);
+      void onCommand(uix::CEvent*);
       void onDraw(uix::CEvent*);
   };
 }

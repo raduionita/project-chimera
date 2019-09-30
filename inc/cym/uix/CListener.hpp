@@ -6,7 +6,7 @@
 
 #include <functional>
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CListener {
       typedef void(*TCallback)(CEvent*);
       typedef std::function<void(CEvent*)> THandler;
@@ -48,6 +48,6 @@ namespace cym { namespace uix {
     public:
       virtual void onClick(CEvent*) = 0;
   };
-}}
+}
 
 #endif //__cym_uix_chandler_hpp__

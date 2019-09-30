@@ -5,7 +5,7 @@
 #include "CContext.hpp"
 #include "CRender.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CCanvas : public CFrame, public CRender {
     protected:
       using CFrame::CFrame;
@@ -24,6 +24,6 @@ namespace cym { namespace uix {
       virtual CStyle* style() override { return nullptr; }
       virtual bool    fullscreen(uint = EFullscreen::EMPTY | EFullscreen::FULLSCREEN) override;
   };  
-}}
+}
 
 #endif //__cym_uix_ccanvas_hpp__

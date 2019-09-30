@@ -1,6 +1,6 @@
 #include "cym/uix/CFrame.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   CFrame::CFrame(int nHints/*=ZERO*/) {
     log::nfo << "uix::CFrame::CFrame(int)::" << this << log::end;
     init(nullptr, nHints | CFrame::WINDOW);
@@ -38,4 +38,4 @@ namespace cym { namespace uix {
     
     return mInited;
   }
-}}
+}

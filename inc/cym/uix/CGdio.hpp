@@ -3,12 +3,12 @@
 
 #include "CObject.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   template <typename T>
   class CGdio : public CObject {
     protected:
-      bool mInited {false};
-      T    mHandle {NULL};
+      mutable bool mInited {false}; // allow update inside const methods
+      mutable T    mHandle {NULL};
     public: // ctor
       CGdio(T hHandle = NULL) : mHandle{hHandle} { }
       ~CGdio() { free(); }
@@ -20,6 +20,6 @@ namespace cym { namespace uix {
     public:
               bool null() const { return mInited == true && mHandle == T(NULL); }
   };
-}}
+}
 
 #endif //__cym_uix_cgdio_hpp__

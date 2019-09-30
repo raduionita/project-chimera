@@ -2,11 +2,11 @@
 #include "cym/uix/CFrame.hpp"
 #include "cym/uix/CSurface.hpp"
 #include "cym/uix/CPanel.hpp"
+#include "cym/uix/CButton.hpp"
 #include "cym/uix/CLayout.hpp"
 #include "cym/uix/CPainter.hpp"
 
 namespace app {
-  
   void CApplication::onInit() {
     log::dbg << "app::CApplication::onInit()::" << this << log::end;
     
@@ -14,6 +14,7 @@ namespace app {
     auto pLayout  = mFrame->layout(new uix::CBoxLayout(uix::ELayout::VERTICAL));
          mSurface = pLayout->add(new uix::CSurface(mFrame, uix::EWindow::VISIBLE), uix::ELayout::ADJUST);
     auto pPanel   = pLayout->add(new uix::CPanel(mFrame, uix::EWindow::VISIBLE), uix::ELayout::ADJUST);
+    auto pButton  = new uix::CButton(pPanel, "CLICK", {50,50,90,40});
   
     pPanel->style()->background(uix::SColor{33,33,33});
     
@@ -25,9 +26,10 @@ namespace app {
     mSurface->clear();
     mSurface->swap();
   
-    attach(mFrame, uix::EEvent::LBUTTONDOWN, &CApplication::onClick);
-    attach(mFrame, uix::EEvent::KEYDOWN, &CApplication::onKeydown);
-    attach(pPanel, uix::EEvent::DRAW, &CApplication::onDraw);
+    attach(mFrame, uix::EEvent::KEYDOWN,     &CApplication::onKeydown);
+    attach(pPanel, uix::EEvent::DRAW,        &CApplication::onDraw);
+    attach(pPanel, uix::EEvent::COMMAND,     &CApplication::onCommand);
+    attach(pButton,uix::EEvent::LBUTTONDOWN, &CApplication::onClick);
   }
   
   void CApplication::onTick(int nElapsed/*=0*/) {
@@ -76,6 +78,10 @@ namespace app {
   
   void CApplication::onClick(uix::CEvent* pEvent) {
     log::nfo << "app::CApplication::onClick(CEvent*)::" << this << " B:" << int(pEvent->button()) << " X:" << pEvent->clientX() << " Y:" << pEvent->clientY() << log::end;
+  }
+  
+  void CApplication::onCommand(uix::CEvent* pEvent) {
+    log::nfo << "app::CApplication::onCommand(CEvent*)::" << this << " S:" << int(pEvent->state()) << log::end;
     quit();
   }
   

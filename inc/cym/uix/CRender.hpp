@@ -4,7 +4,7 @@
 #include "uix.hpp"
 #include "CContext.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CRender {
     protected:
       friend class CContext;
@@ -21,6 +21,6 @@ namespace cym { namespace uix {
       bool clear(int = GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT) const;
       bool reset() const;
   };
-}}
+}
 
 #endif //__cym_uix_crender_hpp__

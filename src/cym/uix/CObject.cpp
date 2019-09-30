@@ -1,6 +1,6 @@
 #include "cym/uix/CObject.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   std::atomic<INT>   CObject::sId{0};
   CObject::CRegistry CObject::sRegistry;
   
@@ -28,9 +28,10 @@ namespace cym { namespace uix {
   
   CObject::CRegistry::~CRegistry() {
     log::nfo << "uix::CObject::CRegistry::~CRegistry()::" << this << log::end;
-    for (auto it = mObjects.begin(); it != mObjects.end(); ++it) {
-      if (*it) {
-        delete (*it);
+    for (auto rit = mObjects.rbegin(); rit != mObjects.rend(); ++rit) {
+      if (*rit) {
+        delete (*rit);
+        *rit = nullptr;
       }
     }
   }
@@ -57,4 +58,4 @@ namespace cym { namespace uix {
   // public //////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   const int CObject::id() const { return mId; }
-}}
+}

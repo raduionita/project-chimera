@@ -15,7 +15,7 @@ typedef BOOL (WINAPI * wglChoosePixelFormatARB_t)    (HDC,CONST INT*,CONST FLOAT
 
 #define PFD 
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CContext : public CObject {
     protected:
       using CObject::CObject;
@@ -54,7 +54,7 @@ namespace cym { namespace uix {
       bool clear(int = GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT) const;
       bool reset() const;
   };  
-}}
+}
 
 
 

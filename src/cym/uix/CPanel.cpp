@@ -1,6 +1,6 @@
 #include "cym/uix/CPanel.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   CPanel::CPanel(CWindow* pParent, int nHints/*=ZERO*/) {
     log::nfo << "uix::CPanel::CPanel(CWindow*,int)::" << this << log::end;
     init(pParent, nHints | CPanel::WINDOW);
@@ -30,4 +30,4 @@ namespace cym { namespace uix {
 
     return mInited;
   }
-}}
+}

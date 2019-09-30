@@ -3,10 +3,10 @@
 
 #include "CGdio.hpp" 
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CCursor {
       
   };
-}}
+}
 
 #endif //__cym_uix_ccursor_hpp__

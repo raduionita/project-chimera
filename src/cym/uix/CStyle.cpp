@@ -5,7 +5,7 @@
 #include "cym/uix/CCursor.hpp"
 #include "cym/uix/CIcon.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   CStyle::CStyle() {
     log::nfo << "uix::CStyle::CStyle()::" << this << log::end;
   }
@@ -37,4 +37,4 @@ namespace cym { namespace uix {
   CBrush* CStyle::background() {
     return !mBackground ? new CBrush : mBackground;
   }
-}}
+}

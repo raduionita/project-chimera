@@ -1,6 +1,6 @@
 #include "cym/uix/CPopup.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   bool CPopup::fullscreen(uint nHints/*=7*/) {
     log::nfo << "uix::CPopup::fullscreen(int)::" << this << log::end;
     
@@ -41,4 +41,4 @@ namespace cym { namespace uix {
     }
     return true;
   }
-}}
+}

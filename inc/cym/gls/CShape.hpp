@@ -30,6 +30,6 @@ namespace cym { namespace gls {
   
   
   
-}}
+}
 
 #endif //__cym_gls_cshape_hpp__

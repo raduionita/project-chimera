@@ -3,10 +3,10 @@
 
 #include "CGdio.hpp" 
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CIcon {
       
   };
-}}
+}
 
 #endif //__cym_uix_cicon_hpp__

@@ -1,6 +1,6 @@
 #include "cym/uix/CPainter.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   CPainter::CPainter(CWindow* pWindow) : mWindow{pWindow} {
     log::nfo << "uix::CPainter::CPainter(CWindow*)::" << this << " WINDOW:" << mWindow << log::end;
     
@@ -21,4 +21,4 @@ namespace cym { namespace uix {
     
     return TRUE == ::Rectangle(HDC(*mWindow), sArea.x, sArea.y, sArea.x+sArea.w, sArea.y+sArea.h);
   }
-}}
+}

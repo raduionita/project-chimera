@@ -1,7 +1,7 @@
 #include "cym/uix/CContext.hpp"
 #include "cym/uix/CWindow.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   CContext::CContext(CWindow* pWindow, const SConfig& sOptions) : mWindow{pWindow}, mConfig{sOptions}, mHandle{(HWND)(*pWindow)} {
     log::nfo << "uix::CContext::CContext(CWindow*,SConfig&)::" << this << log::end;
     init();
@@ -207,4 +207,4 @@ namespace cym { namespace uix {
   bool CContext::reset() const {
     return current() && clear() && swap();
   }
-}}
+}

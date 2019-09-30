@@ -2,7 +2,7 @@
 #include "cym/uix/CLayout.hpp"
 #include "cym/uix/CStyle.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   CWindow::CWindow() {
     log::nfo << "uix::CWindow::CWindow()::" << this << log::end;
   }
@@ -420,7 +420,46 @@ namespace cym { namespace uix {
       }
       case WM_SHOWWINDOW: { break; }
       case WM_DRAWITEM: { break; }
-      case WM_COMMAND: { break; }
+      case WM_COMMAND: {
+        CWindow* pWindow  = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        CControl* pButton = reinterpret_cast<CControl*>(::GetWindowLongPtr((HWND)lParam, GWLP_USERDATA));
+        BREAK(!pWindow);
+        log::nfo << "   W:WM_COMMAND::" << pWindow << "|" << pButton << " ID:" << pWindow->mId << " " << HIWORD(wParam) << ":" << LOWORD(wParam) << " " << lParam << log::end;
+        
+        auto pEvent = new CEvent(EEvent::COMMAND, pWindow);
+        pEvent->mControl = pButton; // should be cated to CControl
+        
+        switch (HIWORD(wParam)) {
+          default: pEvent->mState = EState::EMPTY;
+          case BN_CLICKED  : pEvent->mState = EState::CLICKED;
+          case BN_DBLCLK   : pEvent->mState = EState::DBLCLICKED;
+          case BN_DISABLE  : pEvent->mState = EState::DISABLE;
+          case BN_PUSHED   : pEvent->mState = EState::PUSHED;
+          case BN_UNPUSHED : pEvent->mState = EState::RELEASED;
+          case BN_PAINT    : pEvent->mState = EState::PAINTING;
+          case BN_SETFOCUS : pEvent->mState = EState::FOCUSED;
+          case BN_KILLFOCUS: pEvent->mState = EState::BLURRED;
+        }
+        
+        bool bHandled = pWindow->handle(pEvent);
+        bHandled = pEvent->propagate() ? CApplication::instance()->handle(pEvent) || bHandled : bHandled;
+        
+        DELETE(pEvent);
+        
+        RETURN(bHandled,0);
+        
+        break; 
+        // HIWORD(wParam) : 0 BN_CLICKED                  // clicked
+        //                  5 BN_DBLCLK BN_DOUBLECLICKED  // double clck
+        //                  4 BN_DISABLE                  // is disabled
+        //                  1 BN_PUSHED BN_HILITE         // pushed  | button down!?
+        //                  2 BN_UNPUSHED BN_UNHILITE     // release | button up!?
+        //                  1 BN_PAINT                    // button should be painter
+        //                  6 BN_SETFOCUS                 // keyboard focus
+        //                  7 BN_KILLFOCUS                // left keyboard focus
+        // LOWORD(wParam) : button id
+        // lParam : button hwnd
+      }
       case WM_MOVE: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
@@ -454,6 +493,7 @@ namespace cym { namespace uix {
         break; 
       }
       case WM_SIZING: { break; }
+      case WM_MOUSEMOVE: { break; }
       case WM_MOUSEACTIVATE: { break; }
       case WM_MOUSEHOVER: { break; }
       case WM_MOUSELEAVE: { break; }
@@ -475,9 +515,7 @@ namespace cym { namespace uix {
           bHandled = pWindow->handle(pEvent) && bHandled;
         }
         
-        if (pEvent->propagate()) {
-          bHandled = CApplication::instance()->handle(pEvent) && bHandled;
-        }
+        bHandled = pEvent->propagate() ? CApplication::instance()->handle(pEvent) || bHandled : bHandled;
         
         DELETE(pEvent);
         
@@ -534,10 +572,8 @@ namespace cym { namespace uix {
         while (pEvent->propagate() && (pWindow = pWindow->parent())) {
           bHandled = pWindow->handle(pEvent) && bHandled;
         }
-        
-        if (pEvent->propagate()) {
-          bHandled = CApplication::instance()->handle(pEvent) && bHandled;
-        }
+  
+        bHandled = pEvent->propagate() ? CApplication::instance()->handle(pEvent) || bHandled : bHandled;
         
         DELETE(pEvent);
     
@@ -625,4 +661,4 @@ namespace cym { namespace uix {
     }
     return ::DefWindowProc(hWnd, uMsg, wParam, lParam); // "For all message I did not handle above, do nothing!"
   }
-}}
+}

@@ -4,7 +4,7 @@
 #include "CModule.hpp"
 #include "CListener.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CApplication : public CModule, public CListener {
       class SState {
           // @todo: application state
@@ -37,14 +37,13 @@ namespace cym { namespace uix {
       virtual void onTick(int=0);
       virtual void onFree();
   };
-}}
+}
 
-#define DECLARE_APPLICATION(cls)                                                                                       \
+#define DECLARE_APPLICATION(CLS)                                                                                       \
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {                      \
   cym::log::nfo << "   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " INIT" << cym::log::end;           \
-  auto app   = new cls();                                                                                              \
-  INT result = app->exec();                                                                                            \
-  delete app;                                                                                                          \
+  CLS app;                                                                                                             \
+  INT result = app.exec();                                                                                             \
   cym::log::nfo << "   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " EXIT" << cym::log::end;           \
   return result;                                                                                                       \
 }                                                                                                                     //

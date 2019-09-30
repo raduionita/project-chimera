@@ -3,7 +3,7 @@
 
 #include "CWindow.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CPopup : public CWindow {
     protected:
       using CWindow::CWindow;
@@ -13,6 +13,6 @@ namespace cym { namespace uix {
     public:
       virtual bool fullscreen(uint = EFullscreen::FULLSCREEN|EFullscreen::CURSOR);
   };
-}}
+}
 
 #endif //__cym_uix_cpopup_hpp__

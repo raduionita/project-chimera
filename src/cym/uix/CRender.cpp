@@ -1,6 +1,6 @@
 #include "cym/uix/CRender.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   CRender::CRender() {
     log::nfo << "uix::CRender::CRender()::" << this << log::end;
   }
@@ -18,4 +18,4 @@ namespace cym { namespace uix {
   bool CRender::current() const       { return mContext->current(); }
   bool CRender::clear(int nBit) const { return mContext->clear(nBit); }
   bool CRender::reset() const         { return mContext->reset(); }
-}}
+}

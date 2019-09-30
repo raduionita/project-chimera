@@ -2,7 +2,7 @@
 #include "cym/uix/CConsole.hpp"
 #include "cym/uix/CStyle.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   CApplication* CApplication::sInstance{nullptr};
   
   CApplication::CApplication(int nCmdShow/*=0*/) : CModule() {
@@ -119,4 +119,4 @@ namespace cym { namespace uix {
   void CApplication::onInit()    { }
   void CApplication::onTick(int) { }
   void CApplication::onFree()    { }
-}}
+}

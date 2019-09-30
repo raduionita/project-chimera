@@ -1,6 +1,6 @@
 #include "cym/uix/CPen.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   CPen::CPen() {
     log::nfo << "uix::CPen::CPen()::" << this << log::end;
     mHandle = HPEN(NULL_PEN);
@@ -9,4 +9,4 @@ namespace cym { namespace uix {
   CPen::~CPen() {
     log::nfo << "uix::CPen::~CPen()::" << this << log::end;
   }
-}}
+}

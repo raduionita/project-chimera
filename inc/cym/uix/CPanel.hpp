@@ -3,7 +3,7 @@
 
 #include "CWidget.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CPanel : public CWidget {
     protected:
       using CWidget::CWidget;
@@ -16,7 +16,7 @@ namespace cym { namespace uix {
     protected:
       virtual bool init(CWindow*, int) override;
   };
-}}
+}
 
 
 #endif //__cym_uix_cpanel_hpp__

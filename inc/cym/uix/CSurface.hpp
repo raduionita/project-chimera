@@ -5,7 +5,7 @@
 #include "CContext.hpp"
 #include "CRender.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CSurface : public CPanel, public CRender {
     protected:
       using CPanel::CPanel;
@@ -25,6 +25,6 @@ namespace cym { namespace uix {
       virtual CStyle* style() override { return nullptr; }
 
   };
-}}
+}
 
 #endif //__cym_uix_csurface_hpp__

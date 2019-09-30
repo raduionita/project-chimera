@@ -1,7 +1,7 @@
 #include "cym/uix/CConsole.hpp"
 #include "cym/uix/CApplication.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   CConsole::CConsole(CApplication* pApp, int nCmdShow/*=0*/) : mApp{pApp} {
     log::nfo << "uix::CConsole::CConsole(CApplication*)::" << this << log::end;
     init();
@@ -37,4 +37,4 @@ namespace cym { namespace uix {
     
     return TRUE;
   }
-}}
+}

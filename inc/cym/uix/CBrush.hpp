@@ -3,7 +3,7 @@
 
 #include "CGdio.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   enum class EBrush {
     NONE    = 0,
     SOLID   = 1,
@@ -27,6 +27,6 @@ namespace cym { namespace uix {
     protected:
       virtual bool init() override;
   };
-}}
+}
 
 #endif //__cym_uix_cbrush_hpp__

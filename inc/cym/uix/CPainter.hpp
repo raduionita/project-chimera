@@ -6,7 +6,7 @@
 
 // @todo: use CWindow* style & DC
 
-namespace cym { namespace uix {
+namespace cym::uix {
   enum class EPainter : int {
       NONE = ZERO,
       FILL =  0b1,
@@ -43,6 +43,6 @@ namespace cym { namespace uix {
       bool squircle(); // rounded rectangle
       bool gradient(); // rectangle filled w/ a gradient
   };
-}}
+}
 
 #endif //__cym_uix_cpainter_hpp__

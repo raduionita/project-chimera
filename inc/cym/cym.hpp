@@ -45,6 +45,11 @@ namespace cym {
     out.shrink_to_fit();
     return out;
   }
+  
+  // using namespace std::chrono_literals;
+  // auto day = 24h;
+  
+  
 }
 
 #endif //__cym_hpp__

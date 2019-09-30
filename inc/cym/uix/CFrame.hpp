@@ -3,7 +3,7 @@
 
 #include "CPopup.hpp"
 
-namespace cym { namespace uix {
+namespace cym::uix {
   class CFrame : public CPopup {
     protected:
       using CPopup::CPopup;
@@ -18,6 +18,6 @@ namespace cym { namespace uix {
     protected:
       virtual bool init(CWindow*, int) override;
   };
-}}
+}
 
 #endif //__cym_uix_cframe_hpp__
