@@ -18,18 +18,34 @@ namespace cym { namespace uix {
           virtual ~BItem();
           virtual CObject* operator ->() = 0;
         public:
-          virtual bool  area(const SArea&) = 0;
-          virtual bool  calc() = 0;
+          virtual bool area(const SArea&) = 0;
+          virtual bool calc() = 0;
       };
       template <typename T> class TItem : public BItem {
         protected:
           T mItem;
         public:
-          TItem(T, int = 0);
-          virtual CObject* operator ->() override;
+          TItem(T pItem, int nHints = 0) : BItem(nHints), mItem(pItem) {}
+          virtual CObject* operator ->() override { return mItem; };
         public:
-          virtual bool area(const SArea&) override;
-          virtual bool calc() override;
+          virtual bool area(const SArea& sArea) override { mArea = sArea; return calc(); }
+          virtual bool calc() override  {
+            auto  sArea = mItem->area(); // cur child (window/layout)
+            // win.area.xy = itm.area.xy + ...
+            sArea.x = mArea.x + ((mHints & ELayout::ADJUST) || (mHints & ELayout::LEFT) ? 0 // 0 = don't add anyting // if ADJUST or LEFT 
+                                                                                        : ((mHints & ELayout::RIGHT)  ? (mArea.w - sArea.w) // itm.w - win.w = where x should be // if RIGHT
+                                                                                                                      : ((mHints & ELayout::CENTER) ? ((mArea.w - sArea.w)/2) // mid x = half itm.w - half wnd.x //
+                                                                                                                                                    : (sArea.x)))); // wnd.x pos inside itm
+            sArea.y = mArea.y + ((mHints & ELayout::ADJUST) || (mHints & ELayout::TOP)  ? 0
+                                                                                        : ((mHints & ELayout::BOTTOM) ? (mArea.h - sArea.h)
+                                                                                                                      : ((mHints & ELayout::CENTER) ? ((mArea.h - sArea.h)/2)
+                                                                                                                                                    : (sArea.y))));
+            // win.area.wh = itm.area.wh OR same
+            sArea.w = (mHints & ELayout::ADJUST) ? mArea.w : sArea.w;
+            sArea.h = (mHints & ELayout::ADJUST) ? mArea.h : sArea.h;
+            // return calculated area 
+            return mItem->area({std::max(0, sArea.x), std::max(0, sArea.y), sArea.w, sArea.h});
+          }
       };
     protected:
       CWindow* mWindow = {nullptr};
@@ -57,15 +73,16 @@ namespace cym { namespace uix {
       CBoxLayout(CWindow* = nullptr, ELayout = ELayout::VERTICAL);
       ~CBoxLayout();
     public:
-      BItem* operator [](typename decltype(mItems)::size_type i);
+      BItem* operator [](typename decltype(mItems)::size_type);
     protected:
       virtual bool calc() override;
     public:
       BItem*   item(typename decltype(mItems)::size_type i);
-      CWindow* add(CWindow*, const ELayout& = ELayout::EMPTY);
-      CWindow* add(CWindow*, int = 0);
-      CLayout* add(CLayout*, const ELayout& = ELayout::EMPTY);
-      CLayout* add(CLayout*, int = 0);
+      template <typename T> T* add(T* item, const ELayout& eLayout = ELayout::EMPTY) {
+        log::nfo << "uix::CBoxLayout::add(T*,int)::" << this << log::end;
+        mItems.push_back(std::move(new TItem<T*>(item,int(eLayout))));
+        return item;
+      }
   };
 }}
 

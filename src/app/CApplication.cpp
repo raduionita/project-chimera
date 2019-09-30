@@ -6,13 +6,16 @@
 #include "cym/uix/CPainter.hpp"
 
 namespace app {
+  
   void CApplication::onInit() {
-    log::nfo << "app::CApplication::onInit()::" << this << log::end;
+    log::dbg << "app::CApplication::onInit()::" << this << log::end;
     
          mFrame   = new uix::CFrame();
-    auto pLayout  = dynamic_cast<uix::CBoxLayout*>(mFrame->layout(new uix::CBoxLayout(uix::ELayout::VERTICAL)));
-         mSurface = dynamic_cast<uix::CSurface*>(pLayout->add(new uix::CSurface(mFrame, uix::EWindow::VISIBLE), uix::ELayout::ADJUST));
-    auto pPanel   = dynamic_cast<uix::CPanel*>(pLayout->add(new uix::CPanel(mFrame, uix::EWindow::VISIBLE), uix::ELayout::ADJUST));
+    auto pLayout  = mFrame->layout(new uix::CBoxLayout(uix::ELayout::VERTICAL));
+         mSurface = pLayout->add(new uix::CSurface(mFrame, uix::EWindow::VISIBLE), uix::ELayout::ADJUST);
+    auto pPanel   = pLayout->add(new uix::CPanel(mFrame, uix::EWindow::VISIBLE), uix::ELayout::ADJUST);
+  
+    pPanel->style()->background(uix::SColor{33,33,33});
     
     mFrame->layout(pLayout);
     mFrame->title("frame");
@@ -24,7 +27,7 @@ namespace app {
   
     attach(mFrame, uix::EEvent::LBUTTONDOWN, &CApplication::onClick);
     attach(mFrame, uix::EEvent::KEYDOWN, &CApplication::onKeydown);
-    attach(mFrame, uix::EEvent::DRAW, &CApplication::onDraw);
+    attach(pPanel, uix::EEvent::DRAW, &CApplication::onDraw);
   }
   
   void CApplication::onTick(int nElapsed/*=0*/) {
@@ -76,11 +79,12 @@ namespace app {
     quit();
   }
   
-  void CApplication::onDraw(uix::CEvent*) {
+  void CApplication::onDraw(uix::CEvent* pEvent) {
     log::nfo << "app::CApplication::onDraw(CEvent*)::" << this << log::end;
     
-    uix::CPainter oPainter(mFrame);
+    uix::CPainter oPainter(pEvent->target());
     
-    // oPainter.circle();
+    
+    oPainter.rectangle({0,0,10,30});
   }
 }

@@ -1,13 +1,16 @@
 // todo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-= styles|painter
 = widgets:button
 = commands
+= move window create logic from CWindow to CFrame (first concrete child) and others
 = config: replace window hints w/ config
 = state: window & application states for persistance
-= context: has not paint and is not affected by paint event
 
-= glx: draw something
+= glx: draw something // start the gl framework
+
+= object: add custom ids // if try to use same id crash
+
+= enum class: find an alternative or implement hintbag
 
 = fullscreen: gaming (DEVMODE)
 = custom theme - replace titlebar (icon+menubar+title+sysmenu)
@@ -23,10 +26,15 @@
 = registries should init only on app init | use CSingleton & CPointer
 
 = style (window) switcher
+= styles: revisited (application) integrate UIX_STYLE // ifndef use win32 else use UIX_STYLE
 = window: alpha/transparency usin' layered windows
+= widget: widgets don't init until added to toplevel(popup) windows 
 
 = finish: mouse click events // pair events (mouse click, key press/tab) 
 = finish: window events
+= finish: painter
+
+= most pointers should be wrapped by a smart pointer object
 
 = surface != panel // need something above (or just use widget) // panel for controls // surface for opengl
 = throw exception on windows create failed + loop + try + fatal or warning // where to use them

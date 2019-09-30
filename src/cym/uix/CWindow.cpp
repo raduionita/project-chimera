@@ -30,6 +30,16 @@ namespace cym { namespace uix {
     return mHandle;
   }
   
+  CWindow::operator HDC() {
+    log::nfo << "uix::CWindow::operator HDC()::" << this << log::end;
+    return ::GetDC(mHandle);
+  }
+  
+  CWindow::operator const HDC() const {
+    log::nfo << "uix::CWindow::operator HDC()::" << this << log::end;
+    return ::GetDC(mHandle);
+  }
+  
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   bool CWindow::init(CWindow* pParent, int nHints) {
@@ -79,8 +89,8 @@ namespace cym { namespace uix {
     dwStyle |= nHints & EWindow::VSCROLL  ? WS_VSCROLL               : 0;
     dwStyle |= nHints & EWindow::MINIMIZE ? WS_MINIMIZE              : 0;
     dwStyle |= nHints & EWindow::MAXIMIZE ? WS_MAXIMIZE              : 0;
-    dwStyle |= nHints & EWindow::NOCLIP   ? 0                        : 0; //WS_CLIPSIBLINGS;
-    dwStyle |= nHints & EWindow::NOCLIP   ? 0                        : 0; //WS_CLIPCHILDREN;
+    dwStyle |= nHints & EWindow::NOCLIP   ? 0                        : WS_CLIPSIBLINGS;
+    dwStyle |= nHints & EWindow::NOCLIP   ? 0                        : WS_CLIPCHILDREN;
   
     mHandle = ::CreateWindowEx(
       dwExStyle,                         // DWORD     // dwExStyle    // ex. style (0 = default)
@@ -280,12 +290,6 @@ namespace cym { namespace uix {
   }
   
   auto CWindow::layout() const -> decltype(mLayout) {
-    return mLayout;
-  }
-  
-  auto CWindow::layout(CLayout* pLayout) -> decltype(mLayout) {
-    mLayout = pLayout;
-    mLayout->layout(this);
     return mLayout;
   }
   
@@ -577,15 +581,11 @@ namespace cym { namespace uix {
         UNREFERENCED_PARAMETER(lParam);
         UNREFERENCED_PARAMETER(wParam);
         
-// @todo: CRender should not draw
+        // @note: CRender/CCanvas/CSurface should not draw // has not style()
 
-// @todo: draw if window has style // remove app style or check if it's empty
-
-// @todo: begin (EState::PAINTING) if window has style & listens
-
-        const bool bStyled = !pWindow->style()->background()->empty();
+        const bool bStyled = pWindow->style() && !pWindow->style()->background()->null();
         const bool bListen = pWindow->listens(EEvent::PAINT);
-        
+  
         if (bStyled || bListen) {
           // state: +paiting
           pWindow->mState = pWindow->mState | EState::PAINTING;

@@ -14,6 +14,6 @@ file(GLOB APP "src/main.cpp" "src/app/*.cpp")
 file(GLOB CYM "src/cym/*.cpp" "src/cym/*/*.cpp" "src/cym/*/*/*.cpp")
 
 add_library(cym ${CYM})
-add_executable(app ${APP})
+add_executable(app ${APP} inc/cym/gls/CShape.hpp)
 
 target_link_libraries(app cym) # libglfw3.a libgdi32.a libopengl32.a

@@ -5,6 +5,7 @@
 #include "CListener.hpp"
 #include "CApplication.hpp"
 #include "CStyle.hpp"
+#include "CLayout.hpp"
 
 namespace cym { namespace uix {  // acme { gui { win, unx, osx } }
   class CWindow : public CObject, public CListener {
@@ -42,37 +43,41 @@ namespace cym { namespace uix {  // acme { gui { win, unx, osx } }
     public: // cast
       explicit operator       HWND();
       explicit operator const HWND() const;
+      explicit operator       HDC();
+      explicit operator const HDC() const;
     protected:
       virtual bool    init(CWindow*, int);
       virtual bool    free() final;
       virtual CString name() const final;
-    public:
-      bool         move(int, int);
-      bool         size(int, int);
-      bool         center();
-      SRect        adjust();
-      bool         show(int=1);
-      bool         hide(int=1);
-      bool         focus(int=1);
-      bool         pack();
-      bool         minimize();
-      bool         maximize();
-      virtual bool fullscreen(int=ZERO);
-      STATE        state() const;
-      bool         area(const SArea&);
-      SArea        area() const;
-      bool         rect(const SRect&);
-      SRect        rect() const;
-      auto         layout() const -> decltype(mLayout);
-      auto         layout(CLayout* pLayout) -> decltype(mLayout);
-      auto         parent() const -> decltype(mParent);
-      bool         child(CWindow*);
-      auto         children() const -> decltype(mChildren);
-      auto         siblings() const -> decltype(mChildren);
-      bool         title(const CString&);
-      CString      title() const;
-      bool         style(CStyle*);
-      CStyle*      style();
+    public: // actions
+      bool            move(int, int);
+      bool            size(int, int);
+      bool            center();
+      SRect           adjust();
+      bool            show(int=1);
+      bool            hide(int=1);
+      bool            focus(int=1);
+      bool            pack();
+      bool            minimize();
+      bool            maximize();
+      virtual bool    fullscreen(int=ZERO);
+    public: // chages
+      STATE           state() const;
+      bool            area(const SArea&);
+      SArea           area() const;
+      bool            rect(const SRect&);
+      SRect           rect() const;
+      auto            parent() const -> decltype(mParent);
+      bool            child(CWindow*);
+      auto            children() const -> decltype(mChildren);
+      auto            siblings() const -> decltype(mChildren);
+      bool            title(const CString&);
+      CString         title() const;
+      virtual bool    style(CStyle*);
+      virtual CStyle* style();
+      auto            layout() const -> decltype(mLayout);
+      template <typename T>
+      T*              layout(T* pLayout) { mLayout = pLayout; mLayout->layout(this); return pLayout; };
     protected:
       static CWindow*         find(const CString&);
       static CWindow*         find(HWND);

@@ -56,5 +56,5 @@ namespace cym { namespace uix {
   
   // public //////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  inline const int CObject::id() const { return mId; }
+  const int CObject::id() const { return mId; }
 }}

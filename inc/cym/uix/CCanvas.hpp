@@ -21,7 +21,8 @@ namespace cym { namespace uix {
     protected:
       bool init(CWindow*, const CContext::SConfig&, int);
     public:
-      virtual bool fullscreen(uint = EFullscreen::EMPTY | EFullscreen::FULLSCREEN) override;
+      virtual CStyle* style() override { return nullptr; }
+      virtual bool    fullscreen(uint = EFullscreen::EMPTY | EFullscreen::FULLSCREEN) override;
   };  
 }}
 

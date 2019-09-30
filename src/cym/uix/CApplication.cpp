@@ -48,7 +48,7 @@ namespace cym { namespace uix {
   }
   
   bool CApplication::tick(int nElapsed/*=0*/) {
-    // log::dbg << "uix::CApplication::tick("<< nElapsed <<")::" << this << log::end;
+    // log::nfo << "uix::CApplication::tick("<< nElapsed <<")::" << this << log::end;
     onTick(nElapsed);
     return true;
   }

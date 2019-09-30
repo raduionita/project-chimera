@@ -21,6 +21,8 @@ namespace cym { namespace uix {
       CSurface& operator =(const CSurface&) = delete;
     protected:
       bool init(CWindow*, const CContext::SConfig&, int);
+    public:
+      virtual CStyle* style() override { return nullptr; }
 
   };
 }}

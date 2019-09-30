@@ -7,17 +7,26 @@
 // @todo: use CWindow* style & DC
 
 namespace cym { namespace uix {
+  enum class EPainter : int {
+      NONE = ZERO,
+      FILL =  0b1,
+  };
+  
   enum class EShape : int {
       NONE = 0,
       ARC  = 1,
   };
   
   class CPainter : public CObject {
+    protected:
+      CWindow* mWindow {nullptr};
     public:
-      CPainter(CWindow* pWindow);
+      CPainter(CWindow*);
       ~CPainter();
-    public:
-      bool palette(CPalette*);
+    public: // tools
+      bool palette(CPalette*&&); // @todo: defaults to null
+      bool pen(CPen*&&);         // @todo: defaults to null
+    public: // actions
       bool clear();
       bool arc();
       bool circle();
@@ -30,7 +39,7 @@ namespace cym { namespace uix {
       bool line();
       bool spline();
       bool polygon();
-      bool rectangle();
+      bool rectangle(const SArea&, const EPainter& = EPainter::NONE);
       bool squircle(); // rounded rectangle
       bool gradient(); // rectangle filled w/ a gradient
   };

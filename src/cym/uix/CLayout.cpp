@@ -36,40 +36,6 @@ namespace cym { namespace uix {
    
   CLayout::BItem::~BItem() {}
   
-  template <typename T> CLayout::TItem<T>::TItem(T item, int hints/*=0*/) : BItem(hints), mItem(item) {}
-  
-  template <typename T> CObject* CLayout::TItem<T>::operator ->() { return mItem; }
-  
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
-  template <typename T> bool CLayout::TItem<T>::area(const SArea& sArea) {
-    log::nfo << "uix::CLayout::TItem<T>::area(SArea&)" << log::end;
-    mArea = sArea;
-    // require recalculation for the child
-    return calc();
-  }
-  
-  template <typename T> bool CLayout::TItem<T>::calc() {
-    log::nfo << "uix::CLayout::TItem<T>::calc()" << log::end;
-    
-    auto  sArea = mItem->area(); // cur child (window/layout)
-    
-    // win.area.xy = itm.area.xy + ...
-    sArea.x = mArea.x + ((mHints & ELayout::ADJUST) || (mHints & ELayout::LEFT) ? 0 // 0 = don't add anyting // if ADJUST or LEFT 
-                                                                            : ((mHints & ELayout::RIGHT)  ? (mArea.w - sArea.w) // itm.w - win.w = where x should be // if RIGHT
-                                                                                                        : ((mHints & ELayout::CENTER) ? ((mArea.w - sArea.w)/2) // mid x = half itm.w - half wnd.x //
-                                                                                                                                    : (sArea.x)))); // wnd.x pos inside itm
-    sArea.y = mArea.y + ((mHints & ELayout::ADJUST) || (mHints & ELayout::TOP)  ? 0
-                                                                            : ((mHints & ELayout::BOTTOM) ? (mArea.h - sArea.h) 
-                                                                                                        : ((mHints & ELayout::CENTER) ? ((mArea.h - sArea.h)/2)
-                                                                                                                                    : (sArea.y))));
-    // win.area.wh = itm.area.wh OR same
-    sArea.w = (mHints & ELayout::ADJUST) ? mArea.w : sArea.w;
-    sArea.h = (mHints & ELayout::ADJUST) ? mArea.h : sArea.h; 
-    
-    return mItem->area({std::max(0, sArea.x), std::max(0, sArea.y), sArea.w, sArea.h}); 
-  }
-  
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   CBoxLayout::CBoxLayout(CWindow* pWindow/*=nullptr*/, ELayout eDirection/*ELayout::VERTICAL*/) : CLayout(pWindow), mDirection{eDirection} {
@@ -94,32 +60,6 @@ namespace cym { namespace uix {
   CLayout::BItem* CBoxLayout::item(typename decltype(mItems)::size_type i) {
     assert((i < mItems.size()) && "CBoxLayout::item(i) can't reach that element!");
     return mItems[i];
-  }
-  
-  CWindow* CBoxLayout::add(CWindow* pItem, const ELayout& eLayout/*=ELayout::NONE*/) {
-    return add(pItem, int(eLayout));
-  }
-  
-  CWindow* CBoxLayout::add(CWindow* pItem, int nHints/*=0*/) {
-    log::nfo << "uix::CBoxLayout::add(CWindow*, hints)::" << this << log::end;
-    
-    mItems.push_back(new TItem<CWindow*>(pItem,nHints));
-    // @todo: do I need to do something here...like resizing or something?!
-    
-    return pItem;
-  }
-  
-  CLayout* CBoxLayout::add(CLayout* pItem, const ELayout& eLayout/*=ELayout::NONE*/) {
-    return add(pItem, int(eLayout));
-  }
-  
-  CLayout* CBoxLayout::add(CLayout* pItem, int nHints/*=0*/) {
-    log::nfo << "uix::CBoxLayout::add(CLayout*, hints)::" << this << log::end;
-    
-    mItems.push_back(new TItem<CLayout*>(pItem,nHints));
-    // @todo: do I need to do something here...like resizing or something?!
-    
-    return pItem;
   }
   
   bool CBoxLayout::calc() {

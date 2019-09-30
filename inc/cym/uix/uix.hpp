@@ -50,6 +50,10 @@
 #define CM_WINDOWED   (CM_FULLSCREEN + 0x0001)
 #define CM_REPAINT    (CM_WINDOWED   + 0x0001) // triggers invalidate rect + WM_PAINT
 
+#ifndef UIX_PEN
+#define UIX_PEN NULL_PEN
+#endif
+
 #ifndef UIX_STYLE
 #define UIX_STYLE false
 #endif//UIX_STYLE

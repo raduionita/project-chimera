@@ -7,17 +7,18 @@ namespace cym { namespace uix {
   template <typename T>
   class CGdio : public CObject {
     protected:
-      T mHandle {NULL};
+      bool mInited {false};
+      T    mHandle {NULL};
     public: // ctor
       CGdio(T hHandle = NULL) : mHandle{hHandle} { }
       ~CGdio() { free(); }
     public: // cast
-      explicit operator T() { if (mHandle == NULL) init(); return mHandle; }
+      explicit operator T() { if (!mInited) mInited = init(); return mHandle; }
     protected:
       virtual bool init() = 0;
+              bool free() { return ::DeleteObject(mHandle) != FALSE; }
     public:
-      virtual bool free() { return ::DeleteObject(mHandle) != FALSE; }
-              bool empty() { return mHandle == NULL; }
+              bool null() const { return mInited == true && mHandle == T(NULL); }
   };
 }}
 

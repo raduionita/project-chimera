@@ -52,4 +52,8 @@ inline STATE GetWindowState(HWND hWnd) {
   return curr;
 }
 
+inline void SetDefaultFont(HWND hWnd) {
+  ::SendMessage(hWnd, WM_SETFONT, (WPARAM)::GetStockObject(DEFAULT_GUI_FONT), (LPARAM)true);
+}
+
 #endif //__cym_fix_msw_hpp__
