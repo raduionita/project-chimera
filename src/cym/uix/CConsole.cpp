@@ -3,12 +3,12 @@
 
 namespace cym::uix {
   CConsole::CConsole(CApplication* pApp, int nCmdShow/*=0*/) : mApp{pApp} {
-    log::nfo << "uix::CConsole::CConsole(CApplication*)::" << this << log::end;
+    log::nfo << "uix::CConsole::CConsole(CApplication*,int)::" << this << log::end;
     init();
   }
   
   CConsole::~CConsole() {
-    log::nfo << "uix::CConsole::CConsole()::" << this << log::end;
+    log::nfo << "uix::CConsole::~CConsole()::" << this << log::end;
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

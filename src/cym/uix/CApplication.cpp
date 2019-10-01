@@ -8,8 +8,8 @@ namespace cym::uix {
   CApplication::CApplication(int nCmdShow/*=0*/) : CModule() {
     log::nfo << "uix::CApplication::CApplication()::" << this << log::end;
     assert(!sInstance && "CApplication::sIntastace already defined.");
-    mConsole  = new CConsole(this, nCmdShow);
     sInstance = this;
+    mConsole  = new CConsole(this, nCmdShow);
   }
   
   CApplication::~CApplication() {
@@ -42,9 +42,10 @@ namespace cym::uix {
       ::MessageBox(NULL, "[CApplication] CModel::init() failed!", "Error", MB_OK);
       return false;
     }
-    
+  
     onInit();
-    return true;
+    
+    return (mRunning = true);
   }
   
   bool CApplication::tick(int nElapsed/*=0*/) {
@@ -62,7 +63,7 @@ namespace cym::uix {
   bool CApplication::exec(int nMode/*=0*/) {
     log::nfo << "uix::CApplication::exec()::" << this << log::end;
     try {
-      mRunning = init();
+      init();
       // prepare
       MSG       sMsg;
       DWORD     nPrvTicks;
@@ -94,9 +95,7 @@ namespace cym::uix {
         // tick
         mRunning && tick(::GetTickCount() - nPrvTicks);
       }
-      
-      mRunning = !free();
-      
+      free();
       return (int)(sMsg.wParam);
     } catch (CException& ex) {
       log::err << ex << log::end;

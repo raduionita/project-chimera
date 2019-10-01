@@ -23,9 +23,9 @@
 #include <cassert>
 #include <iomanip>
 #include <atomic>
-#include <map>
-#include <unordered_map>
-#include <unordered_set>
+#include <map>      // for (const auto& [k,v] : map)
+#include <set>
+#include <list>     // for (auto&& v : list)
 #include <bitset>
 #include <vector>
 #include <array>
@@ -241,13 +241,13 @@ namespace cym::uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   template<typename V>
-  using CSet       = std::unordered_set<V>;
+  using CSet       = std::set<V>;
   template<typename K, typename V> 
-  using CMap       = std::unordered_map<K,V>;
+  using CMap       = std::map<K,V>;
   template<typename V>
   using CVector    = std::vector<V>;
   template<typename V, std::size_t S>
-  using CArray     = std::array<V, S>;
+  using CArray     = std::array<V,S>;
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

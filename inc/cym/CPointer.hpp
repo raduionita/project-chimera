@@ -86,6 +86,8 @@ namespace cym {
     operator bool() const { return mPointer != nullptr; }
     operator   T*() const { return mPointer; }
     operator    T() const { return *mPointer; }
+    // delete
+    // void operator delete(void*) {}
     // pointer
     T* ptr() const noexcept { return mPointer; }
   };

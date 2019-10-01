@@ -5,15 +5,15 @@
 
 namespace cym::uix {
   class CObject {
-    class CRegistry {
-      friend class CObject;
-      std::vector<CObject*> mObjects;
-      CRegistry();
-      virtual ~CRegistry();
-      bool insert(CObject*);
-      bool remove(CObject*);
-    };
-    
+    private:
+      class CRegistry {
+        friend class CObject;
+        std::list<CObject*> mObjects;
+        CRegistry();
+        virtual ~CRegistry();
+        bool insert(CObject*);
+        bool remove(CObject*);
+      };
     private:
       static CRegistry        sRegistry;
     protected:
@@ -30,6 +30,9 @@ namespace cym::uix {
       CObject& operator =(const CObject&) = delete;
     public: // cast
       explicit operator const INT() const;
+    public: // pointers
+      static void* operator new(std::size_t);
+      static void  operator delete(void* ptr);
     public:
       const int id() const;
   };

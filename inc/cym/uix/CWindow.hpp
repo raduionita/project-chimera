@@ -47,7 +47,7 @@ namespace cym::uix {  // acme { gui { win, unx, osx } }
       explicit operator const HDC() const;
     protected:
       virtual bool    init(CWindow*, int);
-      virtual bool    free() final;
+      virtual bool    free();
       virtual CString name() const final;
     public: // actions
       bool            move(int, int);

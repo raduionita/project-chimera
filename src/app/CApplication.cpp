@@ -78,11 +78,11 @@ namespace app {
   
   void CApplication::onClick(uix::CEvent* pEvent) {
     log::nfo << "app::CApplication::onClick(CEvent*)::" << this << " B:" << int(pEvent->button()) << " X:" << pEvent->clientX() << " Y:" << pEvent->clientY() << log::end;
+    quit();
   }
   
   void CApplication::onCommand(uix::CEvent* pEvent) {
     log::nfo << "app::CApplication::onCommand(CEvent*)::" << this << " S:" << int(pEvent->state()) << log::end;
-    quit();
   }
   
   void CApplication::onDraw(uix::CEvent* pEvent) {

@@ -8,6 +8,7 @@
 = state: window & application states for persistance
 
 = fix: leak: all ::GetDC() MUST have a ::ReleaseDC()
+= fix: move free from base class to superclass // last free doesn't trigger
 
 = glx: draw something // start the gl framework
 

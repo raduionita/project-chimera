@@ -58,10 +58,23 @@ namespace cym::uix {
     return mInited;
   }
   
+  bool CButton::free() {
+    log::nfo << "uix::CButton::free()::" << this << log::end;
+    // remove sublass
+    ::RemoveWindowSubclass(mHandle, &CButton::proc, 1);
+    // free window
+    return super::free();
+  }
+  
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
   LRESULT CALLBACK CButton::proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR /*uSubId*/, DWORD_PTR dwRef) {
+    log::dbg << "uix::CButton::proc(HWND,UINT,WPARAM,LPARAM,UINT_PTR,DWORD_PTR)" << log::end;
     switch (uMsg) {
+      case WM_DESTROY: {
+        log::nfo << "   B:WM_DESTROY" << log::end;
+        break; 
+      }
       //case WM_NCCREATE: // not fired cause ::SetWindowLongPtr is after ::CreateWindowEx
       //case WM_CREATE:   // not fired cause ::SetWindowLongPtr is after ::CreateWindowEx
       //case WM_MOUSEHOVER:

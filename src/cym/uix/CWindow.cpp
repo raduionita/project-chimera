@@ -138,6 +138,8 @@ namespace cym::uix {
     if (mParent != nullptr) {
       mParent->mChildren.erase(std::remove(mParent->mChildren.begin(), mParent->mChildren.end(), this), mParent->mChildren.end());
     }
+    // remove proc
+    ::SetWindowLongPtr(mHandle, GWLP_WNDPROC, (LONG_PTR)(&::DefWindowProc));
     // release 
     ::ReleaseDC(mHandle, ::GetDC(mHandle));
     // delete handle
@@ -358,6 +360,7 @@ namespace cym::uix {
   }
   
   LRESULT CWindow::proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+    log::dbg << "uix::CWindow::proc(HWND,UINT,WPARAM,LPARAM)" << log::end;
     switch (uMsg) {
       case WM_NCCREATE: { break; }
       case WM_CREATE: {
@@ -394,16 +397,23 @@ namespace cym::uix {
         
         return 0;
       }
+      case WM_ACTIVATE: { break; }
       case WM_CLOSE: { // called on [x] or window menu [Close] // triggers: WM_DESTROY
+        log::nfo << "   W:WM_CLOSE";
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        BREAK(!pWindow);
-        log::nfo << "   W:WM_CLOSE::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
+        if (pWindow) {
+          log::nfo << "::" << pWindow << " ID:" << pWindow->mId;
+        }
+        log::nfo <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
         // @todo: close event
         ::PostQuitMessage(0);
         break;
       }
-      case WM_ACTIVATE: { break; }
-      case WM_DESTROY: { break; }
+    //case WM_QUIT: // never reached (handled in loop) 
+      case WM_DESTROY: {
+        log::nfo << "   W:WM_DESTROY" << log::end;
+        break; 
+      }
       case WM_SETFOCUS: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
@@ -421,9 +431,9 @@ namespace cym::uix {
       case WM_SHOWWINDOW: { break; }
       case WM_DRAWITEM: { break; }
       case WM_COMMAND: {
-        CWindow* pWindow  = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        CWindow*  pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         CControl* pButton = reinterpret_cast<CControl*>(::GetWindowLongPtr((HWND)lParam, GWLP_USERDATA));
-        BREAK(!pWindow);
+        BREAK(!pWindow);BREAK(!pButton);
         log::nfo << "   W:WM_COMMAND::" << pWindow << "|" << pButton << " ID:" << pWindow->mId << " " << HIWORD(wParam) << ":" << LOWORD(wParam) << " " << lParam << log::end;
         
         auto pEvent = new CEvent(EEvent::COMMAND, pWindow);
@@ -442,7 +452,6 @@ namespace cym::uix {
         }
         
         bool bHandled = pWindow->handle(pEvent);
-        bHandled = pEvent->propagate() ? CApplication::instance()->handle(pEvent) || bHandled : bHandled;
         
         DELETE(pEvent);
         

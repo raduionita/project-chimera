@@ -16,6 +16,7 @@ namespace cym::uix {
       ~CButton();
     protected:
       bool init(CWindow*, const CString&, const SArea&, CIcon*&&, int);
+      bool free();
     protected:
       static LRESULT CALLBACK proc(HWND, UINT, WPARAM, LPARAM, UINT_PTR, DWORD_PTR);
   };

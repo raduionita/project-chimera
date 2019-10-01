@@ -42,8 +42,9 @@ namespace cym::uix {
 #define DECLARE_APPLICATION(CLS)                                                                                       \
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {                      \
   cym::log::nfo << "   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " INIT" << cym::log::end;           \
-  CLS app;                                                                                                             \
-  INT result = app.exec();                                                                                             \
+  auto app = new CLS;                                                                                                  \
+  INT result = app->exec();                                                                                            \
+  delete app;                                                                                                          \
   cym::log::nfo << "   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " EXIT" << cym::log::end;           \
   return result;                                                                                                       \
 }                                                                                                                     //

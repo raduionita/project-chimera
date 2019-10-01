@@ -12,7 +12,7 @@ namespace cym::uix {
 
   CStyle::~CStyle() {
     log::nfo << "uix::CStyle::~CStyle()::" << this << log::end;
-    DELETE(mBackground);
+    delete mBackground;
     DELETE(mBorder);
     DELETE(mColor);
     DELETE(mFont);

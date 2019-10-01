@@ -6,12 +6,10 @@ namespace cym::uix {
   
   CObject::CObject() : mId{++sId} {
     log::nfo << "uix::CObject::CObject()::" << this << " ID:" << mId << log::end;
-    mId && sRegistry.insert(this); // only if it has a valid mId
   }
   
   CObject::~CObject() {
     log::nfo << "uix::CObject::~CObject()::" << this << " ID:" << mId << log::end;
-    mId && sRegistry.remove(this); // only if it has a valid mId
   }
   
   // cast ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -20,39 +18,48 @@ namespace cym::uix {
     return mId;
   }
   
+  void* CObject::operator new(std::size_t sz) {
+    void* ptr = ::operator new(sz);
+    log::nfo << "uix::CObject::operator new("<< reinterpret_cast<std::uintptr_t>(ptr) <<")" << log::end;
+    sRegistry.insert(static_cast<CObject*>(ptr));
+    return ptr;
+  }
+  
+  void CObject::operator delete(void* ptr) {
+    // this won't trigger unless the CObject is created w/ new
+    log::nfo << "uix::CObject::operator delete("<< reinterpret_cast<std::uintptr_t>(ptr) <<")" << log::end;
+    if (sRegistry.remove(static_cast<CObject*>(ptr))) {
+      ::operator delete(ptr);
+    }
+  }
+  
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   CObject::CRegistry::CRegistry() {
     log::nfo << "uix::CObject::CRegistry::CRegistry()::" << this << log::end;
   }
   
+  // only on delete CRegistry // when app terminates
   CObject::CRegistry::~CRegistry() {
     log::nfo << "uix::CObject::CRegistry::~CRegistry()::" << this << log::end;
-    for (auto rit = mObjects.rbegin(); rit != mObjects.rend(); ++rit) {
-      if (*rit) {
-        delete (*rit);
-        *rit = nullptr;
-      }
+    while (!mObjects.empty()) {
+      CObject* pObject = mObjects.front();
+      delete pObject;
     }
   }
   
   bool CObject::CRegistry::insert(CObject* pObject) {
-    log::nfo << "uix::CObject::CRegistry::insert(CObject*)::" << pObject << " ID:" << pObject->mId << log::end;
-    bool nSize = mObjects.size();
-    // @todo: seach for nullptr in mObjects or push_back
+    log::nfo << "uix::CObject::CRegistry::insert("<< reinterpret_cast<std::uintptr_t>(pObject) <<") " << log::end;
     mObjects.push_back(pObject);
-    return mObjects.size() > nSize;
+    return mObjects.back() == pObject;
   }
   
+  // only on delete CObject
   bool CObject::CRegistry::remove(CObject* pObject) {
-    log::nfo << "uix::CObject::CRegistry::remove(CObject*)::" << pObject << " ID:" << pObject->mId << log::end;
-    bool nSize = mObjects.size();
-    for (auto it = mObjects.begin(); it != mObjects.end(); ++it) {
-      if (pObject == *it) {
-        (*it) = nullptr;
-      }
-    }
-    return mObjects.size() < nSize;
+    log::nfo << "uix::CObject::CRegistry::remove("<< reinterpret_cast<std::uintptr_t>(pObject) <<") " << log::end;
+    auto size = mObjects.size();
+    mObjects.remove(pObject);
+    return mObjects.size() < size;
   }
   
   // public //////////////////////////////////////////////////////////////////////////////////////////////////////////

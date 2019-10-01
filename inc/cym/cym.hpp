@@ -22,6 +22,8 @@
 
 namespace cym { 
   
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   typedef uint32_t uint;
   typedef int8_t   byte;
   typedef uint8_t  ubyte;
@@ -32,12 +34,10 @@ namespace cym {
     
   inline int64_t now() { return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count(); }
   
-  inline std::string trim(const std::string& str)
-  {
+  inline std::string trim(const std::string& str) {
     std::string out;
     out.reserve(str.size());
-    for(size_t i = 0, j = 0; i < str.size(); ++i)
-    {
+    for(size_t i = 0, j = 0; i < str.size(); ++i) {
       const char& ch = str[i];
       if(ch != '\t' && ch != ' ' && ch != '\n')
         out[j++] = ch;
@@ -48,8 +48,6 @@ namespace cym {
   
   // using namespace std::chrono_literals;
   // auto day = 24h;
-  
-  
 }
 
 #endif //__cym_hpp__
