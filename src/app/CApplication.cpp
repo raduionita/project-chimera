@@ -5,6 +5,7 @@
 #include "cym/uix/CButton.hpp"
 #include "cym/uix/CLayout.hpp"
 #include "cym/uix/CPainter.hpp"
+#include "cym/uix/CEvent.hpp"
 
 namespace app {
   void CApplication::onInit() {
@@ -26,10 +27,10 @@ namespace app {
     mSurface->clear();
     mSurface->swap();
   
-    attach(mFrame, uix::EEvent::KEYDOWN,     &CApplication::onKeydown);
-    attach(pPanel, uix::EEvent::DRAW,        &CApplication::onDraw);
-    attach(pPanel, uix::EEvent::COMMAND,     &CApplication::onCommand);
-    attach(pButton,uix::EEvent::LBUTTONDOWN, &CApplication::onClick);
+    attach(mFrame,  uix::EEvent::KEYDOWN,     &CApplication::onKeydown);
+    attach(pPanel,  uix::EEvent::DRAW,        &CApplication::onDraw);
+    attach(pPanel,  uix::EEvent::COMMAND,     &CApplication::onCommand);
+    attach(pButton, uix::EEvent::LBUTTONDOWN, &CApplication::onClick);
   }
   
   void CApplication::onTick(int nElapsed/*=0*/) {

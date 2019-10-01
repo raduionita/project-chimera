@@ -1,16 +1,17 @@
 // todo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-= widgets:button
-= commands
-= object: reverse iterator & app delete
+= glx: draw something // start the gl framework
+
 = move window create logic from CWindow to CFrame (first concrete child) and others
 = config: replace window hints w/ config
 = state: window & application states for persistance
 
 = fix: leak: all ::GetDC() MUST have a ::ReleaseDC()
-= fix: move free from base class to superclass // last free doesn't trigger
+= fix: move free() from base class to superclass // last free doesn't trigger
 
-= glx: draw something // start the gl framework
+= namespaces: cym::sys & cym::com(replace fix)
+
+= loop: engine onUpdate & onRender
 
 = object: add custom ids // if try to use same id crash
 
@@ -37,6 +38,7 @@
 = finish: mouse click events // pair events (mouse click, key press/tab) 
 = finish: window events
 = finish: painter
+= finish: button
 
 = most pointers should be wrapped by a smart pointer object
 
@@ -45,6 +47,7 @@
 
 = app: 2 panels: 1x canvas +1x buttons (like spawn a sphere)
 
+= cym.cpp | include all lib .cpp files inside a cym.cpp file to build a single .obj file 
 
 
 

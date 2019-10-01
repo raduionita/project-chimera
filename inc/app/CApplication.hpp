@@ -9,7 +9,6 @@
 #define UIX_STYLE_BACKGROUND_COLOR RGB(33,33,33)
 
 #include "cym/uix/CApplication.hpp"
-#include "cym/uix/CEvent.hpp"
 
 namespace app {
   using namespace cym;
