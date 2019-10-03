@@ -13,6 +13,7 @@ namespace cym::uix {
       HINSTANCE mHandle {NULL};
     public: // ctor
       CModule(HINSTANCE = ::GetModuleHandle(NULL));
+      CModule(const char*);
       ~CModule();
     public: // cast
       explicit operator       HINSTANCE();

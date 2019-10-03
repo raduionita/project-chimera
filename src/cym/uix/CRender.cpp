@@ -14,8 +14,12 @@ namespace cym::uix {
     return (mContext = new CContext(pWindow, sConfig));
   }
   
-  bool CRender::swap()    const       { return mContext->swap(); }
+  bool CRender::swap()    const       { 
+    return mContext->swap(); 
+  }
   bool CRender::current() const       { return mContext->current(); }
-  bool CRender::clear(int nBit) const { return mContext->clear(nBit); }
+  bool CRender::clear(int nBit) const { 
+    return mContext->clear(nBit); 
+  }
   bool CRender::reset() const         { return mContext->reset(); }
 }

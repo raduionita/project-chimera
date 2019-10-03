@@ -20,7 +20,7 @@ namespace app {
     pPanel->style()->background(uix::SColor{33,33,33});
     
     mFrame->layout(pLayout);
-    mFrame->title((const char*)glGetString(GL_VERSION));
+    mFrame->title("");
     mFrame->show();
     
     mSurface->current();
@@ -32,7 +32,7 @@ namespace app {
     attach(pPanel,  uix::EEvent::COMMAND,     &CApplication::onCommand);
     attach(pButton, uix::EEvent::LBUTTONDOWN, &CApplication::onClick);
     
-    HINSTANCE hLib = ::LoadLibrary("opengl32.dll");
+    
     
   }
   

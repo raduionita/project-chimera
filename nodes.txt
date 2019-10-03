@@ -1,6 +1,6 @@
 // todo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-= glx: draw something // start the gl framework
+= glx: draw something // start the ogl framework
 
 = move window create logic from CWindow to CFrame (first concrete child) and others
 = config: replace window hints w/ config

@@ -4,16 +4,7 @@
 #include "uix.hpp"
 #include "CObject.hpp"
 
-#include <GL/gl.h>
-#include <GL/glext.h>
-#include <GL/wglext.h>
-
-typedef HGLRC(WINAPI * wglCreateContextAttribsARB_t) (HDC,HGLRC,CONST INT*);
-typedef BOOL (WINAPI * wglChoosePixelFormatARB_t)    (HDC,CONST INT*,CONST FLOAT*,UINT,INT*,UINT*);
-
-#define DEFINE_WGL_FUNCTION(name) name##_t name = reinterpret_cast<name##_t>(::wglGetProcAddress(#name))
-
-#define PFD 
+#include "../ogl/ogl.hpp"
 
 namespace cym::uix {
   class CContext : public CObject {
@@ -27,8 +18,8 @@ namespace cym::uix {
     public:
       struct SConfig {
         static constexpr int DEFAULT = -1; 
-        int  nMajorVersion = {3};
-        int  nMinorVersion = {2};
+        int  nMajorVersion = {AUTO}; // AUTO
+        int  nMinorVersion = {AUTO}; // AUTO
         int  nSamples      = {1};
         BYTE nColorBits    = {32};
         BYTE nDepthBits    = {24};
@@ -43,16 +34,17 @@ namespace cym::uix {
       HDC      mDC     {NULL}; // device context
       HGLRC    mRC     {NULL}; // render context
     public: 
-      CContext(CWindow* pParent, const SConfig& = {3, 2, 1, 32, 24, 8, 8, 0});
+      CContext(CWindow* pParent, const SConfig& = {AUTO,AUTO,1,32,24,8,8,0});
       ~CContext();
-    protected:
-      virtual bool init();
-      virtual bool free();
+    private:
+      bool init();
+      bool free();
     public:
       bool swap()    const;
       bool current() const;
       bool clear(int = GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT) const;
       bool reset() const;
+      ogl::SVersion version() const;
   };  
 }
 

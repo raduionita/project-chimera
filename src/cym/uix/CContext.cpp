@@ -57,6 +57,9 @@ namespace cym::uix {
     if (!tWnd) {
       ::MessageBox(NULL, "[CContext] ::CreateWindowEx() failed!", "ERROR", MB_OK);
       log::nfo << "[CContext] ::CreateWindowEx() failed!" << log::end;
+      
+      ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
+      
       return false;
     }
     
@@ -76,11 +79,19 @@ namespace cym::uix {
     INT tPFID = ::ChoosePixelFormat(tDC, &tPFD);
     if (!tPFID) {
       log::nfo << "[CContext] ChoosePixelFormat failed!" << log::end;
-      ::MessageBox(NULL, "[CCanvas] ::ChoosePixelFormat() failed!", "Error", MB_OK);
+      ::MessageBox(NULL, "[CContext] ::ChoosePixelFormat() failed!", "Error", MB_OK);
+      
+      ::DestroyWindow(tWnd);
+      ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
+      
       return false;
     } else if (!::SetPixelFormat(tDC, tPFID, &tPFD)) {
       log::nfo << "[CContext] ::SetPixelFormat() failed!" << log::end;
       ::MessageBox(NULL, "[CContext] ::SetPixelFormat() failed!", "Error", MB_OK);
+      
+      ::DestroyWindow(tWnd);
+      ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
+      
       return false;
     } 
     
@@ -88,10 +99,20 @@ namespace cym::uix {
     if (!tRC) {
       log::nfo << "[CContext] ::wglCreateContext() failed!" << log::end;
       ::MessageBox(NULL, "[CContext] ::wglCreateContext() failed!", "Error", MB_OK);
+      
+      ::DestroyWindow(tWnd);
+      ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
+      
       return false;
     } else if (!::wglMakeCurrent(tDC, tRC)) {
       log::nfo << "[CContext] ::wglMakeCurrent() failed!" << log::end;
       ::MessageBox(NULL, "[CContext] ::wglMakeCurrent() failed!", "Error", MB_OK);
+      
+      ::ReleaseDC(tWnd, tDC);
+      ::wglDeleteContext(tRC);
+      ::DestroyWindow(tWnd);
+      ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
+      
       return false;
     }
   
@@ -99,6 +120,12 @@ namespace cym::uix {
     if (!wglChoosePixelFormatARB) {
       log::nfo << "[CContext] ::wglChoosePixelFormatARB() failed!" << log::end;
       ::MessageBox(NULL, "[CContext] ::wglChoosePixelFormatARB() failed!", "Error", MB_OK);
+      
+      ::ReleaseDC(tWnd, tDC);
+      ::wglDeleteContext(tRC);
+      ::DestroyWindow(tWnd);
+      ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
+      
       return false;
     }
   
@@ -106,11 +133,17 @@ namespace cym::uix {
     if (!wglCreateContextAttribsARB) {
       log::nfo << "[CContext] ::wglCreateContextAttribsARB() failed!" << log::end;
       ::MessageBox(NULL, "[CContext] ::wglCreateContextAttribsARB() failed!", "Error", MB_OK);
+      
+      ::ReleaseDC(tWnd, tDC);
+      ::wglDeleteContext(tRC);
+      ::DestroyWindow(tWnd);
+      ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
+      
       return false;
     }
     
     mDC = ::GetDC(mHandle);
-  
+    
     const int aPixelAttrs[] = {
       WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
       WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
@@ -123,20 +156,30 @@ namespace cym::uix {
       WGL_STENCIL_BITS_ARB,   mConfig.nStencilBits,
       WGL_SAMPLE_BUFFERS_ARB, GL_TRUE,
       WGL_SAMPLES_ARB,        mConfig.nSamples,
-      0
+      GL_NONE,
     };
     
     int nPFID; UINT nFormats;
     bool bStatus = wglChoosePixelFormatARB(mDC, aPixelAttrs, NULL, 1, &nPFID, &nFormats);
     if (bStatus == false && nFormats == 0) {
-      log::nfo << "[CCanvas] ::wglChoosePixelFormatARB() failed!" << log::end;
-      ::MessageBox(NULL, "[CCanvas] ::wglChoosePixelFormatARB() failed!", "Error", MB_OK);
+      log::nfo << "[CContext] ::wglChoosePixelFormatARB() failed!" << log::end;
+      ::MessageBox(NULL, "[CContext] ::wglChoosePixelFormatARB() failed!", "Error", MB_OK);
+      
+      ::ReleaseDC(tWnd, tDC);
+      ::wglDeleteContext(tRC);
+      ::DestroyWindow(tWnd);
+      ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
+      
       return false;
     }
   
     PIXELFORMATDESCRIPTOR sPFD;
     ::DescribePixelFormat(mDC, nPFID, sizeof(sPFD), &sPFD);
     ::SetPixelFormat(mDC, nPFID, &sPFD);
+    
+    if (mConfig.nMajorVersion == AUTO || mConfig.nMinorVersion == AUTO) {
+      ogl::version(mConfig.nMajorVersion, mConfig.nMinorVersion);
+    }
     
     const int aContextAttr[] = {
       WGL_CONTEXT_MAJOR_VERSION_ARB, mConfig.nMajorVersion,
@@ -149,30 +192,45 @@ namespace cym::uix {
     
     mRC = wglCreateContextAttribsARB(mDC, 0, aContextAttr);
     if (!mRC) {
-      log::nfo << "[CCanvas] ::wglCreateContextAttribsARB() failed!" << log::end;
-      ::MessageBox(NULL, "[CCanvas] ::wglCreateContextAttribsARB() failed!", "Error", MB_OK);
+      log::nfo << "[CContext] ::wglCreateContextAttribsARB() failed!" << log::end;
+      ::MessageBox(NULL, "[CContext] ::wglCreateContextAttribsARB() failed!", "Error", MB_OK);
+      
+      ::ReleaseDC(tWnd, tDC);
+      ::wglDeleteContext(tRC);
+      ::DestroyWindow(tWnd);
+      ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
+      
+      ::ReleaseDC(mHandle, mDC);
+  
       return false;
     }
     
-    // clear
+    // cleanup
     ::wglMakeCurrent(NULL,NULL);
     ::wglDeleteContext(tRC);
     ::ReleaseDC(tWnd, tDC);
     ::DestroyWindow(tWnd);
-    ::UnregisterClass(szClsName, (HINSTANCE)(*CApplication::instance()));
+    ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
+    
+    if (!ogl::load()) {
+      log::nfo << "[CContext] ogl::load() failed!" << log::end;
+      ::MessageBox(NULL, "[CContext] ogl::load() failed!", "Error", MB_OK);
+      
+      ::wglMakeCurrent(NULL,NULL);
+      ::wglDeleteContext(mRC);
+      ::ReleaseDC(mHandle, mDC);
+      
+      return false;
+    }
     
     return current();
-    
-    // ::glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    // ::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    // swap();
   }
   
   bool CContext::free() {
     log::nfo << "uix::CContext::free()::" << this << log::end;
     ::wglMakeCurrent(NULL,NULL);
-    mRC && ::wglDeleteContext(mRC);
-    mDC && ::ReleaseDC(mHandle, mDC);
+    ::wglDeleteContext(mRC);
+    ::ReleaseDC(mHandle, mDC);
     return true;
   }
   
@@ -201,10 +259,15 @@ namespace cym::uix {
   bool CContext::clear(int nBit/*=GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT*/) const {
     ::glClearColor(0.f,0.f,0.f,0.f);
     ::glClear(nBit);
+    
     return true;
   }
   
   bool CContext::reset() const {
     return current() && clear() && swap();
+  }
+  
+  ogl::SVersion CContext::version() const {
+    return ogl::SVersion{mConfig.nMajorVersion,mConfig.nMinorVersion};
   }
 }

@@ -56,4 +56,14 @@ inline void SetDefaultFont(HWND hWnd) {
   ::SendMessage(hWnd, WM_SETFONT, (WPARAM)::GetStockObject(DEFAULT_GUI_FONT), (LPARAM)true);
 }
 
+inline std::string GetLastErrorString() {
+  DWORD errid = ::GetLastError();
+  if (errid == 0) return std::string();
+  LPSTR buffer = nullptr;
+  const DWORD size = ::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, errid, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buffer, 0, NULL);
+  std::string errmsg(buffer, size);
+  ::LocalFree(buffer);
+  return errmsg;
+}
+
 #endif //__cym_fix_msw_hpp__
