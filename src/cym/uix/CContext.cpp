@@ -1,6 +1,13 @@
 #include "cym/uix/CContext.hpp"
 #include "cym/uix/CWindow.hpp"
 
+#include <windows.h>
+#include <GL/wglext.h>
+typedef HGLRC(WINAPI * _ptrc_wglCreateContextAttribsARB) (HDC,HGLRC,CONST INT*);
+typedef BOOL (WINAPI * _ptrc_wglChoosePixelFormatARB)    (HDC,CONST INT*,CONST FLOAT*,UINT,INT*,UINT*);
+
+#define DEFINE_WGL_FUNCTION(name) _ptrc_##name name = reinterpret_cast<_ptrc_##name>(::wglGetProcAddress(#name))
+
 namespace cym::uix {
   CContext::CContext(CWindow* pWindow, const SConfig& sOptions) : mWindow{pWindow}, mConfig{sOptions}, mHandle{(HWND)(*pWindow)} {
     log::nfo << "uix::CContext::CContext(CWindow*,SConfig&)::" << this << log::end;
@@ -177,8 +184,22 @@ namespace cym::uix {
     ::DescribePixelFormat(mDC, nPFID, sizeof(sPFD), &sPFD);
     ::SetPixelFormat(mDC, nPFID, &sPFD);
     
+    int nMajor, nMinor;
+    if (!::glVersion(nMajor,nMinor)) {
+        log::nfo << "[CContext] ::glVersion() failed!" << log::end;
+      ::MessageBox(NULL, "[CContext] ::glVersion() failed!", "Error", MB_OK);
+      
+      ::ReleaseDC(tWnd, tDC);
+      ::wglDeleteContext(tRC);
+      ::DestroyWindow(tWnd);
+      ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
+      
+      ::ReleaseDC(mHandle, mDC);
+    }
+    
     if (mConfig.nMajorVersion == AUTO || mConfig.nMinorVersion == AUTO) {
-      ogl::version(mConfig.nMajorVersion, mConfig.nMinorVersion);
+      mConfig.nMajorVersion = nMajor;
+      mConfig.nMinorVersion = nMinor;
     }
     
     const int aContextAttr[] = {
@@ -212,7 +233,7 @@ namespace cym::uix {
     ::DestroyWindow(tWnd);
     ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
     
-    if (!ogl::load()) {
+    if (!::glLoad()) {
       log::nfo << "[CContext] ogl::load() failed!" << log::end;
       ::MessageBox(NULL, "[CContext] ogl::load() failed!", "Error", MB_OK);
       
@@ -267,7 +288,5 @@ namespace cym::uix {
     return current() && clear() && swap();
   }
   
-  ogl::SVersion CContext::version() const {
-    return ogl::SVersion{mConfig.nMajorVersion,mConfig.nMinorVersion};
-  }
+  const char* CContext::version() const { return reinterpret_cast<const char*>(::glGetString(GL_VERSION)); }
 }

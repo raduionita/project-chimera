@@ -16,10 +16,11 @@ namespace cym::uix {
     protected:
       bool init(CWindow*, const CContext::SConfig&);
     public:
-      bool swap()    const;
-      bool current() const;
-      bool clear(int = GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT) const;
-      bool reset() const;
+      bool        swap()    const;
+      bool        current() const;
+      bool        clear(int = GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT) const;
+      bool        reset() const;
+      const char* version() const;
   };
 }
 

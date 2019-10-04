@@ -1,51 +1,79 @@
-#ifndef __cym_ogl_ccontext_hpp__
-#define __cym_ogl_ccontext_hpp__
+#ifndef __cym_ogl_hpp__
+#define __cym_ogl_hpp__
 
-#include <GL/gl.h>
-#include <GL/glext.h>
-#include <GL/wglext.h>
+#if defined(__glew_h__) || defined(__GLEW_H__)
+#error Attempt to include auto-generated header after including glew.h
+#endif
+#if defined(__gl_h_) || defined(__GL_H__)
+#error Attempt to include auto-generated header after including gl.h
+#endif
+#if defined(__glext_h_) || defined(__GLEXT_H_)
+#error Attempt to include auto-generated header after including glext.h
+#endif
+#if defined(__gltypes_h_)
+#error Attempt to include auto-generated header after gltypes.h
+#endif
+#if defined(__gl_ATI_h_)
+#error Attempt to include auto-generated header after including glATI.h
+#endif
 
-#include "khr.hpp"
-
-#include <stdio.h>
-
-typedef HGLRC(WINAPI * wglCreateContextAttribsARB_t) (HDC,HGLRC,CONST INT*);
-typedef BOOL (WINAPI * wglChoosePixelFormatARB_t)    (HDC,CONST INT*,CONST FLOAT*,UINT,INT*,UINT*);
-
-#define DEFINE_WGL_FUNCTION(name) name##_t name = reinterpret_cast<name##_t>(::wglGetProcAddress(#name))
+#define __glew_h__
+#define __GLEW_H__
+#define __gl_h_
+#define __GL_H__
+#define __glext_h_
+#define __GLEXT_H_
+#define __gltypes_h_
+#define __gl_ATI_h_
 
 #define OGL_SUCCESS 0
 
-namespace cym::ogl {
-  extern int OGL_VERSION_MAJOR;
-  extern int OGL_VERSION_MINOR;
-  extern int OGL_VERSION_1_0;
-  extern int OGL_VERSION_1_1;
-  extern int OGL_VERSION_1_2;
-  extern int OGL_VERSION_1_3;
-  extern int OGL_VERSION_1_4;
-  extern int OGL_VERSION_1_5;
-  extern int OGL_VERSION_2_0;
-  extern int OGL_VERSION_2_1;
-  extern int OGL_VERSION_3_0;
-  extern int OGL_VERSION_3_1;
-  extern int OGL_VERSION_3_2;
-  extern int OGL_VERSION_3_3;
-  extern int OGL_VERSION_4_0;
-  extern int OGL_VERSION_4_1;
-  extern int OGL_VERSION_4_2;
-  extern int OGL_VERSION_4_3;
-  extern int OGL_VERSION_4_4;
-  extern int OGL_VERSION_4_5;
-  extern int OGL_VERSION_4_6;
-  
-  struct SVersion { int major{0}, minor{0}; };
-  
-  extern void     version(int&, int&);
-  
-  extern SVersion version();
-  
-  extern bool     load();
-}
+#include "khr.hpp"
+#include "ogl_common.hpp"
+#include "ogl_debug.hpp"
 
-#endif //__cym_ogl_ccontext_hpp__
+#include "ogl_1_0.hpp"
+
+#include "ogl_1_1.hpp"
+
+#include "ogl_1_2.hpp"
+
+#include "ogl_1_3.hpp"
+
+#include "ogl_1_4.hpp"
+
+#include "ogl_1_5.hpp"
+
+#include "ogl_2_0.hpp"
+
+#include "ogl_2_1.hpp"
+
+#include "ogl_3_0.hpp"
+
+#include "ogl_3_1.hpp"
+
+#include "ogl_3_2.hpp"
+
+#include "ogl_3_3.hpp"
+
+#include "ogl_4_0.hpp"
+
+#include "ogl_4_1.hpp"
+
+#include "ogl_4_2.hpp"
+
+#include "ogl_4_3.hpp"
+
+#include "ogl_4_4.hpp"
+
+#include "ogl_4_5.hpp"
+
+#include "ogl_4_6.hpp"
+
+#include <stdio.h>
+
+extern bool glVersion(int&, int&);
+
+extern bool glLoad();
+
+#endif //__cym_ogl_hpp__

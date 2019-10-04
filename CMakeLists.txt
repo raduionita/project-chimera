@@ -16,5 +16,4 @@ file(GLOB CYM "src/cym/*.cpp" "src/cym/*/*.cpp" "src/cym/*/*/*.cpp")
 add_library(cym ${CYM})
 add_executable(app ${APP})
 
-target_link_libraries(cym) 
 target_link_libraries(app cym) # libglfw3.a libgdi32.a libopengl32.a
