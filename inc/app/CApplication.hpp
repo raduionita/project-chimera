@@ -8,6 +8,9 @@
 #define UIX_STYLE 1
 #define UIX_STYLE_BACKGROUND_COLOR RGB(33,33,33)
 
+#define UIX_CONTEXT_MAJOR 3
+#define UIX_CONTEXT_MINOR 2
+
 #include "cym/uix/CApplication.hpp"
 
 namespace app {

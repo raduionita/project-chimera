@@ -13,24 +13,44 @@ namespace app {
     
          mFrame   = new uix::CFrame();
     auto pLayout  = mFrame->layout(new uix::CBoxLayout(uix::ELayout::VERTICAL));
-         mSurface = pLayout->add(new uix::CSurface(mFrame, uix::EWindow::VISIBLE), uix::ELayout::ADJUST);
+         mSurface = pLayout->add(new uix::CSurface(mFrame, {3,0}, uix::EWindow::VISIBLE), uix::ELayout::ADJUST);
     auto pPanel   = pLayout->add(new uix::CPanel(mFrame, uix::EWindow::VISIBLE), uix::ELayout::ADJUST);
     auto pButton  = new uix::CButton(pPanel, "CLICK", {50,50,90,40});
   
     pPanel->style()->background(uix::SColor{33,33,33});
     
+    attach(mFrame,  uix::EEvent::KEYDOWN,     &CApplication::onKeydown);
+    attach(pPanel,  uix::EEvent::DRAW,        &CApplication::onDraw);
+    attach(pPanel,  uix::EEvent::COMMAND,     &CApplication::onCommand);
+    attach(pButton, uix::EEvent::LBUTTONDOWN, &CApplication::onClick);
+    attach(mSurface,uix::EEvent::RESIZE,      &uix::CSurface::onResize);
+    
     mFrame->layout(pLayout);
-    mFrame->title((const char*)::glGetString(GL_VERSION));
+    mFrame->title(mSurface->version());
     mFrame->show();
     
     mSurface->current();
     mSurface->clear();
     mSurface->swap();
   
-    attach(mFrame,  uix::EEvent::KEYDOWN,     &CApplication::onKeydown);
-    attach(pPanel,  uix::EEvent::DRAW,        &CApplication::onDraw);
-    attach(pPanel,  uix::EEvent::COMMAND,     &CApplication::onCommand);
-    attach(pButton, uix::EEvent::LBUTTONDOWN, &CApplication::onClick);
+    auto sArea = mSurface->area();
+    ::glViewport(sArea.x,sArea.y,sArea.w,sArea.h);
+    // ::glMatrixMode(GL_PROJECTION);
+    // ::glOrtho(sArea.x,sArea.w,sArea.h,sArea.y,-1,+1);
+    ::glEnable(GL_DEPTH_TEST);
+    
+    // @todo: need to call ::glViewport() before rendering
+    // @todo: need to call ::glViewport() on resize
+    
+    // @todo: engine init
+    // mEngine = new ngn::CEngine(mSurface)
+    // OR
+    // mEngine = new ngn::CEngine(mSurface->context())
+    
+    // @todo: loop
+    // mLoop = CGameLoop(&CEngine::update,&CEngine::render)
+    // OR
+    // mEngine->tick(); // w/ it's own ::render() & ::update()
   }
   
   void CApplication::onTick(int nElapsed/*=0*/) {
@@ -59,7 +79,22 @@ namespace app {
     
     // quit(0);
     
-    // game.render(fInterp); 
+    // game.render(fInterp);
+    
+    mSurface->current();
+    ::glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+    
+    ::glBegin(GL_POLYGON);
+      ::glColor3f(0.f,0.f,0.f); ::glVertex3f(-1,-1,-1); // black // BL // clock-wise
+      ::glColor3f(0.f,0.f,1.f); ::glVertex3f(+1,-1,-1); // blue  // BR
+      ::glColor3f(0.f,1.f,0.f); ::glVertex3f(+1,+1,-1); // green // TR
+      ::glColor3f(1.f,0.f,0.f); ::glVertex3f(-1,+1,-1); // red   // TL
+    ::glEnd();
+    
+    ::glFlush();
+
+    mSurface->swap();
+    
   }
   
   void CApplication::onFree() {

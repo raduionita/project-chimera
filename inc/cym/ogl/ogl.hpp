@@ -74,6 +74,6 @@
 
 extern bool glVersion(int&, int&);
 
-extern bool glLoad();
+extern bool glLoad(int=-1,int=-1);
 
 #endif //__cym_ogl_hpp__

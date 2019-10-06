@@ -3,10 +3,6 @@
 
 #include <windows.h>
 #include <GL/wglext.h>
-typedef HGLRC(WINAPI * _ptrc_wglCreateContextAttribsARB) (HDC,HGLRC,CONST INT*);
-typedef BOOL (WINAPI * _ptrc_wglChoosePixelFormatARB)    (HDC,CONST INT*,CONST FLOAT*,UINT,INT*,UINT*);
-
-#define DEFINE_WGL_FUNCTION(name) _ptrc_##name name = reinterpret_cast<_ptrc_##name>(::wglGetProcAddress(#name))
 
 namespace cym::uix {
   CContext::CContext(CWindow* pWindow, const SConfig& sOptions) : mWindow{pWindow}, mConfig{sOptions}, mHandle{(HWND)(*pWindow)} {
@@ -22,7 +18,7 @@ namespace cym::uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   bool CContext::init() {
-    log::nfo << "uix::CContext::init()::" << this << log::end;
+    log::nfo << "uix::CContext::init()::" << this << " CONFIG: v" << mConfig.nMajorVersion << "." << mConfig.nMinorVersion << log::end;
     
     // need dummy window for ogl 4.x
     
@@ -122,8 +118,10 @@ namespace cym::uix {
       
       return false;
     }
-  
-    DEFINE_WGL_FUNCTION(wglChoosePixelFormatARB);
+    
+    
+    typedef BOOL (WINAPI * PFNWGLCHOOSEPIXELFORMATARBPROC)    (HDC,CONST INT*,CONST FLOAT*,UINT,INT*,UINT*);
+    PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = reinterpret_cast<PFNWGLCHOOSEPIXELFORMATARBPROC>(::wglGetProcAddress("wglChoosePixelFormatARB"));
     if (!wglChoosePixelFormatARB) {
       log::nfo << "[CContext] ::wglChoosePixelFormatARB() failed!" << log::end;
       ::MessageBox(NULL, "[CContext] ::wglChoosePixelFormatARB() failed!", "Error", MB_OK);
@@ -135,8 +133,9 @@ namespace cym::uix {
       
       return false;
     }
-  
-    DEFINE_WGL_FUNCTION(wglCreateContextAttribsARB);
+    
+    typedef HGLRC(WINAPI * PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC,HGLRC,CONST INT*);
+    PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(::wglGetProcAddress("wglCreateContextAttribsARB"));
     if (!wglCreateContextAttribsARB) {
       log::nfo << "[CContext] ::wglCreateContextAttribsARB() failed!" << log::end;
       ::MessageBox(NULL, "[CContext] ::wglCreateContextAttribsARB() failed!", "Error", MB_OK);
@@ -208,7 +207,7 @@ namespace cym::uix {
       WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
    // WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_DEBUG_BIT_ARB,
    // WGL_STEREO_ARB, GL_TRUE,
-      0
+      GL_NONE,
     };
     
     mRC = wglCreateContextAttribsARB(mDC, 0, aContextAttr);
@@ -233,7 +232,7 @@ namespace cym::uix {
     ::DestroyWindow(tWnd);
     ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
     
-    if (!::glLoad()) {
+    if (!::glLoad(mConfig.nMajorVersion, mConfig.nMinorVersion)) {
       log::nfo << "[CContext] ogl::load() failed!" << log::end;
       ::MessageBox(NULL, "[CContext] ogl::load() failed!", "Error", MB_OK);
       
@@ -243,6 +242,8 @@ namespace cym::uix {
       
       return false;
     }
+  
+    ::SendMessage(mHandle, CM_CONTEXT, WPARAM(CTX_OPENGL), MAKELPARAM(mConfig.nMajorVersion,mConfig.nMinorVersion));
     
     return current();
   }
@@ -258,7 +259,7 @@ namespace cym::uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   bool CContext::swap() const {
-    log::nfo << "uix::CContext::swap()::" << this << log::end;
+    log::dbg << "uix::CContext::swap()::" << this << log::end;
     if (!::SwapBuffers(mDC)) {
       log::nfo << "[CContext] ::SwapBuffers() failed! " << log::end;
       ::MessageBox(NULL, "[CContext] ::SwapBuffers() failed!", "Error", MB_OK);
@@ -268,7 +269,7 @@ namespace cym::uix {
   }
   
   bool CContext::current() const {
-    log::nfo << "uix::CContext::current()::" << this << log::end;
+    log::dbg << "uix::CContext::current()::" << this << log::end;
     if (!::wglMakeCurrent(mDC, mRC)) {
       log::nfo << "[CContext] ::wglMakeCurrent() failed! " << log::end;
       ::MessageBox(NULL, "[CContext] ::wglMakeCurrent() failed!", "Error", MB_OK);

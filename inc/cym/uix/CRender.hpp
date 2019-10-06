@@ -3,6 +3,7 @@
 
 #include "uix.hpp"
 #include "CContext.hpp"
+#include "CListener.hpp"
 
 namespace cym::uix {
   class CRender {
@@ -19,8 +20,10 @@ namespace cym::uix {
       bool        swap()    const;
       bool        current() const;
       bool        clear(int = GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT) const;
-      bool        reset() const;
+      bool        reset()   const;
       const char* version() const;
+    public: // events
+      void onResize(CEvent*);
   };
 }
 

@@ -483,14 +483,24 @@ namespace cym::uix {
       case WM_SIZE: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        log::nfo << "   W:WM_SIZE::" << pWindow << " ID:" << pWindow->mId <<  " x:" << LOWORD(lParam) << " y:" << HIWORD(lParam) << log::end;
+        log::nfo << "   W:WM_SIZE::" << pWindow << " ID:" << pWindow->mId <<  " w:" << LOWORD(lParam) << " h:" << HIWORD(lParam) << log::end;
         
-        // @todo: sized event
+        auto pEvent = new CEvent(EEvent::RESIZE, pWindow);
+        pEvent->mWidth  = LOWORD(lParam);
+        pEvent->mHeight = HIWORD(lParam);
         
         EState eState   = (wParam == SIZE_MAXSHOW) ? EState::MAXIMIZED : (wParam == SIZE_MINIMIZED ? EState::MINIMIZED : EState::EMPTY);
         pWindow->mState = (pWindow->mState & ~EState::MAXIMIZED & ~EState::MINIMIZED) | eState;
         
+        pEvent->mState  = eState;
+        
+        bool bHandled   = pWindow->handle(pEvent);
+        
+        DELETE(pEvent);
+        
         (pWindow->mLayout) && pWindow->mLayout->layout(pWindow);
+        
+        RETURN(bHandled,0);
         
         // wParam: 4 SIZE_MAXHIDE   to all popup when other window is maximized
         //         3 SIZE_MAXIMIZED the window has been maximized
@@ -665,6 +675,23 @@ namespace cym::uix {
         // ::RedrawWindow(HWND, const RECT*, HRGN, UINT); // WM_ERASEBKGND, WM_NCPAINT, WM_PAINT
         // ::InvalidateRect(HWND, const RECT*, WINBOOL);
         break; 
+      }
+      case CM_CONTEXT: {
+        CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        BREAK(!pWindow);
+        
+        CString ctx;
+        
+        switch (wParam) {
+          case CTX_NONE   : ctx.append("NONE"); break;
+          case CTX_OPENGL : ctx.append("OPENGL"); break;
+          case CTX_VULKAN : ctx.append("VULKAN"); break;
+          case CTX_DIRECTX: ctx.append("DIRECTX"); break;
+        }
+        
+        log::nfo << "   W:CM_CONTEXT::" << pWindow << " ID:" << pWindow->mId << " " << ctx << " v" << LOWORD(lParam) << "." << HIWORD(lParam) << log::end;
+  
+        return 0;
       }
       default: break;
     }

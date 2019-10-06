@@ -49,6 +49,12 @@
 #define CM_FULLSCREEN (CM_STATE      + 0x0001)
 #define CM_WINDOWED   (CM_FULLSCREEN + 0x0001)
 #define CM_REPAINT    (CM_WINDOWED   + 0x0001) // triggers invalidate rect + WM_PAINT
+#define CM_CONTEXT    (CM_REPAINT    + 0x0001) 
+
+#define CTX_NONE    0
+#define CTX_OPENGL  1
+#define CTX_VULKAN  2
+#define CTX_DIRECTX 3
 
 #ifndef UIX_PEN
 #define UIX_PEN NULL_PEN

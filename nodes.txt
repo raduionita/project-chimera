@@ -1,6 +1,11 @@
 // todo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 = glx: draw something // start the ogl framework
+  = engine picks the context
+  = move CContext to ogl (since it uses only opengl) // uix::ogl::CContext // uix::COGLContext extends ogl::CContext
+    // CSurface + CCanvas takes CContext(or ref) not SConfig
+    
+= timer
 
 = move window create logic from CWindow to CFrame (first concrete child) and others
 = config: replace window hints w/ config
@@ -16,6 +21,8 @@
 = object: add custom ids // if try to use same id crash
 
 = enum class: find an alternative or implement hintbag
+
+= listener/events: make CListener::mHandlers static (common for all intances)
 
 = fullscreen: gaming (DEVMODE)
 = custom theme - replace titlebar (icon+menubar+title+sysmenu)
@@ -39,6 +46,8 @@
 = finish: window events
 = finish: painter
 = finish: button
+
+= context: opengl stereo + debug flags
 
 = most pointers should be wrapped by a smart pointer object
 
@@ -131,7 +140,7 @@
 // CAnimationBuilder
   // CMD5AnimationBuilder
 
-// psx: ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// physics: ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // bodies
   = rigid body   // w/ physics // w/ gravity (or other forces) // mass & weight(mass & gravity acc)

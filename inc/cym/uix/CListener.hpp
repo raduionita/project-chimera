@@ -48,6 +48,13 @@ namespace cym::uix {
     public:
       virtual void onClick(CEvent*) = 0;
   };
+  
+  class COnResizeListener : public CListener {
+    public:
+      COnResizeListener() { attach(this, EEvent::RESIZE, &COnResizeListener::onResize); }
+    public:
+      virtual void onResize(CEvent*) = 0;
+  };
 }
 
 #endif //__cym_uix_chandler_hpp__
