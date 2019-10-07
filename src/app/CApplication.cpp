@@ -13,7 +13,7 @@ namespace app {
     
          mFrame   = new uix::CFrame();
     auto pLayout  = mFrame->layout(new uix::CBoxLayout(uix::ELayout::VERTICAL));
-         mSurface = pLayout->add(new uix::CSurface(mFrame, {3,0}, uix::EWindow::VISIBLE), uix::ELayout::ADJUST);
+         mSurface = pLayout->add(new uix::CSurface(mFrame, uix::EWindow::VISIBLE), uix::ELayout::ADJUST);
     auto pPanel   = pLayout->add(new uix::CPanel(mFrame, uix::EWindow::VISIBLE), uix::ELayout::ADJUST);
     auto pButton  = new uix::CButton(pPanel, "CLICK", {50,50,90,40});
   
@@ -28,19 +28,6 @@ namespace app {
     mFrame->layout(pLayout);
     mFrame->title(mSurface->version());
     mFrame->show();
-    
-    mSurface->current();
-    mSurface->clear();
-    mSurface->swap();
-  
-    auto sArea = mSurface->area();
-    ::glViewport(sArea.x,sArea.y,sArea.w,sArea.h);
-    // ::glMatrixMode(GL_PROJECTION);
-    // ::glOrtho(sArea.x,sArea.w,sArea.h,sArea.y,-1,+1);
-    ::glEnable(GL_DEPTH_TEST);
-    
-    // @todo: need to call ::glViewport() before rendering
-    // @todo: need to call ::glViewport() on resize
     
     // @todo: engine init
     // mEngine = new ngn::CEngine(mSurface)
@@ -69,7 +56,7 @@ namespace app {
     // the update loop
     while (nNxtTicks < ::GetTickCount() && nLoops < cMaxLoops) {
       log::nfo << "app::CApplication::onTick("<< nElapsed <<"ms)::" << this << " LOOP:" << nLoops << log::end;
-      // game.update();
+      // game.update(timer);
       
       nNxtTicks += cJumpTime;
       nLoops++;
@@ -77,24 +64,12 @@ namespace app {
     
     fInterp = float(::GetTickCount() + cJumpTime - nNxtTicks) / float(cJumpTime);
     
-    // quit(0);
-    
-    // game.render(fInterp);
-    
     mSurface->current();
-    ::glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
-    
-    ::glBegin(GL_POLYGON);
-      ::glColor3f(0.f,0.f,0.f); ::glVertex3f(-1,-1,-1); // black // BL // clock-wise
-      ::glColor3f(0.f,0.f,1.f); ::glVertex3f(+1,-1,-1); // blue  // BR
-      ::glColor3f(0.f,1.f,0.f); ::glVertex3f(+1,+1,-1); // green // TR
-      ::glColor3f(1.f,0.f,0.f); ::glVertex3f(-1,+1,-1); // red   // TL
-    ::glEnd();
-    
-    ::glFlush();
+    mSurface->clear();
+  
+    // game.render(fInterp);
 
     mSurface->swap();
-    
   }
   
   void CApplication::onFree() {

@@ -1,9 +1,15 @@
 // todo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+= create context
+= atach to window(s) // by ref?!
+= create engine (using context)
+  = add viewports (windows + cameras) to engine // new CViewport = CWindow + CCamera
 = glx: draw something // start the ogl framework
   = engine picks the context
   = move CContext to ogl (since it uses only opengl) // uix::ogl::CContext // uix::COGLContext extends ogl::CContext
     // CSurface + CCanvas takes CContext(or ref) not SConfig
+    
+= oop: !!! really need an empty default constructor declared in the header
     
 = timer
 
