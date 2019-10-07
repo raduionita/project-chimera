@@ -1,5 +1,15 @@
 // todo ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+> Game Programming Patterns (by Robert Nystrom)
+> Game Coding Complete
+> Game Engine Architecture
+> enginuity (gamedev.new)
+> https://github.com/SFML/SFML/wiki/Tutorial:-Basic-Game-Engine
+> http://www.stuartmathews.com/index.php/gaming/938-a-simple-game-engine-architecture
+> https://youtu.be/L19dBX53M5M (bennybox)
+> https://gamasutra.com/blogs/MichaelKissner/20151027/257369/Writing_a_Game_Engine_from_Scratch__Part_1_Messaging.php
+
+
 = create context
 = atach to window(s) // by ref?!
 = create engine (using context)

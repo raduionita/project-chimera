@@ -1,2 +1,2 @@
 # project-chimera
-C++ Vulkan API Game Engine
+C++ OpenGL API Game Engine

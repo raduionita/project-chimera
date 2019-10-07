@@ -2,3 +2,6 @@
 #include "cym/CPointer.hpp"
 
 DECLARE_APPLICATION(app::CApplication);
+
+
+

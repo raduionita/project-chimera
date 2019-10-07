@@ -105,3 +105,8 @@ namespace app {
     oPainter.rectangle({0,0,10,30});
   }
 }
+
+// app
+  // multiple windows // 2xCPanel + 4xViewports (shared CContext)
+  // scene
+  
