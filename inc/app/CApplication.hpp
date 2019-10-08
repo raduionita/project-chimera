@@ -11,11 +11,10 @@
 #define UIX_CONTEXT_MAJOR 3
 #define UIX_CONTEXT_MINOR 2
 
-#include "cym/uix/CApplication.hpp"
+#include "uix/CApplication.hpp"
 
 namespace app {
-  using namespace cym;
-  using log = cym::log;
+  using log = sys::log;
   
   class CApplication : public uix::CApplication {
     protected:

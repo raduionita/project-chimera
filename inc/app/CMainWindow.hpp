@@ -1,10 +1,10 @@
 #ifndef __app_cmainwindow_hpp__
 #define __app_cmainwindow_hpp__
 
-#include "cym/uix/CCanvas.hpp"
+#include "uix/CCanvas.hpp"
 
 // namespace app {
-//   class CMainWindow : public cym::uix::CCanvas {
+//   class CMainWindow : public uix::CCanvas {
 //     public:
 //       CMainWindow() : CCanvas(nullptr) {}
 //   };

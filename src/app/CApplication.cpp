@@ -1,11 +1,11 @@
 #include "app/CApplication.hpp"
-#include "cym/uix/CFrame.hpp"
-#include "cym/uix/CSurface.hpp"
-#include "cym/uix/CPanel.hpp"
-#include "cym/uix/CButton.hpp"
-#include "cym/uix/CLayout.hpp"
-#include "cym/uix/CPainter.hpp"
-#include "cym/uix/CEvent.hpp"
+#include "uix/CFrame.hpp"
+#include "uix/CSurface.hpp"
+#include "uix/CPanel.hpp"
+#include "uix/CButton.hpp"
+#include "uix/CLayout.hpp"
+#include "uix/CPainter.hpp"
+#include "uix/CEvent.hpp"
 
 namespace app {
   void CApplication::onInit() {
@@ -106,7 +106,4 @@ namespace app {
   }
 }
 
-// app
-  // multiple windows // 2xCPanel + 4xViewports (shared CContext)
-  // scene
-  
+DECLARE_APPLICATION(app::CApplication);
