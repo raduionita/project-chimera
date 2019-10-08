@@ -1,5 +1,5 @@
-#ifndef __hpp__
-#define __hpp__
+#ifndef __sys_hpp__
+#define __sys_hpp__
 
 #include <string>
 #include <sstream>
@@ -21,12 +21,12 @@
 #define DELETE(what)        delete what;what=nullptr
 
 namespace sys { 
-  
   class CApplication;
   class CError;
   class CException;
   class CFile;
   class CLogger;
+  class CMemory;
   class CTimer;
   template <typename T> class CPointer;
   template <typename T> class CEntry;
@@ -68,4 +68,4 @@ namespace sys {
   // auto day = 24h;
 }
 
-#endif //__hpp__
+#endif //__sys_hpp__

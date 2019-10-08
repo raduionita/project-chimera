@@ -1,6 +1,6 @@
 ## C++ OpenGL API Game Engine
 
-##### Research
+### Research
 - `Game Programming Patterns` (by Robert Nystrom)
 - `Game Coding Complete`
 - `Game Engine Architecture` (by Jason Gregory)
@@ -11,7 +11,7 @@
 - `https://gamasutra.com/blogs/MichaelKissner/20151027/257369/Writing_a_Game_Engine_from_Scratch__Part_1_Messaging.php`
 
 
-##### Needed
+### Needed
 - restructure: gl* into ONE unit/folder/framework (if possible)
 - oop: !!! really need an empty default constructor declared in the header
 - attach `CContext` to window(s) // by ref?!
@@ -30,24 +30,24 @@
 - `SState`: window & application states for persistance
 
 
-#### Architecture
+### Architecture
 ##### `Game` (app)
 ##### `Game Engine`
 ##### `Graphic Engine`
 ##### `Graphic Framework`
 ##### `...`
 
-#### Engine
-                +-----+
-                |Logic|
-                +-----+
-                   ↓
-               +--------+
-               |Messager|              // routes messages to engine systems/components
-               +--------+
-       ↓       ↓        ↓       ↓
-    +-----+ +------+ +-----+ +-----+
-    |Input| |Render| |Scene| |Audio|
+### Engine
+                 +-----+
+                 |Logic|
+                 +-----+
+                    ↓
+               +---------+
+               |Messenger|              // routes messages to engine systems/components
+               +---------+
+       ↓        ↓       ↓         ↓
+    +-----+ +------+ +-----+ +-----+ 
+    |Input| |Render| |Scene| |Audio| GUI AI 
     +-----+ +------+ +-----+ +-----+
        ↓        ↓       ↓       ↓
                +---------+
@@ -57,19 +57,16 @@
     +------+ +-----+ +-----+ +-----+
     |Render| |Input| |Sound| |Utils|
     +------+ +-----+ +-----+ +-----+
-       
-##### `Input`                # linked: AI + Render + Logic + GUI + Loop
-##### `Render`               # linked: Input + GUI + Logic + Loop
-##### `GUI`    # (HUD)       # linked: Render + Audio + Logic + Input + Loop
-##### `Audio`  # (Sound)     # linked: GUI + Logic + Loop
-##### `Logic`  # (GameLogic) # linked: * (all)
-##### `AI`                   # linked: Scene + Input + Logic + Loop
-##### `Scene`                # linked: Logic + AI + Loop
-##### `Loop`   # (GameLoop)  # linked: * (all)
+- messaging
+  - messenger queue: too many messages this frame? queue them for the next one | control game fps
+  - messenger handle messages w/ priority: 0 = now | 10+ = later
+- memory:
+  - fragmentation?!
+  - use cpu L* cache levels
+  - allocator // stack-based vs pool-based vs (multi)FRAME-based
+    - frame-based: gets reset on each(or nth) frame
 
-
-
-#### Framework
+### Framework
 ###### `sys` # system/core framework # io, error, string, files
 ###### `alc` # audio library core # 
 ###### `glc` # graphic library core # opengl
