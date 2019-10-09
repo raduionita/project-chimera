@@ -20,12 +20,8 @@
 #include <cassert>
 #include <iomanip>
 #include <atomic>
-#include <map>      // for (const auto& [k,v] : map)
-#include <set>
 #include <list>     // for (auto&& v : list)
 #include <bitset>
-#include <vector>
-#include <array>
 #include <tuple>
 
 #define RETURNCN(cond)      if(cond)return
@@ -39,6 +35,7 @@
 #define CONTINUE(cond)      if(cond)continue
 #undef  DELETE
 #define DELETE(what)        delete what;what=nullptr
+#define NEW(what)           new (_NORMAL_BLOCK,__FILE__,__LINE__)
 
 #define CM_INIT       (WM_USER       + 0x0001) // custom message
 #define CM_TABCHANGE  (CM_INIT       + 0x0001)
@@ -217,8 +214,12 @@ namespace uix {
   
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  using uint    = sys::uint;
-  using CString = sys::CString;
+  using uint                     = sys::uint;
+  using CString                  = std::string;
+  template<typename V> using CSet                 = std::set<V>;
+  template<typename K, typename V> using CMap               = std::map<K,V>;
+  template<typename V> using CVector              = std::vector<V>;
+  template<typename V, std::size_t S> using CArray = std::array<V,S>;
   
   using log = sys::log;
   
@@ -351,14 +352,8 @@ namespace uix {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  template<typename V>
-  using CSet       = std::set<V>;
-  template<typename K, typename V> 
-  using CMap       = std::map<K,V>;
-  template<typename V>
-  using CVector    = std::vector<V>;
-  template<typename V, std::size_t S>
-  using CArray     = std::array<V,S>;
+  inline CString T(int num)          { return std::to_string(num); }
+  inline CString T(const char* text) { return CString(text); }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

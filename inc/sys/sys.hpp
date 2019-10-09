@@ -6,6 +6,9 @@
 #include <iostream>
 #include <chrono>
 #include <vector>
+#include <map>      // for (const auto& [k,v] : map)
+#include <set>
+#include <array>
 #include <algorithm>
 
 #define RETURNCN(cond)      if(cond)return
@@ -38,13 +41,15 @@ namespace sys {
   typedef uint32_t uint;
   typedef int8_t   byte;
   typedef uint8_t  ubyte;
-  
-  using CString    = std::string;
-  
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
-  inline CString T(int num)          { return std::to_string(num); }
-  inline CString T(const char* text) { return CString(text); }
+  typedef union {
+    byte* pointer;
+    intptr_t address;
+  } buffer;
+  // usage: (64byte aligned)
+  // buffer data;
+  // byte*  temp = new byte[1000+63]           // create big chung of memory + padding
+  // data.pointer = temp+63;                   // assign & offset pointer by 63bytes
+  // data.address = data.address & (-(int)64); // back to the front
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   

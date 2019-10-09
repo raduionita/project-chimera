@@ -30,6 +30,9 @@
 - `SState`: window & application states for persistance
 
 
+### Bugs
+- an event doesn't trigger properly, don't remember which one :/
+
 ### Architecture
 ##### `Game` (app)
 ##### `Game Engine`
@@ -68,7 +71,7 @@
 
 ### Framework
 ###### `sys` # system/core framework # io, error, string, files
-###### `alc` # audio library core # 
+###### `alc` # audio library core # sfx(effect) + music(track) + voice
 ###### `glc` # graphic library core # opengl
 ###### `glm` # graphic library math # g-trunc glm or...
 ###### `glw` # graphic library wrappers # buffer, shader, pipeline
@@ -77,3 +80,10 @@
 ###### `net` # networking library # tcp, udp, sockets, http
 ###### `uix` # user interface extended # wrappers for windows, controls, buttons
 
+### Edit(or) App
+- layouts: [4xViewports] | [2xLeft + 1xRight] | [1xRight + 2xLeft] | [1xTop + 1xBottom] | [1xViewport]
+- viewport projection: [perspective] | [orthographic] 
+- play mode: opens a canvas w/ shared context that plays the game
+
+### Play(Game) App
+- layout: [1xViewport] using canvas
