@@ -24,7 +24,7 @@ namespace app {
       void onInit()      override;
       void onTick(int=0) override;
       void onFree()      override;
-    protected:
+    protected:  
       void onKeydown(uix::CEvent*);
       void onClick(uix::CEvent*);
       void onCommand(uix::CEvent*);

@@ -28,10 +28,57 @@
 - move window create logic from `CWindow` to `CFrame` (first concrete child) and others
 - `SConfig`: replace window hints w/ config
 - `SState`: window & application states for persistance
+- fix: leak: all ::GetDC() MUST have a ::ReleaseDC()
+- fix: move free() from base class to superclass // last free doesn't trigger
+
+- namespaces: sys & com(replace fix)
+
+- loop: engine onUpdate & onRender
+
+- object: add custom ids // if try to use same id crash
+
+- enum class: find an alternative or implement hintbag
+
+- listener/events: make CListener::mHandlers static (common for all intances)
+
+- fullscreen: gaming (DEVMODE)
+- custom theme - replace titlebar (icon+menubar+title+sysmenu)
+- menus
+- multithreading (::CreateProcess & pthreads)
+- on resize/maximized restore canvas/surface'context (render area)
+- handle ::WinMain + CApplication + CConsole + nCmdShow
+- ::AnimateWindow()
+- sys: os + fs + timer 
+- logger: custom manipulators + multiple strategies (+file) + loggin w/ defines & macros
+- logger: make CLogger::dbg/nfo/wrn/err reference to CLogger not ELevel or ELevel into a class
+- logger: should get instance on app instance / solve the unique_ptr init problemcccccclctidrvbijekchniftkvffbvndtrivvlfjtduv
+- registries should init only on app init | use CSingleton & CPointer
+
+- style (window) switcher
+- styles: revisited (application) integrate UIX_STYLE // ifndef use win32 else use UIX_STYLE
+- window: alpha/transparency usin' layered windows
+- widget: widgets don't init until added to toplevel(popup) windows 
+
+- finish: mouse click events // pair events (mouse click, key press/tab) 
+- finish: window events
+- finish: painter
+- finish: button
+
+- context: opengl stereo + debug flags
+
+- most pointers should be wrapped by a smart pointer object
+
+- surface != panel // need something above (or just use widget) // panel for controls // surface for opengl
+- throw exception on windows create failed + loop + try + fatal or warning // where to use them
+
+- app: 2 panels: 1x canvas +1x buttons (like spawn a sphere)
+
+- sys.cpp | include all lib .cpp files inside a sys.cpp file to build a single .obj file 
 
 
 ### Bugs
 - an event doesn't trigger properly, don't remember which one :/
+
 
 ### Architecture
 ##### `Game` (app)
@@ -40,7 +87,34 @@
 ##### `Graphic Framework`
 ##### `...`
 
+
 ### Engine
+- needs opengl context
+- needs build engine - pre-set up stuff (that may change later)
+- render: // draws using draw calls (mesh + texture info)
+  - for all objects/drawables
+    - add draw call (w/ all necessary info)
+  - render scene (draw calls/what camera sees)
+- code
+  - `CMeshBuilder`
+    - `CMD5MeshBuilder`
+    - `CSphereMeshBuilder::build(CSphereMeshBuilder::EStrategy)` -> `CMesh` 
+      - `EStrategy::ICOSPHERE`                   // uses icosahedron to build a sphere
+      - `EStrategy::CUBESPHERE`                  // uses a cube to build a sphere 
+      - `EStrategy::UVSPHERE`  (this looks hard)
+  - `CCubeMeshBuilder`
+  - `CPyramidMeshBuilder::build(int nSides)`     // now many edges the base has // can be used to build a cone
+
+  - `CTextureBuilder`
+    - `CSimplexTextureBuilder`
+    - `CDDSTextureBuilder` 
+    - `CTGATextureBuilder` 
+    - `CPNGTextureBuilder` 
+  
+  - `CAnimationBuilder`
+    - `CMD5AnimationBuilder`
+
+
                  +-----+
                  |Logic|
                  +-----+
@@ -60,6 +134,8 @@
     +------+ +-----+ +-----+ +-----+
     |Render| |Input| |Sound| |Utils|
     +------+ +-----+ +-----+ +-----+
+    
+
 - messaging
   - messenger queue: too many messages this frame? queue them for the next one | control game fps
   - messenger handle messages w/ priority: 0 = now | 10+ = later
@@ -68,6 +144,24 @@
   - use cpu L* cache levels
   - allocator // stack-based vs pool-based vs (multi)FRAME-based
     - frame-based: gets reset on each(or nth) frame
+
+
+### Physics
+- bodies
+  - rigid body   // w/ physics // w/ gravity (or other forces) // mass & weight(mass & gravity acc)
+  - dynamic body // kinematic/animated // can be moved // no default physics // needs own physics rules 
+  - static body  // doesnt move + other bodies can interact w/ it // no gravity (force) interaction
+  - vehicul body
+  - soft body 
+- collision
+  - polygon
+  - shape
+- material // physics material
+  - friction
+  - rough
+  - bounce
+  - absorb
+
 
 ### Framework
 ###### `sys` # system/core framework # io, error, string, files
@@ -80,10 +174,44 @@
 ###### `net` # networking library # tcp, udp, sockets, http
 ###### `uix` # user interface extended # wrappers for windows, controls, buttons
 
-### Edit(or) App
-- layouts: [4xViewports] | [2xLeft + 1xRight] | [1xRight + 2xLeft] | [1xTop + 1xBottom] | [1xViewport]
-- viewport projection: [perspective] | [orthographic] 
-- play mode: opens a canvas w/ shared context that plays the game
 
-### Play(Game) App
-- layout: [1xViewport] using canvas
+### Edit(or) | Maker
+- structure
+  - splash window
+    - present editor
+    - preload next window (find projects/apps/games)
+  - project (select window)
+    - create: init editor/main window + empty/template .xml
+    - select: init editor/main window + .xml scene
+    - show loading/progress window until (init) main window is done
+  - editor (main) window
+    - layouts: [4xViewports] | [2xLeft + 1xRight] | [1xRight + 2xLeft] | [1xTop + 1xBottom] | [1xViewport]
+    - projection: [perspective] | [orthographic] 
+    - init: 
+      - create opengl context
+      - open scene.xml 
+      - setup virtual cameras (views) (not saved w/ the scene)
+      - send asses to be loaded in the background 
+    - tick: draw scene/objects - once a new one is avaiable added to the draw call
+- features:
+  - play mode: opens a canvas w/ shared context that plays the game
+
+
+    +----------------------------------------------------+
+    | [O] | File Edit View | project name        | _ # X |
+    |-----+--------------------------------------+-------|
+    | [a] : [b] : [c] : [d] : [e]         [Tools] [Play] |
+    |-----+------------------------+---------------------|
+    | [1] | view 1: 3d |           | world |             |
+    |     +------------+           +-------+             |
+    | [2] |                        | + root              |
+    |     |                        |   + scene:node 01   |
+    |     |                        |   + scene:node 02   |
+    |     |                        | [ - SELECTED node ] |
+    |     |                        |     + sub-element   |
+    |     |                        |   [ - sub-element ] |
+    |     |                        |                     |
+    |     |                        |                     |
+    |-----+------------------------+---------------------|
+    |                                                 [] |
+    +----------------------------------------------------+
