@@ -49,6 +49,9 @@ namespace uix {  // acme { gui { win, unx, osx } }
       virtual bool    init(CWindow*, int);
       virtual bool    free();
       virtual CString name() const final;
+    protected: // events
+      virtual void onInit();
+      virtual void onFree();
     public: // actions
       bool            move(int, int);
       bool            size(int, int);
@@ -61,6 +64,7 @@ namespace uix {  // acme { gui { win, unx, osx } }
       bool            minimize();
       bool            maximize();
       virtual bool    fullscreen(int=ZERO);
+      bool            close();
     public: // chages
       STATE           state() const;
       bool            area(const SArea&);
@@ -76,8 +80,7 @@ namespace uix {  // acme { gui { win, unx, osx } }
       virtual bool    style(CStyle*);
       virtual CStyle* style();
       auto            layout() const -> decltype(mLayout);
-      template <typename T>
-      T*              layout(T* pLayout) { mLayout = pLayout; mLayout->layout(this); return pLayout; };
+      template <typename T> T*          layout(T* pLayout) { mLayout = pLayout; mLayout->layout(this); return pLayout; };
     protected:
       static CWindow*         find(const CString&);
       static CWindow*         find(HWND);

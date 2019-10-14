@@ -12,7 +12,28 @@
 
 
 ### Needed
+- fix: wglMakeCurrent() fail on app destroy // problem w/ the loop // close + destroy called before quit 
+- restructure: move `CSufrface` + `CButton` (and panels) to `CEditWindow`
+- new: `CWindowApplication` or `???` // application that is also a (main) window // can extend `CCanvas` (for game)
+- structure: app:edit
+  - create:app
+    - on:init
+      - create:context(opengl)
+      - create:window:main(edit) 
+        - on:init
+          - create:surface(viewport)
+          - create:panel(controls|buttons|actions)
+      - create:scene
+    - on:idle
+      - render:scene
+        - for:each:item:in:scene
+          - item:draw
+    - on:free
+      - delete:context(opengl)
+      - delete:window(main)
+      
 - restructure: gl* into ONE unit/folder/framework (if possible)
+- replace(use): custom types (typedef uint) instead of opengl's GLxxx types
 - oop: !!! really need an empty default constructor declared in the header
 - attach `CContext` to window(s) // by ref?!
 - create engine (using context)
@@ -74,10 +95,7 @@
 - app: 2 panels: 1x canvas +1x buttons (like spawn a sphere)
 
 - sys.cpp | include all lib .cpp files inside a sys.cpp file to build a single .obj file 
-
-
-### Bugs
-- an event doesn't trigger properly, don't remember which one :/
+- std::array vs boost::static_vector (dynamic fixed array)  
 
 
 ### Architecture
@@ -113,8 +131,7 @@
   
   - `CAnimationBuilder`
     - `CMD5AnimationBuilder`
-
-
+```
                  +-----+
                  |Logic|
                  +-----+
@@ -134,8 +151,7 @@
     +------+ +-----+ +-----+ +-----+
     |Render| |Input| |Sound| |Utils|
     +------+ +-----+ +-----+ +-----+
-    
-
+```
 - messaging
   - messenger queue: too many messages this frame? queue them for the next one | control game fps
   - messenger handle messages w/ priority: 0 = now | 10+ = later
@@ -144,7 +160,13 @@
   - use cpu L* cache levels
   - allocator // stack-based vs pool-based vs (multi)FRAME-based
     - frame-based: gets reset on each(or nth) frame
-
+- shaders
+  - shader fragments
+  - embeded shaders into clases that know about attributes + uniforms + ...
+  - exception if the shader/program/pipeline fails to compile 
+  - get unforms & attributes using glGetActiveAttrib && glGetActiveUniform
+  - parse shader
+    - use `#include file.xxx` to add functionality to the shader // this needs to be parsed by the engine
 
 ### Physics
 - bodies
@@ -175,28 +197,24 @@
 ###### `uix` # user interface extended # wrappers for windows, controls, buttons
 
 
-### Edit(or) | Maker
+### App::edit|make
 - structure
-  - splash window
-    - present editor
-    - preload next window (find projects/apps/games)
-  - project (select window)
-    - create: init editor/main window + empty/template .xml
-    - select: init editor/main window + .xml scene
-    - show loading/progress window until (init) main window is done
-  - editor (main) window
-    - layouts: [4xViewports] | [2xLeft + 1xRight] | [1xRight + 2xLeft] | [1xTop + 1xBottom] | [1xViewport]
-    - projection: [perspective] | [orthographic] 
-    - init: 
-      - create opengl context
-      - open scene.xml 
-      - setup virtual cameras (views) (not saved w/ the scene)
-      - send asses to be loaded in the background 
-    - tick: draw scene/objects - once a new one is avaiable added to the draw call
+    - splash window
+      - build/load shaders
+      - present app
+      - preload next (edit) window
+    - edit (main) window
+        - layouts: [4xViewports] | [2xLeft + 1xRight] | [1xRight + 2xLeft] | [1xTop + 1xBottom] | [1xViewport]
+        - projection: [perspective] | [orthographic] 
+        - init: 
+            - create opengl context
+            - open game.xml & scene.xml 
+            - setup virtual cameras (views) (not saved w/ the scene)
+            - send asses to be loaded in the background 
+        - idle: draw scene/objects - once a new one is avaiable added to the draw call
 - features:
-  - play mode: opens a canvas w/ shared context that plays the game
-
-
+    - play mode: opens a canvas w/ shared context that plays the game
+```
     +----------------------------------------------------+
     | [O] | File Edit View | project name        | _ # X |
     |-----+--------------------------------------+-------|
@@ -215,3 +233,9 @@
     |-----+------------------------+---------------------|
     |                                                 [] |
     +----------------------------------------------------+
+```
+
+### App::play|game
+- structure
+    - play (main) window
+        - fullscreen

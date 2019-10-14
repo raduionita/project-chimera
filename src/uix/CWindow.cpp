@@ -125,11 +125,16 @@ namespace uix {
     // SetWindowLong(mHandle, GWL_EXSTYLE, GetWindowLong(mHandle, GWL_EXSTYLE) | WS_EX_LAYERED);
     // SetLayeredWindowAttributes(hwnd, 0, (255 * 70) / 100, LWA_ALPHA);
     
+    // fire init event
+    onInit();
+    // done initing
     return (mInited = true);
   }
   
   bool CWindow::free() {
     log::nfo << "uix::CWindow::free()::" << this << log::end;
+    // fire free event
+    onFree();
     // delete children
     for (CWindow*& pChild : mChildren) {
       DELETE(pChild);
@@ -152,8 +157,14 @@ namespace uix {
     return !mInited;
   }
   
-  inline CString CWindow::name() const { return sys::concat("uix::CWindow::", mId); }
+  CString CWindow::name() const { return sys::concat("uix::CWindow::", mId); }
 
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  void CWindow::onInit() { }
+  
+  void CWindow::onFree() { }
+  
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
   bool CWindow::show(int /*nHints=1*/) {
@@ -275,6 +286,11 @@ namespace uix {
   bool CWindow::fullscreen(int) {
     log::nfo << "uix::CWindow::fullscreen()::" << this << log::end;
     return false;
+  }
+  
+  bool CWindow::close() {
+    log::nfo << "uix::CWindow::close()::" << this << log::end;
+    return TRUE == ::PostMessage(mHandle, WM_CLOSE, 0, 0);
   }
   
   STATE CWindow::state() const {
@@ -405,8 +421,16 @@ namespace uix {
           log::nfo << "::" << pWindow << " ID:" << pWindow->mId;
         }
         log::nfo <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
-        // @todo: close event
+        
+        auto pEvent      = new CEvent(EEvent::CLOSE, pWindow);
+        bool bHandled    = pWindow->handle(pEvent);
+        DELETE(pEvent);
+        
+        // @todo: if main window // or move this somewhere else
         ::PostQuitMessage(0);
+        
+        RETURN(bHandled,0);
+        
         break;
       }
     //case WM_QUIT: // never reached (handled in loop) 
@@ -506,7 +530,7 @@ namespace uix {
         //         3 SIZE_MAXIMIZED the window has been maximized
         //         2 SIZE_MAXSHOW   to all popup when other window has been restored
         //         1 SIZE_MINIMIZED the window has been minimized
-        //         0 SIZE_RESOTRED  resized (but not minimized or maximized)
+        //         0 SIZE_RESTORED  resized (but not minimized or maximized)
         // LOWORD(lParam): width  (client area)
         // HIWORD(lParam): height (client area)
         break; 

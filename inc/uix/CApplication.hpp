@@ -25,7 +25,7 @@ namespace uix {
       bool    style(CStyle*);
     protected: // events  
       bool init() override;
-      bool tick(int=0);
+      bool idle(int=0);
       bool free() override;
     public:
       bool exec(int=0);
@@ -34,7 +34,7 @@ namespace uix {
       static CApplication* instance();
     protected:
       virtual void onInit();
-      virtual void onTick(int=0);
+      virtual void onIdle(int=0);
       virtual void onFree();
   };
 }

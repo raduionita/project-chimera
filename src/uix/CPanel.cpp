@@ -24,9 +24,9 @@ namespace uix {
     }
   
     (nHints & EWindow::VISIBLE) && show();
-    (nHints & EWindow::AUTOXY) && move(AUTO, AUTO);
-    (nHints & EWindow::AUTOWH) && size(AUTO, AUTO); // init w/ parent size
-    (nHints & EWindow::CENTER) && center();
+    (nHints & EWindow::AUTOXY)  && move(AUTO, AUTO);
+    (nHints & EWindow::AUTOWH)  && size(AUTO, AUTO); // init w/ parent size
+    (nHints & EWindow::CENTER)  && center();
 
     return mInited;
   }

@@ -48,9 +48,9 @@ namespace uix {
     return (mRunning = true);
   }
   
-  bool CApplication::tick(int nElapsed/*=0*/) {
-    // log::nfo << "uix::CApplication::tick("<< nElapsed <<")::" << this << log::end;
-    onTick(nElapsed);
+  bool CApplication::idle(int nElapsed/*=0*/) {
+    // log::nfo << "uix::CApplication::idle("<< nElapsed <<")::" << this << log::end;
+    onIdle(nElapsed);
     return true;
   }
   
@@ -78,10 +78,11 @@ namespace uix {
         nCurTicks = nPrvTicks = ::GetTickCount();
         nNxtTicks = nCurTicks + cJumpTime; // current_ms_count + fraction_of_a_sec_ms
         nLoops    = 0;
-        // the message loop // allowed to last max 40ms // AND // max of 10 events
+        // the message loop // allowed to last max 40ms // AND // max of 5 win msgs
         while (nCurTicks < nNxtTicks && nLoops < cMaxLoops) { 
           if (::PeekMessage(&sMsg, NULL, 0, 0, PM_REMOVE)) {
             if (WM_QUIT == sMsg.message) {
+              log::nfo << "   A:WM_QUIT::" << this << " ID:" << this->mId << log::end;
               mRunning = false;
               break;
             } else {
@@ -92,8 +93,8 @@ namespace uix {
             nLoops++;
           } else { break; }
         }
-        // tick
-        mRunning && tick(::GetTickCount() - nPrvTicks);
+        // idle
+        mRunning && idle(::GetTickCount() - nPrvTicks);
       }
       free();
       return (int)(sMsg.wParam);
@@ -116,6 +117,6 @@ namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   void CApplication::onInit()    { }
-  void CApplication::onTick(int) { }
+  void CApplication::onIdle(int) { }
   void CApplication::onFree()    { }
 }

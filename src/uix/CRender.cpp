@@ -11,7 +11,8 @@ namespace uix {
   }
   
   bool CRender::init(CWindow* pWindow, const CContext::SConfig& sConfig) {
-    return (mContext = new CContext(pWindow, sConfig));
+    mContext = new CContext(pWindow, sConfig);
+    return true;
   }
   
   bool        CRender::swap()    const       { return mContext->swap(); }
@@ -21,7 +22,7 @@ namespace uix {
   const char* CRender::version() const       { return mContext->version(); }
   
   void CRender::onResize(CEvent* pEvent) {
-    log::dbg << "uix::CRender::onResize(CEvent*)::" << this << log::end;
+    log::nfo << "uix::CRender::onResize(CEvent*)::" << this << log::end;
     // update render viewport
     ::glViewport(pEvent->clientX(),pEvent->clientY(),pEvent->width(),pEvent->height());
   }
