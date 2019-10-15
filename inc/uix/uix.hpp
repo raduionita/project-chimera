@@ -36,6 +36,7 @@
 #undef  DELETE
 #define DELETE(what)        delete what;what=nullptr
 #define NEW(what)           new (_NORMAL_BLOCK,__FILE__,__LINE__)
+#define ASSERT(cond)        assert(cond)
 
 #define CM_INIT       (WM_USER       + 0x0001) // custom message
 #define CM_FREE       (CM_INIT       + 0x0001) // custom message

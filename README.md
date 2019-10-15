@@ -12,11 +12,17 @@
 
 
 ### Needed
-- use: ::glDebugMessageCallback
+- use: `wglSwapIntervalEXT` in `CContext`
+- update: move macros from `uix` to `sys` (sys should be everywhere)
+- use: `::glDebugMessageCallback`
+- question: should `GLCALL` + `::glCheckError` trigger a system event to the `uix::CContext`
+- move: opengl code from `uix::CContext` to `glc::CContext : uix::CContext` // `uix` should stay abstract
+- rename: consider renaming `glc` to `ogl` and putting everything inside a namespace
 - fix: need alternative for calling virtual methods from constructors
 - fix: wglMakeCurrent() fail on app destroy // problem w/ the loop // close + destroy called before quit 
 - restructure: move `CSufrface` + `CButton` (and panels) to `CEditWindow`
 - new: `CWindowApplication` or `???` // application that is also a (main) window // can extend `CCanvas` (for game)
+- use: get unforms & attributes using `glGetActiveAttrib` && `glGetActiveUniform`
 - structure: app:edit
   - create:app
     - on:init
@@ -97,7 +103,7 @@
 - app: 2 panels: 1x canvas +1x buttons (like spawn a sphere)
 
 - sys.cpp | include all lib .cpp files inside a sys.cpp file to build a single .obj file 
-- std::array vs boost::static_vector (dynamic fixed array)  
+- `std::array` vs `boost::static_vector` (dynamic fixed array)  
 
 
 ### Architecture
