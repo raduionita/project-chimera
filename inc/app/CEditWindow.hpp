@@ -6,6 +6,7 @@
 
 namespace app {
   class CEditWindow : public uix::CFrame {
+      friend class CApplication;
       using uix::CFrame::CFrame;
     private:
       uix::CSurface*    mSurface;
@@ -13,6 +14,7 @@ namespace app {
       CEditWindow();
       ~CEditWindow();
     protected:
+      void onIdle(int);
       void onInit() override;
       void onFree() override;
       void onKeydown(uix::CEvent*);

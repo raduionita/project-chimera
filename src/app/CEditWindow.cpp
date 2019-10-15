@@ -42,6 +42,38 @@ namespace app {
     mSurface->swap(); 
   }
   
+  void CEditWindow::onIdle(int nElapsed) {
+    log::dbg << "app::CEditWindow::onIdle("<< nElapsed <<"ms)::" << this << log::end;
+    // interpolation // for view_pos = pos + (speed * interp)
+    float            fInterp; 
+    int              nLoops{0};
+    static const int cMaxLoops{10};
+    static const int cTicksPerSec{25};             // 
+    static const int cJumpTime{1000/cTicksPerSec}; // 
+    // this should be outside while(mRunning)
+    static DWORD     nNxtTicks{::GetTickCount()};  // ms since app start
+    
+    // game.inputs();
+    
+    // the update loop
+    while (nNxtTicks < ::GetTickCount() && nLoops < cMaxLoops) {
+      log::nfo << "app::CEditWindow::onIdle("<< nElapsed <<"ms)::" << this << " LOOP:" << nLoops << log::end;
+      // game.update(timer);
+      
+      nNxtTicks += cJumpTime;
+      nLoops++;
+    }
+    
+    fInterp = float(::GetTickCount() + cJumpTime - nNxtTicks) / float(cJumpTime);
+    
+    // mSurface->current();
+    // mSurface->clear();
+    //
+    // // game.render(fInterp);
+    //
+    // mSurface->swap();
+  }
+  
   void CEditWindow::onFree() {
     log::nfo << "app::CEditWindow::onFree()::" << this << log::end;
   }
