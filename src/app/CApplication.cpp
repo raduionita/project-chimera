@@ -2,7 +2,7 @@
 
 namespace app {
   void CApplication::onInit() {
-    log::dbg << "app::CApplication::onInit()::" << this << log::end;
+    log::nfo << "app::CApplication::onInit()::" << this << log::end;
   
     mMain = new app::CEditWindow;
   }

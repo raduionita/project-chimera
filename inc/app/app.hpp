@@ -1,6 +1,8 @@
 #ifndef __app_hpp__
 #define __app_hpp__
 
+#define GLC_DEBUG
+
 #define CYM_LOGGER 1
 #define CYM_LOGGER_INFO
 #define CYM_LOGGER_COUT

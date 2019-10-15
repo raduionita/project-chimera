@@ -28,12 +28,12 @@ namespace uix {
       return false;
     }
   
-    (nHints & EWindow::VISIBLE) && show();
-    (nHints & EWindow::MAXIMIZE) && maximize();
-    (nHints & EWindow::MINIMIZE) && minimize();
-    (nHints & EWindow::AUTOWH) && size(640, 480);
-    (nHints & EWindow::AUTOXY) && (nHints |= EWindow::CENTER);
-    (nHints & EWindow::CENTER) && center();
+    (nHints & EWindow::VISIBLE)    && show();
+    (nHints & EWindow::MAXIMIZE)   && maximize();
+    (nHints & EWindow::MINIMIZE)   && minimize();
+    (nHints & EWindow::AUTOWH)     && size(640, 480);
+    (nHints & EWindow::AUTOXY)     && (nHints |= EWindow::CENTER);
+    (nHints & EWindow::CENTER)     && center();
     (nHints & EWindow::FULLSCREEN) && fullscreen();
     
     return mInited;

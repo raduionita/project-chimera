@@ -8,10 +8,19 @@
 #include "uix/CSurface.hpp"
 
 namespace app {
+  CEditWindow::CEditWindow() {
+    log::nfo << "app::CEditWindow::CEditWindow()::" << this << log::end;
+  }
+  
+  CEditWindow::~CEditWindow() {
+    log::nfo << "app::CEditWindow::~CEditWindow()::" << this << log::end;
+  }
+  
   void CEditWindow::onInit() {
-    log::dbg << "app::CEditWindow::onInit()::" << this << log::end;
+    log::nfo << "app::CEditWindow::onInit()::" << this << log::end;
          
-    auto pLayout  = this->layout(new uix::CBoxLayout(uix::ELayout::VERTICAL));
+    auto pLayout  = layout(new uix::CBoxLayout(uix::ELayout::VERTICAL));
+    
          mSurface = pLayout->add(new uix::CSurface(this, uix::EWindow::VISIBLE), uix::ELayout::ADJUST);
     auto pPanel   = pLayout->add(new uix::CPanel(this, uix::EWindow::VISIBLE), uix::ELayout::ADJUST);
     auto pButton  = new uix::CButton(pPanel, "RESIZE", {50,50,90,40});
@@ -24,13 +33,17 @@ namespace app {
     attach(pButton, uix::EEvent::LBUTTONDOWN, &app::CEditWindow::onClick);
     attach(mSurface,uix::EEvent::RESIZE,      &uix::CRender::onResize);
     
-    this->layout(pLayout);
-    this->title(mSurface->version());
-    this->show();
+    layout(pLayout);
+    title(mSurface->version());
+    show();
+  
+    mSurface->current();
+    mSurface->clear();
+    mSurface->swap(); 
   }
   
   void CEditWindow::onFree() {
-    log::dbg << "app::CEditWindow::onFree()::" << this << log::end;
+    log::nfo << "app::CEditWindow::onFree()::" << this << log::end;
   }
   
   void CEditWindow::onKeydown(uix::CEvent* pEvent) {

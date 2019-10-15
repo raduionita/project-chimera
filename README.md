@@ -12,6 +12,8 @@
 
 
 ### Needed
+- use: ::glDebugMessageCallback
+- fix: need alternative for calling virtual methods from constructors
 - fix: wglMakeCurrent() fail on app destroy // problem w/ the loop // close + destroy called before quit 
 - restructure: move `CSufrface` + `CButton` (and panels) to `CEditWindow`
 - new: `CWindowApplication` or `???` // application that is also a (main) window // can extend `CCanvas` (for game)

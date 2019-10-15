@@ -279,8 +279,8 @@ namespace uix {
   }
   
   bool CContext::clear(int nBit/*=GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT*/) const {
-    ::glClearColor(0.f,0.f,0.f,0.f);
-    ::glClear(nBit);
+    GLCALL(::glClearColor(0.f,0.f,0.f,0.f));
+    GLCALL(::glClear(nBit));
     
     return true;
   }

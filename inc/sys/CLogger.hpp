@@ -76,12 +76,12 @@ namespace sys {
         END = 0x0,
       };
       enum class ELevel      : int {
-      NONE  = 0,         //  0
-      FATAL = 1,         //  1
-      ERROR = FATAL,     //  1
-      WARN  = 2 | ERROR, //  3
-      INFO  = 4 | WARN,  //  7
-      DEBUG = 8 | INFO,  // 15
+        NONE  = 0,         //  0
+        FATAL = 1,         //  1
+        ERROR = FATAL,     //  1
+        WARN  = 2 | ERROR, //  3
+        INFO  = 4 | WARN,  //  7
+        DEBUG = 8 | INFO,  // 15
     };
     public:
       static const ELevel       nfo;

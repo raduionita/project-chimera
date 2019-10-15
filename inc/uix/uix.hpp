@@ -38,7 +38,8 @@
 #define NEW(what)           new (_NORMAL_BLOCK,__FILE__,__LINE__)
 
 #define CM_INIT       (WM_USER       + 0x0001) // custom message
-#define CM_TABCHANGE  (CM_INIT       + 0x0001)
+#define CM_FREE       (CM_INIT       + 0x0001) // custom message
+#define CM_TABCHANGE  (CM_FREE       + 0x0001)
 #define CM_STATE      (CM_TABCHANGE  + 0x0001)
 #define CM_FULLSCREEN (CM_STATE      + 0x0001)
 #define CM_WINDOWED   (CM_FULLSCREEN + 0x0001)

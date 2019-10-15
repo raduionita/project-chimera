@@ -118,15 +118,13 @@ namespace uix {
     ::SetWindowLong(mHandle, GWL_STYLE,   dwStyle);
     ::SetWindowLong(mHandle, GWL_EXSTYLE, dwExStyle);
     ::SetWindowPos(mHandle, NULL, 0,0,0,0, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE);
-  
-    ::SendMessage(mHandle, CM_INIT, 0, 0);
+    // add to the message queue // method should exit before this is triggered 
+    ::PostMessage(mHandle, CM_INIT, 0, 0);
     
     // @todo: Make this window 70% alpha
     // SetWindowLong(mHandle, GWL_EXSTYLE, GetWindowLong(mHandle, GWL_EXSTYLE) | WS_EX_LAYERED);
     // SetLayeredWindowAttributes(hwnd, 0, (255 * 70) / 100, LWA_ALPHA);
     
-    // fire init event
-    onInit();
     // done initing
     return (mInited = true);
   }
@@ -134,7 +132,7 @@ namespace uix {
   bool CWindow::free() {
     log::nfo << "uix::CWindow::free()::" << this << log::end;
     // fire free event
-    onFree();
+    ::SendMessage(mHandle, CM_FREE, 0, 0);
     // delete children
     for (CWindow*& pChild : mChildren) {
       DELETE(pChild);
@@ -392,7 +390,15 @@ namespace uix {
       case CM_INIT: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        log::nfo << "   W:CM_INIT::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
+        log::nfo << "   W:CM_INIT::" << pWindow << " ID:" << pWindow->mId << log::end;
+        pWindow->onInit();
+        return 0;
+      }
+      case CM_FREE: {
+        CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        BREAK(!pWindow);
+        log::nfo << "   W:CM_FREE::" << pWindow << " ID:" << pWindow->mId << log::end;
+        pWindow->onFree();
         return 0;
       }
       case CM_FULLSCREEN: {

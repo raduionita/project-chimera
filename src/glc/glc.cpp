@@ -806,7 +806,10 @@ int OGL_VERSION_4_6   = 0;
 
 bool OGL_LOADED_CORE = false;
 
+#include <string>
 #include <cstring>
+#include <cstdio>
+#include <iostream>
 
 static bool load_base() {
   if (OGL_LOADED_CORE) return true;
@@ -1732,5 +1735,23 @@ bool glLoad(int major/*=-1*/, int minor/*=-1*/) {
   load_exts();
   // return status
   return true;
+}
+
+GLushort glClearError() { GLushort nFound = 0; while (::glGetError() != GL_NO_ERROR) { nFound++; } return nFound; }
+
+bool glCheckError(const GLchar* func, const GLchar* file, GLushort line) {
+  GLshort cnt = 0;
+  while (GLenum err = ::glGetError()) {
+    cnt++;
+    std::string enm;
+    switch (err) {
+      case GL_INVALID_ENUM     : enm = "GL_INVALID_ENUM";      break; 
+      case GL_INVALID_VALUE    : enm = "GL_INVALID_VALUE";     break; 
+      case GL_INVALID_OPERATION: enm = "GL_INVALID_OPERATION"; break; 
+      case GL_OUT_OF_MEMORY    : enm = "GL_OUT_OF_MEMORY";     break; 
+    } 
+    std::cerr << enm << " on " << func << " in " << file << ":" << line << std::endl; 
+  }
+  return cnt == 0;
 }
 
