@@ -1,7 +1,7 @@
 #ifndef __glo_cbuffer_hpp__
 #define __glo_cbuffer_hpp__
 
-#include "glc/glc.hpp"
+#include "glo.hpp"
 
 namespace glo {
   class CBuffer {
