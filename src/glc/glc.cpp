@@ -1672,6 +1672,20 @@ static bool load_version(int major, int minor) {
   return true;
 }
 
+GLuint glTypeToSize(GLenum type) {
+  switch (type) {
+    case GL_FLOAT : return sizeof(GLfloat);
+    case GL_UINT  :
+    case GL_INT   : return sizeof(GLint);
+    case GL_USHORT:
+    case GL_SHORT : return sizeof(GLshort);
+    case GL_UBYTE :
+    case GL_BYTE  : return sizeof(GLbyte);
+  }
+  // @todo: static_assert(false);
+  return 0;
+}
+
 bool glVersion(int& major, int& minor) {
   load_base();
   // skip the line

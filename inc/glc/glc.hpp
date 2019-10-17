@@ -26,8 +26,6 @@
 #define __gltypes_h_
 #define __gl_ATI_h_
 
-#define OGL_SUCCESS 0
-
 #include "khr.hpp"
 
 // opengl common ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1930,10 +1928,17 @@ GLAPI bool OGL_LOADED_CORE;
 
 // opengl custom ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   
-   
+#define GL_SUCCESS 0
+
+#define GL_NULL   nullptr
+
+#define GL_UBYTE  GL_UNSIGNED_BYTE
+#define GL_USHORT GL_UNSIGNED_SHORT
+#define GL_UINT   GL_UNSIGNED_INT
 
 // opengl extern ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+extern GLuint glTypeToSize(GLenum type);
 
 extern bool glVersion(int&, int&);
 

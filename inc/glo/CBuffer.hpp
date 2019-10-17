@@ -6,13 +6,13 @@
 namespace glo {
   class CBuffer {
     protected:
-      GLuint mBuffer;
+      GLuint mID;
     public:
       virtual ~CBuffer();
     public:
-      virtual void bind(bool) const = 0;
-      virtual void link()     const = 0;
-      virtual void free()     const = 0;
+      virtual void bind(bool=true) const = 0;
+      virtual void link()          const = 0;
+      virtual void free()          const = 0;
   };
   
   template <typename T>
@@ -27,7 +27,7 @@ namespace glo {
     public:
       CVertexBuffer(const GLvoid*, GLuint, GLenum = GL_STATIC_DRAW);
     public:
-      inline void bind(bool state = true) const { GLCALL(::glBindBuffer(GL_ARRAY_BUFFER, state ? mBuffer : 0)); }
+      inline void bind(bool state = true) const { GLCALL(::glBindBuffer(GL_ARRAY_BUFFER, state ? mID : 0)); }
       inline void link()                  const { bind(true);  }
       inline void free()                  const { bind(false); }
   };
@@ -40,7 +40,7 @@ namespace glo {
     public:
       CIndexBuffer(const GLuint*, GLuint, GLenum = GL_STATIC_DRAW);
     public:
-      inline void bind(bool state = true) const { GLCALL(::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, state ? mBuffer : 0)); }
+      inline void bind(bool state = true) const { GLCALL(::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, state ? mID : 0)); }
       inline void link()                  const { bind(true);  }
       inline void free()                  const { bind(false); }
       // other
