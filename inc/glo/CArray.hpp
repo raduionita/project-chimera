@@ -2,16 +2,15 @@
 #define __glo_carray_hpp__
 
 #include "glo.hpp"
+#include "CObject.hpp"
 
 namespace glo {
-  class CArray {
-    private:
-      GLuint mID;
+  class CArray : public CObject {
     public:
       CArray();
       virtual ~CArray();
     public:
-      void bind(bool = true) const;
+      void bind(bool = true) const override;
       void buffer(const CBuffer&, const CLayout&);
   };
 }
