@@ -24,7 +24,9 @@ namespace glo {
       const auto& element = elements[i];
       const auto  stride  = layout.stride(); // FOR EACH layout.push() DO += sizeof(GLfloat) 
       GLCALL(::glEnableVertexAttribArray(i));
-      GLCALL(::glVertexAttribPointer(i, element.count, element.type, element.norm, stride, (GLvoid*)(offset)));
+      // @todo: adjust for ::glVertexAttribIPointer // GL_BYTE, GL_UNSIGNED_BYTE, GL_SHORT, GL_UNSIGNED_SHORT, GL_INT, GL_UNSIGNED_INT
+      // @todo: adjust for ::glVertexAttribLPointer // GL_DOUBLE
+      GLCALL(::gxVertexAttribPointer(i, element.count, element.type, element.norm, stride, offset));
       offset += element.size(); // += element.count * sizeof(GLfloat)
     }
   }

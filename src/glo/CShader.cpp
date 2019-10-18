@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <cassert>
+#include <vector>
 
 namespace glo {
   CShader::CShader(const std::string& filepath) : mFilepath{filepath} {
@@ -10,20 +11,64 @@ namespace glo {
     // @todo: replace w/ exception
     assert(ifs.good() && "cannot open shader file");
     
-    // @todo: WHILE get line
-      // @todo: FOR enum : [GL_VERTEX_SHADER, GL_FRAGMENT_SHADER]
-        // @todo: IF does this line HAS "#define {enum}"
-          // @todo: start new "enum" type shader
-        // @todo: ELSE
-          // @todo: add to current shader
+    std::string                                    line;
+    std::unordered_map<GLenum, SSource>            sources;
+    static std::unordered_map<GLenum, std::string> types {{GL_VERTEX_SHADER,"GL_VERTEX_SHADER"}};
+    GLenum curr = GL_NONE;
+    
+    while (std::getline(ifs, line)) {
+      if (line.find("#shader") != std::string::npos) {
+        for (auto& [type, name] : types) {
+          if (line.find(name) != std::string::npos) {
+            curr = type;
+            sources[type] = {name, type, GL_ZERO, ""};
+            break;
+          }
+        }
+      } else if (line.find("#include") != std::string::npos) {
+        // @todo: include shader fragment
+      } else {
+        sources[curr].code.append(line);
+      }
+    }
+    
+    GLCALL(::gxCreateProgram(&mID));
+    
+    for (auto& [type, source] : sources) {
+      GLuint& shader = source.shader;
+      const char* data = source.code.c_str();
+      GLCALL(::gxCreateShader(type, &shader));
+      GLCALL(::glShaderSource(shader, 1, &data, NULL));
+      GLCALL(::glCompileShader(shader));
       
+      GLint status = GL_FALSE;
+      GLCALL(::glGetShaderiv(shader, GL_COMPILE_STATUS, &status));
+      if(status == GL_FALSE) {
+        GLint loglen = 0;
+        GLCALL(::glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &loglen));
+        char* error = new char[loglen + 1];
+        GLCALL(::glGetShaderInfoLog(shader, loglen, NULL, error));
+        error[loglen] = '\0';
+        assert(false && "shader compile failed");
+      }
+    }
     
+    GLCALL(::glLinkProgram(mID));
     
-    // @todo: for each ["GL_VERTEX_SHADER"]
-      // @todo: split
-      // @todo: create shader
-      // @todo: attach
-    // @todo: compile
+    GLint status = GL_FALSE;
+    GLCALL(::glGetProgramiv(mID, GL_LINK_STATUS, &status));
+    if(status == GL_FALSE) {
+      GLint loglen;
+      GLCALL(::glGetProgramiv(mID, GL_INFO_LOG_LENGTH, &loglen));
+      GLchar* error = new GLchar[loglen + 1];
+      GLCALL(::glGetProgramInfoLog(mID, loglen, NULL, error));
+      error[loglen] = '\0';
+      assert(false && "program compile failed");
+    }
+    
+    for (auto& [type, source] : sources) {
+      GLCALL(::glDetachShader(mID, source.shader));
+    }
     
     // find all uniforms
     int cnt = -1;

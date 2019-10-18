@@ -4151,8 +4151,9 @@ GLAPI PFNGLMULTIDRAWELEMENTSINDIRECTCOUNTPROC glMultiDrawElementsIndirectCount;
 typedef void (APIENTRYP PFNGLPOLYGONOFFSETCLAMPPROC)(GLfloat factor, GLfloat units, GLfloat clamp);
 GLAPI PFNGLPOLYGONOFFSETCLAMPPROC glPolygonOffsetClamp;
 
-
 // opengl custom ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+typedef unsigned int GLsize;
 
 #define GL_SUCCESS 0
 
@@ -4165,6 +4166,7 @@ GLAPI PFNGLPOLYGONOFFSETCLAMPPROC glPolygonOffsetClamp;
 inline void gxCreateProgram(GLuint* id)             { *id = ::glCreateProgram(); };
 inline void gxCreateShader(GLenum type, GLuint* id) { *id = ::glCreateShader(type); };
 inline void gxGetUniformLocation(GLuint program, const GLchar* name, GLuint* location) { *location = ::glGetUniformLocation(program, name); };
+inline void gxVertexAttribPointer(GLuint index, GLint size, GLenum type, GLenum norm, GLsizei stride, GLsize offset) { GLvoid const* pointer = static_cast<char const*>(0) + offset; return ::glVertexAttribPointer(index,size,type,norm,stride,pointer); }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

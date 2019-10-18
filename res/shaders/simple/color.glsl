@@ -1,11 +1,14 @@
-#define GL_VERTEX_SHADER
+#shader GL_VERTEX_SHADER
 #version 330
 
 void main() {
 
 }
 
-#define GL_FRAGMENT_SHADER
+#shader GL_FRAGMENT_SHADER
+#version 330
+
+#include ""
 
 void main() {
 
