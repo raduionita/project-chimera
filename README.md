@@ -8,22 +8,23 @@ GLint   e[] = {0,1,2, 1,2,0};                                // indices(elements
 
 glo::CArray        a;                             // vao + vbo + ibo                              
 glo::CVertexBuffer b(p, 4 * 2 * sizeof(GLfloat)); // vbo => ::glGenBuffers() + ::glBindBuffer(GL_ARRAY_BUFFER...) + ::glBufferData()
-glo::CIndexBuffer  i(e, 6)                        // ibo => ::glGenBuffers() + ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER...) + ::glBufferData()
+glo::CIndexBuffer  i(e, 6);                       // ibo => ::glGenBuffers() + ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER...) + ::glBufferData()
 glo::CLayout       l;                             // layout, stores how many (here) floats are there per vertex component
 
 l.push({GL_FLOAT, 2, GL_FALSE}); // tell layout about the each vertex component (=2 floats) => adds to a list of elelemts
-a.buffer(b,l)                    // add buffer + layout to VAO => does ::glEnableVertexAttribArray() + ::glVertexAttribPointer()
+a.buffer(b,l);                    // add buffer + layout to VAO => does ::glEnableVertexAttribArray() + ::glVertexAttribPointer()
 
-a.bind()  // bind vao => ::glBindVertexArray()
-i.bind()  // bind ibo => ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER...)
+a.bind();  // bind vao => ::glBindVertexArray()
+i.bind();  // bind ibo => ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER...)
 
-::glDrawElements(GL_TRIANGLES,i.count(),GL_UNSIGNED_INT,GL_NULL) // execute draw call using ibo
+::glDrawElements(GL_TRIANGLES,i.count(),GL_UNSIGNED_INT,GL_NULL); // execute draw call using ibo
 ```
 ###### Shader
 ```c++
-glo::CShader shader{"res/shaders/simple/color.glsl"};
-
-
+glo::CShader s{"res/shaders/simple/color.glsl"};
+s.bind();
+s.uniform("u_vColor", .3f,.5f,.7f, 1.f);
+s.bind(false);
 ```
 
 ### Research
@@ -176,12 +177,15 @@ glo::CShader shader{"res/shaders/simple/color.glsl"};
   - use cpu L* cache levels
   - allocator // stack-based vs pool-based vs (multi)FRAME-based
     - frame-based: gets reset on each(or nth) frame
+- opengl
+  - unbinding might not be necesarry, make it do nothing in non-debug mode
 - shaders
   - shader fragments
   - embeded shaders into clases that know about attributes + uniforms + ...
   - exception if the shader/program/pipeline fails to compile 
   - get unforms & attributes using `::glGetActiveAttrib` && `::glGetActiveUniform`
   - parse shader
+    - have custom logic that reads tags like `#include` to extend shader system
     - use `#include file.xxx` to add functionality to the shader // this needs to be parsed by the engine
 - gui|hud
   - see https://github.com/ocornut/imgui

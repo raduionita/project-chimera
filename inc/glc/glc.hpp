@@ -4155,7 +4155,8 @@ GLAPI PFNGLPOLYGONOFFSETCLAMPPROC glPolygonOffsetClamp;
 
 typedef unsigned int GLsize;
 
-#define GL_SUCCESS 0
+#define GL_NOT_FOUND -1
+#define GL_SUCCESS    0
 
 #define GL_NULL   nullptr
 
@@ -4165,7 +4166,7 @@ typedef unsigned int GLsize;
 
 inline void gxCreateProgram(GLuint* id)             { *id = ::glCreateProgram(); };
 inline void gxCreateShader(GLenum type, GLuint* id) { *id = ::glCreateShader(type); };
-inline void gxGetUniformLocation(GLuint program, const GLchar* name, GLuint* location) { *location = ::glGetUniformLocation(program, name); };
+inline void gxGetUniformLocation(GLuint program, const GLchar* name, GLint* location) { *location = ::glGetUniformLocation(program, name); };
 inline void gxVertexAttribPointer(GLuint index, GLint size, GLenum type, GLenum norm, GLsizei stride, GLsize offset) { GLvoid const* pointer = static_cast<char const*>(0) + offset; return ::glVertexAttribPointer(index,size,type,norm,stride,pointer); }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

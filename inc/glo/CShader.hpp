@@ -35,6 +35,7 @@ namespace glo {
       inline void bind(bool state = true) const override { GLCALL(::glUseProgram(state ? mID : 0)); }
       // uniforms
       void  uniform(const std::string& name, float x, float y, float z, float w);
+      void  uniform(const std::string& name, float x);
       GLint uniform(const std::string& name);
   };
 }
