@@ -1,5 +1,31 @@
 ## C++ OpenGL API Game Engine
 
+### API
+###### VBO + IBO + VAO
+```c++
+GLfloat p[] = {-0.5,-0.5, +0.5,-0.5, +0.5,+0.5, -0.5,+0.5};  // vertex.positions
+GLint   e[] = {0,1,2, 1,2,0};                                // indices(elements)
+
+glo::CArray        a;                             // vao + vbo + ibo                              
+glo::CVertexBuffer b(p, 4 * 2 * sizeof(GLfloat)); // vbo => ::glGenBuffers() + ::glBindBuffer(GL_ARRAY_BUFFER...) + ::glBufferData()
+glo::CIndexBuffer  i(e, 6)                        // ibo => ::glGenBuffers() + ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER...) + ::glBufferData()
+glo::CLayout       l;                             // layout, stores how many (here) floats are there per vertex component
+
+l.push({GL_FLOAT, 2, GL_FALSE}); // tell layout about the each vertex component (=2 floats) => adds to a list of elelemts
+a.buffer(b,l)                    // add buffer + layout to VAO => does ::glEnableVertexAttribArray() + ::glVertexAttribPointer()
+
+a.bind()  // bind vao => ::glBindVertexArray()
+i.bind()  // bind ibo => ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER...)
+
+::glDrawElements(GL_TRIANGLES,i.count(),GL_UNSIGNED_INT,GL_NULL) // execute draw call using ibo
+```
+###### Shader
+```c++
+glo::CShader shader{"res/shaders/simple/color.glsl"};
+
+
+```
+
 ### Research
 - `Game Programming Patterns` (by Robert Nystrom)
 - `Game Coding Complete`
@@ -17,7 +43,7 @@
 - use: `::glDebugMessageCallback`
 - question: should `GLCALL` + `::glCheckError` trigger a system event to the `uix::CContext`
 - move: opengl code from `uix::CContext` to `glc::CContext : uix::CContext` // `uix` should stay abstract
-- rename: consider renaming `glc` to `ogl` and putting everything inside a namespace
+- refactor: consider moving `glc`+`glo` into `ogl` and putting everything inside a namespace
 - fix: need alternative for calling virtual methods from constructors
 - fix: wglMakeCurrent() fail on app destroy // problem w/ the loop // close + destroy called before quit 
 - restructure: move `CSufrface` + `CButton` (and panels) to `CEditWindow`
@@ -154,9 +180,11 @@
   - shader fragments
   - embeded shaders into clases that know about attributes + uniforms + ...
   - exception if the shader/program/pipeline fails to compile 
-  - get unforms & attributes using glGetActiveAttrib && glGetActiveUniform
+  - get unforms & attributes using `::glGetActiveAttrib` && `::glGetActiveUniform`
   - parse shader
     - use `#include file.xxx` to add functionality to the shader // this needs to be parsed by the engine
+- gui|hud
+  - see https://github.com/ocornut/imgui
 
 ### Physics
 - bodies

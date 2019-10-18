@@ -1926,16 +1926,6 @@ GLAPI int OGL_VERSION_MAJOR;
 GLAPI int OGL_VERSION_MINOR;
 GLAPI bool OGL_LOADED_CORE;
 
-// opengl custom ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#define GL_SUCCESS 0
-
-#define GL_NULL   nullptr
-
-#define GL_UBYTE  GL_UNSIGNED_BYTE
-#define GL_USHORT GL_UNSIGNED_SHORT
-#define GL_UINT   GL_UNSIGNED_INT
-
 // opengl extern ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 extern GLuint glTypeToSize(GLenum type);
@@ -4160,6 +4150,21 @@ GLAPI PFNGLMULTIDRAWELEMENTSINDIRECTCOUNTPROC glMultiDrawElementsIndirectCount;
 
 typedef void (APIENTRYP PFNGLPOLYGONOFFSETCLAMPPROC)(GLfloat factor, GLfloat units, GLfloat clamp);
 GLAPI PFNGLPOLYGONOFFSETCLAMPPROC glPolygonOffsetClamp;
+
+
+// opengl custom ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#define GL_SUCCESS 0
+
+#define GL_NULL   nullptr
+
+#define GL_UBYTE  GL_UNSIGNED_BYTE
+#define GL_USHORT GL_UNSIGNED_SHORT
+#define GL_UINT   GL_UNSIGNED_INT
+
+inline void gxCreateProgram(GLuint* id)             { *id = ::glCreateProgram(); };
+inline void gxCreateShader(GLenum type, GLuint* id) { *id = ::glCreateShader(type); };
+inline void gxGetUniformLocation(GLuint program, const GLchar* name, GLuint* location) { *location = ::glGetUniformLocation(program, name); };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

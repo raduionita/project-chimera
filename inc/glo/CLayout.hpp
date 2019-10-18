@@ -18,7 +18,7 @@ namespace glo {
       GLuint                mStride {0};
       std::vector<SElement> mElements;
     public:
-      CLayout();
+      CLayout() = default;
     public:
       inline void push(SElement&& element)                                 { mElements.push_back(std::move(element));  mStride += element.count * ::glTypeToSize(element.type); }
       inline void push(GLenum type, GLuint count, GLubyte norm = GL_FALSE) { mElements.push_back({type, count, norm}); mStride += count         * ::glTypeToSize(type); }

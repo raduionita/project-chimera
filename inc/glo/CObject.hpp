@@ -6,12 +6,14 @@
 namespace glo {
   class CObject {
     protected:
-      GLuint mID;
+      GLuint mID {0};
     public:
       CObject() = default;
       virtual ~CObject() = default;
     public:
       virtual void bind(bool = true) const = 0;
+      inline virtual void link() const final { bind(true);  }
+      inline virtual void free() const final { bind(false); }
   };
 }
 

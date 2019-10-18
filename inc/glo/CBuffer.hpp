@@ -8,9 +8,6 @@ namespace glo {
   class CBuffer : public CObject {
     public:
       ~CBuffer();
-    public:
-      virtual void link() const = 0;
-      virtual void free() const = 0;
   };
   
   /// float vertices[] = { -0.5, -0.5,   +0.5, -0.5,   +0.5, +0.5,   -0.5, +0.5 };
@@ -21,8 +18,6 @@ namespace glo {
       CVertexBuffer(const GLvoid*, GLuint, GLenum = GL_STATIC_DRAW);
     public:
       inline void bind(bool state = true) const override { GLCALL(::glBindBuffer(GL_ARRAY_BUFFER, state ? mID : 0)); }
-      inline void link()                  const override { bind(true);  }
-      inline void free()                  const override { bind(false); }
   };
   
   /// uint indices[] = { 0,1,2,   2,3,0 };
@@ -34,8 +29,6 @@ namespace glo {
       CIndexBuffer(const GLuint*, GLuint, GLenum = GL_STATIC_DRAW);
     public:
       inline void bind(bool state = true) const override { GLCALL(::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, state ? mID : 0)); }
-      inline void link()                  const override { bind(true);  }
-      inline void free()                  const override { bind(false); }
       // other
       inline GLuint count() const { return mCount; }
   };

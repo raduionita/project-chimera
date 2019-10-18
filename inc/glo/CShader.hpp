@@ -1,8 +1,35 @@
-//
-// Created by Radu on 2019-10-07.
-//
+#ifndef __glo_cshader_hpp__
+#define __glo_cshader_hpp__
 
-#ifndef CPP_CHIMERA_CSHADER_HPP
-#define CPP_CHIMERA_CSHADER_HPP
+#include "glo.hpp"
+#include "CObject.hpp"
 
-#endif //CPP_CHIMERA_CSHADER_HPP
+#include <string>
+#include <unordered_map>
+
+namespace glo {
+  class CShader : public CObject {
+    public:
+      enum EType {
+        NONE      = GL_NONE,
+        VERTEX    = GL_VERTEX_SHADER,
+        GEOMETRY  = GL_GEOMETRY_SHADER,
+        TESSCTRL  = GL_TESS_CONTROL_SHADER,
+        TESSEVAL  = GL_TESS_EVALUATION_SHADER,
+        FRAGMENT  = GL_FRAGMENT_SHADER,
+      };
+    protected:
+      std::string                            mFilepath;
+      std::unordered_map<std::string, GLint> mUniforms;
+    public:
+      CShader(const std::string&);
+      ~CShader();
+    public:
+      inline void bind(bool state = true) const override { GLCALL(::glUseProgram(state ? mID : 0)); }
+      // uniforms
+      void  uniform(const std::string& name, float x, float y, float z, float w);
+      GLint uniform(const std::string& name);
+  };
+}
+
+#endif //__glo_cshader_hpp__
