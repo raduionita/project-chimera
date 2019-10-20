@@ -3,6 +3,9 @@
 
 #include "../glc/glc.hpp"
 
+#undef FAR
+#undef NEAR
+
 namespace glo {
   class CRenderer;
   class CCamera;
