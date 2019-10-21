@@ -4159,6 +4159,7 @@ GLAPI PFNGLPOLYGONOFFSETCLAMPPROC glPolygonOffsetClamp;
 
 // opengl custom ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+typedef float GLreal;
 typedef unsigned int GLcount;
 typedef unsigned int GLsize;
 using GLfloat2 = GLfloat[2];

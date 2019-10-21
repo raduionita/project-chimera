@@ -1,7 +1,7 @@
 #ifndef __glo_cfrustum_hpp__
 #define __glo_cfrustum_hpp__
 
-#include "glo.hpp"
+#include "glo/glo.hpp"
 
 namespace glo {
   class CFrustum { // CMovable, CDrawable

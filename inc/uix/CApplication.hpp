@@ -29,8 +29,8 @@ namespace uix {
       bool idle(int=0);
       bool free() override;
     public:
-      bool exec(int=0);
-      bool quit(int=0);
+      virtual bool exec(int=0);
+      virtual bool quit(int=0);
     public:
       static CApplication* instance();
     protected:

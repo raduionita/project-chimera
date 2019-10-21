@@ -16,6 +16,19 @@ namespace cym {
   // using CMemory = sys::CMemory;
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  enum EPolymode {
+    POINTS,
+    WIREFRAME,
+    SOLID,
+  };
+  
+  enum ECulling {
+    NONE,
+    CLOCKWISE, CW = CLOCKWISE,
+    COUNTERCLOCKWISE, CCW = COUNTERCLOCKWISE,
+  };
+
 }
 
 #endif //__cym_hpp__

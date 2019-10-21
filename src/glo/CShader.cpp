@@ -108,6 +108,8 @@ namespace glo {
     }
   }
   
+  // @todo: need better shader loading mechanisms
+  
   CShader::~CShader() {
     GLCALL(::glDeleteProgram(mID));
   }

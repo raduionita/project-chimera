@@ -56,6 +56,8 @@ s.bind(false);
 - attach `CContext` to window(s) // by ref?!
 - create engine (using context)
   - add viewports (windows + cameras) to engine // new `CViewport` = `CWindow` + `CCamera`
+  
+- precision: `#ifdef OGL_DOUBLE_PRECISION` -> `typrdef double real` #else `typedef float real`
 
 - `glx` draw something // start the ogl framework
   - engine picks the context

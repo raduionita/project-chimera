@@ -24,6 +24,7 @@ namespace glo {
         TESSCTRL  = GL_TESS_CONTROL_SHADER,
         TESSEVAL  = GL_TESS_EVALUATION_SHADER,
         FRAGMENT  = GL_FRAGMENT_SHADER,
+        COMPUTE   = GL_COMPUTE_SHADER,
       };
     protected:
       std::string                            mFilepath;
