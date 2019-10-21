@@ -7,28 +7,46 @@
 namespace glo {
   class CBuffer : public CObject {
     public:
-      ~CBuffer();
+      using CObject::CObject;
+  };
+  
+  class CDataBuffer : public CBuffer {
+    public:
+      using CBuffer::CBuffer;
+    public:
+      CDataBuffer();
+      template <typename T> CDataBuffer(const T* data, GLcount count, GLenum target, GLenum usage = GL_STATIC_DRAW) { 
+        log::nfo << "glo::CDataBuffer::CDataBuffer(T*,GLcount,GLenum,GLenum)::" << this << log::end;
+        GLCALL(::glGenBuffers(1, &mID));
+        GLCALL(::glBindBuffer(target, mID));
+        GLCALL(::glBufferData(target, count * sizeof(T), data, usage));
+      }
+      ~CDataBuffer();
   };
   
   /// float vertices[] = { -0.5, -0.5,   +0.5, -0.5,   +0.5, +0.5,   -0.5, +0.5 };
   /// CVertexBuffer vbo{vertices, 4*2*sizeof(float)}; // bound
   /// vbo.bind(false)                                 // unbound
-  class CVertexBuffer : public CBuffer {
+  class CVertexBuffer : public CDataBuffer {
+    public:
+      using CDataBuffer::CDataBuffer;
     public:
       CVertexBuffer(const GLvoid*, GLuint, GLenum = GL_STATIC_DRAW);
     public:
-      inline void bind(bool state = true) const override { GLCALL(::glBindBuffer(GL_ARRAY_BUFFER, state ? mID : 0)); }
+      void bind(bool state = true) const override;
   };
   
   /// uint indices[] = { 0,1,2,   2,3,0 };
   // CIndexBuffer ibo{indices, 6); // 6 = 6 vertices // 6 = sizeof(indices) / size(uint)
-  class CIndexBuffer : public CBuffer {
+  class CIndexBuffer : public CDataBuffer {
+    public:
+      using CDataBuffer::CDataBuffer;
     protected:
       GLuint mCount;
     public:
       CIndexBuffer(const GLuint*, GLuint, GLenum = GL_STATIC_DRAW);
     public:
-      inline void bind(bool state = true) const override { GLCALL(::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, state ? mID : 0)); }
+      void bind(bool state = true) const override;
       // other
       inline GLuint count() const { return mCount; }
   };

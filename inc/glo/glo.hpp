@@ -1,21 +1,42 @@
 #ifndef __glo_hpp__
 #define __glo_hpp__
 
-#include "../glc/glc.hpp"
+#include "sys/sys.hpp"
+#include "sys/CLogger.hpp"
+#include "glc/glc.hpp"
 
 #undef FAR
 #undef NEAR
 
 namespace glo {
-  class CRenderer;
-  class CCamera;
-  class CLayout;
   class CShader;
   class CObject;
     class CBuffer;
+      class CVertexBuffer;
+      class CIndexBuffer;
+    class CLayout;
+      class CVertexLayout;
     class CArray;
+      class CVertexArray;
     class CProgram;
     class CUniform;
+  class CVertex; // @todo: this should be a template that describes components
+  class CRenderer;
+  class CCamera;
+  class CVertexLayout;
+  class CLight;
+  class CResource;
+    class CModel; // a group of CMesh
+    class CTexture;
+    class CMaterial;
+    class CAnimation;
+    
+    
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  using log = sys::log;
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 

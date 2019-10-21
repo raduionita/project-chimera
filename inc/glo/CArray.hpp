@@ -5,13 +5,15 @@
 #include "CObject.hpp"
 
 namespace glo {
-  class CArray : public CObject {
+  class CArray : public CObject { };
+  
+  class CVertexArray : public CArray {
     public:
-      CArray();
-      virtual ~CArray();
+      CVertexArray();
+      virtual ~CVertexArray();
     public:
       void bind(bool = true) const override;
-      void buffer(const CBuffer&, const CLayout&);
+      void buffer(const CVertexBuffer&, const CVertexLayout&);
   };
 }
 

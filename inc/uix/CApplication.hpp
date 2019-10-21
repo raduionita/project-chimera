@@ -1,6 +1,7 @@
 #ifndef __uix_capplication_hpp__
 #define __uix_capplication_hpp__
 
+#include "uix.hpp"
 #include "CModule.hpp"
 #include "CListener.hpp"
 

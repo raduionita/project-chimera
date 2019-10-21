@@ -11,10 +11,10 @@ namespace glo {
   class CShader : public CObject {
     protected:
       struct SSource {
-        std::string name;
-        GLenum      type;
-        GLuint      shader;
-        std::string code;
+        std::string       name;
+        GLenum            type;
+        GLuint            shader;
+        std::string       code;
       };
     public:
       enum EType {

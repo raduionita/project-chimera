@@ -203,6 +203,35 @@ inline void SetDefaultFont(HWND hWnd) {
   ::SendMessage(hWnd, WM_SETFONT, (WPARAM)::GetStockObject(DEFAULT_GUI_FONT), (LPARAM)true);
 }
 
+inline bool HandleMessage(const unsigned int kMax = 5, const unsigned int kTPS = 25) {
+  MSG sMsg;
+  static DWORD              nPrvTicks;
+  static DWORD              nCurTicks;
+  static DWORD              nNxtTicks;
+  static const unsigned int kJumpTime{1000 / kTPS};
+  static unsigned int       iLoop;
+  
+  nCurTicks = nPrvTicks = ::GetTickCount();
+  nNxtTicks = nCurTicks + kJumpTime;
+  
+  while (nCurTicks < nNxtTicks && iLoop < kMax) {
+    iLoop = 0;
+    if (::PeekMessage(&sMsg, NULL, 0, 0, PM_REMOVE)) {
+      if (WM_QUIT == sMsg.message) {
+        return false;
+        break;
+      } else {
+        ::TranslateMessage(&sMsg);
+        ::DispatchMessage(&sMsg);
+      }
+      nCurTicks = ::GetTickCount();
+      iLoop++;
+    }
+  }
+  
+  return true;
+}
+
 namespace uix {
   constexpr int ZERO =  0;
   constexpr int AUTO = -1;

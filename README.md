@@ -9,7 +9,7 @@ GLint   e[] = {0,1,2, 1,2,0};                                // indices(elements
 glo::CArray        a;                             // vao + vbo + ibo                              
 glo::CVertexBuffer b(p, 4 * 2 * sizeof(GLfloat)); // vbo => ::glGenBuffers() + ::glBindBuffer(GL_ARRAY_BUFFER...) + ::glBufferData()
 glo::CIndexBuffer  i(e, 6);                       // ibo => ::glGenBuffers() + ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER...) + ::glBufferData()
-glo::CLayout       l;                             // layout, stores how many (here) floats are there per vertex component
+glo::CVertexLayout       l;                             // layout, stores how many (here) floats are there per vertex component
 
 l.push({GL_FLOAT, 2, GL_FALSE}); // tell layout about the each vertex component (=2 floats) => adds to a list of elelemts
 a.buffer(b,l);                    // add buffer + layout to VAO => does ::glEnableVertexAttribArray() + ::glVertexAttribPointer()
@@ -39,6 +39,7 @@ s.bind(false);
 
 
 ### Needed
+- refactor: move loop logic into a `CGameLoop` class that has update & render listeners 
 - use: `wglSwapIntervalEXT` in `CContext`
 - update: move macros from `uix` to `sys` (sys should be everywhere)
 - use: `::glDebugMessageCallback`

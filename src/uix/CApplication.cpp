@@ -65,39 +65,16 @@ namespace uix {
     try {
       init();
       // prepare
-      MSG       sMsg;
-      DWORD     nPrvTicks;
-      DWORD     nCurTicks;
-      DWORD     nNxtTicks;
-      const int cTPS{25};
-      const int cJumpTime{1000/cTPS}; // 1s/25 ~ 40ms = how many jumps in 1 sec 
-      const int cMaxLoops{5};
-      int       nLoops;
+      DWORD     nCurTicks{::GetTickCount()};
       // the run loop
       while (mRunning) {
-        nCurTicks = nPrvTicks = ::GetTickCount();
-        nNxtTicks = nCurTicks + cJumpTime; // current_ms_count + fraction_of_a_sec_ms
-        nLoops    = 0;
-        // the message loop // allowed to last max 40ms // AND // max of 5 win msgs
-        while (nCurTicks < nNxtTicks && nLoops < cMaxLoops) { 
-          if (::PeekMessage(&sMsg, NULL, 0, 0, PM_REMOVE)) {
-            if (WM_QUIT == sMsg.message) {
-              log::nfo << "   A:WM_QUIT::" << this << " ID:" << this->mId << log::end;
-              mRunning = false;
-              break;
-            } else {
-              ::TranslateMessage(&sMsg);
-              ::DispatchMessage(&sMsg);
-            }
-            nCurTicks = ::GetTickCount();
-            nLoops++;
-          } else { break; }
+        if (!::HandleMessage()) {
+          break;
         }
-        // idle
-        mRunning && idle(::GetTickCount() - nPrvTicks);
+        mRunning && idle(::GetTickCount() - nCurTicks);
       }
       free();
-      return (int)(sMsg.wParam);
+      return 0;
     } catch (sys::CException& ex) {
       log::err << ex << log::end;
       return -1;

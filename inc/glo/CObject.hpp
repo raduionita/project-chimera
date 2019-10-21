@@ -6,7 +6,7 @@
 namespace glo {
   class CObject {
     protected:
-      GLuint mID {0};
+      GLuint mID;
     public:
       CObject() = default;
       virtual ~CObject() = default;

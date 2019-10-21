@@ -6,7 +6,7 @@
 #include <vector>
 
 namespace glo {
-  class CLayout { // @see [morpheus] CBufferRange
+  class CVertexLayout { // @see [morpheus] CBufferRange
     public:
       struct SElement {
         GLenum  type  {GL_FLOAT};  // GL_FLOAT
@@ -18,7 +18,7 @@ namespace glo {
       GLuint                mStride {0};
       std::vector<SElement> mElements;
     public:
-      CLayout() = default;
+      CVertexLayout() = default;
     public:
       inline void push(SElement&& element)                                 { mElements.push_back(std::move(element));  mStride += element.count * ::glTypeToSize(element.type); }
       inline void push(GLenum type, GLuint count, GLubyte norm = GL_FALSE) { mElements.push_back({type, count, norm}); mStride += count         * ::glTypeToSize(type); }

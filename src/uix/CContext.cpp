@@ -204,7 +204,7 @@ namespace uix {
     const int aContextAttr[] = {
       WGL_CONTEXT_MAJOR_VERSION_ARB, mConfig.nMajorVersion,
       WGL_CONTEXT_MINOR_VERSION_ARB, mConfig.nMinorVersion,
-      WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+      WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB ,
    // WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_DEBUG_BIT_ARB,
    // WGL_STEREO_ARB, GL_TRUE,
       GL_NONE,
@@ -231,6 +231,8 @@ namespace uix {
     ::ReleaseDC(tWnd, tDC);
     ::DestroyWindow(tWnd);
     ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
+    
+    current();
     
     if (!::glLoad(mConfig.nMajorVersion, mConfig.nMinorVersion)) {
       log::nfo << "[CContext] ogl::load() failed!" << log::end;
@@ -269,7 +271,7 @@ namespace uix {
   }
   
   bool CContext::current() const {
-    log::dbg << "uix::CContext::current()::" << this << log::end;
+    log::nfo << "uix::CContext::current()::" << this << log::end;
     if (!::wglMakeCurrent(mDC, mRC)) {
       log::nfo << "[CContext] ::wglMakeCurrent() failed! " << log::end;
       ::MessageBox(NULL, "[CContext] ::wglMakeCurrent() failed!", "Error", MB_OK);

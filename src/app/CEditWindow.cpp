@@ -7,6 +7,11 @@
 #include "uix/CFrame.hpp"
 #include "uix/CSurface.hpp"
 
+#include <glo/CBuffer.hpp>
+#include <glo/CArray.hpp>
+#include <glo/CLayout.hpp>
+#include <glo/CShader.hpp>
+
 namespace app {
   CEditWindow::CEditWindow() {
     log::nfo << "app::CEditWindow::CEditWindow()::" << this << log::end;
@@ -38,8 +43,20 @@ namespace app {
     show();
   
     mSurface->current();
-    mSurface->clear();
-    mSurface->swap(); 
+
+    // init world here
+  
+    GLfloat2 vertices[] = {{-0.5f,-0.5f},{+0.5f,-0.5f},{+0.5f,+0.5f},{-0.5f,+0.5f}};
+    GLuint   indices [] = {0,1,2, 2,3,0};
+  
+    glo::CVertexArray  vao;
+    glo::CVertexBuffer vbo{vertices, 4 * 2 * sizeof(GLfloat)};
+    glo::CVertexLayout vlo;
+    vlo.push({GL_FLOAT, 2});
+    vao.buffer(vbo, vlo);
+    glo::CIndexBuffer  ibo{indices, 6};
+  
+    glo::CShader prg{"../../res/shaders/simple/color.glsl"};
   }
   
   void CEditWindow::onIdle(int nElapsed) {
@@ -66,12 +83,12 @@ namespace app {
     
     fInterp = float(::GetTickCount() + cJumpTime - nNxtTicks) / float(cJumpTime);
     
-    // mSurface->current();
-    // mSurface->clear();
-    //
-    // // game.render(fInterp);
-    //
-    // mSurface->swap();
+    mSurface->clear();
+    
+    // draw world here
+    
+    
+    mSurface->swap();
   }
   
   void CEditWindow::onFree() {

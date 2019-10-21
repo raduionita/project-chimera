@@ -6,6 +6,7 @@
 
 namespace glo {
   CShader::CShader(const std::string& filepath) : mFilepath{filepath} {
+    log::nfo << "glo::CShader::CShader(std::string&)::" << this << " FILE:" << filepath << log::end;
     // open file
     std::ifstream ifs(filepath);
     // @todo: replace w/ exception
@@ -19,9 +20,13 @@ namespace glo {
     while (std::getline(ifs, line)) {
       if (line.find("#shader") == 0) {
         for (auto& [type, name] : types) {
-          if (line.find(name) > sizeof("#shader")) {
+          auto s = sizeof("#shader");
+          auto p = line.find(name);
+          if (line.find(name) != std::string::npos) {
             curr = type;
-            sources[type] = {name, type, GL_ZERO, ""};
+            sources[type].name   = name;
+            sources[type].type   = type;
+            sources[type].shader = GL_ZERO;
             // found, no need to search for the other types
             break;
           } else {
@@ -31,7 +36,7 @@ namespace glo {
       } else if (line.find("#include") == 0) {
         // @todo: include shader fragment
       } else {
-        sources[curr].code.append(line);
+        sources[curr].code += line + '\n';
       }
     }
     
@@ -50,13 +55,15 @@ namespace glo {
         GLint loglen = 0;
         GLCALL(::glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &loglen));
         char* error = new char[loglen + 1];
-        GLCALL(::glGetShaderInfoLog(shader, loglen, NULL, error));
+        GLCALL(::glGetShaderInfoLog(shader, loglen, &loglen, error));
         error[loglen] = '\0';
         // cleanup
         GLCALL(::glDeleteProgram(mID));
         GLCALL(::glDeleteShader(shader));
         // @todo: replace w/ throw exception
-        assert(false && error);
+        // @todo: this error reporting doesn't work well
+        log::err << "glo::CShader::CShader(std::string&)::" << this << " ERROR:" << error << log::end;
+        assert(false);
       }
       
       GLCALL(::glAttachShader(mID, shader));
@@ -76,12 +83,13 @@ namespace glo {
       GLint loglen;
       GLCALL(::glGetProgramiv(mID, GL_INFO_LOG_LENGTH, &loglen));
       GLchar* error = new GLchar[loglen + 1];
-      GLCALL(::glGetProgramInfoLog(mID, loglen, NULL, error));
+      GLCALL(::glGetProgramInfoLog(mID, loglen, &loglen, error));
       error[loglen] = '\0';
       // cleanup
       GLCALL(::glDeleteProgram(mID));
       // @todo: replace w/ throw exception
-      assert(false && error);
+      log::err << "glo::CShader::CShader(std::string&)::" << this << " ERROR:" << error << log::end;
+      assert(false);
     }
     
     // find all uniforms

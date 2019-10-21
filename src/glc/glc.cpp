@@ -52,9 +52,11 @@ static int testPointer(const PROC pTest) {
 
 static PROC winGetProcAddress(const char* name) {
   static HMODULE hModule = NULL;
+  PROC pFunc = wglGetProcAddress((LPCSTR) name);
+  if (testPointer(pFunc)) { 
+    return pFunc; 
+  }
   if (hModule == NULL) {
-    PROC pFunc = wglGetProcAddress((LPCSTR) name);
-    if (testPointer(pFunc)) { return pFunc; }
     hModule = ::GetModuleHandleA("OpenGL32.dll");
   }
   return (PROC) ::GetProcAddress(hModule, (LPCSTR) name);

@@ -1926,6 +1926,12 @@ GLAPI int OGL_VERSION_MAJOR;
 GLAPI int OGL_VERSION_MINOR;
 GLAPI bool OGL_LOADED_CORE;
 
+// opengl extensions ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifndef GL_ARB_buffer_storage
+#define GL_ARB_buffer_storage 1
+#endif /* GL_ARB_buffer_storage */
+
 // opengl extern ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 extern GLuint glTypeToSize(GLenum type);
@@ -4153,7 +4159,11 @@ GLAPI PFNGLPOLYGONOFFSETCLAMPPROC glPolygonOffsetClamp;
 
 // opengl custom ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+typedef unsigned int GLcount;
 typedef unsigned int GLsize;
+using GLfloat2 = GLfloat[2];
+using GLfloat3 = GLfloat[3];
+using GLfloat4 = GLfloat[4];
 
 #define GL_NOT_FOUND -1
 #define GL_SUCCESS    0

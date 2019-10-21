@@ -3,19 +3,23 @@
 #include "glo/CLayout.hpp"
 
 namespace glo {
-  CArray::CArray() {
+  CVertexArray::CVertexArray() {
+    log::nfo << "glo::CVertexArray::CVertexArray()::" << this << log::end;
     GLCALL(::glGenVertexArrays(1, &mID));
   }
   
-  CArray::~CArray() {
+  CVertexArray::~CVertexArray() {
+    log::nfo << "glo::CVertexArray::~CVertexArray()::" << this << log::end;
     GLCALL(::glDeleteVertexArrays(1, &mID));
   }
   
-  void CArray::bind(bool state/*=true*/) const {
+  void CVertexArray::bind(bool state/*=true*/) const {
+    log::nfo << "glo::CVertexArray::bind(bool)::" << this << log::end;
     GLCALL(::glBindVertexArray(state ? mID : 0));
   }
   
-  void CArray::buffer(const CBuffer& buffer, const CLayout& layout) {
+  void CVertexArray::buffer(const CVertexBuffer& buffer, const CVertexLayout& layout) {
+    log::nfo << "glo::CVertexArray::buffer(CVertexBuffer&, CVertexLayout&)::" << this << log::end;
     bind();
     buffer.bind();
     const auto& elements = layout.elements();
