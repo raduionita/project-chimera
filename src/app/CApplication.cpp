@@ -7,10 +7,6 @@ namespace app {
   
     mMain = new app::CEditWindow;
     mLoop = new uix::CGameLoop(this, [](){  }, [](){ });
-    
-    // @todo: mLoop = new CGameLoop(this)
-    // @todo: mLoop->tick(function)
-    // @todo: mLoop->draw(function)
   }
   
   void CApplication::onTick(int nElapsed/*=0*/) {

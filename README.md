@@ -19,6 +19,7 @@ i.bind();  // bind ibo => ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER...)
 
 ::glDrawElements(GL_TRIANGLES,i.count(),GL_UNSIGNED_INT,GL_NULL); // execute draw call using ibo
 ```
+
 ###### Shader
 ```c++
 glo::CShader s{"res/shaders/simple/color.glsl"};
@@ -36,7 +37,6 @@ s.bind(false);
 - `http://www.stuartmathews.com/index.php/gaming/938-a-simple-game-engine-architecture`
 - `https://youtu.be/L19dBX53M5M` (bennybox)
 - `https://gamasutra.com/blogs/MichaelKissner/20151027/257369/Writing_a_Game_Engine_from_Scratch__Part_1_Messaging.php`
-
 
 ### Needed
 - refactor: move loop logic into a `CGameLoop` class that has update & render listeners 
@@ -116,7 +116,6 @@ s.bind(false);
 
 - sys.cpp | include all lib .cpp files inside a sys.cpp file to build a single .obj file 
 - `std::array` vs `boost::static_vector` (dynamic fixed array)  
-
 
 ### Architecture
 ##### `Game` (app)
@@ -209,7 +208,6 @@ s.bind(false);
   - bounce
   - absorb
 
-
 ### Framework
 ###### `sys` # system/core framework # io, error, string, files
 ###### `alc` # audio library core # sfx(effect) + music(track) + voice
@@ -220,7 +218,6 @@ s.bind(false);
 ###### `glo` # graphic library objects # camera, mesh, material
 ###### `net` # networking library # tcp, udp, sockets, http
 ###### `uix` # user interface extended # wrappers for windows, controls, buttons
-
 
 ### App::edit|make
 - structure
