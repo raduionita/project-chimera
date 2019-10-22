@@ -2,14 +2,28 @@
 #define __cym_hpp__
 
 #include "sys/sys.hpp"
+#include "sys/CLogger.hpp"
 
 namespace cym {
+  class CEngine;
   class CSystem;
     class CConsole;    // a system that outputs all posted messages, also sends messages (like commands)
     // cinematics      // a system that sends messages like rotate(object)+move(camera)
     // replay/recorder // a system that records messages to be played back
   class CMessage;
   class CMessenger;    // threading: should decide on which thread a CSystem should process a message
+  class CRenderer;
+  class CCamera;
+  class CLight;
+  class CResource;
+    class CModel; // a group of CMesh
+    class CTexture;
+    class CMaterial;
+    class CAnimation;
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  using log = sys::log;
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -28,7 +42,6 @@ namespace cym {
     CLOCKWISE, CW = CLOCKWISE,
     COUNTERCLOCKWISE, CCW = COUNTERCLOCKWISE,
   };
-
 }
 
 #endif //__cym_hpp__

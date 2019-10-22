@@ -45,7 +45,7 @@ namespace app {
     mSurface->current();
 
     // init world here
-  
+    
     GLfloat2 vertices[] = {{-0.5f,-0.5f},{+0.5f,-0.5f},{+0.5f,+0.5f},{-0.5f,+0.5f}};
     GLuint   indices [] = {0,1,2, 2,3,0};
   
@@ -59,8 +59,8 @@ namespace app {
     glo::CShader prg{"../../res/shaders/simple/color.glsl"};
   }
   
-  void CEditWindow::onIdle(int nElapsed) {
-    log::dbg << "app::CEditWindow::onIdle("<< nElapsed <<"ms)::" << this << log::end;
+  void CEditWindow::onTick(int nElapsed) {
+    log::dbg << "app::CEditWindow::onTick("<< nElapsed <<"ms)::" << this << log::end;
     // interpolation // for view_pos = pos + (speed * interp)
     float            fInterp; 
     int              nLoops{0};
@@ -74,8 +74,8 @@ namespace app {
     
     // the update loop
     while (nNxtTicks < ::GetTickCount() && nLoops < cMaxLoops) {
-      log::nfo << "app::CEditWindow::onIdle("<< nElapsed <<"ms)::" << this << " LOOP:" << nLoops << log::end;
-      // game.update(timer);
+      log::nfo << "app::CEditWindow::onTick("<< nElapsed <<"ms)::" << this << " LOOP:" << nLoops << log::end;
+      // engine->update(timer);
       
       nNxtTicks += cJumpTime;
       nLoops++;
@@ -85,7 +85,7 @@ namespace app {
     
     mSurface->clear();
     
-    // draw world here
+    // engine->render()
     
     
     mSurface->swap();

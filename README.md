@@ -236,7 +236,7 @@ s.bind(false);
             - open game.xml & scene.xml 
             - setup virtual cameras (views) (not saved w/ the scene)
             - send asses to be loaded in the background 
-        - idle: draw scene/objects - once a new one is avaiable added to the draw call
+        - tick: draw scene/objects - once a new one is avaiable added to the draw call
 - features:
     - play mode: opens a canvas w/ shared context that plays the game
 ```

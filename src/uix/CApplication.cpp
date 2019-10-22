@@ -1,6 +1,7 @@
 #include "uix/CApplication.hpp"
 #include "uix/CConsole.hpp"
 #include "uix/CStyle.hpp"
+#include "uix/CLoop.hpp"
 
 namespace uix {
   CApplication* CApplication::sInstance{nullptr};
@@ -14,6 +15,8 @@ namespace uix {
   
   CApplication::~CApplication() {
     log::nfo << "uix::CApplication::~CApplication()::" << this << log::end;
+    DELETE(mConsole);
+    DELETE(mLoop);
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,9 +51,9 @@ namespace uix {
     return (mRunning = true);
   }
   
-  bool CApplication::idle(int nElapsed/*=0*/) {
-    // log::nfo << "uix::CApplication::idle("<< nElapsed <<")::" << this << log::end;
-    onIdle(nElapsed);
+  bool CApplication::tick(int nElapsed/*=0*/) {
+    // log::nfo << "uix::CApplication::tick("<< nElapsed <<")::" << this << log::end;
+    onTick(nElapsed);
     return true;
   }
   
@@ -64,15 +67,9 @@ namespace uix {
     log::nfo << "uix::CApplication::exec()::" << this << log::end;
     try {
       init();
-      // prepare
-      DWORD     nCurTicks{::GetTickCount()};
-      // the run loop
-      while (mRunning) {
-        if (!::HandleMessage()) {
-          break;
-        }
-        mRunning && idle(::GetTickCount() - nCurTicks);
-      }
+      // -> loop
+      loop()->exec();
+      // <- loop
       free();
       return 0;
     } catch (sys::CException& ex) {
@@ -81,11 +78,19 @@ namespace uix {
     }
   }
   
+  CLoop* CApplication::loop() {
+    log::nfo << "uix::CApplication::loop()::" << this << log::end;
+    
+    return mLoop ? mLoop : mLoop = new CEventLoop(this);
+  }
+  
   bool CApplication::quit(int nCode/*=0*/) {
     log::nfo << "uix::CApplication::quit(int)::" << this << log::end;
     ::PostQuitMessage(nCode);
     return true;
   }
+  
+  bool CApplication::runs() { return mRunning; }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -94,6 +99,6 @@ namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   void CApplication::onInit()    { }
-  void CApplication::onIdle(int) { }
+  void CApplication::onTick(int) { }
   void CApplication::onFree()    { }
 }

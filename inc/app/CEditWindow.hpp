@@ -14,9 +14,10 @@ namespace app {
       CEditWindow();
       ~CEditWindow();
     protected:
-      void onIdle(int);
+      void onTick(int);
       void onInit() override;
       void onFree() override;
+    protected:  
       void onKeydown(uix::CEvent*);
       void onClick(uix::CEvent*);
       void onCommand(uix::CEvent*);

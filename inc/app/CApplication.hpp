@@ -10,8 +10,10 @@ namespace app {
     protected:
       app::CEditWindow* mMain;
     protected:
+      uix::CLoop* loop() override;
+    protected:
       void onInit()      override;
-      void onIdle(int=0) override;
+      void onTick(int=0) override;
       void onFree()      override;
   };
 }

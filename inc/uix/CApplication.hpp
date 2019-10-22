@@ -18,6 +18,7 @@ namespace uix {
       CConsole*            mConsole  {nullptr};
       bool                 mRunning  {false};
       CStyle*              mStyle    {nullptr};
+      CLoop*               mLoop     {nullptr};
     public: // ctor
       CApplication(int=0);
       ~CApplication();
@@ -25,17 +26,19 @@ namespace uix {
       CStyle* style();
       bool    style(CStyle*);
     protected: // events  
-      bool init() override;
-      bool idle(int=0);
-      bool free() override;
+      bool           init() override;
+      virtual CLoop* loop();
+      bool           free() override;
     public:
+      bool         tick(int=0);
       virtual bool exec(int=0);
       virtual bool quit(int=0);
+              bool runs();
     public:
       static CApplication* instance();
     protected:
       virtual void onInit();
-      virtual void onIdle(int=0);
+      virtual void onTick(int=0);
       virtual void onFree();
   };
 }

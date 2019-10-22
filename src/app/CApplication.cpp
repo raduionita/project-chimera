@@ -1,15 +1,21 @@
 #include "app/CApplication.hpp"
+#include "uix/CLoop.hpp"
 
 namespace app {
   void CApplication::onInit() {
     log::nfo << "app::CApplication::onInit()::" << this << log::end;
   
     mMain = new app::CEditWindow;
+    mLoop = new uix::CGameLoop(this, [](){  }, [](){ });
+    
+    // @todo: mLoop = new CGameLoop(this)
+    // @todo: mLoop->tick(function)
+    // @todo: mLoop->draw(function)
   }
   
-  void CApplication::onIdle(int nElapsed/*=0*/) {
-    log::dbg << "app::CApplication::onIdle("<< nElapsed <<"ms)::" << this << log::end;
-    mMain->onIdle(nElapsed);
+  void CApplication::onTick(int nElapsed/*=0*/) {
+    log::dbg << "app::CApplication::onTick("<< nElapsed <<"ms)::" << this << log::end;
+    mMain->onTick(nElapsed);
   }
   
   void CApplication::onFree() {

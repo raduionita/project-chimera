@@ -260,6 +260,7 @@ namespace uix {
   class CDisplay;
   class CEvent;
   class CRender;
+  class CLoop;
   class CObject;
     class CConsole;
     class CModule;

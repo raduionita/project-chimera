@@ -21,17 +21,8 @@ namespace glo {
     class CProgram;
     class CUniform;
   class CVertex; // @todo: this should be a template that describes components
-  class CRenderer;
-  class CCamera;
   class CVertexLayout;
-  class CLight;
-  class CResource;
-    class CModel; // a group of CMesh
-    class CTexture;
-    class CMaterial;
-    class CAnimation;
-    
-    
+
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   using log = sys::log;
