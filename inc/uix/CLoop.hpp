@@ -9,10 +9,10 @@ namespace uix {
   class CLoop {
       friend class CApplication;  
     protected:
-      int           mCurrTicks   {0};
-      CApplication* mApplication {nullptr};
+      int           mCurrTicks  {0};
+      CApplication* mApplication;
     public:
-      CLoop(CApplication*);
+      CLoop();
       virtual ~CLoop();
     protected:
       virtual void init();
@@ -26,7 +26,7 @@ namespace uix {
   class CEventLoop : public CLoop {
       friend class CApplication;
     public:
-      CEventLoop(CApplication*);
+      CEventLoop();
     protected:
       void exec() override;
       void tick() override;
@@ -34,19 +34,19 @@ namespace uix {
   
   class CGameLoop : public CLoop {
       friend class CApplication;
-      typedef void(*TCallback)();
+      using TCallback = std::function<void()>;
     protected:
       int mMaxLoops    {10};
       int mTicksPerSec {25};
     protected:
-      std::function<void()>* mRead {nullptr};
-      std::function<void()>* mTick {nullptr};
-      std::function<void()>* mDraw {nullptr};
+      TCallback* mRead {nullptr};
+      TCallback* mTick {nullptr};
+      TCallback* mDraw {nullptr};
     public:
-      CGameLoop(CApplication*, int=10, int=25);
-      CGameLoop(CApplication*, TCallback&& cTick);
-      CGameLoop(CApplication*, TCallback&& cTick, TCallback&& cDraw);
-      CGameLoop(CApplication*, TCallback&& cTick, TCallback&& cDraw, TCallback&& cRead);
+      CGameLoop(int=10, int=25);
+      CGameLoop(TCallback&& cTick);
+      CGameLoop(TCallback&& cTick, TCallback&& cDraw);
+      CGameLoop(TCallback&& cTick, TCallback&& cDraw, TCallback&& cRead);
       ~CGameLoop();
     protected: // override
       void exec() override;

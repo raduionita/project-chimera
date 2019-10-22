@@ -2,8 +2,8 @@
 #include "uix/CApplication.hpp"
 
 namespace uix {
-  CLoop::CLoop(CApplication* pApp) : mApplication{pApp} {
-    log::nfo << "uix::CLoop::CLoop(CApplication*)::" << this << log::end;
+  CLoop::CLoop() : mApplication{CApplication::instance()} {
+    log::nfo << "uix::CLoop::CLoop()::" << this << log::end;
   }
   
   CLoop::~CLoop() {
@@ -24,8 +24,8 @@ namespace uix {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  CEventLoop::CEventLoop(CApplication* pApp) : CLoop(pApp) {
-    log::nfo << "uix::CEventLoop::CEventLoop(CApplication*)::" << this << log::end;
+  CEventLoop::CEventLoop() : CLoop() {
+    log::nfo << "uix::CEventLoop::CEventLoop()::" << this << log::end;
   }
   
   void CEventLoop::exec() {
@@ -48,23 +48,23 @@ namespace uix {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  CGameLoop::CGameLoop(CApplication* pApp, int nMaxLoops/*=10*/, int nTicksPerSec/*=25*/) : CLoop(pApp), mMaxLoops{nMaxLoops}, mTicksPerSec{nTicksPerSec} {
+  CGameLoop::CGameLoop(int nMaxLoops/*=10*/, int nTicksPerSec/*=25*/) : CLoop(), mMaxLoops{nMaxLoops}, mTicksPerSec{nTicksPerSec} {
     log::nfo << "uix::CGameLoop::CGameLoop(CApplication*)::" << this << log::end;
   }
   
-  CGameLoop::CGameLoop(CApplication* pApp, TCallback&& cTick) : CLoop(pApp) {
-    log::nfo << "uix::CGameLoop::CGameLoop(CApplication*, TCallback&&)::" << this << log::end;
+  CGameLoop::CGameLoop(TCallback&& cTick) : CLoop() {
+    log::nfo << "uix::CGameLoop::CGameLoop(TCallback)::" << this << log::end;
     tick(std::move(cTick));
   }
   
-  CGameLoop::CGameLoop(CApplication* pApp, TCallback&& cTick, TCallback&& cDraw) : CLoop(pApp) {
-    log::nfo << "uix::CGameLoop::CGameLoop(CApplication*, TCallback&&, TCallback&&)::" << this << log::end;
+  CGameLoop::CGameLoop(TCallback&& cTick, TCallback&& cDraw) : CLoop() {
+    log::nfo << "uix::CGameLoop::CGameLoop(TCallback&&, TCallback&&)::" << this << log::end;
     tick(std::move(cTick));
     draw(std::move(cDraw));
   }
   
-  CGameLoop::CGameLoop(CApplication* pApp, TCallback&& cTick, TCallback&& cDraw, TCallback&& cRead) : CLoop(pApp) {
-    log::nfo << "uix::CGameLoop::CGameLoop(CApplication*, TCallback&&, TCallback&&, TCallback&&)::" << this << log::end;
+  CGameLoop::CGameLoop(TCallback&& cTick, TCallback&& cDraw, TCallback&& cRead) : CLoop() {
+    log::nfo << "uix::CGameLoop::CGameLoop(TCallback&&, TCallback&&, TCallback&&)::" << this << log::end;
     tick(std::move(cTick));
     draw(std::move(cDraw));
     read(std::move(cRead));
@@ -72,9 +72,9 @@ namespace uix {
   
   CGameLoop::~CGameLoop() {
     log::nfo << "uix::CGameLoop::~CGameLoop()::" << this << log::end;
-    DELETE(mRead);
     DELETE(mTick);
     DELETE(mDraw);
+    DELETE(mRead);
   }
   
   void CGameLoop::exec() {
@@ -128,20 +128,20 @@ namespace uix {
   }
   
   void CGameLoop::tick(TCallback&& cTick) {
-    log::dbg << "uix::CGameLoop::tick(void(*)())::" << this << log::end;
+    log::dbg << "uix::CGameLoop::tick(TCallback&&)::" << this << log::end;
     DELETE(mTick);
-    mTick = new std::function<void()>{std::move(cTick)};
+    mTick = new TCallback{std::move(cTick)};
   }
   
   void CGameLoop::draw(TCallback&& cDraw) {
-    log::dbg << "uix::CGameLoop::tick(void(*)())::" << this << log::end;
+    log::dbg << "uix::CGameLoop::tick(TCallback&&)::" << this << log::end;
     DELETE(mDraw);
-    mDraw = new std::function<void()>{std::move(cDraw)};
+    mDraw = new TCallback{std::move(cDraw)};
   }
   
   void CGameLoop::read(TCallback&& cRead) {
-    log::dbg << "uix::CGameLoop::read(void(*)())::" << this << log::end;
+    log::dbg << "uix::CGameLoop::read(TCallback&&)::" << this << log::end;
     DELETE(mRead);
-    mRead = new std::function<void()>{std::move(cRead)};
+    mRead = new TCallback{std::move(cRead)};
   }
 }

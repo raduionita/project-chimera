@@ -81,7 +81,7 @@ namespace uix {
   CLoop* CApplication::loop() {
     log::nfo << "uix::CApplication::loop()::" << this << log::end;
     
-    return mLoop ? mLoop : mLoop = new CEventLoop(this);
+    return mLoop ? mLoop : mLoop = new CEventLoop();
   }
   
   bool CApplication::quit(int nCode/*=0*/) {

@@ -115,7 +115,8 @@ s.bind(false);
 - app: 2 panels: 1x canvas +1x buttons (like spawn a sphere)
 
 - sys.cpp | include all lib .cpp files inside a sys.cpp file to build a single .obj file 
-- `std::array` vs `boost::static_vector` (dynamic fixed array)  
+- `std::array` vs `boost::static_vector` (dynamic fixed array)
+- find an alternative for `std::function` in `uix::CGameLoop`  
 
 ### Architecture
 ##### `Game` (app)
