@@ -116,7 +116,8 @@ s.bind(false);
 
 - sys.cpp | include all lib .cpp files inside a sys.cpp file to build a single .obj file 
 - `std::array` vs `boost::static_vector` (dynamic fixed array)
-- find an alternative for `std::function` in `uix::CGameLoop`  
+- refactor: find an alternative for `std::function` in `uix::CGameLoop`  
+  - need a `sys::CFunction` = `[args...](){ }` that can take whatever comptures I need
 
 ### Architecture
 ##### `Game` (app)
