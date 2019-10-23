@@ -14,6 +14,6 @@ file(GLOB CYM "src/sys/*.cpp" "src/glc/*.cpp" "src/glo/*.cpp" "src/uix/*.cpp" "s
 file(GLOB APP "src/app/*.cpp")
 
 add_library(cym ${CYM})
-add_executable(app ${APP} inc/cym/CModel.hpp)
+add_executable(app ${APP})
 
 target_link_libraries(app cym) # libgdi32.a libopengl32.a

@@ -2,26 +2,20 @@
 #define __app_ceditwindow_hpp__
 
 #include "app.hpp"
-#include "uix/CFrame.hpp"
+#include "uix/CToplevel.hpp"
 
 namespace app {
-  class CEditWindow : public uix::CFrame {
+  class CEditWindow : public uix::CToplevel {
       friend class CApplication;
-      using uix::CFrame::CFrame;
+      using uix::CToplevel::CToplevel;
     private:
       uix::CSurface*    mSurface;
     public:
-      CEditWindow();
-      ~CEditWindow();
+      CEditWindow() /*=default*/;
+      ~CEditWindow() /*=default*/;
     protected:
-      void onTick(int);
       void onInit() override;
       void onFree() override;
-    protected:  
-      void onKeydown(uix::CEvent*);
-      void onClick(uix::CEvent*);
-      void onCommand(uix::CEvent*);
-      void onDraw(uix::CEvent*);
   };
 }
 

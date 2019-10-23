@@ -15,10 +15,6 @@ namespace cym {
      
    } 
    
-   void CEngine::loop() {
-     
-   }
-   
    void CEngine::free() {
      
    }

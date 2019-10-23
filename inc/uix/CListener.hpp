@@ -22,10 +22,11 @@ namespace uix {
       template <typename T> bool attach(CListener* pTarget, const EEvent& eEvent, void(T::*fCallback)(CEvent*)) {
         log::nfo << "uix::CListener::attach(CListener*, EEvent&, void(T::*fCallback)(CEvent*))::" << this << " EVT:" << int(eEvent) << log::end;
         // wrap callback to a cast(ed) callback // add to list of calbacks
-        pTarget->mHandlers.insert(std::move(std::pair(eEvent, [this,fCallback] (CEvent* pEvent) {
+        pTarget->mHandlers[eEvent] = [this,fCallback] (CEvent* pEvent) {
           T* pHandler = dynamic_cast<T*>(this);
           (pHandler->*fCallback)(pEvent);
-        }))); 
+        }; 
+        // replaces element
         return true;
       }
       // detach

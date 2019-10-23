@@ -32,9 +32,10 @@ namespace uix {
     log::nfo << "uix::CEventLoop::exec()::" << this << log::end;
     init();
     DWORD     nCurTicks{::GetTickCount()};
+    MSG       sMSG;
     // the run loop
     while (mApplication->runs()) {
-      if (!::HandleMessage()) {
+      if (!::HandleMessage(&sMSG) || !mApplication->runs()) {
         break;
       }
       tick();
@@ -85,11 +86,12 @@ namespace uix {
     DWORD     nNxtTicks = mCurrTicks = ::GetTickCount();
     float     fInterp;
     int       iLoop     {0};
-    const int kJumpTime {1000 / mTicksPerSec}; 
+    const int kJumpTime {1000 / mTicksPerSec};
+    MSG       sMSG;
     
     // the run loop
     while (mApplication->runs()) {
-      if (!::HandleMessage() || !mApplication->runs()) {
+      if (!::HandleMessage(&sMSG) || !mApplication->runs()) {
         break;
       }
   

@@ -87,6 +87,7 @@ namespace uix {
   bool CApplication::quit(int nCode/*=0*/) {
     log::nfo << "uix::CApplication::quit(int)::" << this << log::end;
     ::PostQuitMessage(nCode);
+    mRunning = false;
     return true;
   }
   

@@ -13,6 +13,7 @@ namespace uix {
       typedef CPanel super;
       static constexpr int WINDOW = CPanel::WINDOW;
     public: // ctor
+      CSurface() = default;
       CSurface(CWindow*,                                int);
       CSurface(CWindow*, const CContext::SConfig& = {}, int = ZERO);
       ~CSurface();

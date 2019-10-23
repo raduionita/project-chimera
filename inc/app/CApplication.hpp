@@ -3,7 +3,7 @@
 
 #include "app.hpp"
 #include "uix/CApplication.hpp"
-#include "app/CEditWindow.hpp"
+
 
 namespace app {
   class CApplication : public uix::CApplication {
@@ -11,8 +11,15 @@ namespace app {
       app::CEditWindow* mMain;
     protected:
       void onInit()      override;
-      void onTick(int=0) override;
       void onFree()      override;
+    protected: // loop events
+       void onRead(); // input read
+       void onTick(); // update
+       void onDraw(); // render
+    protected:  
+      void onKeydown(uix::CEvent*);
+      void onClick(uix::CEvent*);
+      void onCommand(uix::CEvent*);
   };
 }
 

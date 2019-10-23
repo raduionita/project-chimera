@@ -14,7 +14,7 @@ namespace uix {
   bool CListener::attach(CListener* pTarget, const EEvent& eEvent, TCallback&& fCallback) {
     log::nfo << "uix::CListener::attach(CListener*, EEvent&, TCallback&&)::" << this << log::end;
     // add to list of calbacks
-    pTarget->mHandlers.insert(std::move(std::pair(eEvent,fCallback))); 
+    pTarget->mHandlers[eEvent] = fCallback; 
     // done
     return true;
   }
@@ -31,7 +31,7 @@ namespace uix {
   }
   
   bool CListener::handle(CEvent* pEvent) {
-    log::nfo << "app::CListener::handle(CEvent*)::" << this << log::end;
+    log::nfo << "app::CListener::handle(CEvent*)::" << this << " EVENT:" << (int)(pEvent->type()) << log::end;
     if (mHandlers.count(pEvent->type()) > 0) {
       mHandlers[pEvent->type()](pEvent);
       return true;

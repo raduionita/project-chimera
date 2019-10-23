@@ -11,6 +11,7 @@ namespace uix {
       typedef CWidget super;
       static constexpr int WINDOW = CWidget::WINDOW;
     public:
+      CPanel() = default;
       CPanel(CWindow*, int = ZERO);
       ~CPanel();
     protected:

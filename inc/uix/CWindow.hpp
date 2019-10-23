@@ -38,8 +38,8 @@ namespace uix {  // acme { gui { win, unx, osx } }
       CStyle*           mStyle       {nullptr};
       CVector<CWindow*> mChildren;
     public: // ctor
-      CWindow();
-      ~CWindow();
+      CWindow() /*=default*/;
+      ~CWindow() /*=default*/;
     public: // cast
       explicit operator       HWND();
       explicit operator const HWND() const;

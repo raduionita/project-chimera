@@ -271,7 +271,7 @@ namespace uix {
   }
   
   bool CContext::current() const {
-    log::nfo << "uix::CContext::current()::" << this << log::end;
+    log::dbg << "uix::CContext::current()::" << this << log::end;
     if (!::wglMakeCurrent(mDC, mRC)) {
       log::nfo << "[CContext] ::wglMakeCurrent() failed! " << log::end;
       ::MessageBox(NULL, "[CContext] ::wglMakeCurrent() failed!", "Error", MB_OK);

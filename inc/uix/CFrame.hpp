@@ -1,6 +1,7 @@
 #ifndef __uix_cframe_hpp__
 #define __uix_cframe_hpp__
 
+#include "uix.hpp"
 #include "CPopup.hpp"
 
 namespace uix {
@@ -9,10 +10,11 @@ namespace uix {
       using CPopup::CPopup;
       using CPopup::operator=;
     protected:
-      typedef CWindow super;
+      typedef CPopup super;
       static constexpr int WINDOW = CPopup::WINDOW|EWindow::BORDER|EWindow::TITLE|EWindow::FRAME|EWindow::SYSBOX|EWindow::MINBOX|EWindow::MAXBOX|EWindow::SIZER;
     public:
-      CFrame(          int = ZERO);
+      CFrame() = default;
+      CFrame(          int);
       CFrame(CWindow*, int = ZERO);
       ~CFrame();
     protected:

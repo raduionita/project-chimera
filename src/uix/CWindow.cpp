@@ -381,7 +381,7 @@ namespace uix {
         CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
         CWindow*      pWindow = reinterpret_cast<CWindow*>(pCreate->lpCreateParams);
         BREAK(!pWindow);
-        log::nfo << "   W:WM_CREATE::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
+        log::nfo << "  W::WM_CREATE::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
         // @todo: create event
         break; 
       }
@@ -390,21 +390,21 @@ namespace uix {
       case CM_INIT: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        log::nfo << "   W:CM_INIT::" << pWindow << " ID:" << pWindow->mId << log::end;
+        log::nfo << "  W::CM_INIT::" << pWindow << " ID:" << pWindow->mId << log::end;
         pWindow->onInit();
         return 0;
       }
       case CM_FREE: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        log::nfo << "   W:CM_FREE::" << pWindow << " ID:" << pWindow->mId << log::end;
+        log::nfo << "  W::CM_FREE::" << pWindow << " ID:" << pWindow->mId << log::end;
         pWindow->onFree();
         return 0;
       }
       case CM_FULLSCREEN: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        log::nfo << "   W:CM_FULLSCREEN::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
+        log::nfo << "  W::CM_FULLSCREEN::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
         
         pWindow->mState = pWindow->mState | EState::FULLSCREEN;
         
@@ -413,7 +413,7 @@ namespace uix {
       case CM_WINDOWED: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        log::nfo << "   W:CM_WINDOWED::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
+        log::nfo << "  W::CM_WINDOWED::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
         
         pWindow->mState = pWindow->mState & ~EState::FULLSCREEN;
         
@@ -421,7 +421,7 @@ namespace uix {
       }
       case WM_ACTIVATE: { break; }
       case WM_CLOSE: { // called on [x] or window menu [Close] // triggers: WM_DESTROY
-        log::nfo << "   W:WM_CLOSE";
+        log::nfo << "  W::WM_CLOSE";
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         if (pWindow) {
           log::nfo << "::" << pWindow << " ID:" << pWindow->mId;
@@ -432,29 +432,25 @@ namespace uix {
         bool bHandled    = pWindow->handle(pEvent);
         DELETE(pEvent);
         
-        // @todo: if main window // or move this somewhere else
-        ::PostQuitMessage(0);
-        
-        RETURN(bHandled,0);
-        
         break;
       }
     //case WM_QUIT: // never reached (handled in loop) 
       case WM_DESTROY: {
-        log::nfo << "   W:WM_DESTROY" << log::end;
+        CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        log::nfo << "  W::WM_DESTROY::" << pWindow << " ID:" << (pWindow?pWindow->mId:0) << log::end;
         break; 
       }
       case WM_SETFOCUS: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        log::nfo << "   W:WM_SETFOCUS::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
+        log::nfo << "  W::WM_SETFOCUS::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
         // @todo: focus event
         break; 
       }
       case WM_KILLFOCUS: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        log::nfo << "   W:WM_KILLFOCUS::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
+        log::nfo << "  W::WM_KILLFOCUS::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam << log::end;
         // @todo: blur event
         break; 
       }
@@ -464,7 +460,7 @@ namespace uix {
         CWindow*  pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         CControl* pButton = reinterpret_cast<CControl*>(::GetWindowLongPtr((HWND)lParam, GWLP_USERDATA));
         BREAK(!pWindow);BREAK(!pButton);
-        log::nfo << "   W:WM_COMMAND::" << pWindow << "|" << pButton << " ID:" << pWindow->mId << " " << HIWORD(wParam) << ":" << LOWORD(wParam) << " " << lParam << log::end;
+        log::nfo << "  W::WM_COMMAND::" << pWindow << "|" << pButton << " ID:" << pWindow->mId << " " << HIWORD(wParam) << ":" << LOWORD(wParam) << " " << lParam << log::end;
         
         auto pEvent = new CEvent(EEvent::COMMAND, pWindow);
         pEvent->mControl = pButton; // should be cated to CControl
@@ -502,7 +498,7 @@ namespace uix {
       case WM_MOVE: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        log::nfo << "   W:WM_MOVE::" << pWindow << " ID:" << pWindow->mId <<  " x:" << LOWORD(lParam) << " y:" << HIWORD(lParam) << log::end;
+        log::nfo << "  W::WM_MOVE::" << pWindow << " ID:" << pWindow->mId <<  " x:" << LOWORD(lParam) << " y:" << HIWORD(lParam) << log::end;
         // @todo: moved event
         // lParam: x: (int)(short) LOWORD(lParam)
         //         y: (int)(short) HIWORD(lParam)
@@ -513,7 +509,7 @@ namespace uix {
       case WM_SIZE: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        log::nfo << "   W:WM_SIZE::" << pWindow << " ID:" << pWindow->mId <<  " w:" << LOWORD(lParam) << " h:" << HIWORD(lParam) << log::end;
+        log::nfo << "  W::WM_SIZE::" << pWindow << " ID:" << pWindow->mId <<  " w:" << LOWORD(lParam) << " h:" << HIWORD(lParam) << log::end;
         
         auto pEvent = new CEvent(EEvent::RESIZE, pWindow);
         pEvent->mWidth  = LOWORD(lParam);
@@ -549,7 +545,7 @@ namespace uix {
       case WM_LBUTTONDOWN: {
         CWindow* pWindow = find(hWnd);
         BREAK(!pWindow);
-        log::nfo << "   W:WM_LBUTTONDOWN::" << pWindow << " ID:" << pWindow->mId <<  " x:" << GET_X_LPARAM(lParam) << " y:" <<GET_Y_LPARAM(lParam) << log::end;
+        log::nfo << "  W::WM_LBUTTONDOWN::" << pWindow << " ID:" << pWindow->mId <<  " x:" << GET_X_LPARAM(lParam) << " y:" <<GET_Y_LPARAM(lParam) << log::end;
         
         // mousedown event
         auto pEvent       = new CEvent(EEvent::LBUTTONDOWN, pWindow);
@@ -585,7 +581,7 @@ namespace uix {
       case WM_LBUTTONUP: { 
         CWindow* pWindow = find(hWnd);
         BREAK(!pWindow);
-        log::nfo << "   W:WM_LBUTTONUP::" << pWindow << " ID:" << pWindow->mId <<  " x:" << GET_X_LPARAM(lParam) << " y:" <<GET_Y_LPARAM(lParam) << log::end;
+        log::nfo << "  W::WM_LBUTTONUP::" << pWindow << " ID:" << pWindow->mId <<  " x:" << GET_X_LPARAM(lParam) << " y:" <<GET_Y_LPARAM(lParam) << log::end;
         
         // @todo: click event
         break; 
@@ -606,7 +602,7 @@ namespace uix {
       case WM_KEYDOWN: {
         CWindow* pWindow = reinterpret_cast<CWindow*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
         BREAK(!pWindow);
-        log::nfo << "   W:WM_KEYDOWN::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << (char)(wParam) << " lParam:" << lParam << log::end;
+        log::nfo << "  W::WM_KEYDOWN::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << (char)(wParam) << " lParam:" << lParam << log::end;
         
         // @todo: check if child or ancestors listen to this event
         
@@ -654,7 +650,7 @@ namespace uix {
       case WM_ERASEBKGND: { 
         CWindow* pWindow = find(hWnd);
         BREAK(!pWindow);
-        log::nfo << "   W:WM_ERASEBKGND::" << pWindow << " ID:" << pWindow->mId << log::end;
+        log::nfo << "  W::WM_ERASEBKGND::" << pWindow << " ID:" << pWindow->mId << log::end;
         UNREFERENCED_PARAMETER(lParam);
         break; 
       }
@@ -662,7 +658,7 @@ namespace uix {
       case WM_PAINT: { 
         CWindow* pWindow = find(hWnd);
         BREAK(!pWindow);
-        log::nfo << "   W:WM_PAINT::" << pWindow << " ID:" << pWindow->mId << log::end;
+        log::nfo << "  W::WM_PAINT::" << pWindow << " ID:" << pWindow->mId << log::end;
         UNREFERENCED_PARAMETER(lParam);
         UNREFERENCED_PARAMETER(wParam);
         
@@ -719,7 +715,7 @@ namespace uix {
           case CTX_DIRECTX: ctx.append("DIRECTX"); break;
         }
         
-        log::nfo << "   W:CM_CONTEXT::" << pWindow << " ID:" << pWindow->mId << " " << ctx << " v" << LOWORD(lParam) << "." << HIWORD(lParam) << log::end;
+        log::nfo << "  W::CM_CONTEXT::" << pWindow << " ID:" << pWindow->mId << " " << ctx << " v" << LOWORD(lParam) << "." << HIWORD(lParam) << log::end;
   
         return 0;
       }

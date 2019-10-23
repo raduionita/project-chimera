@@ -72,7 +72,8 @@ namespace uix {
     log::dbg << "uix::CButton::proc(HWND,UINT,WPARAM,LPARAM,UINT_PTR,DWORD_PTR)" << log::end;
     switch (uMsg) {
       case WM_DESTROY: {
-        log::nfo << "   B:WM_DESTROY" << log::end;
+        CButton* pButton = reinterpret_cast<CButton*>(dwRef);
+        log::nfo << "  B::WM_DESTROY::" << pButton << " ID:" << (pButton?pButton->mId:0) << log::end;
         break; 
       }
       //case WM_NCCREATE: // not fired cause ::SetWindowLongPtr is after ::CreateWindowEx
@@ -83,7 +84,7 @@ namespace uix {
       //case WM_SETCURSOR://
       case WM_LBUTTONDOWN: {
         CButton* pButton = reinterpret_cast<CButton*>(dwRef);
-        log::nfo << "   B:WM_LBUTTONDOWN::" << pButton << " ID:" << pButton->mId <<  " x:" << GET_X_LPARAM(lParam) << " y:" <<GET_Y_LPARAM(lParam) << log::end;
+        log::nfo << "  B::WM_LBUTTONDOWN::" << pButton << " ID:" << pButton->mId <<  " x:" << GET_X_LPARAM(lParam) << " y:" <<GET_Y_LPARAM(lParam) << log::end;
   
         // mousedown event
         auto pEvent = new CEvent(EEvent::LBUTTONDOWN, pButton);
@@ -111,7 +112,7 @@ namespace uix {
       }
       case WM_LBUTTONUP: {
         CButton* pButton = reinterpret_cast<CButton*>(dwRef);
-        log::nfo << "   B:WM_LBUTTONUP::" << pButton << " ID:" << pButton->mId <<  " x:" << GET_X_LPARAM(lParam) << " y:" <<GET_Y_LPARAM(lParam) << log::end;
+        log::nfo << "  B::WM_LBUTTONUP::" << pButton << " ID:" << pButton->mId <<  " x:" << GET_X_LPARAM(lParam) << " y:" <<GET_Y_LPARAM(lParam) << log::end;
         
         
         break; // if handled (return 0) => NO WM_COMMAND

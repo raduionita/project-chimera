@@ -1,7 +1,7 @@
 #include "uix/CFrame.hpp"
 
 namespace uix {
-  CFrame::CFrame(int nHints/*=ZERO*/) {
+  CFrame::CFrame(int nHints) {
     log::nfo << "uix::CFrame::CFrame(int)::" << this << log::end;
     init(nullptr, nHints | CFrame::WINDOW);
   }

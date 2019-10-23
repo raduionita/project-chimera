@@ -39,20 +39,19 @@ s.bind(false);
 - `https://gamasutra.com/blogs/MichaelKissner/20151027/257369/Writing_a_Game_Engine_from_Scratch__Part_1_Messaging.php`
 
 ### Needed
+- fix: need alternative for calling virtual methods from constructors
+  - refactor: find a replacement `::init()` and `::free()`
 - refactor: move loop logic into a `CGameLoop` class that has update & render listeners 
 - use: `wglSwapIntervalEXT` in `CContext`
 - update: move macros from `uix` to `sys` (sys should be everywhere)
 - use: `::glDebugMessageCallback`
 - question: should `GLCALL` + `::glCheckError` trigger a system event to the `uix::CContext`
 - move: opengl code from `uix::CContext` to `glc::CContext : uix::CContext` // `uix` should stay abstract
-- refactor: consider moving `glc`+`glo` into `ogl` and putting everything inside a namespace
-- fix: need alternative for calling virtual methods from constructors
-- fix: wglMakeCurrent() fail on app destroy // problem w/ the loop // close + destroy called before quit 
+- refactor: consider moving `glc`+`glo` into `ogl` and putting everything inside a namespace 
 - restructure: move `CSufrface` + `CButton` (and panels) to `CEditWindow`
 - new: `CWindowApplication` or `???` // application that is also a (main) window // can extend `CCanvas` (for game)
 - use: get unforms & attributes using `glGetActiveAttrib` && `glGetActiveUniform`
 - replace(use): custom types (typedef uint) instead of opengl's GLxxx types
-- oop: !!! really need an empty default constructor declared in the header
 - attach `CContext` to window(s) // by ref?!
 - create engine (using context)
   - add viewports (windows + cameras) to engine // new `CViewport` = `CWindow` + `CCamera`
@@ -181,6 +180,8 @@ s.bind(false);
   - use cpu L* cache levels
   - allocator // stack-based vs pool-based vs (multi)FRAME-based
     - frame-based: gets reset on each(or nth) frame
+  - https://www.gamedev.net/articles/programming/general-and-gameplay-programming/c-custom-memory-allocation-r3010/
+  - https://medium.com/@mateusgondimlima/designing-and-implementing-a-pool-allocator-data-structure-for-memory-management-in-games-c78ed0902b69
 - opengl
   - unbinding might not be necesarry, make it do nothing in non-debug mode
 - shaders

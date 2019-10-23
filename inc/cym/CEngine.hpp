@@ -12,10 +12,8 @@ namespace cym {
     public:
       CEngine();
       ~CEngine();
-  
     public:
       virtual void init();
-      virtual void loop();
       virtual void free();
       
       // @todo: connects(and befriends) all *System(s)

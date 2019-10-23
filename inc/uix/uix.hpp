@@ -112,7 +112,7 @@ struct STATE {
   RECT  rc        {0};
 };
 
-inline int FindPixelFormat(HDC hDC, int nColorBits = 32, int nDepthBits = 24, int nStencilBits = 8) {
+inline INT FindPixelFormat(HDC hDC, int nColorBits = 32, int nDepthBits = 24, int nStencilBits = 8) {
   // to evel what we find
   int currMode  = 0;
   int currScore = 0;
@@ -150,14 +150,14 @@ inline int FindPixelFormat(HDC hDC, int nColorBits = 32, int nDepthBits = 24, in
   return bestScore;
 }
 
-inline std::string GetLastErrorString() {
+inline const char* GetLastErrorString() {
   DWORD errid = ::GetLastError();
-  if (errid == 0) return std::string();
+  if (errid == 0) return "";
   LPSTR buffer = nullptr;
   const DWORD size = ::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, errid, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buffer, 0, NULL);
   std::string errmsg(buffer, size);
   ::LocalFree(buffer);
-  return errmsg;
+  return errmsg.c_str();
 }
 
 inline STATE SwapWindowState(HWND hWnd) {
@@ -199,37 +199,35 @@ inline STATE GetWindowState(HWND hWnd) {
   return curr;
 }
 
-inline void SetDefaultFont(HWND hWnd) {
+inline VOID SetDefaultFont(HWND hWnd) {
   ::SendMessage(hWnd, WM_SETFONT, (WPARAM)::GetStockObject(DEFAULT_GUI_FONT), (LPARAM)true);
 }
 
-inline bool HandleMessage(const unsigned int kMax = 5, const unsigned int kTPS = 25) {
-  MSG sMsg;
-  static DWORD              nPrvTicks;
+inline WINBOOL HandleMessage(MSG* pMSG, const unsigned int kMax = 5, const unsigned int kTPS = 25) {
   static DWORD              nCurTicks;
   static DWORD              nNxtTicks;
   static const unsigned int kJumpTime{1000 / kTPS};
   static unsigned int       iLoop;
   
-  nCurTicks = nPrvTicks = ::GetTickCount();
+  nCurTicks = ::GetTickCount();
   nNxtTicks = nCurTicks + kJumpTime;
+  iLoop     = 0;
   
   while (nCurTicks < nNxtTicks && iLoop < kMax) {
-    iLoop = 0;
-    if (::PeekMessage(&sMsg, NULL, 0, 0, PM_REMOVE)) {
-      if (WM_QUIT == sMsg.message) {
-        return false;
+    if (::PeekMessage(pMSG, NULL, 0, 0, PM_REMOVE)) {
+      if (WM_QUIT == pMSG->message) {
+        return FALSE;
         break;
       } else {
-        ::TranslateMessage(&sMsg);
-        ::DispatchMessage(&sMsg);
+        ::TranslateMessage(pMSG);
+        ::DispatchMessage(pMSG);
       }
       nCurTicks = ::GetTickCount();
-      iLoop++;
     }
+    iLoop++;
   }
   
-  return true;
+  return TRUE;
 }
 
 namespace uix {
@@ -281,6 +279,7 @@ namespace uix {
     class CWindow;          // abstract
       class CPopup;         // abstract // toplevel windows
         class CFrame;       // titlebar + borders (opt: statusbar + menubar + toolbar)
+          class CToplevel;  // main app that will kill the app when closed
           class CSplash;    // spalsh screen // no titlebar, no borders, no buttons, only an image
           class CPreview;   // prevew (like printing)
           class CCanvas;    // ogl|d3d|vlk // no border no titlebar w/ CGLContext similar to CCanvas but only 1 class
