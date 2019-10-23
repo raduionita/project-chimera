@@ -1944,6 +1944,10 @@ extern GLushort glClearError();
 
 extern bool glCheckError(const GLchar*,const GLchar*,GLushort);
 
+extern bool glMakeCurrent(HDC hDC, HGLRC hRC);
+
+extern bool glSwapBuffers();
+
 // opengl debug ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef GLC_DEBUG_EXIT

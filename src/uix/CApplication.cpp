@@ -63,7 +63,12 @@ namespace uix {
     return CModule::free();
   }
   
-  bool CApplication::exec(int nMode/*=0*/) {
+  bool CApplication::poll() {
+    MSG msg;
+    return TRUE == ::HandleMessage(&msg);
+  }
+  
+  int CApplication::exec() {
     log::nfo << "uix::CApplication::exec()::" << this << log::end;
     try {
       init();
@@ -91,7 +96,9 @@ namespace uix {
     return true;
   }
   
-  bool CApplication::runs() { return mRunning; }
+  bool CApplication::runs() const        { return mRunning; }
+  
+  void CApplication::runs(bool bRunning) { mRunning = bRunning; }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

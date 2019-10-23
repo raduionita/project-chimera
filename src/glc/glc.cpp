@@ -1674,6 +1674,12 @@ static bool load_version(int major, int minor) {
   return true;
 }
 
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
+  
+static HDC   sDC {NULL};
+static HGLRC sRC {NULL};
+
 GLuint glTypeToSize(GLenum type) {
   switch (type) {
     case GL_FLOAT : return sizeof(GLfloat);
@@ -1771,3 +1777,10 @@ bool glCheckError(const GLchar* func, const GLchar* file, GLushort line) {
   return cnt == 0;
 }
 
+bool glMakeCurrent(HDC hDC, HGLRC hRC) {
+  return TRUE == ::wglMakeCurrent(hDC,hRC);
+}
+
+bool glSwapBuffers() {
+  return TRUE == ::SwapBuffers(::wglGetCurrentDC());
+}

@@ -16,17 +16,18 @@
 #include <glo/CShader.hpp>
 
 namespace app {
-  void CApplication::onInit() {
-    log::nfo << "app::CApplication::onInit()::" << this << log::end;
-  
-    mMain = new app::CEditWindow;
+  int CApplication::exec() {
+    log::nfo << "app::CApplication::exec()::" << this << log::end;
     
-    auto pLayout  = new uix::CBoxLayout(uix::ELayout::VERTICAL);
+    init();
     
-    auto pSurface = pLayout->add(new uix::CSurface(mMain, uix::EWindow::VISIBLE), uix::ELayout::ADJUST);
-    auto pPanel   = pLayout->add(new uix::CPanel(mMain, uix::EWindow::VISIBLE), uix::ELayout::ADJUST);
-    auto pButton  = new uix::CButton(pPanel, "RESIZE", {50,50,90,40});
-  
+    app::CEditWindow* pMain   {new app::CEditWindow};
+    uix::CBoxLayout*  pLayout {new uix::CBoxLayout(uix::ELayout::VERTICAL)};
+    
+    uix::CSurface* pSurface = pLayout->add(new uix::CSurface(pMain, uix::EWindow::VISIBLE), uix::ELayout::ADJUST);
+    uix::CPanel*   pPanel   = pLayout->add(new uix::CPanel(pMain, uix::EWindow::VISIBLE), uix::ELayout::ADJUST);
+    uix::CButton*  pButton  = new uix::CButton(pPanel, "RESIZE", {50,50,90,40});
+    
     pPanel->style()->background(uix::SColor{33,33,33});
     
     attach(this,    uix::EEvent::KEYDOWN,     &app::CApplication::onKeydown);
@@ -34,9 +35,9 @@ namespace app {
     attach(pButton, uix::EEvent::LBUTTONDOWN, &app::CApplication::onClick);
     attach(pSurface,uix::EEvent::RESIZE,      &uix::CRender::onResize);
     
-    mMain->layout(pLayout);
-    mMain->title(pSurface->version());
-    mMain->show();
+    pMain->layout(pLayout);
+    pMain->title(pSurface->version());
+    pMain->show();
     
     pSurface->current();
     
@@ -52,28 +53,21 @@ namespace app {
   
     glo::CShader prg{"../../res/shaders/simple/color.glsl"};
     
-    // loop setup
-    mLoop = new uix::CGameLoop([this](){
-      // tick/update  
-      log::nfo << "  L::TICK" << log::end;
-    }, [pSurface,this](){
-      // draw/render
-      log::nfo << "  L::DRAW" << log::end;
-      
-      pSurface->current();
+    while (runs()) {
       pSurface->clear();
       
-      // draw stuff
+      log::nfo << "app::CApplication::exec()::" << this << " LOOP" << log::end;
       
       
       pSurface->swap();
-    });
-  }
+      poll();
+    }
   
-  void CApplication::onFree() {
-    log::nfo << "app::CApplication::onFree()::" << this << log::end;
+    DELETE(pMain);
+
+    free();
     
-    DELETE(mMain);
+    return 0;
   }
   
   void CApplication::onKeydown(uix::CEvent* pEvent) {
@@ -83,7 +77,7 @@ namespace app {
       case 'Q'      : quit(0); break;
       case VK_ESCAPE: quit(0); break;
       case VK_F5    : break;
-      case VK_F11   : mMain->fullscreen(); break;
+      case VK_F11   : pEvent->target()->fullscreen(); break;
     }
   }
   

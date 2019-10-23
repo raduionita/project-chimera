@@ -7,15 +7,15 @@
 
 namespace app {
   class CApplication : public uix::CApplication {
+    public:
+      int exec() override;
     protected:
-      app::CEditWindow* mMain;
-    protected:
-      void onInit()      override;
-      void onFree()      override;
+      // void onInit()      override;
+      // void onFree()      override;
     protected: // loop events
-       void onRead(); // input read
-       void onTick(); // update
-       void onDraw(); // render
+      // void onRead(); // input read
+      // void onTick(); // update
+      // void onDraw(); // render
     protected:  
       void onKeydown(uix::CEvent*);
       void onClick(uix::CEvent*);

@@ -29,11 +29,13 @@ namespace uix {
       bool           init() override;
       virtual CLoop* loop();
       bool           free() override;
+      virtual bool   poll() final;
     public:
       bool         tick(int=0);
-      virtual bool exec(int=0);
-      virtual bool quit(int=0);
-              bool runs();
+      virtual int  exec();
+              bool quit(int=0);
+              bool runs() const;
+              void runs(bool);
     public:
       static CApplication* instance();
     protected:
