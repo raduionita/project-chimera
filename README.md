@@ -41,13 +41,13 @@ s.bind(false);
 ### Needed
 - fix: need alternative for calling virtual methods from constructors
   - refactor: find a replacement `::init()` and `::free()`
-- refactor: move loop logic into a `CGameLoop` class that has update & render listeners 
-- use: `wglSwapIntervalEXT` in `CContext`
+- refactor: consider moving `glc`+`glo` into `ogl` and putting everything inside a namespace 
 - update: move macros from `uix` to `sys` (sys should be everywhere)
+- bug: `wglSwapIntervalEXT` does NOT work // @see `CContext::interval(int)`
+- use: `CGameLoop` to send update + render + input events to `CEngine` and its sub-systems 
 - use: `::glDebugMessageCallback`
 - question: should `GLCALL` + `::glCheckError` trigger a system event to the `uix::CContext`
 - move: opengl code from `uix::CContext` to `glc::CContext : uix::CContext` // `uix` should stay abstract
-- refactor: consider moving `glc`+`glo` into `ogl` and putting everything inside a namespace 
 - restructure: move `CSufrface` + `CButton` (and panels) to `CEditWindow`
 - new: `CWindowApplication` or `???` // application that is also a (main) window // can extend `CCanvas` (for game)
 - use: get unforms & attributes using `glGetActiveAttrib` && `glGetActiveUniform`

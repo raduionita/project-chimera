@@ -8,7 +8,12 @@
 namespace cym {
   class CEngine : public sys::CSingleton<CEngine> {
     protected:
-      CRenderer* mRenderer;
+      // CRenderSystem*
+      // CAudioSystem*
+      // CInputSystem*
+      
+      
+      
     public:
       CEngine();
       ~CEngine();

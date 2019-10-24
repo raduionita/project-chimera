@@ -54,6 +54,8 @@ namespace uix {
       bool        clear(int = GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT) const;
       bool        reset() const;
       const char* version() const;
+      bool        extension(const char*) const;
+      void        interval(int) const;
     protected:
       static bool error(); 
   };

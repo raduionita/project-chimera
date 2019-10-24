@@ -22,7 +22,7 @@ namespace glo {
   }
   
   void CVertexBuffer::bind(bool state/*=true*/) const { 
-    log::nfo << "glo::CVertexBuffer::bind(bool)::" << this << " ID:" << mID << " TARGET:" << GL_ARRAY_BUFFER << log::end;
+    log::dbg << "glo::CVertexBuffer::bind(bool)::" << this << " ID:" << mID << " TARGET:" << GL_ARRAY_BUFFER << log::end;
     GLCALL(::glBindBuffer(GL_ARRAY_BUFFER, state ? mID : 0)); 
   }
   
@@ -36,7 +36,7 @@ namespace glo {
   }
   
   void CIndexBuffer::bind(bool state/*=true*/) const { 
-    log::nfo << "glo::CIndexBuffer::bind(bool)::" << this << " ID:" << mID << " TARGET:" << GL_ELEMENT_ARRAY_BUFFER << log::end;
+    log::dbg << "glo::CIndexBuffer::bind(bool)::" << this << " ID:" << mID << " TARGET:" << GL_ELEMENT_ARRAY_BUFFER << log::end;
     GLCALL(::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, state ? mID : 0)); 
   }
 }

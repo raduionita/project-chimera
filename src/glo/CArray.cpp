@@ -14,7 +14,7 @@ namespace glo {
   }
   
   void CVertexArray::bind(bool state/*=true*/) const {
-    log::nfo << "glo::CVertexArray::bind(bool)::" << this << log::end;
+    log::dbg << "glo::CVertexArray::bind(bool)::" << this << log::end;
     GLCALL(::glBindVertexArray(state ? mID : 0));
   }
   

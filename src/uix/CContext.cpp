@@ -119,7 +119,6 @@ namespace uix {
       return false;
     }
     
-    
     typedef BOOL (WINAPI * PFNWGLCHOOSEPIXELFORMATARBPROC)    (HDC,CONST INT*,CONST FLOAT*,UINT,INT*,UINT*);
     PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = reinterpret_cast<PFNWGLCHOOSEPIXELFORMATARBPROC>(::wglGetProcAddress("wglChoosePixelFormatARB"));
     if (!wglChoosePixelFormatARB) {
@@ -148,18 +147,7 @@ namespace uix {
       return false;
     }
     
-    PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT  = reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(::wglGetProcAddress("wglSwapIntervalEXT"));
-    if (!wglSwapIntervalEXT) {
-      log::nfo << "[CContext] ::wglSwapIntervalEXT() failed!" << log::end;
-      ::MessageBox(NULL, "[CContext] ::wglSwapIntervalEXT() failed!", "Error", MB_OK);
-      
-      ::ReleaseDC(tWnd, tDC);
-      ::wglDeleteContext(tRC);
-      ::DestroyWindow(tWnd);
-      ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
-      
-      return false;
-    }
+
     
     mDC = ::GetDC(mHandle);
     
@@ -244,10 +232,10 @@ namespace uix {
     ::ReleaseDC(tWnd, tDC);
     ::DestroyWindow(tWnd);
     ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
-    
+  
     current();
     
-    wglSwapIntervalEXT(mConfig.nSwapInterval);
+    interval(1);
     
     if (!::glLoad(mConfig.nMajorVersion, mConfig.nMinorVersion)) {
       log::nfo << "[CContext] ogl::load() failed!" << log::end;
@@ -304,6 +292,25 @@ namespace uix {
   
   bool CContext::reset() const {
     return current() && clear() && swap();
+  }
+  
+  bool CContext::extension(const char* ext) const {
+    static PFNWGLGETEXTENSIONSSTRINGEXTPROC wglGetExtensionsStringEXT = reinterpret_cast<PFNWGLGETEXTENSIONSSTRINGEXTPROC>(::wglGetProcAddress("wglGetExtensionsStringEXT"));
+    return ::strstr(wglGetExtensionsStringEXT(), ext) == NULL;
+  }
+  
+  void CContext::interval(int intv) const {
+    if (extension("WGL_EXT_swap_control")) {
+      static PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(::wglGetProcAddress("wglSwapIntervalEXT"));
+      if (!wglSwapIntervalEXT) {
+        log::nfo << "[CContext] ::wglSwapIntervalEXT() failed!" << log::end;
+        ::MessageBox(NULL, "[CContext] ::wglSwapIntervalEXT() failed!", "Error", MB_OK);
+      } else {
+        wglSwapIntervalEXT(mConfig.nSwapInterval);
+      }
+    } else {
+      log::wrn << "[CContext] WGL_EXT_swap_control not supported!" << log::end;
+    }
   }
   
   const char* CContext::version() const { return reinterpret_cast<const char*>(::glGetString(GL_VERSION)); }

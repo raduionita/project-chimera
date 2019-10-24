@@ -115,7 +115,7 @@ namespace glo {
   }
   
   void CShader::bind(bool state) const { 
-    log::nfo << "glo::CShader::bind(bool)::" << this << log::end;
+    log::dbg << "glo::CShader::bind(bool)::" << this << log::end;
     GLCALL(::glUseProgram(state ? mID : 0)); 
   }
   
