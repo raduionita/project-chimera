@@ -33,7 +33,7 @@ namespace glo {
       CShader(const std::string&);
       ~CShader();
     public:
-      inline void bind(bool state = true) const override { GLCALL(::glUseProgram(state ? mID : 0)); }
+      void bind(bool state = true) const override;
       // uniforms
       void  uniform(const std::string& name, float x, float y, float z, float w);
       void  uniform(const std::string& name, float x);

@@ -114,6 +114,11 @@ namespace glo {
     GLCALL(::glDeleteProgram(mID));
   }
   
+  void CShader::bind(bool state) const { 
+    log::nfo << "glo::CShader::bind(bool)::" << this << log::end;
+    GLCALL(::glUseProgram(state ? mID : 0)); 
+  }
+  
   void CShader::uniform(const std::string& name, float x, float y, float z, float w) {
     GLint loc = uniform(name);
     if (loc != GL_NOT_FOUND) {

@@ -148,6 +148,19 @@ namespace uix {
       return false;
     }
     
+    PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT  = reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(::wglGetProcAddress("wglSwapIntervalEXT"));
+    if (!wglSwapIntervalEXT) {
+      log::nfo << "[CContext] ::wglSwapIntervalEXT() failed!" << log::end;
+      ::MessageBox(NULL, "[CContext] ::wglSwapIntervalEXT() failed!", "Error", MB_OK);
+      
+      ::ReleaseDC(tWnd, tDC);
+      ::wglDeleteContext(tRC);
+      ::DestroyWindow(tWnd);
+      ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
+      
+      return false;
+    }
+    
     mDC = ::GetDC(mHandle);
     
     const int aPixelAttrs[] = {
@@ -234,6 +247,8 @@ namespace uix {
     
     current();
     
+    wglSwapIntervalEXT(mConfig.nSwapInterval);
+    
     if (!::glLoad(mConfig.nMajorVersion, mConfig.nMinorVersion)) {
       log::nfo << "[CContext] ogl::load() failed!" << log::end;
       ::MessageBox(NULL, "[CContext] ogl::load() failed!", "Error", MB_OK);
@@ -283,7 +298,7 @@ namespace uix {
   bool CContext::clear(int nBit/*=GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT*/) const {
     GLCALL(::glClearColor(0.f,0.f,0.f,0.f));
     GLCALL(::glClear(nBit));
-    
+    ::glClearError();
     return true;
   }
   

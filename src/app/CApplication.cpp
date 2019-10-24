@@ -10,10 +10,12 @@
 #include "uix/CPainter.hpp"
 #include "uix/CFrame.hpp"
 
-#include <glo/CBuffer.hpp>
-#include <glo/CArray.hpp>
-#include <glo/CLayout.hpp>
-#include <glo/CShader.hpp>
+#include "glo/CBuffer.hpp"
+#include "glo/CArray.hpp"
+#include "glo/CLayout.hpp"
+#include "glo/CShader.hpp"
+
+#include "glm/glm.hpp"
 
 namespace app {
   int CApplication::exec() {
@@ -51,13 +53,27 @@ namespace app {
     vao.buffer(vbo, vlo);
     glo::CIndexBuffer  ibo{indices, 6};
   
-    glo::CShader prg{"../../res/shaders/simple/color.glsl"};
+    glo::CShader       prg{"../../res/shaders/simple/color.glsl"};
+    
+    vao.bind(false);
+    prg.bind(false);
+    ibo.bind(false);
+    vbo.bind(false);
+    
+    float r = 0.0f;
     
     while (runs()) {
       pSurface->clear();
       
       log::nfo << "app::CApplication::exec()::" << this << " LOOP" << log::end;
+  
+      prg.bind(true);
+      prg.uniform("u_vColor", glm::loop(r,0.5f,0.f,1.f),0.7f,0.2f,1.0f);
       
+      vao.bind(true);
+      ibo.bind(true);
+      
+      GLCALL(::glDrawElements(GL_TRIANGLES, ibo.count(), GL_UNSIGNED_INT, GL_NULL));
       
       pSurface->swap();
       poll();

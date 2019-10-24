@@ -33,6 +33,7 @@ namespace uix {
         BYTE nDepthBits    = {24};
         BYTE nStencilBits  = {8};
         BYTE nAlphaBits    = {8};
+        int  nSwapInterval = {2};
         int  nFlags        = {0}; // debug | stereo
       };
     protected:
@@ -42,7 +43,7 @@ namespace uix {
       HDC      mDC     {NULL}; // device context
       HGLRC    mRC     {NULL}; // render context
     public: 
-      CContext(CWindow* pParent, const SConfig& = {UIX_CONTEXT_MAJOR,UIX_CONTEXT_MINOR,1,32,24,8,8,0});
+      CContext(CWindow* pParent, const SConfig& = {UIX_CONTEXT_MAJOR,UIX_CONTEXT_MINOR,1,32,24,8,8,1,0});
       ~CContext();
     private:
       bool init();

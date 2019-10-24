@@ -184,6 +184,7 @@ s.bind(false);
   - https://medium.com/@mateusgondimlima/designing-and-implementing-a-pool-allocator-data-structure-for-memory-management-in-games-c78ed0902b69
 - opengl
   - unbinding might not be necesarry, make it do nothing in non-debug mode
+  - refactor: replace `::glBufferData + GL_STATIC_DRAW` with `::glBufferStorage`
 - shaders
   - shader fragments
   - embeded shaders into clases that know about attributes + uniforms + ...
