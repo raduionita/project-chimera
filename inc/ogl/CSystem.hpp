@@ -1,7 +1,7 @@
 #ifndef __cym_csystem_hpp__
 #define __cym_csystem_hpp__
 
-#include "cym.hpp"
+#include "cym/cym.hpp"
 #include "CMessenger.hpp"
 
 namespace cym {

@@ -1,10 +1,14 @@
-#ifndef __cym_hpp__
-#define __cym_hpp__
+#ifndef __glo_hpp__
+#define __glo_hpp__
 
+#include "glc/glc.hpp"
 #include "sys/sys.hpp"
 #include "sys/CLogger.hpp"
 
-namespace cym {
+#undef FAR
+#undef NEAR
+
+namespace ogl {
   class CEngine;
   class CSystem;
     class CConsole;    // a system that outputs all posted messages, also sends messages (like commands)
@@ -20,14 +24,25 @@ namespace cym {
     class CTexture;
     class CMaterial;
     class CAnimation;
-  
+  class CShader;
+  class CObject;
+    class CTexture;
+    class CBuffer;
+      class CDataBuffer;
+        class CVertexBuffer;
+        class CIndexBuffer;
+    class CLayout;
+      class CVertexLayout;
+    class CArray;
+      class CVertexArray;
+    class CProgram;
+    class CUniform;
+  class CVertex; // @todo: this should be a template that describes components
+  class CVertexLayout;
+
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   using log = sys::log;
-  
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
-  // using CMemory = sys::CMemory;
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -44,4 +59,6 @@ namespace cym {
   };
 }
 
-#endif //__cym_hpp__
+
+
+#endif //__glo_hpp__

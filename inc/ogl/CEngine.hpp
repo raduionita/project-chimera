@@ -1,7 +1,7 @@
 #ifndef __cym_cengine_hpp__
 #define __cym_cengine_hpp__
 
-#include "cym.hpp"
+#include "cym/cym.hpp"
 
 #include "sys/CSingleton.hpp"
 
