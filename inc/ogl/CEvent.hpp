@@ -1,10 +1,10 @@
-#ifndef __cym_cevent_hpp__
-#define __cym_cevent_hpp__
+#ifndef __ogl_cevent_hpp__
+#define __ogl_cevent_hpp__
 
-namespace cym {
+namespace ogl {
   class CEvent {
       // FRAME_EVENT
   };
 }
 
-#endif //__cym_cevent_hpp__
+#endif //__ogl_cevent_hpp__

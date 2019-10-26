@@ -7,13 +7,11 @@
 #include "uix/CPanel.hpp"
 #include "uix/CLayout.hpp"
 #include "uix/CButton.hpp"
-#include "uix/CPainter.hpp"
-#include "uix/CFrame.hpp"
 
-#include "glo/CBuffer.hpp"
-#include "glo/CArray.hpp"
-#include "glo/CLayout.hpp"
-#include "glo/CShader.hpp"
+#include "ogl/CBuffer.hpp"
+#include "ogl/CArray.hpp"
+#include "ogl/CLayout.hpp"
+#include "ogl/CShader.hpp"
 
 #include "glm/glm.hpp"
 
@@ -46,14 +44,14 @@ namespace app {
     GLfloat2 vertices[] = {{-0.5f,-0.5f},{+0.5f,-0.5f},{+0.5f,+0.5f},{-0.5f,+0.5f}};
     GLuint   indices [] = {0,1,2, 2,3,0};
   
-    glo::CVertexArray  vao;
-    glo::CVertexBuffer vbo{vertices, 4 * 2 * sizeof(GLfloat)};
-    glo::CVertexLayout vlo;
+    ogl::CVertexArray  vao;
+    ogl::CVertexBuffer vbo{vertices, 4 * 2 * sizeof(GLfloat)};
+    ogl::CVertexLayout vlo;
     vlo.push({GL_FLOAT, 2});
     vao.buffer(vbo, vlo);
-    glo::CIndexBuffer  ibo{indices, 6};
+    ogl::CIndexBuffer  ibo{indices, 6};
   
-    glo::CShader       prg{"../../res/shaders/simple/color.glsl"};
+    ogl::CShader       prg{"../../res/shaders/simple/color.glsl"};
     
     vao.bind(false);
     prg.bind(false);

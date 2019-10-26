@@ -1,10 +1,10 @@
-#ifndef __glo_cprogram_hpp__
-#define __glo_cprogram_hpp__
+#ifndef __ogl_cprogram_hpp__
+#define __ogl_cprogram_hpp__
 
-#include "glo.hpp"
+#include "ogl.hpp"
 #include "CObject.hpp"
 
-namespace glo {
+namespace ogl {
   class CProgram : public CObject {
     public:
       CProgram();
@@ -14,4 +14,4 @@ namespace glo {
   };
 }
 
-#endif //__glo_cprogram_hpp__
+#endif //__ogl_cprogram_hpp__

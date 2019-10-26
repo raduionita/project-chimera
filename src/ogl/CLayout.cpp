@@ -1,5 +1,5 @@
-#include "glo/CLayout.hpp"
+#include "ogl/CLayout.hpp"
 
-namespace glo {
+namespace ogl {
   
 }

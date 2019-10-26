@@ -1,11 +1,11 @@
-#ifndef __cym_cengine_hpp__
-#define __cym_cengine_hpp__
+#ifndef __ogl_cengine_hpp__
+#define __ogl_cengine_hpp__
 
-#include "cym/cym.hpp"
+#include "ogl/ogl.hpp"
 
 #include "sys/CSingleton.hpp"
 
-namespace cym {
+namespace ogl {
   class CEngine : public sys::CSingleton<CEngine> {
     protected:
       // CRenderSystem*
@@ -25,4 +25,4 @@ namespace cym {
   };
 }
 
-#endif //__cym_cengine_hpp__
+#endif //__ogl_cengine_hpp__

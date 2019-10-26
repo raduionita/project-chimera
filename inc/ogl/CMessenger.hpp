@@ -1,9 +1,9 @@
-#ifndef __cym_cmessenger_hpp__
-#define __cym_cmessenger_hpp__
+#ifndef __ogl_cmessenger_hpp__
+#define __ogl_cmessenger_hpp__
 
-#include "cym/cym.hpp"
+#include "ogl/ogl.hpp"
 
-namespace cym {
+namespace ogl {
   class CMessenger {
     protected:
       // @todo: std::queue<CMessage*> mQueue; // message queue/map
@@ -12,4 +12,4 @@ namespace cym {
   };
 }
 
-#endif //__cym_cmessenger_hpp__
+#endif //__ogl_cmessenger_hpp__

@@ -1,6 +1,6 @@
-#include "glo/CProgram.hpp"
+#include "ogl/CProgram.hpp"
 
-namespace glo {
+namespace ogl {
   CProgram::CProgram() {
     
   }

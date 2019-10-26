@@ -1,25 +1,25 @@
-#include "glo/CArray.hpp"
-#include "glo/CBuffer.hpp"
-#include "glo/CLayout.hpp"
+#include "ogl/CArray.hpp"
+#include "ogl/CBuffer.hpp"
+#include "ogl/CLayout.hpp"
 
-namespace glo {
+namespace ogl {
   CVertexArray::CVertexArray() {
-    log::nfo << "glo::CVertexArray::CVertexArray()::" << this << log::end;
+    log::nfo << "ogl::CVertexArray::CVertexArray()::" << this << log::end;
     GLCALL(::glGenVertexArrays(1, &mID));
   }
   
   CVertexArray::~CVertexArray() {
-    log::nfo << "glo::CVertexArray::~CVertexArray()::" << this << log::end;
+    log::nfo << "ogl::CVertexArray::~CVertexArray()::" << this << log::end;
     GLCALL(::glDeleteVertexArrays(1, &mID));
   }
   
   void CVertexArray::bind(bool state/*=true*/) const {
-    log::dbg << "glo::CVertexArray::bind(bool)::" << this << log::end;
+    log::dbg << "ogl::CVertexArray::bind(bool)::" << this << log::end;
     GLCALL(::glBindVertexArray(state ? mID : 0));
   }
   
   void CVertexArray::buffer(const CVertexBuffer& buffer, const CVertexLayout& layout) {
-    log::nfo << "glo::CVertexArray::buffer(CVertexBuffer&, CVertexLayout&)::" << this << log::end;
+    log::nfo << "ogl::CVertexArray::buffer(CVertexBuffer&, CVertexLayout&)::" << this << log::end;
     bind();
     buffer.bind();
     const auto& elements = layout.elements();

@@ -1,9 +1,9 @@
-#ifndef __glo_ccamera_hpp__
-#define __glo_ccamera_hpp__
+#ifndef __ogl_ccamera_hpp__
+#define __ogl_ccamera_hpp__
 
-#include "glo/glo.hpp"
+#include "ogl/ogl.hpp"
 
-namespace glo {
+namespace ogl {
   class CCamera {
     protected:
       // glm::quat mOrientation;
@@ -13,4 +13,4 @@ namespace glo {
   };
 }
 
-#endif //__glo_ccamera_hpp__
+#endif //__ogl_ccamera_hpp__

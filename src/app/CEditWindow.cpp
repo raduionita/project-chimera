@@ -7,10 +7,10 @@
 #include "uix/CFrame.hpp"
 #include "uix/CSurface.hpp"
 
-#include <glo/CBuffer.hpp>
-#include <glo/CArray.hpp>
-#include <glo/CLayout.hpp>
-#include <glo/CShader.hpp>
+#include <ogl/CBuffer.hpp>
+#include <ogl/CArray.hpp>
+#include <ogl/CLayout.hpp>
+#include <ogl/CShader.hpp>
 
 namespace app {
   CEditWindow::CEditWindow() : uix::CToplevel(uix::CToplevel::WINDOW) {

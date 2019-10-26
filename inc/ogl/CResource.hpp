@@ -1,7 +1,9 @@
-#ifndef __glo_cresource_hpp__
-#define __glo_cresource_hpp__
+#ifndef __ogl_cresource_hpp__
+#define __ogl_cresource_hpp__
 
-namespace glo {
+#include "ogl.hpp"
+
+namespace ogl {
   /// loadable entity/file/object
   class CResource {
     public:
@@ -12,11 +14,13 @@ namespace glo {
       // @todo: needs methods for defining load strategy and events on load/begin/finish/error/failed
   };
   
+  // class CMaterial : CResource
+  
   // class CTexture : CResource
   
-  // class CMesh : CResource
+  // class CModel : CResource
   
   // class CAnimation : CResource
 }
 
-#endif //__glo_cresource_hpp__
+#endif //__ogl_cresource_hpp__

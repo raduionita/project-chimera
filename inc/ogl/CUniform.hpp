@@ -1,7 +1,7 @@
-#ifndef __glo_cuniform_hpp__
-#define __glo_cuniform_hpp__
+#ifndef __ogl_cuniform_hpp__
+#define __ogl_cuniform_hpp__
 
-namespace glo {
+namespace ogl {
   class CUniform {
       
   };
@@ -16,4 +16,4 @@ namespace glo {
 // ...
 // o_vColor = u_vColor;
 
-#endif //__glo_cuniform_hpp__
+#endif //__ogl_cuniform_hpp__

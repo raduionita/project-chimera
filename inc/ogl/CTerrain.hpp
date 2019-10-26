@@ -1,10 +1,10 @@
-#ifndef __cym_cterrain_hpp__
-#define __cym_cterrain_hpp__
+#ifndef __ogl_cterrain_hpp__
+#define __ogl_cterrain_hpp__
 
-namespace cym {
+namespace ogl {
   class CTerrain {
       
   };
 }
 
-#endif //__cym_cterrain_hpp__
+#endif //__ogl_cterrain_hpp__

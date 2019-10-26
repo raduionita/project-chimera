@@ -1,13 +1,13 @@
-#ifndef __glo_cdrawcall_hpp__
-#define __glo_cdrawcall_hpp__
+#ifndef __ogl_cdrawcall_hpp__
+#define __ogl_cdrawcall_hpp__
 
-#include "glo.hpp"
+#include "ogl.hpp"
 
-namespace glo {
+namespace ogl {
   class CDrawcall {
     protected:
       GLuint mVAO;
   };
 }
 
-#endif //__glo_cdrawcall_hpp__
+#endif //__ogl_cdrawcall_hpp__

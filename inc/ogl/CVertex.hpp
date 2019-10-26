@@ -1,9 +1,9 @@
-#ifndef __glo_cvertex_hpp__
-#define __glo_cvertex_hpp__
+#ifndef __ogl_cvertex_hpp__
+#define __ogl_cvertex_hpp__
 
-#include "glo.hpp"
+#include "ogl.hpp"
 
-namespace glo {
+namespace ogl {
   class CVertex {
       struct SComponent /*SElement*/ {
         
@@ -12,4 +12,4 @@ namespace glo {
   };
 }
 
-#endif //__glo_cvertex_hpp__
+#endif //__ogl_cvertex_hpp__

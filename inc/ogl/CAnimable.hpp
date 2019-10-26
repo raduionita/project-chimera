@@ -1,7 +1,7 @@
-#ifndef __glo_canimable_hpp__
-#define __glo_canimable_hpp__
+#ifndef __ogl_canimable_hpp__
+#define __ogl_canimable_hpp__
 
-namespace glo { 
+namespace ogl { 
   class CAnimable {
       
   };
@@ -10,4 +10,4 @@ namespace glo {
   // needed/interacts w/ CAnimation
 }
 
-#endif //__glo_canimable_hpp__
+#endif //__ogl_canimable_hpp__

@@ -1,5 +1,5 @@
-#include "glo/CTexture.hpp"
+#include "ogl/CTexture.hpp"
 
-namespace glo {
+namespace ogl {
   
 }

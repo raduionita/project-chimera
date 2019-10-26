@@ -1,10 +1,10 @@
-#ifndef __cym_csystem_hpp__
-#define __cym_csystem_hpp__
+#ifndef __ogl_csystem_hpp__
+#define __ogl_csystem_hpp__
 
-#include "cym/cym.hpp"
+#include "ogl/ogl.hpp"
 #include "CMessenger.hpp"
 
-namespace cym {
+namespace ogl {
   class CSystem {
     private:
       CMessenger* mMessenger {nullptr};
@@ -15,4 +15,4 @@ namespace cym {
   };
 }
 
-#endif //__cym_csystem_hpp__
+#endif //__ogl_csystem_hpp__

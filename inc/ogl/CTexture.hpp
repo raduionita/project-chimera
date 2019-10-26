@@ -1,11 +1,18 @@
-#ifndef __glo_ctexture_hpp__
-#define __glo_ctexture_hpp__
+#ifndef __ogl_ctexture_hpp__
+#define __ogl_ctexture_hpp__
 
-#include "glo.hpp"
-#include "CObject.hpp"
+#include "ogl.hpp"
+#include "ogl/CObject.hpp"
+#include "ogl/CResource.hpp"
+#include "sys/CSingleton.hpp"
 
-namespace glo {
-  class CTexture : public CObject { // or should this be CBuffer since it holds data/memory
+namespace ogl {
+  class CTexture : public CResource, public CObject { // or should this be CBuffer since it holds data/memory
+    public:
+      class CManager : public CResource::CManager, public sys::CSingleton<CManager> {
+        public:
+          CTexture* load(const std::string& file);
+      };
     protected:
       GLenum mSlot {GL_TEXTURE0};
     public:
@@ -18,4 +25,4 @@ namespace glo {
   };
 }
 
-#endif //__glo_ctexture_hpp__
+#endif //__ogl_ctexture_hpp__

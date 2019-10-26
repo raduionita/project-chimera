@@ -3,7 +3,7 @@
 
 #include "sys.hpp"
 
-namespace cym {
+namespace ogl {
   class CFile {
       // @todo: use std::filesystem
   };

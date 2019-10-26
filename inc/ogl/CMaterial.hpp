@@ -1,10 +1,10 @@
-#ifndef __glo_cmaterial_hpp__
-#define __glo_cmaterial_hpp__
+#ifndef __ogl_cmaterial_hpp__
+#define __ogl_cmaterial_hpp__
 
-namespace glo {
+namespace ogl {
   class CMaterial {
       
   };
 }
 
-#endif //__glo_cmaterial_hpp__
+#endif //__ogl_cmaterial_hpp__

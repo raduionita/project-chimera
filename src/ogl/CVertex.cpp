@@ -1,5 +1,5 @@
-#include "glo/CVertex.hpp" 
+#include "ogl/CVertex.hpp" 
 
-namespace glo {
+namespace ogl {
   
 }

@@ -1,5 +1,5 @@
-#include "glo/CObject.hpp"
+#include "ogl/CObject.hpp"
 
-namespace glo {
+namespace ogl {
   
 }

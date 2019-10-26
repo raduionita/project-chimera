@@ -1,11 +1,11 @@
-#ifndef __glo_cfrustum_hpp__
-#define __glo_cfrustum_hpp__
+#ifndef __ogl_cfrustum_hpp__
+#define __ogl_cfrustum_hpp__
 
-#include "glo/glo.hpp"
+#include "ogl/ogl.hpp"
 
-namespace glo {
+namespace ogl {
   class CFrustum { // CMovable, CDrawable
-      // @todo: maybe move these to glo.hpp
+      // @todo: maybe move these to ogl.hpp
       enum class EPlane {
        NEAR   = 0,
        FAR    = 1,
@@ -21,4 +21,4 @@ namespace glo {
   };
 }
 
-#endif //__glo_cfrustum_hpp__
+#endif //__ogl_cfrustum_hpp__

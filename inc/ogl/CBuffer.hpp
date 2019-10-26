@@ -1,10 +1,10 @@
-#ifndef __glo_cbuffer_hpp__
-#define __glo_cbuffer_hpp__
+#ifndef __ogl_cbuffer_hpp__
+#define __ogl_cbuffer_hpp__
 
-#include "glo.hpp"
+#include "ogl.hpp"
 #include "CObject.hpp"
 
-namespace glo {
+namespace ogl {
   class CBuffer : public CObject {
     public:
       using CObject::CObject;
@@ -16,7 +16,7 @@ namespace glo {
     public:
       CDataBuffer();
       template <typename T> CDataBuffer(const T* data, GLcount count, GLenum target, GLenum usage = GL_STATIC_DRAW) { 
-        log::nfo << "glo::CDataBuffer::CDataBuffer(T*,GLcount,GLenum,GLenum)::" << this << log::end;
+        log::nfo << "ogl::CDataBuffer::CDataBuffer(T*,GLcount,GLenum,GLenum)::" << this << log::end;
         GLCALL(::glGenBuffers(1, &mID));
         GLCALL(::glBindBuffer(target, mID));
         GLCALL(::glBufferData(target, count * sizeof(T), data, usage));
@@ -52,4 +52,4 @@ namespace glo {
   };
 }
 
-#endif //__glo_cbuffer_hpp__
+#endif //__ogl_cbuffer_hpp__

@@ -1,13 +1,13 @@
-#include "glo/CEngine.hpp"
+#include "ogl/CEngine.hpp"
 
-namespace cym {
+namespace ogl {
    CEngine::CEngine() {
-     log::nfo << "cym::CEngine::CEngine()::" << this << log::end;
+     log::nfo << "ogl::CEngine::CEngine()::" << this << log::end;
      init();
    }
    
    CEngine::~CEngine() {
-     log::nfo << "cym::CEngine::~CEngine()::" << this << log::end;
+     log::nfo << "ogl::CEngine::~CEngine()::" << this << log::end;
      free();
    }
    

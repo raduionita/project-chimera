@@ -1,10 +1,10 @@
-#ifndef __cym_clight_hpp__
-#define __cym_clight_hpp__
+#ifndef __ogl_clight_hpp__
+#define __ogl_clight_hpp__
 
-namespace cym {
+namespace ogl {
   class CLight {
       
   };
 }
 
-#endif //__cym_clight_hpp__
+#endif //__ogl_clight_hpp__

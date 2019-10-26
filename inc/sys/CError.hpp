@@ -3,7 +3,7 @@
 
 #include "sys.hpp"
 
-namespace cym {
+namespace ogl {
   class CError {
     protected:
       CError* mOriginal = {nullptr};

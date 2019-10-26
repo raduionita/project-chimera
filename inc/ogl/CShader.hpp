@@ -1,13 +1,13 @@
-#ifndef __glo_cshader_hpp__
-#define __glo_cshader_hpp__
+#ifndef __ogl_cshader_hpp__
+#define __ogl_cshader_hpp__
 
-#include "glo.hpp"
+#include "ogl.hpp"
 #include "CObject.hpp"
 
 #include <string>
 #include <unordered_map>
 
-namespace glo {
+namespace ogl {
   class CShader : public CObject {
     protected:
       struct SSource {
@@ -41,4 +41,4 @@ namespace glo {
   };
 }
 
-#endif //__glo_cshader_hpp__
+#endif //__ogl_cshader_hpp__

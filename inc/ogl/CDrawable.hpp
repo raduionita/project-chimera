@@ -1,9 +1,9 @@
-#ifndef __glo_cdrawable_hpp__
-#define __glo_cdrawable_hpp__
+#ifndef __ogl_cdrawable_hpp__
+#define __ogl_cdrawable_hpp__
 
-#include "glo/glo.hpp"
+#include "ogl/ogl.hpp"
 
-namespace glo {
+namespace ogl {
   class CDrawable {
       // virtual CMaterial* material() const = 0; 
       // virtual CTehnique* technique() const = 0; // material()->technique()
@@ -12,4 +12,4 @@ namespace glo {
   };
 }
 
-#endif //__glo_cdrawable_hpp__
+#endif //__ogl_cdrawable_hpp__

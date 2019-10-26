@@ -1,12 +1,12 @@
-#include "glo/CShader.hpp"
+#include "ogl/CShader.hpp"
 
 #include <fstream>
 #include <cassert>
 #include <vector>
 
-namespace glo {
+namespace ogl {
   CShader::CShader(const std::string& filepath) : mFilepath{filepath} {
-    log::nfo << "glo::CShader::CShader(std::string&)::" << this << " FILE:" << filepath << log::end;
+    log::nfo << "ogl::CShader::CShader(std::string&)::" << this << " FILE:" << filepath << log::end;
     // open file
     std::ifstream ifs(filepath);
     // @todo: replace w/ exception
@@ -62,7 +62,7 @@ namespace glo {
         GLCALL(::glDeleteShader(shader));
         // @todo: replace w/ throw exception
         // @todo: this error reporting doesn't work well
-        log::err << "glo::CShader::CShader(std::string&)::" << this << " ERROR:" << error << log::end;
+        log::err << "ogl::CShader::CShader(std::string&)::" << this << " ERROR:" << error << log::end;
         assert(false);
       }
       
@@ -88,7 +88,7 @@ namespace glo {
       // cleanup
       GLCALL(::glDeleteProgram(mID));
       // @todo: replace w/ throw exception
-      log::err << "glo::CShader::CShader(std::string&)::" << this << " ERROR:" << error << log::end;
+      log::err << "ogl::CShader::CShader(std::string&)::" << this << " ERROR:" << error << log::end;
       assert(false);
     }
     
@@ -115,7 +115,7 @@ namespace glo {
   }
   
   void CShader::bind(bool state) const { 
-    log::dbg << "glo::CShader::bind(bool)::" << this << log::end;
+    log::dbg << "ogl::CShader::bind(bool)::" << this << log::end;
     GLCALL(::glUseProgram(state ? mID : 0)); 
   }
   

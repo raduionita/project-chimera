@@ -1,7 +1,7 @@
-#ifndef __cym_cvolume_hpp__
-#define __cym_cvolume_hpp__
+#ifndef __ogl_cvolume_hpp__
+#define __ogl_cvolume_hpp__
 
-namespace cym {
+namespace ogl {
   class CVolume {
     public:
       class CChunk {
@@ -14,4 +14,4 @@ namespace cym {
   };
 }
 
-#endif //__cym_cvolume_hpp__
+#endif //__ogl_cvolume_hpp__

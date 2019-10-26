@@ -1,9 +1,9 @@
-#ifndef __glo_hpp__
-#define __glo_hpp__
+#ifndef __ogl_hpp__
+#define __ogl_hpp__
 
-#include "glc/glc.hpp"
 #include "sys/sys.hpp"
 #include "sys/CLogger.hpp"
+#include "glc/glc.hpp"
 
 #undef FAR
 #undef NEAR
@@ -61,4 +61,4 @@ namespace ogl {
 
 
 
-#endif //__glo_hpp__
+#endif //__ogl_hpp__

@@ -1,10 +1,10 @@
-#ifndef __cym_ccontroller_hpp__
-#define __cym_ccontroller_hpp__
+#ifndef __ogl_ccontroller_hpp__
+#define __ogl_ccontroller_hpp__
 
-namespace cym {
+namespace ogl {
   class CController {
       
   };
 }
 
-#endif //__cym_ccontroller_hpp__
+#endif //__ogl_ccontroller_hpp__

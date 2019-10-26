@@ -1,11 +1,11 @@
-#ifndef __glo_clayout_hpp__
-#define __glo_clayout_hpp__
+#ifndef __ogl_clayout_hpp__
+#define __ogl_clayout_hpp__
 
-#include "glo.hpp"
+#include "ogl.hpp"
 
 #include <vector>
 
-namespace glo {
+namespace ogl {
   class CVertexLayout { // @see [morpheus] CBufferRange
     public:
       struct SElement {
@@ -29,4 +29,4 @@ namespace glo {
   };
 }
 
-#endif //__glo_clayout_hpp__
+#endif //__ogl_clayout_hpp__

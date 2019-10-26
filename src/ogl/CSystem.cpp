@@ -1,6 +1,6 @@
-#include "glo/CSystem.hpp"
+#include "ogl/CSystem.hpp"
 
-namespace cym {
+namespace ogl {
   CSystem::CSystem() {
     
   }

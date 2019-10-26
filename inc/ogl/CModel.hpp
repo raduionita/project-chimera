@@ -1,11 +1,11 @@
-#ifndef __cym_cshader_hpp__
-#define __cym_cshader_hpp__
+#ifndef __ogl_cshader_hpp__
+#define __ogl_cshader_hpp__
 
-namespace cym {
+namespace ogl {
   class CModel {
       // std::array<CMesh> mMeshes;
       // @todo: needs LoD
   };
 }
 
-#endif //__cym_cshader_hpp__
+#endif //__ogl_cshader_hpp__

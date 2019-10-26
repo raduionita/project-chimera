@@ -1,7 +1,7 @@
-#ifndef __glo_cscene_hpp__
-#define __glo_cscene_hpp__
+#ifndef __ogl_cscene_hpp__
+#define __ogl_cscene_hpp__
 
-namespace glo {
+namespace ogl {
   class CScene {
     public:
       class CManager { 
@@ -15,4 +15,4 @@ namespace glo {
   };
 }
 
-#endif //__glo_cscene_hpp__
+#endif //__ogl_cscene_hpp__

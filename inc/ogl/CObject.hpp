@@ -1,9 +1,9 @@
-#ifndef __glo_cobject_hpp__
-#define __glo_cobject_hpp__
+#ifndef __ogl_cobject_hpp__
+#define __ogl_cobject_hpp__
 
-#include "glo.hpp"
+#include "ogl.hpp"
 
-namespace glo {
+namespace ogl {
   class CObject {
     protected:
       GLuint mID;
@@ -17,4 +17,4 @@ namespace glo {
   };
 }
 
-#endif //__glo_cobject_hpp__
+#endif //__ogl_cobject_hpp__

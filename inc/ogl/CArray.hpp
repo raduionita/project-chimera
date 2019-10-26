@@ -1,10 +1,10 @@
-#ifndef __glo_carray_hpp__
-#define __glo_carray_hpp__
+#ifndef __ogl_carray_hpp__
+#define __ogl_carray_hpp__
 
-#include "glo.hpp"
+#include "ogl.hpp"
 #include "CObject.hpp"
 
-namespace glo {
+namespace ogl {
   class CArray : public CObject { };
   
   class CVertexArray : public CArray {
@@ -17,4 +17,4 @@ namespace glo {
   };
 }
 
-#endif //__glo_carray_hpp__
+#endif //__ogl_carray_hpp__

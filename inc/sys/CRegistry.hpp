@@ -3,7 +3,7 @@
 
 #include <vector>
 
-namespace cym {
+namespace ogl {
   template <typename T> class CEntry;
   
   template <typename T> class CRegistry {

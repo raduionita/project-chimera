@@ -1,10 +1,10 @@
-#ifndef __cym_ccanvas_hpp__
-#define __cym_ccanvas_hpp__
+#ifndef __ogl_ccanvas_hpp__
+#define __ogl_ccanvas_hpp__
 
-namespace cym {
+namespace ogl {
   class CCanvas {
       // @todo: receives image/data/rendering/drawing from the renderer
   };
 }
 
-#endif //__cym_ccanvas_hpp__
+#endif //__ogl_ccanvas_hpp__
