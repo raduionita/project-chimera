@@ -19,7 +19,6 @@ i.bind();  // bind ibo => ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER...)
 
 ::glDrawElements(GL_TRIANGLES,i.count(),GL_UNSIGNED_INT,GL_NULL); // execute draw call using ibo
 ```
-
 ###### Shader
 ```c++
 glo::CShader s{"res/shaders/simple/color.glsl"};
@@ -39,6 +38,11 @@ s.bind(false);
 - `https://gamasutra.com/blogs/MichaelKissner/20151027/257369/Writing_a_Game_Engine_from_Scratch__Part_1_Messaging.php`
 
 ### Needed
+- new: `CWindowApplication` or `???` // application that is also a (main) window // can extend `CCanvas` (for game)
+  - move: `CModule` inside `CApplication`
+  - or refactor `uix::CApplication` into a toplevel window | `template <typename T=CWindow> CApplication`
+- refactor: throw exception on `delete` `CWindow*` only the `CWindow::CRegistry` is allowed to
+- refactor: `CPopup` to replace `CToplevel` | only close app if `CPopup` has no parent
 - fix: need alternative for calling virtual methods from constructors
   - refactor: find a replacement `::init()` and `::free()`
 - refactor: consider moving `glc`+`glo` into `ogl` and putting everything inside a namespace 
@@ -49,7 +53,6 @@ s.bind(false);
 - question: should `GLCALL` + `::glCheckError` trigger a system event to the `uix::CContext`
 - move: opengl code from `uix::CContext` to `glc::CContext : uix::CContext` // `uix` should stay abstract
 - restructure: move `CSufrface` + `CButton` (and panels) to `CEditWindow`
-- new: `CWindowApplication` or `???` // application that is also a (main) window // can extend `CCanvas` (for game)
 - use: get unforms & attributes using `glGetActiveAttrib` && `glGetActiveUniform`
 - replace(use): custom types (typedef uint) instead of opengl's GLxxx types
 - attach `CContext` to window(s) // by ref?!

@@ -5,7 +5,12 @@
 #include "CModule.hpp"
 #include "CListener.hpp"
 
-namespace uix {
+namespace uix { 
+  template <typename T>
+  class TApplication : public T {
+      
+  };
+  
   class CApplication : public CModule, public CListener {
       class SState {
           // @todo: application state
