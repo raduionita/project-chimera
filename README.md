@@ -26,6 +26,10 @@ s.bind();
 s.uniform("u_vColor", .3f,.5f,.7f, 1.f);
 s.bind(false);
 ```
+###### Texture
+```c++
+
+```
 
 ### Research
 - `Game Programming Patterns` (by Robert Nystrom)

@@ -10,7 +10,7 @@ include_directories(inc)
 
 link_directories(lib)
 
-file(GLOB CYM "src/sys/*.cpp" "src/glc/*.cpp" "src/ogl/*.cpp" "src/uix/*.cpp" "src/ogl/*.cpp")
+file(GLOB CYM "src/sys/*.cpp" "src/glc/*.cpp" "src/ogl/*.cpp" "src/uix/*.cpp")
 file(GLOB APP "src/app/*.cpp")
 
 add_library(ogl ${CYM})

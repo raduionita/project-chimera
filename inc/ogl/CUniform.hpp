@@ -1,9 +1,36 @@
 #ifndef __ogl_cuniform_hpp__
 #define __ogl_cuniform_hpp__
 
+#include "ogl/ogl.hpp"
+
 namespace ogl {
   class CUniform {
-      
+      friend class CShader;
+    private:
+      std::string mName;
+      GLenum      mType       {GL_NONE};
+      CShader*    mShader     {nullptr};
+      GLint       mLocation   {GL_NOT_FOUND};
+      GLboolean   mTransposed {GL_FALSE};
+      GLushort    mComponents {0};
+    public:
+      CUniform();
+      ~CUniform();
+    public:
+      CUniform& operator =(const GLvoid*);
+    public:
+      void        name(const std::string&);
+      std::string name() const;
+      void        type(GLenum);
+      GLenum      type() const;
+      void        shader(CShader*);
+      CShader*    shader() const;
+      void        location(GLint);
+      GLint       location() const;
+      void        transposed(GLboolean);
+      GLboolean   transposed() const;
+      void        components(GLushort);
+      GLushort    components() const;
   };
 }
 

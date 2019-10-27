@@ -19,13 +19,14 @@ namespace ogl {
           CTexture* find(GLuint id);
       };
     protected:
-      GLenum mSlot {GL_TEXTURE0};
+      GLenum mSlot {0};
     public:
       CTexture();
       ~CTexture();
     public:
-      void activate(GLenum slot = GL_NONE) {
-        GLCALL(::glActiveTexture((slot == GL_NONE) ? (mSlot) : (mSlot = slot)));
+      GLuint activate(GLuint slot = GL_NOT_FOUND) {
+        GLCALL(::glActiveTexture(GL_TEXTURE0 + ((slot == GL_NOT_FOUND) ? (mSlot) : (mSlot = slot))));
+        return mSlot;
       }
   };
 }

@@ -119,12 +119,12 @@ namespace ogl {
     GLCALL(::glUseProgram(state ? mID : 0)); 
   }
   
-  void CShader::uniform(const std::string& name, float x, float y, float z, float w) {
-    GLint loc = uniform(name);
-    if (loc != GL_NOT_FOUND) {
-      GLCALL(::glUniform4f(loc, x,y,z,w));
+  GLint CShader::uniform(const std::string& name) {
+    auto it = mUniforms.find(name);
+    if (it != mUniforms.end()) {
+      return it->second;
     }
-    // @todo: there should be a warn here if not found
+    return GL_NOT_FOUND;
   }
   
   void CShader::uniform(const std::string& name, float x) {
@@ -133,13 +133,21 @@ namespace ogl {
       GLCALL(::glUniform1f(loc, x));
     }
     // @todo: there should be a warn here if not found
-}  
+  }
   
-  GLint CShader::uniform(const std::string& name) {
-    auto it = mUniforms.find(name);
-    if (it != mUniforms.end()) {
-      return it->second;
+  void CShader::uniform(const std::string& name, float x, float y, float z, float w) {
+    GLint loc = uniform(name);
+    if (loc != GL_NOT_FOUND) {
+      GLCALL(::glUniform4f(loc, x,y,z,w));
     }
-    return GL_NOT_FOUND;
+    // @todo: there should be a warn here if not found
+  }
+  
+  void CShader::sampler(const std::string& name, GLint i) {
+    GLint loc = uniform(name);
+    if (loc != GL_NOT_FOUND) {
+      GLCALL(::glUniform1i(loc, i));
+    }
+    // @todo: there should be a warn here if not found
   }
 }

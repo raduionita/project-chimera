@@ -35,8 +35,8 @@ namespace ogl {
       class CVertexLayout;
     class CArray;
       class CVertexArray;
-    class CProgram;
-    class CUniform;
+    class CShader;
+  class CUniform;
   class CVertex; // @todo: this should be a template that describes components
   class CVertexLayout;
 

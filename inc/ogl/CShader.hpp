@@ -9,6 +9,7 @@
 
 namespace ogl {
   class CShader : public CObject {
+      friend class CUniform;
     protected:
       struct SSource {
         std::string       name;
@@ -38,6 +39,7 @@ namespace ogl {
       void  uniform(const std::string& name, float x, float y, float z, float w);
       void  uniform(const std::string& name, float x);
       GLint uniform(const std::string& name);
+      void  sampler(const std::string& name, GLint);
   };
 }
 
