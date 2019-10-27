@@ -47,7 +47,6 @@ s.bind(false);
   - refactor: find a replacement `::init()` and `::free()`
 - refactor: consider moving `glc`+`ogl` into `ogl` and putting everything inside a namespace 
 - update: move macros from `uix` to `sys` (sys should be everywhere)
-- bug: `wglSwapIntervalEXT` does NOT work // @see `CContext::interval(int)`
 - use: `CGameLoop` to send update + render + input events to `CEngine` and its sub-systems 
 - use: `::glDebugMessageCallback`
 - question: should `GLCALL` + `::glCheckError` trigger a system event to the `uix::CContext`
@@ -127,7 +126,6 @@ s.bind(false);
 ##### `Graphic Engine`
 ##### `Graphic Framework`
 ##### `...`
-
 
 ### Engine
 - needs opengl context

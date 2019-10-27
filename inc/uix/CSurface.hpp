@@ -24,6 +24,7 @@ namespace uix {
       bool init(CWindow*, const CContext::SConfig&, int);
     public:
       virtual CStyle* style() override { return nullptr; }
+      inline CContext* context() const { return mContext; }
   };
 }
 

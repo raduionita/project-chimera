@@ -4,13 +4,14 @@
 #include "ogl.hpp"
 
 namespace ogl {
-  /// loadable entity/file/object
-  class CResource {
+  class CResource { // loadable entity/file/object
     public:
-      class CManager {
-          // remembers and managegs loaded resources
+      class CLoader { // loading strategy: .dds, .png, .md5, .3ds, .fxd, .obj, .mtl, .dae, .xml
+          
       };
-      
+      class CManager { // remembers and managegs loaded resources
+          
+      };
       // @todo: needs methods for defining load strategy and events on load/begin/finish/error/failed
   };
   

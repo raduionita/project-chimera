@@ -2,6 +2,7 @@
 #define __ogl_cengine_hpp__
 
 #include "ogl/ogl.hpp"
+#include "ogl/CTexture.hpp"
 
 #include "sys/CSingleton.hpp"
 
@@ -12,6 +13,7 @@ namespace ogl {
       // CAudioSystem*
       // CInputSystem*
       
+      CTexture::CManager* mManager {nullptr};
       
       
     public:

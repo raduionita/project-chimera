@@ -9,9 +9,14 @@
 namespace ogl {
   class CTexture : public CResource, public CObject { // or should this be CBuffer since it holds data/memory
     public:
+      class CLoader : public CResource::CLoader {
+          // CDdsLoader : CTexture::CLoader
+          // CDataLoader : CTexture::CLoader
+      };
       class CManager : public CResource::CManager, public sys::CSingleton<CManager> {
         public:
           CTexture* load(const std::string& file);
+          CTexture* find(GLuint id);
       };
     protected:
       GLenum mSlot {GL_TEXTURE0};
@@ -19,7 +24,7 @@ namespace ogl {
       CTexture();
       ~CTexture();
     public:
-      void slot(GLenum slot = GL_NONE) {
+      void activate(GLenum slot = GL_NONE) {
         GLCALL(::glActiveTexture((slot == GL_NONE) ? (mSlot) : (mSlot = slot)));
       }
   };

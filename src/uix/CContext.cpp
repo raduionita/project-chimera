@@ -147,8 +147,6 @@ namespace uix {
       return false;
     }
     
-
-    
     mDC = ::GetDC(mHandle);
     
     const int aPixelAttrs[] = {
@@ -234,9 +232,7 @@ namespace uix {
     ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
   
     current();
-    
-    interval(1);
-    
+        
     if (!::glLoad(mConfig.nMajorVersion, mConfig.nMinorVersion)) {
       log::nfo << "[CContext] ogl::load() failed!" << log::end;
       ::MessageBox(NULL, "[CContext] ogl::load() failed!", "Error", MB_OK);
@@ -249,6 +245,8 @@ namespace uix {
     }
   
     ::SendMessage(mHandle, CM_CONTEXT, WPARAM(CTX_OPENGL), MAKELPARAM(mConfig.nMajorVersion,mConfig.nMinorVersion));
+    
+    interval(mConfig.nSwapInterval);
     
     return current();
   }
@@ -300,16 +298,21 @@ namespace uix {
   }
   
   void CContext::interval(int intv) const {
-    if (extension("WGL_EXT_swap_control")) {
-      static PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(::wglGetProcAddress("wglSwapIntervalEXT"));
+    if (extension("WGL_EXT_swap_control_tear")) {
+      static PFNWGLSWAPINTERVALEXTPROC    wglSwapIntervalEXT    = reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(::wglGetProcAddress("wglSwapIntervalEXT"));
+      static PFNWGLGETSWAPINTERVALEXTPROC wglGetSwapIntervalEXT = reinterpret_cast<PFNWGLGETSWAPINTERVALEXTPROC>(::wglGetProcAddress("wglGetSwapIntervalEXT"));
+      if (!wglGetSwapIntervalEXT) {
+        log::nfo << "[CContext] ::wglGetSwapIntervalEXT() failed!" << log::end;
+        ::MessageBox(NULL, "[CContext] ::wglGetSwapIntervalEXT() failed!", "Error", MB_OK);
+      }
       if (!wglSwapIntervalEXT) {
         log::nfo << "[CContext] ::wglSwapIntervalEXT() failed!" << log::end;
         ::MessageBox(NULL, "[CContext] ::wglSwapIntervalEXT() failed!", "Error", MB_OK);
       } else {
-        wglSwapIntervalEXT(mConfig.nSwapInterval);
+        wglSwapIntervalEXT(intv);
       }
     } else {
-      log::wrn << "[CContext] WGL_EXT_swap_control not supported!" << log::end;
+      log::wrn << "[CContext] WGL_EXT_swap_control_tear not supported!" << log::end;
     }
   }
   
