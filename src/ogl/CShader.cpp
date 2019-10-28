@@ -16,26 +16,31 @@ namespace ogl {
     std::unordered_map<GLenum, SSource>            sources;
     static std::unordered_map<GLenum, EType>       etypes {{GL_VERTEX_SHADER,EType::VERTEX},{GL_FRAGMENT_SHADER,EType::FRAGMENT},{GL_GEOMETRY_SHADER,EType::GEOMETRY},{GL_TESS_CONTROL_SHADER,EType::TESSCTRL},{GL_TESS_EVALUATION_SHADER,EType::TESSEVAL},{GL_COMPUTE_SHADER,EType::COMPUTE},};
     static std::unordered_map<GLenum, std::string> stypes {{GL_VERTEX_SHADER,"GL_VERTEX_SHADER"},{GL_FRAGMENT_SHADER,"GL_FRAGMENT_SHADER"},{GL_GEOMETRY_SHADER,"GL_GEOMETRY_SHADER"},{GL_TESS_CONTROL_SHADER,"GL_TESS_CONTROL_SHADER"},{GL_TESS_EVALUATION_SHADER,"GL_TESS_EVALUATION_SHADER"},{GL_COMPUTE_SHADER,"GL_COMPUTE_SHADER"}};
-    GLenum curr = GL_NONE;
+    GLenum                                         curr  {GL_NONE};
     
     while (std::getline(ifs, line)) {
-      if (line.find("@shader") == 0) {
-        for (auto& [type, name] : stypes) {
-          auto s = sizeof("@shader");
-          auto p = line.find(name);
-          if (line.find(name) != std::string::npos) {
-            curr = type;
-            sources[type].name   = name;
-            sources[type].type   = type;
-            sources[type].shader = GL_ZERO;
-            // found, no need to search for the other types
-            break;
-          } else {
-            // @todo: insert warning here
+      // custom tags
+      if (line[0] == '@') {
+        if (line.find("@shader") == 0) {
+          for (auto& [type, name] : stypes) {
+            auto s = sizeof("@shader");
+            auto p = line.find(name);
+            if (line.find(name) != std::string::npos) {
+              curr = type;
+              sources[type].name   = name;
+              sources[type].type   = type;
+              sources[type].shader = GL_ZERO;
+              // found, no need to search for the other types
+              break;
+            } else {
+              // @todo: insert warning here
+            }
           }
-        }
-      } else if (line.find("@include") == 0) {
-        // @todo: include shader fragment
+        } else { // if (line.find("@include") == 0) {
+          log::dbg << "[HLSL] " << line << log::end;
+          // @todo: include shader fragment
+        } 
+      // regular glsl code
       } else {
         sources[curr].code += line + '\n';
       }

@@ -51,6 +51,10 @@ namespace ogl {
       void       filtering(EFiltering eFiltering);
       EFiltering filtering() const;
   };
+  
+  class CDdsLoader : public CTexture::CLoader {
+      
+  };
 }
 
 #endif //__ogl_ctexture_hpp__

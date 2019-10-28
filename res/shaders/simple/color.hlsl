@@ -12,6 +12,12 @@ void main() {
 // @todo: implement include...
 @include "feature.hlsl"
 
+@if ()
+
+@else
+
+@endif
+
 layout (location = 0) out vec4 f_vColor;
 
 uniform vec4 u_vColor;
