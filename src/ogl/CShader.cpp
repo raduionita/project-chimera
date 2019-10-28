@@ -14,13 +14,14 @@ namespace ogl {
     
     std::string                                    line;
     std::unordered_map<GLenum, SSource>            sources;
-    static std::unordered_map<GLenum, std::string> types {{GL_VERTEX_SHADER,"GL_VERTEX_SHADER"},{GL_FRAGMENT_SHADER,"GL_FRAGMENT_SHADER"},{GL_GEOMETRY_SHADER,"GL_GEOMETRY_SHADER"},{GL_TESS_CONTROL_SHADER,"GL_TESS_CONTROL_SHADER"},{GL_TESS_EVALUATION_SHADER,"GL_TESS_EVALUATION_SHADER"}};
+    static std::unordered_map<GLenum, EType>       etypes {{GL_VERTEX_SHADER,EType::VERTEX},{GL_FRAGMENT_SHADER,EType::FRAGMENT},{GL_GEOMETRY_SHADER,EType::GEOMETRY},{GL_TESS_CONTROL_SHADER,EType::TESSCTRL},{GL_TESS_EVALUATION_SHADER,EType::TESSEVAL},{GL_COMPUTE_SHADER,EType::COMPUTE},};
+    static std::unordered_map<GLenum, std::string> stypes {{GL_VERTEX_SHADER,"GL_VERTEX_SHADER"},{GL_FRAGMENT_SHADER,"GL_FRAGMENT_SHADER"},{GL_GEOMETRY_SHADER,"GL_GEOMETRY_SHADER"},{GL_TESS_CONTROL_SHADER,"GL_TESS_CONTROL_SHADER"},{GL_TESS_EVALUATION_SHADER,"GL_TESS_EVALUATION_SHADER"},{GL_COMPUTE_SHADER,"GL_COMPUTE_SHADER"}};
     GLenum curr = GL_NONE;
     
     while (std::getline(ifs, line)) {
-      if (line.find("#shader") == 0) {
-        for (auto& [type, name] : types) {
-          auto s = sizeof("#shader");
+      if (line.find("@shader") == 0) {
+        for (auto& [type, name] : stypes) {
+          auto s = sizeof("@shader");
           auto p = line.find(name);
           if (line.find(name) != std::string::npos) {
             curr = type;
@@ -33,7 +34,7 @@ namespace ogl {
             // @todo: insert warning here
           }
         }
-      } else if (line.find("#include") == 0) {
+      } else if (line.find("@include") == 0) {
         // @todo: include shader fragment
       } else {
         sources[curr].code += line + '\n';
@@ -43,10 +44,10 @@ namespace ogl {
     GLCALL(::gxCreateProgram(&mID));
     
     for (auto& [type, source] : sources) {
-      GLuint& shader = source.shader;
-      const char* data = source.code.c_str();
+      GLuint&     shader = source.shader;
+      const char* code   = source.code.c_str();
       GLCALL(::gxCreateShader(type, &shader));
-      GLCALL(::glShaderSource(shader, 1, &data, NULL));
+      GLCALL(::glShaderSource(shader, 1, &code, NULL));
       GLCALL(::glCompileShader(shader));
       
       GLint status = GL_FALSE;
@@ -65,6 +66,8 @@ namespace ogl {
         log::err << "ogl::CShader::CShader(std::string&)::" << this << " ERROR:" << error << log::end;
         assert(false);
       }
+      
+      mType |= etypes[source.type];
       
       GLCALL(::glAttachShader(mID, shader));
     }

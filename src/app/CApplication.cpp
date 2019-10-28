@@ -21,6 +21,8 @@ namespace app {
     
     init();
     
+    // mEngine->textureManager()->loader(new CDdsLoader);
+    
     app::CEditWindow* pMain   {new app::CEditWindow};
     uix::CBoxLayout*  pLayout {new uix::CBoxLayout(uix::ELayout::VERTICAL)};
     
@@ -66,7 +68,7 @@ namespace app {
       log::nfo << "app::CApplication::exec()::" << this << " LOOP" << log::end;
   
       prg.bind(true);
-      prg.uniform("u_vColor", glm::loop(r,0.5f,0.f,1.f),0.7f,0.2f,1.0f);
+      prg.uniform("u_vColor", glm::loop(r,0.05f,0.f,1.f),0.7f,0.2f,1.0f);
       
       vao.bind(true);
       ibo.bind(true);

@@ -9,10 +9,10 @@ GLint   e[] = {0,1,2, 1,2,0};                                // indices(elements
 ogl::CArray        a;                             // vao + vbo + ibo                              
 ogl::CVertexBuffer b(p, 4 * 2 * sizeof(GLfloat)); // vbo => ::glGenBuffers() + ::glBindBuffer(GL_ARRAY_BUFFER...) + ::glBufferData()
 ogl::CIndexBuffer  i(e, 6);                       // ibo => ::glGenBuffers() + ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER...) + ::glBufferData()
-ogl::CVertexLayout       l;                             // layout, stores how many (here) floats are there per vertex component
+ogl::CVertexLayout l;                             // layout, stores how many (here) floats are there per vertex component
 
 l.push({GL_FLOAT, 2, GL_FALSE}); // tell layout about the each vertex component (=2 floats) => adds to a list of elelemts
-a.buffer(b,l);                    // add buffer + layout to VAO => does ::glEnableVertexAttribArray() + ::glVertexAttribPointer()
+a.buffer(b,l);                   // add buffer + layout to VAO => does ::glEnableVertexAttribArray() + ::glVertexAttribPointer()
 
 a.bind();  // bind vao => ::glBindVertexArray()
 i.bind();  // bind ibo => ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER...)
@@ -21,14 +21,18 @@ i.bind();  // bind ibo => ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER...)
 ```
 ###### Shader
 ```c++
-ogl::CShader s{"res/shaders/simple/color.glsl"};
+ogl::CShader s{"res/shaders/simple/color.hlsl"};
 s.bind();
 s.uniform("u_vColor", .3f,.5f,.7f, 1.f);
 s.bind(false);
 ```
 ###### Texture
 ```c++
+ogl::CTexture t{"res/textures/..."};
 
+t.activate(0);
+//OR
+s.sampler(t); // shader: set sampler = bind + activate + uniform
 ```
 
 ### Research

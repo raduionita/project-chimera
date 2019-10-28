@@ -1,4 +1,4 @@
-#shader GL_VERTEX_SHADER
+@shader GL_VERTEX_SHADER
 #version 330
 // input layout
 layout (location = 0) in vec4 a_vPosition;
@@ -7,10 +7,10 @@ void main() {
   gl_Position = a_vPosition;
 }
 
-#shader GL_FRAGMENT_SHADER
+@shader GL_FRAGMENT_SHADER
 #version 330
 // @todo: implement include...
-#include "feature.glsl"
+@include "feature.hlsl"
 
 layout (location = 0) out vec4 f_vColor;
 

@@ -24,6 +24,7 @@ namespace ogl {
     class CTexture;
     class CMaterial;
     class CAnimation;
+    class CShader;
   class CShader;
   class CObject;
     class CTexture;
@@ -46,10 +47,10 @@ namespace ogl {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  enum EPolymode {
-    POINTS,
-    WIREFRAME,
-    SOLID,
+  enum class EPolymode {
+    POINTS    = 0b001,
+    WIREFRAME = 0b010,
+    SOLID     = 0b100,
   };
   
   enum ECulling {

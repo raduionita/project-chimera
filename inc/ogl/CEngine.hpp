@@ -13,7 +13,7 @@ namespace ogl {
       // CAudioSystem*
       // CInputSystem*
       
-      CTexture::CManager* mManager {nullptr};
+      CTexture::CManager* mTextureManager {nullptr};
       
       
     public:
@@ -22,7 +22,8 @@ namespace ogl {
     public:
       virtual void init();
       virtual void free();
-      
+    public:
+      inline CTexture::CManager* textureManager() { return mTextureManager; }
       // @todo: connects(and befriends) all *System(s)
   };
 }

@@ -1,15 +1,25 @@
 #ifndef __ogl_cshader_hpp__
 #define __ogl_cshader_hpp__
 
-#include "ogl.hpp"
-#include "CObject.hpp"
+#include "ogl/ogl.hpp"
+#include "ogl/CObject.hpp"
+#include "ogl/CResource.hpp"
 
 #include <string>
 #include <unordered_map>
 
 namespace ogl {
-  class CShader : public CObject {
+  class CShader : public CResource, public CObject {
       friend class CUniform;
+    public:
+      class CLoader : public CResource::CLoader {
+        public:
+      };
+      class CManager : public CResource::CManager, public sys::CSingleton<CManager> {
+        public:
+          CShader* load(const std::string& file);
+          CShader* find(GLuint id);
+      };
     protected:
       struct SSource {
         std::string       name;
@@ -19,15 +29,16 @@ namespace ogl {
       };
     public:
       enum EType {
-        NONE      = GL_NONE,
-        VERTEX    = GL_VERTEX_SHADER,
-        GEOMETRY  = GL_GEOMETRY_SHADER,
-        TESSCTRL  = GL_TESS_CONTROL_SHADER,
-        TESSEVAL  = GL_TESS_EVALUATION_SHADER,
-        FRAGMENT  = GL_FRAGMENT_SHADER,
-        COMPUTE   = GL_COMPUTE_SHADER,
+      //NONE      = 0b0000'0000,
+        VERTEX    = 0b0000'0010,
+        GEOMETRY  = 0b0000'0100,
+        TESSCTRL  = 0b0000'1000,
+        TESSEVAL  = 0b0001'0000,
+        FRAGMENT  = 0b0010'0000,
+        COMPUTE   = 0b0100'0000,
       };
     protected:
+      GLint                                  mType {0};
       std::string                            mFilepath;
       std::unordered_map<std::string, GLint> mUniforms;
     public:

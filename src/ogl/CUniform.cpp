@@ -1,4 +1,5 @@
 #include "ogl/CUniform.hpp"
+#include "ogl/CShader.hpp"
 
 namespace ogl {
   CUniform::CUniform() { }
@@ -10,27 +11,27 @@ namespace ogl {
   CUniform& CUniform::operator = (const GLvoid* pValue) {
     log::nfo << "ogl::CUniform::operator =(GLvoid*)" << log::end;
     switch(mType) {
-      case GL_BOOL:       GLCALL(::glUniform1i(mLocation, *((GLint*)pValue)));              break;
-      case GL_BOOL_VEC2:  GLCALL(::glUniform2iv(mLocation, mComponents, ((GLint*)pValue))); break;
+      case GL_BOOL:       GLCALL(::glProgramUniform1i(mShader->mID, mLocation, *((GLint*)pValue)));              break;
+      case GL_BOOL_VEC2:  GLCALL(::glProgramUniform2iv(mShader->mID, mLocation, mComponents, ((GLint*)pValue))); break;
       case GL_BOOL_VEC3:
       case GL_BOOL_VEC4:  
       
-      case GL_INT:        GLCALL(::glUniform1i(mLocation, *((const GLint*)pValue)));                  break;
-      case GL_INT_VEC2: 
+      case GL_INT:        GLCALL(::glProgramUniform1i(mShader->mID, mLocation, *((GLint*)pValue)));            break;
+      case GL_INT_VEC2:   GLCALL(::glProgramUniform2iv(mShader->mID, mLocation, mComponents, (GLint*)pValue)); break;
       case GL_INT_VEC3:
       case GL_INT_VEC4:
       
-      case GL_UNSIGNED_INT:      GLCALL(::glUniform1ui(mLocation, *((GLuint*)pValue)));              break;
-      case GL_UNSIGNED_INT_VEC2: GLCALL(::glUniform2uiv(mLocation, mComponents, ((GLuint*)pValue))); break;
+      case GL_UNSIGNED_INT:      GLCALL(::glProgramUniform1ui(mShader->mID, mLocation, *((GLuint*)pValue)));              break;
+      case GL_UNSIGNED_INT_VEC2: GLCALL(::glProgramUniform2uiv(mShader->mID, mLocation, mComponents, ((GLuint*)pValue))); break;
       case GL_UNSIGNED_INT_VEC3:
       case GL_UNSIGNED_INT_VEC4:
       
-      case GL_FLOAT:             GLCALL(::glUniform1f(mLocation, *((GLfloat*)pValue)));              break;
-      case GL_FLOAT_VEC2:        GLCALL(::glUniform2fv(mLocation, mComponents, ((GLfloat*)pValue))); break;
+      case GL_FLOAT:             GLCALL(::glProgramUniform1f(mShader->mID, mLocation, *((GLfloat*)pValue)));              break;
+      case GL_FLOAT_VEC2:        GLCALL(::glProgramUniform2fv(mShader->mID, mLocation, mComponents, ((GLfloat*)pValue))); break;
       case GL_FLOAT_VEC3:
       case GL_FLOAT_VEC4:
-      case GL_FLOAT_MAT2:        GLCALL(::glUniformMatrix2fv(mLocation, mComponents, mTransposed, ((GLfloat*)pValue)));   break;
-      case GL_FLOAT_MAT2x3:      GLCALL(::glUniformMatrix2x3fv(mLocation, mComponents, mTransposed, ((GLfloat*)pValue))); break;
+      case GL_FLOAT_MAT2:        GLCALL(::glProgramUniformMatrix2fv(mShader->mID, mLocation, mComponents, mTransposed, ((GLfloat*)pValue)));   break;
+      case GL_FLOAT_MAT2x3:      GLCALL(::glProgramUniformMatrix2x3fv(mShader->mID, mLocation, mComponents, mTransposed, ((GLfloat*)pValue))); break;
       case GL_FLOAT_MAT2x4:
       case GL_FLOAT_MAT3:
       case GL_FLOAT_MAT3x2:
@@ -38,7 +39,7 @@ namespace ogl {
       case GL_FLOAT_MAT4x2:
       case GL_FLOAT_MAT4x3:  
       
-      case GL_DOUBLE:            GLCALL(::glUniformMatrix2dv(mLocation, mComponents, mTransposed, ((GLdouble*)pValue))); break;
+      case GL_DOUBLE:            GLCALL(::glProgramUniformMatrix2dv(mShader->mID, mLocation, mComponents, mTransposed, ((GLdouble*)pValue))); break;
       case GL_DOUBLE_VEC2:
       case GL_DOUBLE_VEC3:
       case GL_DOUBLE_VEC4:
@@ -51,11 +52,11 @@ namespace ogl {
       case GL_DOUBLE_MAT4x2:
       case GL_DOUBLE_MAT4x3:
       
-      case GL_SAMPLER_1D:                     GLCALL(::glUniform1i(mLocation, *((GLint*)pValue))); break;
+      case GL_SAMPLER_1D:                     GLCALL(::glProgramUniform1i(mShader->mID, mLocation, *((GLint*)pValue))); break;
       case GL_SAMPLER_1D_SHADOW:
       case GL_SAMPLER_1D_ARRAY:
       case GL_SAMPLER_1D_ARRAY_SHADOW:
-      case GL_SAMPLER_2D:
+      case GL_SAMPLER_2D:                     GLCALL(::glProgramUniform1i(mShader->mID, mLocation, *((GLint*)pValue))); break;
       case GL_SAMPLER_2D_SHADOW:
       case GL_SAMPLER_2D_ARRAY:
       case GL_SAMPLER_2D_ARRAY_SHADOW:
