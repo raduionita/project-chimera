@@ -22,7 +22,7 @@ i.bind();  // bind ibo => ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER...)
 ###### Shader
 ```c++
 ogl::CShader s{"res/shaders/simple/color.hlsl"};
-s.bind();
+s.bind(0); // slot 0
 s.uniform("u_vColor", .3f,.5f,.7f, 1.f);
 s.bind(false);
 ```

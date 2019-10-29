@@ -12,6 +12,7 @@
 #include "ogl/CArray.hpp"
 #include "ogl/CLayout.hpp"
 #include "ogl/CShader.hpp"
+#include "ogl/CTexture.hpp"
 
 #include "glm/glm.hpp"
 
@@ -54,6 +55,8 @@ namespace app {
     ogl::CIndexBuffer  ibo{indices, 6};
   
     ogl::CShader       prg{"../../res/shaders/simple/color.glsl"};
+    
+    ogl::CTexture      tex;
     
     vao.bind(false);
     prg.bind(false);

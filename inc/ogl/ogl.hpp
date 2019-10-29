@@ -4,6 +4,7 @@
 #include "sys/sys.hpp"
 #include "sys/CLogger.hpp"
 #include "glc/glc.hpp"
+#include "glm/glm.hpp"
 
 #undef FAR
 #undef NEAR
@@ -59,7 +60,5 @@ namespace ogl {
     COUNTERCLOCKWISE, CCW = COUNTERCLOCKWISE,
   };
 }
-
-
 
 #endif //__ogl_hpp__

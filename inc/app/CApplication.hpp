@@ -4,7 +4,6 @@
 #include "app.hpp"
 #include "uix/CApplication.hpp"
 
-
 namespace app {
   class CApplication : public uix::CApplication {
     public:
