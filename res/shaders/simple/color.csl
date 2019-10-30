@@ -10,7 +10,7 @@ void main() {
 @shader GL_FRAGMENT_SHADER
 #version 330
 // @todo: implement include...
-@include "feature.hlsl"
+@include "feature.csl"
 
 @if ()
 

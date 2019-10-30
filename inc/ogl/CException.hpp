@@ -6,7 +6,7 @@
 namespace ogl {
   class CException : public sys::CException {
     public:
-      using CException::CException;
+      using sys::CException::CException;
   };
 }
 

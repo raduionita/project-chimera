@@ -1,5 +1,7 @@
 #include "ogl/CTexture.hpp"
 #include "ogl/CShader.hpp"
+#include "ogl/CException.hpp"
+#include "gll/gll.hpp"
 
 namespace ogl {
   CTexture::CTexture() {
@@ -32,4 +34,8 @@ namespace ogl {
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  CTexture* CTexture::CManager::load(const std::string& file) {
+    throw CException("NOT IMPLEMENTED");
+  }
 }

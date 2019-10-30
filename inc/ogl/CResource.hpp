@@ -9,7 +9,7 @@
 namespace ogl {
   class CResource { // loadable entity/file/object
     public:
-      class CLoader { // loading strategy: .dds, .png, .md5, .3ds, .fxd, .obj, .mtl, .dae, .xml
+      class CLoader { // loading strategy: .dds, .png, .md5, .3ds, .fxd, .obj, .mtl, .dae, .xml (generic), .csl
           // @todo: load async
           void load(bool async = false);
           virtual const char* extension() const = 0;
