@@ -9,14 +9,18 @@
 namespace sys {
   template <typename T> class CSingleton {
     protected:
-    static CPointer<T> sInstance;
-    
-    protected:
-    CSingleton() { assert(!sInstance && "CSingleton<T>::sIntastace already defined"); }
-    virtual ~CSingleton() { }
-    
+      static CPointer<T> sInstance;
     public:
-    static auto instance() -> decltype(sInstance) { return (!sInstance) ? sInstance = new T : sInstance; }
+      CSingleton() { 
+        assert(!sInstance && "CSingleton<T>::sIntastace already defined");
+        sInstance = static_cast<T*>(this);
+      }
+    protected:
+      virtual ~CSingleton() { 
+        // deleted
+      }
+    public:
+      static auto instance() -> decltype(sInstance) {  if (!sInstance) new T; return sInstance; }
   };
   template<typename T> CPointer<T> CSingleton<T>::sInstance{nullptr};
 }

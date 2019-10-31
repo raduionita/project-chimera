@@ -30,12 +30,40 @@ namespace ogl {
   }
   
   GLvoid CTexture::sampler(CShader* pShader) {
-    // @todo: pShader->sampler(this);
+    throw CException("NOT IMPLEMENTED");
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  CTexture* CTexture::CManager::load(const std::string& file) {
+  CTexture::CLoader::CLoader() {
+    
+  }
+  
+  bool CTexture::CLoader::able(const sys::CString& file) {
+    sys::CString::size_type pos{file.find_last_of('.')};
+    if (pos == sys::CString::npos) {
+      
+      // @todo: what file extensions does this loader support
+      
+      return false;
+    }
+    return false;
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  CTexture::CManager::CManager() {
+    throw CException("NOT IMPLEMENTED");
+    // @todo: add default CLoader mLoader; \w lowest priority
+  }
+  
+  CTexture::CManager::~CManager() {
+    throw CException("NOT IMPLEMENTED");
+  }
+  
+  CTexture* CTexture::CManager::load(const CString& file) {
+    // @todo: search for texture in cache
+    // for each pLoader in mLoaders 
     throw CException("NOT IMPLEMENTED");
   }
 }

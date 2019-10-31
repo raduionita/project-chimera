@@ -46,6 +46,18 @@ namespace ogl {
   
   using log = sys::log;
   
+  using byte   = sys::byte;
+  using ubyte  = sys::ubyte;
+  using tiny   = sys::tiny;
+  using utiny  = sys::utiny;
+  using ushort = sys::ushort;
+  using uint   = sys::uint;
+  
+  using CString                  = sys::CString;
+  template<typename V> using CSet                 = sys::CSet<V>;
+  template<typename K, typename V> using CMap               = sys::CMap<K,V>;
+  template<typename V> using CVector              = sys::CVector<V>;
+  
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   enum class EPolymode {

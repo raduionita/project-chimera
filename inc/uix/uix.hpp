@@ -243,14 +243,20 @@ namespace uix {
   
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  using uint                     = sys::uint;
-  using CString                  = std::string;
-  template<typename V> using CSet                 = std::set<V>;
-  template<typename K, typename V> using CMap               = std::map<K,V>;
-  template<typename V> using CVector              = std::vector<V>;
-  template<typename V, std::size_t S> using CArray = std::array<V,S>;
+  using log    = sys::log;
   
-  using log = sys::log;
+  using byte   = sys::byte;
+  using ubyte  = sys::ubyte;
+  using tiny   = sys::tiny;
+  using utiny  = sys::utiny;
+  using ushort = sys::ushort;
+  using uint   = sys::uint;
+  
+  using CString                  = sys::CString;
+  template<typename V> using CSet                 = sys::CSet<V>;
+  template<typename K, typename V> using CMap               = sys::CMap<K,V>;
+  template<typename V> using CVector              = sys::CVector<V>;
+  template<typename V, std::size_t S> using CArray = sys::CArray<V,S>;
   
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -383,12 +389,12 @@ namespace uix {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  inline CString T(int num)          { return std::to_string(num); }
-  inline CString T(const char* text) { return CString(text); }
+  inline sys::CString T(int num)          { return std::to_string(num); }
+  inline sys::CString T(const char* text) { return sys::CString(text); }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  enum class EState : int {
+  enum class EState : sys::bitfield {
     EMPTY      = ZERO,
     PUSHED     = 0b00000000'00000001,
     RELEASED   = 0b00000000'00000010,
@@ -410,56 +416,56 @@ namespace uix {
   inline int operator &(uint   lhs, EState rhs) { return lhs                   & static_cast<int>(rhs); }
   inline int operator ~(EState rhs)             { return ~(static_cast<int>(rhs)); }
   
-  enum EWindow : int {
+  enum EWindow : sys::bitfield {
     _HINT_     = ZERO,
-    CHILD      = 0b00000000000000000000000000000001, // WS_CHILD // stays in parent area, moves w/ the parent (oposite 2 WS_POPUP)
-    POPUP      = 0b00000000000000000000000000000010, // WS_POPUP
-    BORDER     = 0b00000000000000000000000000000100, // WS_BORDER
-    TITLE      = 0b00000000000000000000000000001000, // WS_CAPTION + WS_BORDER
-    HSCROLL    = 0b00000000000000000000000000010000,
-    VSCROLL    = 0b00000000000000000000000000100000,
-    FRAME      = 0b00000000000000000000000001000000, // WS_THICKFRAME // thickframe normal sized frame, does not work w/ ::SetWindowLong
-    GROUP      = 0b00000000000000000000000010000000,
-    MINBOX     = 0b00000000000000000000000100000000,
-    MAXBOX     = 0b00000000000000000000001000000000,
-    SYSBOX     = 0b00000000000000000000010000000000|TITLE|MINBOX|MAXBOX, // WS_SYSMENU // icon + maxbox holder + minbox + close
-    SIZER      = 0b00000000000000000000100000000000,
-    VISIBLE    = 0b00000000000000000001000000000000,
-    HIDDEN     = 0b00000000000000000010000000000000,
-    DISABLED   = 0b00000000000000000100000000000000,
-    NOCLIP     = 0b00000000000000001000000000000000,
+    CHILD      = 0b00000000'00000000'00000000'00000001, // WS_CHILD // stays in parent area, moves w/ the parent (oposite 2 WS_POPUP)
+    POPUP      = 0b00000000'00000000'00000000'00000010, // WS_POPUP
+    BORDER     = 0b00000000'00000000'00000000'00000100, // WS_BORDER
+    TITLE      = 0b00000000'00000000'00000000'00001000, // WS_CAPTION + WS_BORDER
+    HSCROLL    = 0b00000000'00000000'00000000'00010000,
+    VSCROLL    = 0b00000000'00000000'00000000'00100000,
+    FRAME      = 0b00000000'00000000'00000000'01000000, // WS_THICKFRAME // thickframe normal sized frame, does not work w/ ::SetWindowLong
+    GROUP      = 0b00000000'00000000'00000000'10000000,
+    MINBOX     = 0b00000000'00000000'00000001'00000000,
+    MAXBOX     = 0b00000000'00000000'00000010'00000000,
+    SYSBOX     = 0b00000000'00000000'00000100'00000000|TITLE|MINBOX|MAXBOX, // WS_SYSMENU // icon + maxbox holder + minbox + close
+    SIZER      = 0b00000000'00000000'00001000'00000000,
+    VISIBLE    = 0b00000000'00000000'00010000'00000000,
+    HIDDEN     = 0b00000000'00000000'00100000'00000000,
+    DISABLED   = 0b00000000'00000000'01000000'00000000,
+    NOCLIP     = 0b00000000'00000000'10000000'00000000,
 #undef ABSOLUTE
-    ABSOLUTE   = 0b00000000000000010000000000000000,
+    ABSOLUTE   = 0b00000000'00000001'00000000'00000000,
 #define ABSOLUTE 1
 #undef RELATIVE
-    RELATIVE   = 0b00000000000000100000000000000000,
+    RELATIVE   = 0b00000000'00000010'00000000'00000000,
 #define RELATIVE 2
-    LEFT       = 0b00000000000001000000000000000000,
-    RIGHT      = 0b00000000000010000000000000000000,
-    TOP        = 0b00000000000100000000000000000000,
-    BOTTOM     = 0b00000000001000000000000000000000,
-    VERTICAL   = 0b00000000010000000000000000000000,
-    HORIZONTAL = 0b00000000100000000000000000000000,
-    CENTER     = 0b00000001000000000000000000000000,
-    PACKED     = 0b00000010000000000000000000000000, // run CWindow::pack() 
+    LEFT       = 0b00000000'00000100'00000000'00000000,
+    RIGHT      = 0b00000000'00001000'00000000'00000000,
+    TOP        = 0b00000000'00010000'00000000'00000000,
+    BOTTOM     = 0b00000000'00100000'00000000'00000000,
+    VERTICAL   = 0b00000000'01000000'00000000'00000000,
+    HORIZONTAL = 0b00000000'10000000'00000000'00000000,
+    CENTER     = 0b00000001'00000000'00000000'00000000,
+    PACKED     = 0b00000010'00000000'00000000'00000000, // run CWindow::pack() 
     ADJUST     = PACKED,
-      
-    MINIMIZE   = 0b00000100000000000000000000000000,
-    MAXIMIZE   = 0b00001000000000000000000000000000,
     
-    AUTOXY     = 0b00010000000000000000000000000000,
-    AUTOWH     = 0b00100000000000000000000000000000,
+    MINIMIZE   = 0b00000100'00000000'00000000'00000000,
+    MAXIMIZE   = 0b00001000'00000000'00000000'00000000,
     
-    FULLSCREEN = 0b01000000000000000000000000000000,
-    LAYERED    = 0b1000000000000000000000000000000, // 32bit // @todo...
+    AUTOXY     = 0b00010000'00000000'00000000'00000000,
+    AUTOWH     = 0b00100000'00000000'00000000'00000000,
+    
+    FULLSCREEN = 0b01000000'00000000'00000000'00000000,
+    LAYERED    = 0b10000000'00000000'00000000'00000000,
   };
   
-  enum class EFullscreen : int {
+  enum class EFullscreen : sys::bitfield {
     EMPTY        = ZERO,
-    WINDOWED     = 0b000,
-    FULLSCREEN   = 0b001,
-    CURSOR       = 0b010,
-    MONITOR      = 0b100,
+    WINDOWED     = 0b00000000,
+    FULLSCREEN   = 0b00000001,
+    CURSOR       = 0b00000010,
+    MONITOR      = 0b00000100,
     GAMING       = FULLSCREEN|CURSOR,
   };
   
@@ -510,16 +516,16 @@ namespace uix {
     COMMAND,
   };
   
-  enum class ELayout : short {
+  enum class ELayout : sys::bitfield {
     EMPTY      = ZERO,
-    LEFT       = 0b0000000000000001,
-    RIGHT      = 0b0000000000000010,
-    TOP        = 0b0000000000000100,
-    BOTTOM     = 0b0000000000001000,
-    VERTICAL   = 0b0000000000010000,
-    HORIZONTAL = 0b0000000000100000,
-    ADJUST     = 0b0000000001000000,
-    CENTER     = 0b0000000010000000,
+    LEFT       = 0b00000000'00000001,
+    RIGHT      = 0b00000000'00000010,
+    TOP        = 0b00000000'00000100,
+    BOTTOM     = 0b00000000'00001000,
+    VERTICAL   = 0b00000000'00010000,
+    HORIZONTAL = 0b00000000'00100000,
+    ADJUST     = 0b00000000'01000000,
+    CENTER     = 0b00000000'10000000,
   };
   
   inline int operator |(ELayout lhs, ELayout rhs) { return static_cast<int>(lhs) | static_cast<int>(rhs); }
@@ -528,7 +534,7 @@ namespace uix {
   inline int operator &(int     lhs, ELayout rhs) { return lhs                   & static_cast<int>(rhs); }
   inline int operator ~(ELayout rhs)              { return ~(static_cast<int>(rhs)); }
   
-  enum class EStyle : short { // 2byte
+  enum class EStyle : sys::bitfield { // 2byte
     NONE        = ZERO,
     SOLID       = 0b00000000'00000001,
     DASH        = 0b00000000'00000010,

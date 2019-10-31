@@ -38,13 +38,24 @@ namespace sys {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  typedef uint32_t uint;
-  typedef int8_t   byte;
-  typedef uint8_t  ubyte;
+  typedef char          byte;
+  typedef unsigned char ubyte;
+  typedef int8_t        tiny;
+  typedef uint8_t       utiny;
+  typedef uint16_t      ushort;
+  typedef uint32_t      uint;
   typedef union {
     byte* pointer;
     intptr_t address;
-  } buffer;
+  }   buffer;
+  typedef uint          bitfield;
+  
+  using CString                  = std::string;
+  template<typename V> using CSet                 = std::set<V>;
+  template<typename K, typename V> using CMap               = std::map<K,V>;
+  template<typename V> using CVector              = std::vector<V>;
+  template<typename V, std::size_t S> using CArray = std::array<V,S>;
+  
   // usage: (64byte aligned)
   // buffer data;
   // byte*  temp = new byte[1000+63]           // create big chung of memory + padding
