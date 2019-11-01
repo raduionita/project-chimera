@@ -19,7 +19,9 @@ namespace ogl {
           CLoader(uint nPriority = uint(-1)) { }
           virtual ~CLoader() { }
         public:
-          virtual bool able(const sys::CString& file) = 0;
+          virtual uint priority() const final { return mPriority; } 
+          virtual void priority(uint nPriority) final { mPriority = nPriority; }
+          virtual bool able(const sys::CString& name) = 0;
       };
       class CManager { // remembers and managegs loaded resources
         protected:

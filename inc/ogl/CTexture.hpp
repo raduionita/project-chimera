@@ -11,9 +11,10 @@ namespace ogl {
     public:
       class CLoader : public CResource::CLoader {
         public:
-          CLoader();
+          CLoader(uint nPriority = uint(-1));
         public:
-          virtual bool able(const sys::CString& file) override;
+          virtual bool      able(const sys::CString& name) override;
+          virtual CTexture* load(const sys::CString& name);
       };
     public:
       class CManager : public CResource::CManager, public sys::CSingleton<CManager> {
@@ -21,8 +22,8 @@ namespace ogl {
           CManager();
           ~CManager();
         public:
-          CTexture* load(const CString& name);
-          CTexture* load(const CString& name, const CLoader*& loader);
+          CTexture* load(const sys::CString& name);
+          CTexture* load(const sys::CString& name, const CTexture::CLoader*& loader);
           CTexture* find(GLuint id);
       };
     public:

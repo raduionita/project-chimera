@@ -33,6 +33,11 @@ ogl::CTexture*           t = m->load(sys::CFile("res/textures/paint.dds"));
 
 t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uniform
 ```
+###### Texture::Loader
+```c++
+ogl::CTexture::CManager* m = ogl::CTexture::CManager::instance();
+m->loader(new app::CNewTextureLoader());
+```
 
 ### Research
 - `Game Programming Patterns` (by Robert Nystrom)
