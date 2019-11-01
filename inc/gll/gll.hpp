@@ -17,9 +17,9 @@ namespace gll {
   
   class loader;
   
-  template <typename T> void load(const T& resource, const std::string& filepath);
+  template <typename T> void load(const T* resource, const std::string& filepath);
   
-  resource load(const std::string& filepath);
+  resource* load(const std::string& filepath);
   
 
   

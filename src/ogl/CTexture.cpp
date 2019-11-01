@@ -49,7 +49,7 @@ namespace ogl {
     // @todo: get data using gll::load()
     
     gll::texture oTexture;
-    gll::load(oTexture, name);
+    gll::load(&oTexture, name);
     
     // @todo: create texture object + call ::glXXX methods
       // use ::glTexStorage2D // allocate
