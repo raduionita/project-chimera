@@ -8,7 +8,6 @@
 
 namespace ogl {
   class CTexture : public CResource, public CObject { // or should this be CBuffer since it holds data/memory
-      
     public:
       enum class EFiltering : GLbitfield {
         NONE            = 0b00000000'00000000, // 0
@@ -48,6 +47,7 @@ namespace ogl {
       CTexture();
       CTexture(GLenum target);
       CTexture(EType type);
+      CTexture(const CTextureLoader&, const sys::CString&);
       ~CTexture();
     public: // actions
       virtual GLvoid bind(bool=true) const override;
@@ -72,10 +72,20 @@ namespace ogl {
   
   class CTextureLoader : public CResourceLoader {
     public:
-      CTextureLoader(uint nPriority = uint(-1));
+      virtual bool able(const sys::CString& name) const = 0;
+      virtual void load(CTexture*, const sys::CString& name) const = 0;
+  };
+  
+  class CDDSTextureLoader : public CTextureLoader {
     public:
-      virtual bool     able(const sys::CString& name) override;
-      virtual CTexture load(const sys::CString& name);
+      virtual bool able(const sys::CString& name) const override;
+      virtual void load(CTexture*, const sys::CString& name) const override;
+  };  
+  
+  class CTGATextureLoader : public CTextureLoader {
+    public:
+      virtual bool able(const sys::CString& name) const override;
+      virtual void load(CTexture*, const sys::CString& name) const override;
   };
   
   class CTextureManager : public CResourceManager, public sys::CSingleton<CTextureManager> {
@@ -83,9 +93,7 @@ namespace ogl {
       CTextureManager();
       ~CTextureManager();
     public:
-      CTexture load(const sys::CString& name);
-      CTexture load(const sys::CString& name, const CTextureLoader*& loader);
-      CTexture find(GLuint id);
+      CTexture* load(const sys::CString& name);
   };
 }
 

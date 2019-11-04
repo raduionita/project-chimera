@@ -20,16 +20,11 @@ namespace ogl {
   
   class CResourceLoader {
       friend class CResourceManager;  
-    private:
-      uint mPriority {uint(-1)};
     public:
-      CResourceLoader(uint nPriority = uint(-1)) { }
+      CResourceLoader() { }
       virtual ~CResourceLoader() { }
     public:
-      inline uint priority() const { return mPriority; } 
-      inline void priority(uint nPriority) { mPriority = nPriority; }
-    public:
-      virtual bool able(const sys::CString& name) = 0;
+      virtual bool able(const sys::CString& name) const = 0;
   };
   
   class CResourceManager { // remembers and managegs loaded resources

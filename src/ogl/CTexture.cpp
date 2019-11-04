@@ -22,6 +22,12 @@ namespace ogl {
     GLCALL(::glBindTexture(mTarget, mID));
   }
   
+  CTexture::CTexture(const CTextureLoader& loader, const sys::CString& name) {
+    if (loader.able(name)) {
+      loader.load(this, name);
+    }
+  }
+  
   CTexture::~CTexture() {
     GLCALL(::glDeleteTextures(1, &mID));
     GLCALL(::glBindTexture(mTarget, 0));
@@ -48,34 +54,24 @@ namespace ogl {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  CTextureLoader::CTextureLoader(uint nPriority) : ogl::CResourceLoader(nPriority) {
-    // nothing
+  bool CDDSTextureLoader::able(const sys::CString& name) const { 
+    return name.find_last_of(".dds") != sys::CString::npos; 
   }
   
-  bool CTextureLoader::able(const sys::CString& name) {
-    static const char* exts[2] = {"dds","tga"};
-    return std::end(exts) != std::find(std::begin(exts), std::end(exts), name.substr(name.find_last_of('.')+1).c_str());
-  }
-  
-  CTexture CTextureLoader::load(const sys::CString& name) {
-    log::nfo << "ogl::CTextureLoader::load(std::string&)::" << this << " FILE:" << name << log::end;
+  CTexture* CDDSTextureLoader::load(CTexture* pTexture, const sys::CString& name) const {
+    log::nfo << "ogl::CDDSTextureLoader::load(sys::CString&)::" << this << " FILE:" << name << log::end;
     
-    gll::texture sTexture;
-    if (!gll::texture::load(&sTexture, name)) {
-      throw CException("Error loading "+ name, __FILE__, __LINE__);
-    }
-    
-    CTexture oTexture {sTexture.type == gll::CUBEMAP ? CTexture::EType::CUBEMAP : (sTexture.type == gll::VOLUME ? CTexture::EType::VOLUME : CTexture::EType::FLATMAP)};
+    // CTexture pTexture {sTexture.type == gll::CUBEMAP ? CTexture::EType::CUBEMAP : (sTexture.type == gll::VOLUME ? CTexture::EType::VOLUME : CTexture::EType::FLATMAP)};
     
     switch (sTexture.format) {
-      case gll::RGBA_S3TC_DXT1: oTexture.format(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT);
-      case gll::RGBA_S3TC_DXT3: oTexture.format(GL_COMPRESSED_RGBA_S3TC_DXT3_EXT);
-      case gll::RGBA_S3TC_DXT5: oTexture.format(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
-      case gll::RGBA          : oTexture.format(GL_RGBA); 
-      case gll::RGB           : oTexture.format(GL_RGB); 
+      case gll::RGBA_S3TC_DXT1: pTexture.format(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT);
+      case gll::RGBA_S3TC_DXT3: pTexture.format(GL_COMPRESSED_RGBA_S3TC_DXT3_EXT);
+      case gll::RGBA_S3TC_DXT5: pTexture.format(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
+      case gll::RGBA          : pTexture.format(GL_RGBA); 
+      case gll::RGB           : pTexture.format(GL_RGB); 
     }
     
-    GLenum target = oTexture.target();
+    GLenum target = pTexture.target();
     static GLenum targets[6] = {
       GL_TEXTURE_CUBE_MAP_POSITIVE_X,
       GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
@@ -89,7 +85,7 @@ namespace ogl {
     
     uint iLayer   {0};
     uint nLayers  {uint(sTexture.layers.size())};
-    GLenum format {oTexture.format()};
+    GLenum format {pTexture.format()};
     
     for (auto& pLayer : sTexture.layers) {
       if(sTexture.layers.size() > 1) {
@@ -143,8 +139,12 @@ namespace ogl {
       // @todo: glGenerateMipmap(target);
     
     
-    return oTexture;
+    return pTexture;
   }
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -152,20 +152,19 @@ namespace ogl {
   
   CTextureManager::~CTextureManager() { }
   
-  CTexture CTextureManager::load(const sys::CString& name) {
+  CTexture* CTextureManager::load(const sys::CString& name) {
     
     // @todo: search for texture in cache
   
-    CTextureLoader* pUsing    {nullptr};
-    uint            nPriority {uint(-1)};
+    CTextureLoader* pUsable {nullptr};
     for (auto& pLoader : mLoaders) {
-      if (pLoader->able(name) && pLoader->priority() >= nPriority) {
-        pUsing = static_cast<CTextureLoader*>(pLoader);
+      if (pLoader->able(name)) {
+        pUsable = static_cast<CTextureLoader*>(pLoader);
       }
     }
     
-    if (pUsing) {
-      return pUsing->load(name);
+    if (pUsable) {
+      return pUsable->load(name);
     }
     
     throw CException("Missing CTexture::CLoader!");

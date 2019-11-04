@@ -56,8 +56,8 @@ namespace app {
   
     ogl::CShader        prg{"../../res/shaders/simple/color.csl"};
     
-    ogl::CTextureLoader tld;
-    ogl::CTexture       tex{tld.load("../../res/textures/monster.dds")};
+    ogl::CDDSTextureLoader tld;
+    ogl::CTexture          tex(tld, "../../res/textures/monster.dds");
     
     vao.bind(false);
     prg.bind(false);

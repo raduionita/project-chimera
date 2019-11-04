@@ -26,6 +26,12 @@ namespace ogl {
     class CMaterial;
     class CAnimation;
     class CShader;
+  class CResourceLoader;
+    class CTextureLoader;
+      class CDDSTextureLoader;
+      class CTGATextureLoader;
+  class CResourceManager;
+    class CTextureManager;
   class CShader;
   class CObject;
     class CTexture;
