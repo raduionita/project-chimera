@@ -11,15 +11,6 @@
 namespace ogl {
   class CShader : public CResource, public CObject {
       friend class CUniform;
-    public:
-      class CLoader : public CResource::CLoader {
-        public:
-      };
-      class CManager : public CResource::CManager, public sys::CSingleton<CManager> {
-        public:
-          CShader* load(const std::string& file);
-          CShader* find(GLuint id);
-      };
     protected:
       struct SSource {
         std::string       name;
@@ -50,8 +41,19 @@ namespace ogl {
       void  uniform(const std::string& name, float x, float y, float z, float w);
       void  uniform(const std::string& name, float x);
       GLint uniform(const std::string& name);
-      void  sampler(const std::string& name, GLint);
+      void  sampler(const std::string& name, GLuint);
+      void  sampler(const std::string& name, const CTexture&);
   };
+  
+  class CShaderLoader : public CResourceLoader {
+    public:
+  };
+      
+  class CShaderManager : public CResourceManager, public sys::CSingleton<CShaderManager> {
+    public:
+      CShader* load(const std::string& file);
+      CShader* find(GLuint id);
+  };  
 }
 
 #endif //__ogl_cshader_hpp__

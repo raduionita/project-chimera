@@ -5,9 +5,21 @@
 #include "sys/CFile.hpp"
 
 namespace ogl {
-  CTexture::CTexture() {
+  CTexture::CTexture() /*default*/ {
     // after creation mMipmaps = request || generated || or 0 of option = no_mipmaps
-    mMipmaps = 1 + glm::floor(glm::log2(glm::max(glm::max(mWidth,mHeight),mDepth)));
+    // mMipmaps = 1 + glm::floor(glm::log2(glm::max(glm::max(mWidth,mHeight),mDepth)));
+    GLCALL(::glGenTextures(1, &mID));
+  }
+  
+  CTexture::CTexture(GLenum target) : mTarget{target} {
+    GLCALL(::glGenTextures(1, &mID));
+    GLCALL(::glBindTexture(mTarget, mID));
+  }
+  
+  CTexture::CTexture(EType t) : mType{t} {
+    type(mType);
+    GLCALL(::glGenTextures(1, &mID));
+    GLCALL(::glBindTexture(mTarget, mID));
   }
   
   CTexture::~CTexture() {
@@ -36,20 +48,75 @@ namespace ogl {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  CTexture::CLoader::CLoader(uint nPriority) : CResource::CLoader(nPriority) {
+  CTextureLoader::CTextureLoader(uint nPriority) : ogl::CResourceLoader(nPriority) {
     // nothing
   }
   
-  bool CTexture::CLoader::able(const sys::CString& name) {
+  bool CTextureLoader::able(const sys::CString& name) {
     static const char* exts[2] = {"dds","tga"};
     return std::end(exts) != std::find(std::begin(exts), std::end(exts), name.substr(name.find_last_of('.')+1).c_str());
   }
   
-  CTexture* CTexture::CLoader::load(const sys::CString& name) {
-    // @todo: get data using gll::load()
+  CTexture CTextureLoader::load(const sys::CString& name) {
+    log::nfo << "ogl::CTextureLoader::load(std::string&)::" << this << " FILE:" << name << log::end;
     
-    gll::texture oTexture;
-    gll::load(&oTexture, name);
+    gll::texture sTexture;
+    if (!gll::texture::load(&sTexture, name)) {
+      throw CException("Error loading "+ name, __FILE__, __LINE__);
+    }
+    
+    CTexture oTexture {sTexture.type == gll::CUBEMAP ? CTexture::EType::CUBEMAP : (sTexture.type == gll::VOLUME ? CTexture::EType::VOLUME : CTexture::EType::FLATMAP)};
+    
+    switch (sTexture.format) {
+      case gll::RGBA_S3TC_DXT1: oTexture.format(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT);
+      case gll::RGBA_S3TC_DXT3: oTexture.format(GL_COMPRESSED_RGBA_S3TC_DXT3_EXT);
+      case gll::RGBA_S3TC_DXT5: oTexture.format(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
+      case gll::RGBA          : oTexture.format(GL_RGBA); 
+      case gll::RGB           : oTexture.format(GL_RGB); 
+    }
+    
+    GLenum target = oTexture.target();
+    static GLenum targets[6] = {
+      GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+      GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+      GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+      GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+      GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+      GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+    };
+    
+    GLCALL(::glPixelStorei(GL_UNPACK_ALIGNMENT, sTexture.alinment));  // pixel storage mode (1 = byte aligned)
+    
+    uint iLayer   {0};
+    uint nLayers  {uint(sTexture.layers.size())};
+    GLenum format {oTexture.format()};
+    
+    for (auto& pLayer : sTexture.layers) {
+      if(sTexture.layers.size() > 1) {
+        target = targets[iLayer];
+      }
+      
+      uint iMipmap {0};
+      for (auto& pMipmap : pLayer->mipmaps) {
+        if (sTexture.compressed) {
+          if (sTexture.type == gll::VOLUME) {
+            GLCALL(::glCompressedTexImage3D(target, iMipmap, format, pMipmap->width, pMipmap->height, pMipmap->depth, 0, pMipmap->size, pMipmap->data));
+          } else {
+            GLCALL(::glCompressedTexImage2D(target, iMipmap, format, pMipmap->width, pMipmap->height, 0, pMipmap->size, pMipmap->data));
+          }
+        } else {
+          if (sTexture.type == gll::VOLUME) {
+            GLCALL(::glTexImage3D(target, iMipmap, format, pMipmap->width, pMipmap->height, pMipmap->depth, 0, format, GL_UNSIGNED_BYTE, pMipmap->data));
+          } else {
+            GLCALL(::glTexImage2D(target, iMipmap, format, pMipmap->width, pMipmap->height, 0, format, GL_UNSIGNED_BYTE, pMipmap->data));
+          }
+        }
+        iMipmap++;
+      }
+      iLayer++;
+    }
+    
+    gll::texture::free(&sTexture);
     
     // @todo: create texture object + call ::glXXX methods
       // use ::glTexStorage2D // allocate
@@ -71,30 +138,29 @@ namespace ogl {
       // discard old mipmaps
       // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipMapCount-1);
     
+      
+    // @todo: if options = MIPMAPS && sTexture.mipmaps <= 1
+      // @todo: glGenerateMipmap(target);
     
-    // @todo: return CTexture*
+    
+    return oTexture;
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  CTexture::CManager::CManager() {
-    throw CException("NOT IMPLEMENTED");
-    // @todo: add default CLoader mLoader; \w lowest priority
-  }
+  CTextureManager::CTextureManager() { }
   
-  CTexture::CManager::~CManager() {
-    throw CException("NOT IMPLEMENTED");
-  }
+  CTextureManager::~CTextureManager() { }
   
-  CTexture* CTexture::CManager::load(const sys::CString& name) {
+  CTexture CTextureManager::load(const sys::CString& name) {
     
     // @todo: search for texture in cache
   
-    CTexture::CLoader* pUsing    {nullptr};
-    uint               nPriority {uint(-1)};
+    CTextureLoader* pUsing    {nullptr};
+    uint            nPriority {uint(-1)};
     for (auto& pLoader : mLoaders) {
       if (pLoader->able(name) && pLoader->priority() >= nPriority) {
-        pUsing = static_cast<CTexture::CLoader*>(pLoader);
+        pUsing = static_cast<CTextureLoader*>(pLoader);
       }
     }
     

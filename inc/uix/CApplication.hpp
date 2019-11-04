@@ -53,11 +53,15 @@ namespace uix {
 #define DECLARE_APPLICATION(CLS)                                                                                       \
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {                      \
   sys::log::nfo << "   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " INIT" << sys::log::end;           \
-  auto app = new CLS;                                                                                                  \
-  INT result = app->exec();                                                                                            \
-  delete app;                                                                                                          \
-  sys::log::nfo << "   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " EXIT" << sys::log::end;           \
-  return result;                                                                                                       \
+  try {                                                                                                                \
+    CLS app;                                                                                                \
+    INT result = app.exec();                                                                                          \
+    sys::log::nfo << "   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " EXIT" << sys::log::end;         \
+    return result;                                                                                                     \
+  } catch (sys::CException& ex) {                                                                                      \
+    sys::log::err << ex << sys::log::end;                                                                              \
+    return -1;                                                                                                         \
+  }                                                                                                                    \
 }                                                                                                                     //
 
 #endif //__uix_capplication_hpp__

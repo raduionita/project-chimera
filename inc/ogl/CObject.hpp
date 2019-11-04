@@ -11,9 +11,10 @@ namespace ogl {
       CObject() = default;
       virtual ~CObject() = default;
     public:
-      inline explicit operator GLuint()       { return mID; }
-      inline explicit operator const GLuint() { return mID; }
+      inline explicit operator GLuint()             { return mID; }
+      inline explicit operator const GLuint() const { return mID; }
     public:
+      inline         GLuint id() const { return mID; }
              virtual GLvoid bind(bool = true) const = 0;
       inline virtual GLvoid link() const final { bind(true);  }
       inline virtual GLvoid free() const final { bind(false); }

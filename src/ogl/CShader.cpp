@@ -1,4 +1,5 @@
 #include "ogl/CShader.hpp"
+#include "ogl/CTexture.hpp"
 
 #include <fstream>
 #include <cassert>
@@ -9,6 +10,7 @@ namespace ogl {
     log::nfo << "ogl::CShader::CShader(std::string&)::" << this << " FILE:" << filepath << log::end;
     // open file
     std::ifstream ifs(filepath);
+    
     // @todo: replace w/ exception
     assert(ifs.good() && "cannot open shader file");
     
@@ -151,11 +153,22 @@ namespace ogl {
     // @todo: there should be a warn here if not found
   }
   
-  void CShader::sampler(const std::string& name, GLint i) {
+  void CShader::sampler(const std::string& name, GLuint i) {
     GLint loc = uniform(name);
     if (loc != GL_NOT_FOUND) {
-      GLCALL(::glUniform1i(loc, i));
+      GLCALL(::glUniform1ui(loc, i));
     }
     // @todo: there should be a warn here if not found
   }
+  
+  void CShader::sampler(const std::string& name, const CTexture& tex) {
+    GLint loc = uniform(name);
+    if (loc != GL_NOT_FOUND) {
+      tex.bind();
+      GLCALL(::glUniform1ui(loc, (GLuint)(tex)));
+    }
+    // @todo: there should be a warn here if not found
+  }
+  
+  
 }

@@ -1929,8 +1929,27 @@ GLAPI bool OGL_LOADED_CORE;
 // opengl extensions ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef GL_ARB_buffer_storage
-#define GL_ARB_buffer_storage 1
+  #define GL_ARB_buffer_storage 1
 #endif /* GL_ARB_buffer_storage */
+
+#ifndef GL_BGR_EXT
+  #define GL_BGR_EXT                                        0x80E0
+#endif /* GL_BGR_EXT */
+#ifndef GL_COMPRESSED_RGB_S3TC_DXT1_EXT
+  #define GL_COMPRESSED_RGB_S3TC_DXT1_EXT                   0x83F0
+#endif /* GL_COMPRESSED_RGB_S3TC_DXT1_EXT */
+
+#ifndef GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
+  #define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT                  0x83F1
+#endif /* GL_COMPRESSED_RGBA_S3TC_DXT1_EXT */
+
+#ifndef GL_COMPRESSED_RGBA_S3TC_DXT3_EXT
+  #define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT                  0x83F2
+#endif /* GL_COMPRESSED_RGBA_S3TC_DXT3_EXT */
+
+#ifndef GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
+  #define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT                  0x83F3
+#endif /* GL_COMPRESSED_RGBA_S3TC_DXT5_EXT */
 
 // opengl extern ///////////////////////////////////////////////////////////////////////////////////////////////////////
 

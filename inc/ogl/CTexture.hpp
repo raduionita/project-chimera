@@ -8,24 +8,7 @@
 
 namespace ogl {
   class CTexture : public CResource, public CObject { // or should this be CBuffer since it holds data/memory
-    public:
-      class CLoader : public CResource::CLoader {
-        public:
-          CLoader(uint nPriority = uint(-1));
-        public:
-          virtual bool      able(const sys::CString& name) override;
-          virtual CTexture* load(const sys::CString& name);
-      };
-    public:
-      class CManager : public CResource::CManager, public sys::CSingleton<CManager> {
-        public:
-          CManager();
-          ~CManager();
-        public:
-          CTexture* load(const sys::CString& name);
-          CTexture* load(const sys::CString& name, const CTexture::CLoader*& loader);
-          CTexture* find(GLuint id);
-      };
+      
     public:
       enum class EFiltering : GLbitfield {
         NONE            = 0b00000000'00000000, // 0
@@ -42,7 +25,7 @@ namespace ogl {
       };
       enum class EType      : GLbitfield {
         NONE            = 0b00000000'00000000, //
-        FLAT            = 0b00000000'10000000, //
+        FLATMAP         = 0b00000000'10000000, //
         CUBEMAP         = 0b00000001'00000000, //
         VOLUME          = 0b00000010'00000000  //
       };
@@ -55,13 +38,16 @@ namespace ogl {
       GLenum  mTarget   {GL_TEXTURE_2D};
       GLenum  mInternal {GL_NONE};
       GLenum  mFormat   {GL_NONE};
-      GLenum  mType     {GL_FLOAT};
+      EType   mType     {EType::FLATMAP};
+      GLcount mLevels   {1}; // cubemap = 6
       GLsizei mWidth    {0};
       GLsizei mHeight   {0};
       GLsizei mDepth    {1};
       GLcount mMipmaps  {0};
     public:
       CTexture();
+      CTexture(GLenum target);
+      CTexture(EType type);
       ~CTexture();
     public: // actions
       virtual GLvoid bind(bool=true) const override;
@@ -70,6 +56,10 @@ namespace ogl {
     public: // get/set-ers
       GLvoid     filtering(EFiltering eFiltering);
       EFiltering filtering() const;
+      inline GLenum target() const { return mTarget; }
+      inline void   type(EType eType) { mType = eType; mTarget = (eType == EType::CUBEMAP ? GL_TEXTURE_CUBE_MAP : (eType == EType::VOLUME ? GL_TEXTURE_3D : mTarget)); }
+      inline void   format(GLenum format) { mFormat = format; }
+      inline GLenum format() const { return mFormat; }
   };
   
   class CDepthTexture : public CTexture { 
@@ -80,7 +70,23 @@ namespace ogl {
       
   };
   
-
+  class CTextureLoader : public CResourceLoader {
+    public:
+      CTextureLoader(uint nPriority = uint(-1));
+    public:
+      virtual bool     able(const sys::CString& name) override;
+      virtual CTexture load(const sys::CString& name);
+  };
+  
+  class CTextureManager : public CResourceManager, public sys::CSingleton<CTextureManager> {
+    public:
+      CTextureManager();
+      ~CTextureManager();
+    public:
+      CTexture load(const sys::CString& name);
+      CTexture load(const sys::CString& name, const CTextureLoader*& loader);
+      CTexture find(GLuint id);
+  };
 }
 
 #endif //__ogl_ctexture_hpp__

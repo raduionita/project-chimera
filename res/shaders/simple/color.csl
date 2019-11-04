@@ -20,8 +20,9 @@ void main() {
 
 layout (location = 0) out vec4 f_vColor;
 
-uniform vec4 u_vColor;
+uniform sampler2D u_sTexture;
+uniform vec4      u_vColor;
 
 void main() {
-  f_vColor = u_vColor;
+  f_vColor = vec4(0.0, 0.0, 0.0, 1.0) * texture(u_sTexture, vec2(0.1, 1.0)); // , u_vColor;
 }

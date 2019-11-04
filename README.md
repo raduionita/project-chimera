@@ -28,14 +28,14 @@ s.bind(false);
 ```
 ###### Texture
 ```c++
-ogl::CTexture::CManager* m = ogl::CTexture::CManager::instance();
-ogl::CTexture*           t = m->load(sys::CFile("res/textures/paint.dds"));
+ogl::CTextureManager* m = ogl::CTextureManager::instance();
+ogl::CTexture*        t = m->load(sys::CFile("res/textures/paint.dds"));
 
 t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uniform
 ```
 ###### Texture::Loader
 ```c++
-ogl::CTexture::CManager* m = ogl::CTexture::CManager::instance();
+ogl::CTextureManager* m = ogl::CTextureManager::instance();
 m->loader(new app::CNewTextureLoader());
 ```
 
