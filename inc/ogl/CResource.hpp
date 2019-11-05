@@ -8,18 +8,29 @@
 #include <type_traits>
 
 namespace ogl {
+  class CResource;
   class CResourceLoader;
   class CResourceManager;
+  class CResourceData;
   
   class CResource { // loadable entity/file/object
       friend class CResourceLoader;
       friend class CResourceManager;
+      friend class CResourceData;
     public:
-      // @todo: needs methods for defining load strategy and events on load/begin/finish/error/failed
+      virtual void
+  };
+  
+  class CResourceData {
+      friend class CResource;
+      friend class CResourceLoader;
+      friend class CResourceManager;
   };
   
   class CResourceLoader {
-      friend class CResourceManager;  
+      friend class CResource;  
+      friend class CResourceManager;
+      friend class CResourceData;  
     public:
       CResourceLoader() { }
       virtual ~CResourceLoader() { }
@@ -28,17 +39,18 @@ namespace ogl {
   };
   
   class CResourceManager { // remembers and managegs loaded resources
+      friend class CResource;  
+      friend class CResourceLoader;
+      friend class CResourceData;  
     protected:
       sys::CVector<ogl::CResourceLoader*> mLoaders;
     public:
       CResourceManager();
       virtual ~CResourceManager();
     public:
-      template <typename T> const T* loader(T*&& pLoader, uint nPriority = uint(-1)) {
+      template <typename T> const T* loader(T*&& pLoader) {
         // DO NOT allow other kind of loaders 
         static_assert(std::is_base_of<ogl::CResourceLoader,T>::value, "T is not a sub-class of ogl::CResourceLoader!");
-        // overwrite priority
-        if (nPriority != uint(-1)) pLoader->mPriority = nPriority; 
         // move loader to list of loaders
         mLoaders.push_back(std::move(pLoader));
         // return inserted

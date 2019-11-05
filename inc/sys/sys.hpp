@@ -49,6 +49,7 @@ namespace sys {
     intptr_t address;
   }   buffer;
   typedef uint          bitfield;
+  typedef unsigned long ulong;
   
   using CString                  = std::string;
   template<typename V> using CSet                 = std::set<V>;

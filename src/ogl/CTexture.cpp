@@ -4,6 +4,8 @@
 #include "gll/gll.hpp"
 #include "sys/CFile.hpp"
 
+#include <fstream>
+
 namespace ogl {
   CTexture::CTexture() /*default*/ {
     // after creation mMipmaps = request || generated || or 0 of option = no_mipmaps
@@ -58,20 +60,59 @@ namespace ogl {
     return name.find_last_of(".dds") != sys::CString::npos; 
   }
   
-  CTexture* CDDSTextureLoader::load(CTexture* pTexture, const sys::CString& name) const {
+  PTexture CDDSTextureLoader::load(const sys::CString& name) const {
     log::nfo << "ogl::CDDSTextureLoader::load(sys::CString&)::" << this << " FILE:" << name << log::end;
     
-    // CTexture pTexture {sTexture.type == gll::CUBEMAP ? CTexture::EType::CUBEMAP : (sTexture.type == gll::VOLUME ? CTexture::EType::VOLUME : CTexture::EType::FLATMAP)};
+    sys::throw_if(name.empty(), "No file no texture");
     
-    switch (sTexture.format) {
-      case gll::RGBA_S3TC_DXT1: pTexture.format(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT);
-      case gll::RGBA_S3TC_DXT3: pTexture.format(GL_COMPRESSED_RGBA_S3TC_DXT3_EXT);
-      case gll::RGBA_S3TC_DXT5: pTexture.format(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
-      case gll::RGBA          : pTexture.format(GL_RGBA); 
-      case gll::RGB           : pTexture.format(GL_RGB); 
+    std::ifstream ifs(name, std::fstream::in|std::ios::binary);
+    
+    sys::throw_if(ifs.bad(), "Cannot open "+ name);
+    
+    char ftyp[3];
+    ifs.read(ftyp, 4);
+    
+    sys::throw_if(::strncmp(ftyp, "DDS", 4) != 0, "Not a .DDS file");
+    
+    header_t head;
+    ifs.read((char*)(&head), sizeof(head));
+    
+    if ((head.caps2 & EFlag::CUBEMAP)) {
+      pTexture->type(CTexture::EType::CUBEMAP);
+    } else if ((head.caps2 & EFlag::VOLUME) && (head.depth > 0)) {
+      pTexture->type(CTexture::EType::VOLUME);
+    }
+  
+    uint nComponents = (head.pf.fourcc == EFlag::FOURCC) || (head.pf.bpp == 24) ? 3 : 4;
+    bool bCompressed = false;
+    uint nLayers     = pTexture->type() == CTexture::EType::CUBEMAP ? 6 : 1;
+    
+    if (head.pf.flags & EFlag::FOURCC) {
+      switch (head.pf.fourcc) {
+        case EFlag::FOURCC_DTX1: pTexture->format(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT);
+        case EFlag::FOURCC_DTX3: pTexture->format(GL_COMPRESSED_RGBA_S3TC_DXT3_EXT);
+        case EFlag::FOURCC_DTX5: pTexture->format(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
+        default :sys::throw_if(true, "Unknownd .DDS COMPRESSED RGBA format");
+      }
+      bCompressed = true;
+    } else if (head.pf.flags == EFlag::RGBA && head.pf.bpp == 32) {
+      pTexture->format(GL_RGBA);
+    } else if (head.pf.flags == EFlag::RGB && head.pf.bpp == 32) {
+      pTexture->format(GL_RGBA);
+    } else if (head.pf.flags == EFlag::RGB && head.pf.bpp == 24) {
+      pTexture->format(GL_RGB);
+    } else if (head.pf.bpp == 8) {
+      // @todo: luminance // otex->components = 1
+      sys::throw_if(true, "Unsupported .DDS LUMINANCE format");
+    } else {
+      sys::throw_if(true, "Unknown .DDS format");
     }
     
-    GLenum target = pTexture.target();
+    pTexture->width(clamp2one(head.width));
+    pTexture->height(clamp2one(head.height));
+    pTexture->depth(head.depth);
+    pTexture->mipmaps(head.mipmaps == 0 ? 1 : head.mipmaps);
+    
     static GLenum targets[6] = {
       GL_TEXTURE_CUBE_MAP_POSITIVE_X,
       GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
@@ -80,6 +121,28 @@ namespace ogl {
       GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
       GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
     };
+    
+    GLCALL(::glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+    
+    GLenum target = pTexture->target();
+    uint   width  = 0;
+    uint   height = 0;
+    uint   depth  = 0;
+    
+    for(ushort i = 0; i < nLayers; i++) {
+      if(nLayers > 1)
+        target = targets[i];
+      // for this layer
+      width  = head.width;
+      height = head.height;
+      depth  = head.depth ? head.depth : 1;
+    }
+    
+    // CTexture pTexture {sTexture.type == gll::CUBEMAP ? CTexture::EType::CUBEMAP : (sTexture.type == gll::VOLUME ? CTexture::EType::VOLUME : CTexture::EType::FLATMAP)};
+    
+    
+    
+
     
     GLCALL(::glPixelStorei(GL_UNPACK_ALIGNMENT, sTexture.alinment));  // pixel storage mode (1 = byte aligned)
     
@@ -137,9 +200,6 @@ namespace ogl {
       
     // @todo: if options = MIPMAPS && sTexture.mipmaps <= 1
       // @todo: glGenerateMipmap(target);
-    
-    
-    return pTexture;
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

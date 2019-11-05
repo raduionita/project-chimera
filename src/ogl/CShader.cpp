@@ -129,7 +129,7 @@ namespace ogl {
     GLCALL(::glUseProgram(state ? mID : 0)); 
   }
   
-  GLint CShader::uniform(const std::string& name) {
+  GLint CShader::uniform(const CString& name) {
     auto it = mUniforms.find(name);
     if (it != mUniforms.end()) {
       return it->second;
@@ -137,7 +137,7 @@ namespace ogl {
     return GL_NOT_FOUND;
   }
   
-  void CShader::uniform(const std::string& name, float x) {
+  void CShader::uniform(const CString& name, float x) {
     GLint loc = uniform(name);
     if (loc != GL_NOT_FOUND) {
       GLCALL(::glUniform1f(loc, x));
@@ -145,7 +145,7 @@ namespace ogl {
     // @todo: there should be a warn here if not found
   }
   
-  void CShader::uniform(const std::string& name, float x, float y, float z, float w) {
+  void CShader::uniform(const CString& name, float x, float y, float z, float w) {
     GLint loc = uniform(name);
     if (loc != GL_NOT_FOUND) {
       GLCALL(::glUniform4f(loc, x,y,z,w));
@@ -153,7 +153,7 @@ namespace ogl {
     // @todo: there should be a warn here if not found
   }
   
-  void CShader::sampler(const std::string& name, GLuint i) {
+  void CShader::sampler(const CString& name, GLuint i) {
     GLint loc = uniform(name);
     if (loc != GL_NOT_FOUND) {
       GLCALL(::glUniform1ui(loc, i));
@@ -161,14 +161,12 @@ namespace ogl {
     // @todo: there should be a warn here if not found
   }
   
-  void CShader::sampler(const std::string& name, const CTexture& tex) {
+  void CShader::sampler(const CString& name, const PTexture& tex) {
     GLint loc = uniform(name);
     if (loc != GL_NOT_FOUND) {
-      tex.bind();
-      GLCALL(::glUniform1ui(loc, (GLuint)(tex)));
+      tex->bind();
+      GLCALL(::glUniform1ui(loc, (GLuint)(*(tex.ptr()))));
     }
     // @todo: there should be a warn here if not found
-  }
-  
-  
+  } 
 }

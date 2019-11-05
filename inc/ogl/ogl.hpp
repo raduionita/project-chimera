@@ -50,6 +50,14 @@ namespace ogl {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
+  typedef sys::CPointer<CResource> PResource;
+  typedef sys::CPointer<CTexture>  PTexture;
+  typedef sys::CPointer<CMaterial> PMaterial;
+  typedef sys::CPointer<CShader>   PShader;
+  typedef sys::CPointer<CModel>    PModel;
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   using log = sys::log;
   
   using byte   = sys::byte;
@@ -58,6 +66,7 @@ namespace ogl {
   using utiny  = sys::utiny;
   using ushort = sys::ushort;
   using uint   = sys::uint;
+  using ulong  = sys::ulong;
   
   using CString                  = sys::CString;
   template<typename V> using CSet                 = sys::CSet<V>;

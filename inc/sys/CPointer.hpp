@@ -72,8 +72,8 @@ namespace sys {
         // std::CPointer<CClass> pObject = new CClass;
       }
       // access operators
-      T& operator  *() { return *mPointer; }
-      T* operator ->() { return  mPointer; }
+      T& operator  *() const noexcept { return *mPointer; }
+      T* operator ->() const noexcept { return  mPointer; }
       // bool operators
       bool operator ==(std::nullptr_t) { return mPointer == nullptr; }
       bool operator ==(const T* pPointer) { return mPointer == pPointer; }
@@ -87,7 +87,8 @@ namespace sys {
       // delete
       // void operator delete(void*) {}
       // pointer
-      T* ptr() const noexcept { return mPointer; }
+      T*       ptr() const noexcept { return mPointer; }
+      uint32_t cnt() const noexcept { return mCount;   }
   };
   
   template<typename T> using ptr = CPointer<T>;

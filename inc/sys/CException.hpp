@@ -29,6 +29,10 @@ namespace sys {
     public:
       friend std::ostream& operator <<(std::ostream&, const CException&);
   };
+  
+  inline void throw_if(bool test, const CString& message, const CString& file = __FILE__, int line = __LINE__) {
+    if (test) throw CException(message, file, line);
+  }
 }
 
 #define EXCEPTION (CException(__FILE__, __LINE__))

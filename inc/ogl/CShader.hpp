@@ -21,12 +21,12 @@ namespace ogl {
     public:
       enum EType {
       //NONE      = 0b0000'0000,
-        VERTEX    = 0b0000'0010,
-        GEOMETRY  = 0b0000'0100,
-        TESSCTRL  = 0b0000'1000,
-        TESSEVAL  = 0b0001'0000,
-        FRAGMENT  = 0b0010'0000,
-        COMPUTE   = 0b0100'0000,
+        VERTEX    = 0b00000010,
+        GEOMETRY  = 0b00000100,
+        TESSCTRL  = 0b00001000,
+        TESSEVAL  = 0b00010000,
+        FRAGMENT  = 0b00100000,
+        COMPUTE   = 0b01000000,
       };
     protected:
       GLint                                  mType {0};
@@ -38,11 +38,11 @@ namespace ogl {
     public:
       void bind(bool state = true) const override;
       // uniforms
-      void  uniform(const std::string& name, float x, float y, float z, float w);
-      void  uniform(const std::string& name, float x);
-      GLint uniform(const std::string& name);
-      void  sampler(const std::string& name, GLuint);
-      void  sampler(const std::string& name, const CTexture&);
+      void  uniform(const CString& name, float x, float y, float z, float w);
+      void  uniform(const CString& name, float x);
+      GLint uniform(const CString& name);
+      void  sampler(const CString& name, GLuint);
+      void  sampler(const CString& name, const PTexture&);
   };
   
   class CShaderLoader : public CResourceLoader {

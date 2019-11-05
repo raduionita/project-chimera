@@ -54,10 +54,12 @@ namespace app {
     vao.buffer(vbo, vlo);
     ogl::CIndexBuffer   ibo{indices, 6};
   
+    // ogl::CCSLShaderLoader csl;
+    // ogl::CShader          csl.load("name")
     ogl::CShader        prg{"../../res/shaders/simple/color.csl"};
     
     ogl::CDDSTextureLoader tld;
-    ogl::CTexture          tex(tld, "../../res/textures/monster.dds");
+    ogl::PTexture          tex = tld.load("../../res/textures/monster.dds");
     
     vao.bind(false);
     prg.bind(false);
