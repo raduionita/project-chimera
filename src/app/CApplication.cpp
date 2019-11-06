@@ -44,25 +44,25 @@ namespace app {
     
     pSurface->current();
     
-    GLfloat2 vertices[] = {{-0.5f,-0.5f},{+0.5f,-0.5f},{+0.5f,+0.5f},{-0.5f,+0.5f}};
-    GLuint   indices [] = {0,1,2, 2,3,0};
+    GLfloat2 vertices[] {{-0.5f,-0.5f},{+0.5f,-0.5f},{+0.5f,+0.5f},{-0.5f,+0.5f}};
+    GLuint   indices [] {0,1,2, 2,3,0};
   
     ogl::CVertexArray   vao;
-    ogl::CVertexBuffer  vbo{vertices, 4 * 2 * sizeof(GLfloat)};
+    ogl::CVertexBuffer  vbo {vertices, 4 * 2 * sizeof(GLfloat)};
     ogl::CVertexLayout  vlo;
     vlo.push({GL_FLOAT, 2});
     vao.buffer(vbo, vlo);
-    ogl::CIndexBuffer   ibo{indices, 6};
+    ogl::CIndexBuffer   ibo {indices, 6};
   
-    // ogl::CCSLShaderLoader csl;
-    // ogl::CShader          csl.load("name")
-    ogl::CShader        prg{"../../res/shaders/simple/color.csl"};
+  //ogl::CShaderLoader csl;
+  //ogl::PShader       shd {csl.load("name")}
+    ogl::CShader       shd {"../../res/shaders/simple/color.csl"};
     
-    ogl::CDDSTextureLoader tld;
-    ogl::PTexture          tex = tld.load("../../res/textures/monster.dds");
+    ogl::CTextureLoader tld;
+    ogl::PTexture       tex {tld.load("../../res/textures/monster.dds")};
     
     vao.bind(false);
-    prg.bind(false);
+    shd.bind(false);
     ibo.bind(false);
     vbo.bind(false);
     
@@ -73,9 +73,9 @@ namespace app {
       
       log::nfo << "app::CApplication::exec()::" << this << " LOOP" << log::end;
   
-      prg.bind(true);
-      prg.sampler("u_sTexture", tex);
-      prg.uniform("u_vColor", glm::loop(r,0.05f,0.f,1.f),0.7f,0.2f,1.0f);
+      shd.bind(true);
+      shd.sampler("u_sTexture", tex);
+      shd.uniform("u_vColor", glm::loop(r,0.05f,0.f,1.f),0.7f,0.2f,1.0f);
       
       vao.bind(true);
       ibo.bind(true);

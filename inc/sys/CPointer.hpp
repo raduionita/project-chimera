@@ -81,9 +81,11 @@ namespace sys {
       bool operator ==(bool state) { return state ? mPointer != nullptr : mPointer == nullptr; }
       bool operator  !() { return mPointer == nullptr; }
       // cast operator
-      operator bool() const { return mPointer != nullptr; }
-      operator   T*() const { return mPointer; }
-      operator    T() const { return *mPointer; }
+      operator     bool() const { return mPointer != nullptr; }
+      operator       T*() const { return mPointer;  }
+      operator const T*() const { return mPointer;  }
+      operator        T() const { return *mPointer; }
+      operator const  T() const { return *mPointer; }
       // delete
       // void operator delete(void*) {}
       // pointer

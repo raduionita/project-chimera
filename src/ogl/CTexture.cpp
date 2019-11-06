@@ -2,15 +2,11 @@
 #include "ogl/CShader.hpp"
 #include "ogl/CException.hpp"
 #include "gll/gll.hpp"
-#include "sys/CFile.hpp"
-
-#include <fstream>
 
 namespace ogl {
   CTexture::CTexture() /*default*/ {
     // after creation mMipmaps = request || generated || or 0 of option = no_mipmaps
     // mMipmaps = 1 + glm::floor(glm::log2(glm::max(glm::max(mWidth,mHeight),mDepth)));
-    GLCALL(::glGenTextures(1, &mID));
   }
   
   CTexture::CTexture(GLenum target) : mTarget{target} {
@@ -22,12 +18,6 @@ namespace ogl {
     type(mType);
     GLCALL(::glGenTextures(1, &mID));
     GLCALL(::glBindTexture(mTarget, mID));
-  }
-  
-  CTexture::CTexture(const CTextureLoader& loader, const sys::CString& name) {
-    if (loader.able(name)) {
-      loader.load(this, name);
-    }
   }
   
   CTexture::~CTexture() {
@@ -56,11 +46,11 @@ namespace ogl {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  bool CDDSTextureLoader::able(const sys::CString& name) const { 
+  bool CTextureLoader::able(const ogl::CString& name) const { 
     return name.find_last_of(".dds") != sys::CString::npos; 
   }
   
-  PTexture CDDSTextureLoader::load(const sys::CString& name) const {
+  PTexture CTextureLoader::load(const ogl::CFile& name) const {
     log::nfo << "ogl::CDDSTextureLoader::load(sys::CString&)::" << this << " FILE:" << name << log::end;
     
     sys::throw_if(name.empty(), "No file no texture");

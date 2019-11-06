@@ -7,7 +7,7 @@ namespace ogl {
   };
   
   class CDDSCodec : public CCodec {
-      
+
   };
   
   class CTGACodec : public CCodec {

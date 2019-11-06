@@ -4,9 +4,44 @@
 #include <fstream>
 
 namespace sys {
-  CFile::CFile(const sys::CString& filepath, sys::bitfield eOptions) : mFilepath{filepath} {
+  CFile::CFile() {
+    
+  }
+  
+  CFile::CFile(const sys::CString& filepath, sys::bitfield eOptions/*=EOption::READ*/) : mFilepath{filepath} {
     if (eOptions & EOption::OPEN) {
       open(eOptions);
+    }
+  }
+  
+  CFile::CFile(const char* filepath, sys::bitfield eOptions/*=EOption::READ*/) : mFilepath{filepath} {
+    if (eOptions & EOption::OPEN) {
+      open(eOptions);
+    }
+  }
+  
+  CFile::CFile(sys::CString&& filepath, sys::bitfield eOptions/*=EOption::READ*/) : mFilepath{std::move(filepath)} {
+    if (eOptions & EOption::OPEN) {
+      open(eOptions);
+    }
+  }
+  
+  CFile::CFile(char*&& filepath, sys::bitfield eOptions/*=EOption::READ*/) : mFilepath{std::move(filepath)} {
+    if (eOptions & EOption::OPEN) {
+      open(eOptions);
+    }
+  }
+  
+  CFile::CFile(const sys::CFile& that) {
+    if (this != &that) {
+      mFilepath = that.mFilepath;
+      if (mStream != nullptr) {
+        delete mStream;
+      }
+      if (that.mStream != nullptr) {
+        mStream = new std::ifstream(mFilepath);
+        mStream->flags(that.mStream->flags());
+      }
     }
   }
   
@@ -16,16 +51,27 @@ namespace sys {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
+  CFile& CFile::operator =(const sys::CString& filepath) {
+    mFilepath = filepath;
+    return *this;
+  }
+  
+  CFile& CFile::operator =(const char* filepath) {
+    mFilepath = filepath;
+    return *this;
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   void CFile::open(sys::bitfield eOptions) {
+    if (mStream != nullptr) return;
     std::ifstream::openmode mode; 
     (eOptions & EOption::READ)   && (mode |= std::ifstream::in);
     (eOptions & EOption::WRITE)  && (mode |= std::ifstream::out);
     (eOptions & EOption::BINARY) && (mode |= std::ifstream::binary);
     (eOptions & EOption::APPEND) && (mode |= std::ifstream::app);
     mStream = new std::ifstream(mFilepath, mode);
-    if (mStream->bad()) {
-      throw sys::CException("Could not open "+ mFilepath);
-    }
+    sys::throw_if(mStream->bad(), "Could not open "+ mFilepath);
   }
   
   const char* CFile::extension() const {

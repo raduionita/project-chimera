@@ -14,6 +14,6 @@ file(GLOB CYM "src/sys/*.cpp" "src/glc/*.cpp" "src/ogl/*.cpp" "src/uix/*.cpp")
 file(GLOB APP "src/app/*.cpp")
 
 add_library(ogl ${CYM})
-add_executable(app ${APP})
+add_executable(app ${APP} inc/ogl/CFile.hpp)
 
 target_link_libraries(app ogl) # libgdi32.a libopengl32.a

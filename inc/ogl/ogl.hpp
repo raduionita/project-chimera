@@ -47,6 +47,10 @@ namespace ogl {
   class CUniform;
   class CVertex; // @todo: this should be a template that describes components
   class CVertexLayout;
+  class CFile;
+  class CCodec;
+    class CDDSCodec;
+    class CTGACodec;
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -81,7 +85,7 @@ namespace ogl {
     SOLID     = 0b100,
   };
   
-  enum ECulling {
+  enum class ECulling {
     NONE,
     CLOCKWISE, CW = CLOCKWISE,
     COUNTERCLOCKWISE, CCW = COUNTERCLOCKWISE,

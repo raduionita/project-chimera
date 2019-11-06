@@ -16,17 +16,24 @@ namespace sys {
         APPEND = 0b00010000,
       };
     protected:
-      std::ifstream*     mStream  {nullptr}; 
-      const sys::CString mFilepath; // MUST be inited
+      std::ifstream* mStream  {nullptr}; 
+      sys::CString   mFilepath; // MUST be inited
     public:
+      CFile();
       CFile(const sys::CString& filepath, sys::bitfield eOptions = EOption::READ);
+      CFile(const char*         filepath, sys::bitfield eOptions = EOption::READ);
+      CFile(sys::CString&&      filepath, sys::bitfield eOptions = EOption::READ);
+      CFile(char*&&             filepath, sys::bitfield eOptions = EOption::READ);
+      CFile(const sys::CFile&);
       virtual ~CFile();
     public:
-      // CFile& operator =(const CString& filepath);
+      CFile& operator =(const sys::CString& filepath);
+      CFile& operator =(const char*         filepath);
     public:
       void            open(sys::bitfield = EOption::READ);
       const char*     extension() const;
       std::streamsize size() const;
+      inline bool     empty() const { return mFilepath.empty(); } 
   };
 }
 
