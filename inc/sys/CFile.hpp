@@ -1,7 +1,9 @@
 #ifndef __sys_cfile_hpp__
 #define __sys_cfile_hpp__
 
-#include "sys.hpp"
+#include "sys/sys.hpp"
+
+#include <fstream>
 
 namespace sys {
   class CFile {
@@ -16,8 +18,8 @@ namespace sys {
         APPEND = 0b00010000,
       };
     protected:
-      std::ifstream* mStream  {nullptr}; 
-      sys::CString   mFilepath; // MUST be inited
+      mutable std::ifstream* mStream  {nullptr}; 
+              sys::CString   mFilepath; // MUST be inited
     public:
       CFile();
       CFile(const sys::CString& filepath, sys::bitfield eOptions = EOption::READ);
@@ -29,11 +31,14 @@ namespace sys {
     public:
       CFile& operator =(const sys::CString& filepath);
       CFile& operator =(const char*         filepath);
+      friend CString operator +(const char* text, const CFile& file);
     public:
-      void            open(sys::bitfield = EOption::READ);
-      const char*     extension() const;
-      std::streamsize size() const;
-      inline bool     empty() const { return mFilepath.empty(); } 
+      inline const char*     extension() const { return &mFilepath[mFilepath.find_last_of('.')]; }
+      inline std::streamsize size()      const { return mStream ? mStream->gcount() : 0; }
+      inline bool            empty()     const { return mFilepath.empty(); }
+      inline void            read(char* data, std::streamsize len) const { mStream->read(data, len); }
+    public:
+      bool                   open(sys::bitfield = EOption::READ) const;
   };
 }
 

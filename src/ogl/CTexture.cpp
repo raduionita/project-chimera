@@ -1,7 +1,8 @@
 #include "ogl/CTexture.hpp"
 #include "ogl/CShader.hpp"
 #include "ogl/CException.hpp"
-#include "gll/gll.hpp"
+#include "ogl/CCodec.hpp"
+#include "sys/CFile.hpp"
 
 namespace ogl {
   CTexture::CTexture() /*default*/ {
@@ -50,17 +51,18 @@ namespace ogl {
     return name.find_last_of(".dds") != sys::CString::npos; 
   }
   
-  PTexture CTextureLoader::load(const ogl::CFile& name) const {
-    log::nfo << "ogl::CDDSTextureLoader::load(sys::CString&)::" << this << " FILE:" << name << log::end;
+  PTexture CTextureLoader::load(const sys::CFile& file) const {
+    log::nfo << "ogl::CDDSTextureLoader::load(sys::CFile&)::" << this << " FILE:" << file << log::end;
     
-    sys::throw_if(name.empty(), "No file no texture");
+    sys::throw_if(file.empty(), "No file no texture");
     
-    std::ifstream ifs(name, std::fstream::in|std::ios::binary);
+    sys::throw_if(!file.open(), "Cannot open "+ file);
     
-    sys::throw_if(ifs.bad(), "Cannot open "+ name);
+    // @todo: for each registered codec
+    CCodecManager::instance()
     
     char ftyp[3];
-    ifs.read(ftyp, 4);
+    file.read(ftyp, 4);
     
     sys::throw_if(::strncmp(ftyp, "DDS", 4) != 0, "Not a .DDS file");
     

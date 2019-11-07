@@ -4,7 +4,7 @@
 #include "ogl/ogl.hpp"
 #include "ogl/CObject.hpp"
 #include "ogl/CResource.hpp"
-#include "ogl/CFile.hpp"
+#include "sys/CFile.hpp"
 #include "sys/CSingleton.hpp"
 
 namespace ogl {
@@ -80,7 +80,7 @@ namespace ogl {
   class CTextureLoader : public CResourceLoader {
     public:
       virtual bool     able(const sys::CString& name) const;
-      virtual PTexture load(const ogl::CFile& name) const;
+      virtual PTexture load(const sys::CFile& name) const;
   };
   
   class CTextureManager : public CResourceManager, public sys::CSingleton<CTextureManager> {

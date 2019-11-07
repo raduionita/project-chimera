@@ -1,7 +1,7 @@
 #include "sys/CFile.hpp"
 #include "sys/CException.hpp"
 
-#include <fstream>
+
 
 namespace sys {
   CFile::CFile() {
@@ -61,24 +61,21 @@ namespace sys {
     return *this;
   }
   
+  CString operator +(const char* text, const CFile& file) {
+    return CString(text) + file.mFilepath;
+  }
+  
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  void CFile::open(sys::bitfield eOptions) {
-    if (mStream != nullptr) return;
-    std::ifstream::openmode mode; 
-    (eOptions & EOption::READ)   && (mode |= std::ifstream::in);
-    (eOptions & EOption::WRITE)  && (mode |= std::ifstream::out);
-    (eOptions & EOption::BINARY) && (mode |= std::ifstream::binary);
-    (eOptions & EOption::APPEND) && (mode |= std::ifstream::app);
-    mStream = new std::ifstream(mFilepath, mode);
-    sys::throw_if(mStream->bad(), "Could not open "+ mFilepath);
-  }
-  
-  const char* CFile::extension() const {
-    return &mFilepath[mFilepath.find_last_of('.')];
-  }
-  
-  std::streamsize CFile::size() const {
-    return mStream ? mStream->gcount() : 0;
+  bool CFile::open(sys::bitfield eOptions) const {
+    if (mStream == nullptr) {
+      std::ifstream::openmode mode;
+      (eOptions & EOption::READ)   && (mode |= std::ifstream::in);
+      (eOptions & EOption::WRITE)  && (mode |= std::ifstream::out);
+      (eOptions & EOption::BINARY) && (mode |= std::ifstream::binary);
+      (eOptions & EOption::APPEND) && (mode |= std::ifstream::app);
+      mStream = new std::ifstream(mFilepath, mode);
+    }
+    return mStream->good();
   }
 }
