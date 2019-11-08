@@ -48,7 +48,7 @@ namespace ogl {
       GLsizei mWidth    {0};
       GLsizei mHeight   {0};
       GLsizei mDepth    {1};
-      GLcount mMipmaps  {0};
+      GLcount mMipmaps  {1};
     public:
       CTexture();
       CTexture(GLenum target);
@@ -57,11 +57,11 @@ namespace ogl {
     public: // actions
       virtual GLvoid bind(bool=true) const override;
               GLvoid bind(GLuint);
+      GLvoid         sampler(CShader*);
       virtual void   load(const CTextureData*&) final;
-      GLvoid  sampler(CShader*);
     public: // get/set-ers
-      GLvoid     filtering(EFiltering eFiltering);
-      EFiltering filtering() const;
+      GLvoid        filtering(EFiltering eFiltering);
+      EFiltering    filtering() const;
       inline GLenum target() const { return mTarget; }
       inline void   type(EType eType) { mType = eType; mTarget = (eType == EType::CUBEMAP ? GL_TEXTURE_CUBE_MAP : (eType == EType::VOLUME ? GL_TEXTURE_3D : mTarget)); }
       inline EType  type() const { return mType; }
@@ -74,7 +74,19 @@ namespace ogl {
   };
   
   class CTextureData : public CResourceData {
-      
+    protected:
+      // meta
+      uint   mWidth;
+      uint   mHeight;
+      uint   mDepth;
+      size_t mSize;
+      uint   mMipmaps;
+      uint   mFlags;
+      uint   mFormat;
+      // data
+      ubyte* mStart;
+      ubyte* mCursor;
+      ubyte* mLast;
   };
   
   class CTextureLoader : public CResourceLoader {
@@ -88,7 +100,7 @@ namespace ogl {
       CTextureManager();
       ~CTextureManager();
     public:
-      CTexture* load(const sys::CString& name);
+      PTexture load(const sys::CString& name);
   };
 }
 

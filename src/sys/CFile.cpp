@@ -1,8 +1,6 @@
 #include "sys/CFile.hpp"
 #include "sys/CException.hpp"
 
-
-
 namespace sys {
   CFile::CFile() {
     

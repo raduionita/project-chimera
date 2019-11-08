@@ -18,7 +18,7 @@ namespace ogl {
       friend class CResourceManager;
       friend class CResourceData;
     public:
-      virtual void
+      
   };
   
   class CResourceData {
@@ -26,6 +26,8 @@ namespace ogl {
       friend class CResourceLoader;
       friend class CResourceManager;
   };
+  
+  typedef sys::CPointer<CResourceData> PResourceData;
   
   class CResourceLoader {
       friend class CResource;  

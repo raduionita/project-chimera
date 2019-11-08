@@ -3,6 +3,7 @@
 #include "ogl/CException.hpp"
 #include "ogl/CCodec.hpp"
 #include "sys/CFile.hpp"
+#include "sys/CStream.hpp"
 
 namespace ogl {
   CTexture::CTexture() /*default*/ {
@@ -52,19 +53,22 @@ namespace ogl {
   }
   
   PTexture CTextureLoader::load(const sys::CFile& file) const {
-    log::nfo << "ogl::CDDSTextureLoader::load(sys::CFile&)::" << this << " FILE:" << file << log::end;
+    log::nfo << "ogl::CTextureLoader::load(sys::CFile&)::" << this << " FILE:" << file << log::end;
     
     sys::throw_if(file.empty(), "No file no texture");
     
-    sys::throw_if(!file.open(), "Cannot open "+ file);
     
-    // @todo: for each registered codec
-    CCodecManager::instance()
     
-    char ftyp[3];
-    file.read(ftyp, 4);
+    // for each registered codec
+    for (auto& [zType, pCodec] : CCodecManager::sCodecs) {
+      if (pCodec->able(file)) {
+        PResourceData data {pCodec->decode(file)};
+        
+        return new CTexture {data};
+      }
+    }
     
-    sys::throw_if(::strncmp(ftyp, "DDS", 4) != 0, "Not a .DDS file");
+    
     
     header_t head;
     ifs.read((char*)(&head), sizeof(head));
@@ -200,11 +204,13 @@ namespace ogl {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  CTextureManager::CTextureManager() { }
+  CTextureManager::CTextureManager() { 
+    loader(new CTextureLoader);
+  }
   
   CTextureManager::~CTextureManager() { }
   
-  CTexture* CTextureManager::load(const sys::CString& name) {
+  PTexture CTextureManager::load(const sys::CString& name) {
     
     // @todo: search for texture in cache
   

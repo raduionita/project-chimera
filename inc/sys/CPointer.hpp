@@ -17,8 +17,14 @@ namespace sys {
       CPointer(std::nullptr_t) : mPointer{nullptr}, mCount{new uint32_t{0}} { }
       // pointer constructor
       CPointer(T* pPointer) : mPointer{pPointer}, mCount{new uint32_t{1}} { }
+      // pointer + count constructor
+      CPointer(T* pPointer, uint32_t* pCount) : mPointer{pPointer}, mCount{pCount} { }
+      // take ownership
+      template <typename Y> CPointer(Y* pPointer) : mPointer{pPointer}, mCount{new uint32_t{0}} { if (mPointer) { ++(*mCount); } }
       // copy constructor // 2 CPointers will have same mCount
-      CPointer(const CPointer& that) : mPointer{that.mPointer}, mCount{that.mCount} { ++(*mCount); }
+      CPointer(const CPointer& that) : mPointer{that.mPointer}, mCount{that.mCount} { if (mPointer) { ++(*mCount); } }
+      // copy foreign constructor
+      template <typename Y, class = typename std::enable_if<std::is_convertible<Y*,T*>::value>::type> CPointer(const CPointer<Y>& that) : mPointer{that.mPointer}, mCount{that.mCount} { if (mPointer) { ++(*mCount); } }
       // destructor // decrements mCount // deletes mPointer only if mCount is 0 = nobody else has a ref to it
       virtual ~CPointer() {
       if (--(*mCount) == 0) {
@@ -91,9 +97,32 @@ namespace sys {
       // pointer
       T*       ptr() const noexcept { return mPointer; }
       uint32_t cnt() const noexcept { return mCount;   }
+    public:
+      template <typename Y> friend class CPointer;
+      template <typename Y> friend CPointer<Y> static_pointer_cast(const CPointer<T>& p);
+      template <typename Y> friend CPointer<Y> dynamic_pointer_cast(const CPointer<T>& p);
   };
   
   template<typename T> using ptr = CPointer<T>;
+  
+  template <typename Y, typename T> inline CPointer<Y> static_pointer_cast(const CPointer<T>& p) {
+    if (p.mPointer) {
+      ++(*p.mCount);
+      return CPointer<T>(static_cast<Y*>(p.mPointer), p.mCount);
+    } else {
+      return CPointer<Y>();
+    }
+  }
+  
+  template <typename Y, typename T> inline CPointer<Y> dynamic_pointer_cast(const CPointer<T>& p) {
+    Y* pPointer = dynamic_cast<Y*>(p.mPointer);
+    if (pPointer) {
+      ++(*p.mCount);
+      return CPointer<T>(pPointer, p.mCount);
+    } else {
+      return CPointer<Y>();
+    }
+  }
 }
 
 #endif //__cpointer_hpp__

@@ -37,6 +37,8 @@ namespace sys {
       inline std::streamsize size()      const { return mStream ? mStream->gcount() : 0; }
       inline bool            empty()     const { return mFilepath.empty(); }
       inline void            read(char* data, std::streamsize len) const { mStream->read(data, len); }
+      inline bool            good() const { return mStream ? mStream->good() : false; }
+      inline bool            fail() const { return !good(); }
     public:
       bool                   open(sys::bitfield = EOption::READ) const;
   };

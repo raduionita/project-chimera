@@ -65,8 +65,10 @@ m->loader(new app::CNewTextureLoader());
 - move: opengl code from `uix::CContext` to `glc::CContext : uix::CContext` // `uix` should stay abstract
 - restructure: move `CSufrface` + `CButton` (and panels) to `CEditWindow`
 - use: get unforms & attributes using `glGetActiveAttrib` && `glGetActiveUniform`
+- .ext to lowercase for `ogl::CCodec`s 
 - replace(use): custom types (typedef uint) instead of opengl's GLxxx types
 - attach `CContext` to window(s) // by ref?!
+- opening files shouln't crash (through exception) the app, just show an error
 - create engine (using context)
   - add viewports (windows + cameras) to engine // new `CViewport` = `CWindow` + `CCamera`
   

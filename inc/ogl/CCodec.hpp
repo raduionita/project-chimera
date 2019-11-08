@@ -4,28 +4,46 @@
 #include "ogl/ogl.hpp"
 #include "sys/CFile.hpp"
 #include "sys/CSingleton.hpp"
+#include "sys/CStream.hpp"
 
 namespace ogl {
+  class CCodecManager;
+  
   class CCodec {
     public:
-      virtual void        decode(const sys::CFile&) const = 0;
-      virtual const char* type() const = 0;
-      virtual bool        able(const sys::CFile& file) const { return ::strcmp(file.extension(), type()) == 0; }
+      class SMeta { };
+    public:
+      using PMeta   = SMeta;
+      using PStream = sys::PStream;
+      using CFile   = sys::CFile;
+    public:
+      CCodec(const char* type);
+      virtual ~CCodec() = default;
+    public:
+      virtual PResourceData decode(const CFile&) const = 0;
+      virtual CFile         encode(const PResourceData&) const;
+      virtual const char*   type() const = 0;
+      virtual bool          able(const CFile& file) const { return ::strcmp(file.extension(), type()) == 0; }
   };
   
-  class CTextureCodec : CCodec {
+  class CTextureCodec : public CCodec {
       using CCodec::CCodec;
+  };
+  
+  struct STextureMeta : public CCodec::SMeta {
+    public:
+      uint   width;
+      uint   height;
+      uint   depth;
+      size_t size;
+      uint   mipmaps;
+      uint   flags;
+      uint   format;
   };
   
   class CDDSCodec : public CTextureCodec {
       using CTextureCodec::CTextureCodec;
     private:
-      struct SCaps {
-        uint caps1;
-        uint caps2;
-        uint caps3;
-        uint caps4;
-      };
       struct SFormat {
         uint size;
         uint flags;
@@ -45,9 +63,10 @@ namespace ogl {
         uint         depth;          // only if DDS_HEADER_FLAGS_VOLUME is in header_t::flags
         uint         mipmaps;
         uint         _unused_1_[11];
-        SFormat       format; 
-        SCaps         caps;
-        uint         _unused_2_;
+        SFormat      format; 
+        uint         caps1;
+        uint         caps2;
+        uint         _unused_2_[3];
       };
     private:
       enum EFlag {
@@ -87,24 +106,32 @@ namespace ogl {
         FOURCC_DTX3  = 0x33545844, // = DTX3(in ASCII)
         FOURCC_DTX5  = 0x35545844, // = DTX5(in ASCII)
       };
+    private:
+      static CDDSCodec* sInstance;
+    public:
+      CDDSCodec() : CTextureCodec("dds") { }
+    public:
+      virtual PResourceData decode(const sys::CFile&) const override;
     public:
       virtual inline const char* type() const override { return "dds"; }
-      virtual void decode(const sys::CFile&) const override;
     private:
-      static inline uint clamp2one(uint val) { return val < 1 ? 1 : val; } 
+      static inline uint clamp2one(uint val) { return val < 1 ? 1 : val; }
       static inline uint mapsize(uint width, uint height, uint depth, uint components, uint format, bool compressed = true) { return compressed ? ((width + 3) >> 2) * ((height + 3) >> 2) * depth * (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT ? 8 : 16) : width * height * depth * components; }
   };
   
-  class CTGACodec : public CCodec {
-      
+  class CTGACodec : public CTextureCodec {
+      using CTextureCodec::CTextureCodec;
   };
   
   class CCodecManager : public sys::CSingleton<CCodecManager> {
+      friend class CTextureLoader;
       friend class CTextureManager;
     protected:
-      sys::CMap<sys::CString, CCodec*> mCodecs;
+      static sys::CMap<sys::CString, CCodec*> sCodecs;
     public:
-      CCodec* codec(const sys::CString& ext) { return mCodecs[ext]; }
+      inline static CCodec* codec(const sys::CString& ext) { return sCodecs[ext]; }
+      inline static void    codec(CCodec* codec) { sCodecs[codec->type()] = codec; }
+      inline static void    codec(const char* type, CCodec* codec) { sCodecs[type] = codec; }
   };
 }
 

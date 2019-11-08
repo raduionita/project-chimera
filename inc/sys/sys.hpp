@@ -10,6 +10,7 @@
 #include <set>
 #include <array>
 #include <algorithm>
+#include <memory>
 
 #define RETURNCN(cond)      if(cond)return
 #define RETURNCV(cond,val)  if(cond)return val
@@ -31,6 +32,7 @@ namespace sys {
   class CLogger;
   class CMemory;
   class CTimer;
+  class CStream;
   template <typename T> class CPointer;
   template <typename T> class CEntry;
   template <typename T> class CRegistry;
@@ -54,6 +56,7 @@ namespace sys {
   using CString                  = std::string;
   template<typename V> using CSet                 = std::set<V>;
   template<typename K, typename V> using CMap               = std::map<K,V>;
+  template<typename L, typename R> using CPair              = std::pair<L,R>;
   template<typename V> using CVector              = std::vector<V>;
   template<typename V, std::size_t S> using CArray = std::array<V,S>;
   

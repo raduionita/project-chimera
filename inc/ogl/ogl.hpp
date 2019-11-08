@@ -21,8 +21,10 @@ namespace ogl {
   class CCamera;
   class CLight;
   class CResource;
+    class CResourceData;
     class CModel; // a group of CMesh
     class CTexture;
+      class CTextureData;
     class CMaterial;
     class CAnimation;
     class CShader;
@@ -55,10 +57,12 @@ namespace ogl {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   typedef sys::CPointer<CResource> PResource;
-  typedef sys::CPointer<CTexture>  PTexture;
+  typedef sys::CPointer<CResourceData> PResourceData;
+  typedef sys::CPointer<CTexture>  PTexture; 
+  typedef sys::CPointer<CTextureData>  PTextureData;
   typedef sys::CPointer<CMaterial> PMaterial;
-  typedef sys::CPointer<CShader>   PShader;
-  typedef sys::CPointer<CModel>    PModel;
+  typedef sys::CPointer<CShader>   PShader;  
+  typedef sys::CPointer<CModel>    PModel;   
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
