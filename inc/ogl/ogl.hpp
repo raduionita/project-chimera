@@ -64,6 +64,8 @@ namespace ogl {
   typedef sys::CPointer<CShader>   PShader;  
   typedef sys::CPointer<CModel>    PModel;   
   
+  typedef sys::CPointer<CTextureManager> PTextureManager;
+  
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   using log = sys::log;

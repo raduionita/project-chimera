@@ -70,14 +70,8 @@ namespace ogl {
     
     
     
-    header_t head;
-    ifs.read((char*)(&head), sizeof(head));
     
-    if ((head.caps2 & EFlag::CUBEMAP)) {
-      pTexture->type(CTexture::EType::CUBEMAP);
-    } else if ((head.caps2 & EFlag::VOLUME) && (head.depth > 0)) {
-      pTexture->type(CTexture::EType::VOLUME);
-    }
+
   
     uint nComponents = (head.pf.fourcc == EFlag::FOURCC) || (head.pf.bpp == 24) ? 3 : 4;
     bool bCompressed = false;
@@ -211,11 +205,13 @@ namespace ogl {
   CTextureManager::~CTextureManager() { }
   
   PTexture CTextureManager::load(const sys::CString& name) {
+    PTextureManager& self = CTextureManager::instance();
+    log::nfo << "ogl::CTextureManager::load(sys::CFile&)::" << self << " FILE:" << name << log::end;
     
     // @todo: search for texture in cache
-  
+    // @todo: these loaders MUST be shared pointers
     CTextureLoader* pUsable {nullptr};
-    for (auto& pLoader : mLoaders) {
+    for (auto& pLoader : self->mLoaders) {
       if (pLoader->able(name)) {
         pUsable = static_cast<CTextureLoader*>(pLoader);
       }

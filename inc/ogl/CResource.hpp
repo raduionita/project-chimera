@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <cassert>
 #include <type_traits>
+#include <functional>
 
 namespace ogl {
   class CResource;
@@ -43,9 +44,11 @@ namespace ogl {
   class CResourceManager { // remembers and managegs loaded resources
       friend class CResource;  
       friend class CResourceLoader;
-      friend class CResourceData;  
+      friend class CResourceData;
+      typedef std::function<PResourceData(const CFile&)> TLoader;
     protected:
       sys::CVector<ogl::CResourceLoader*> mLoaders;
+      // sys::CMap<sys::CString, TLoader> mLoaders;
     public:
       CResourceManager();
       virtual ~CResourceManager();
@@ -60,13 +63,10 @@ namespace ogl {
       }
   };
   
-  // class CMaterial : CResource
-  
-  // class CTexture : CResource
-  
-  // class CModel : CResource
-  
-  // class CAnimation : CResource
+  class CMaterialLoader;  // CResourceLoader
+  class CTextureLoader;   // CResourceLoader
+  class CModelLoader;     // CResourceLoader
+  class CAnimationLoader; // CResourceLoader
 }
 
 #endif //__ogl_cresource_hpp__

@@ -11,6 +11,7 @@
 #include <array>
 #include <algorithm>
 #include <memory>
+#include <functional>
 
 #define RETURNCN(cond)      if(cond)return
 #define RETURNCV(cond,val)  if(cond)return val

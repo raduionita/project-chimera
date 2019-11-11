@@ -20,7 +20,7 @@ namespace sys {
         // deleted
       }
     public:
-      static auto instance() -> decltype(sInstance) {  if (!sInstance) new T; return sInstance; }
+      static CPointer<T>& instance() {  if (!sInstance) new T; return sInstance; }
   };
   template<typename T> CPointer<T> CSingleton<T>::sInstance{nullptr};
 }

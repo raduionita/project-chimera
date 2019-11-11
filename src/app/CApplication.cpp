@@ -58,8 +58,7 @@ namespace app {
   //ogl::PShader       shd {csl.load("name")}
     ogl::CShader       shd {"../../res/shaders/simple/color.csl"};
     
-    ogl::CTextureLoader tld;
-    ogl::PTexture       tex {tld.load("../../res/textures/monster.dds")};
+    ogl::PTexture      tex = ogl::CTextureManager::load("../../res/textures/monster.dds");
     
     vao.bind(false);
     shd.bind(false);

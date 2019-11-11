@@ -25,6 +25,12 @@ namespace ogl {
     SHeader head;
     file.read((char*)(&head), sizeof(head));
     
+    if ((head.caps2 & EFlag::CUBEMAP)) {
+      pTexture->type(CTexture::EType::CUBEMAP);
+    } else if ((head.caps2 & EFlag::VOLUME) && (head.depth > 0)) {
+      pTexture->type(CTexture::EType::VOLUME);
+    }
+    
     CTextureData* data = new CTextureData;
     
     return PResourceData(data);

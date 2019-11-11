@@ -5,40 +5,26 @@
 #include "sys/CFile.hpp"
 #include "sys/CSingleton.hpp"
 #include "sys/CStream.hpp"
+#include "sys/CException.hpp"
 
 namespace ogl {
   class CCodecManager;
   
+  class CCodecData;  
+  
   class CCodec {
-    public:
-      class SMeta { };
-    public:
-      using PMeta   = SMeta;
-      using PStream = sys::PStream;
-      using CFile   = sys::CFile;
     public:
       CCodec(const char* type);
       virtual ~CCodec() = default;
     public:
-      virtual PResourceData decode(const CFile&) const = 0;
-      virtual CFile         encode(const PResourceData&) const;
-      virtual const char*   type() const = 0;
-      virtual bool          able(const CFile& file) const { return ::strcmp(file.extension(), type()) == 0; }
+      virtual ogl::PResourceData decode(const sys::CFile&) const = 0;
+      virtual sys::CFile         encode(const ogl::PResourceData&) const { throw sys::CException("NOT IMPLEMENTED"); }
+      virtual const char*        type() const = 0;
+      virtual bool               able(const sys::CFile& file) const { return ::strcmp(file.extension(), type()) == 0; }
   };
   
   class CTextureCodec : public CCodec {
       using CCodec::CCodec;
-  };
-  
-  struct STextureMeta : public CCodec::SMeta {
-    public:
-      uint   width;
-      uint   height;
-      uint   depth;
-      size_t size;
-      uint   mipmaps;
-      uint   flags;
-      uint   format;
   };
   
   class CDDSCodec : public CTextureCodec {

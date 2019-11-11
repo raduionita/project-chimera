@@ -89,18 +89,18 @@ namespace ogl {
       ubyte* mLast;
   };
   
-  class CTextureLoader : public CResourceLoader {
-    public:
-      virtual bool     able(const sys::CString& name) const;
-      virtual PTexture load(const sys::CFile& name) const;
-  };
-  
   class CTextureManager : public CResourceManager, public sys::CSingleton<CTextureManager> {
     public:
       CTextureManager();
       ~CTextureManager();
     public:
-      PTexture load(const sys::CString& name);
+      static PTexture load(const sys::CString& name);
+  };
+  
+  class CTextureLoader : public CResourceLoader {
+    public:
+      virtual bool     able(const sys::CString& name) const;
+      virtual PTexture load(const sys::CFile& name) const;
   };
 }
 
