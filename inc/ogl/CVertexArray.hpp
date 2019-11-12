@@ -5,9 +5,7 @@
 #include "CObject.hpp"
 
 namespace ogl {
-  class CArray : public CObject { };
-  
-  class CVertexArray : public CArray {
+  class CVertexArray : public CObject {
     public:
       CVertexArray();
       virtual ~CVertexArray();

@@ -9,43 +9,28 @@
 #include <functional>
 
 namespace ogl {
-  class CResource;
-  class CResourceLoader;
-  class CResourceManager;
-  class CResourceData;
+  class CResource;        typedef sys::CPointer<CResource>        PResource;
+  class CResourceManager; typedef sys::CPointer<CResourceManager> PResourceManager;
+  class CResourceStream;  typedef sys::CPointer<CResourceStream>  PResourceStream;
+  class CResourceLoader;  typedef sys::CPointer<CResourceLoader>  PResourceLoader;
   
   class CResource { // loadable entity/file/object
-      friend class CResourceLoader;
       friend class CResourceManager;
-      friend class CResourceData;
+      friend class CResourceStream;
     public:
       
   };
   
-  class CResourceData {
+  class CResourceStream {
       friend class CResource;
       friend class CResourceLoader;
       friend class CResourceManager;
   };
   
-  typedef sys::CPointer<CResourceData> PResourceData;
-  
-  class CResourceLoader {
-      friend class CResource;  
-      friend class CResourceManager;
-      friend class CResourceData;  
-    public:
-      CResourceLoader() { }
-      virtual ~CResourceLoader() { }
-    public:
-      virtual bool able(const sys::CString& name) const = 0;
-  };
-  
   class CResourceManager { // remembers and managegs loaded resources
-      friend class CResource;  
+      friend class CResource;
+      friend class CResourceStream;
       friend class CResourceLoader;
-      friend class CResourceData;
-      typedef std::function<PResourceData(const CFile&)> TLoader;
     protected:
       sys::CVector<ogl::CResourceLoader*> mLoaders;
       // sys::CMap<sys::CString, TLoader> mLoaders;
@@ -63,10 +48,16 @@ namespace ogl {
       }
   };
   
-  class CMaterialLoader;  // CResourceLoader
-  class CTextureLoader;   // CResourceLoader
-  class CModelLoader;     // CResourceLoader
-  class CAnimationLoader; // CResourceLoader
+  class CResourceLoader {
+      friend class CResource;
+      friend class CResourceManager;
+      friend class CResourceStream;
+    public:
+      CResourceLoader() = default;
+      virtual ~CResourceLoader() = default;
+    public:
+      virtual inline bool able(const sys::CString&) const = 0;
+  };
 }
 
 #endif //__ogl_cresource_hpp__

@@ -4,15 +4,15 @@
 #include "ogl/ogl.hpp"
 #include "ogl/CObject.hpp"
 #include "ogl/CResource.hpp"
+#include "ogl/CTextureLoader.hpp"
 #include "sys/CFile.hpp"
 #include "sys/CSingleton.hpp"
+#include "sys/CException.hpp"
 
 namespace ogl {
-  class CTexture;
-  class CTextureManager;
-  class CTextureLoader;
-  class CTextureData;
-  
+  class CTexture;        typedef sys::CPointer<CTexture>        PTexture; 
+  class CTextureManager; typedef sys::CPointer<CTextureManager> PTextureManager; 
+   
   class CTexture : public CResource, public CObject { // or should this be CBuffer since it holds data/memory
     public:
       enum class EFiltering : GLbitfield {
@@ -51,6 +51,7 @@ namespace ogl {
       GLcount mMipmaps  {1};
     public:
       CTexture();
+      CTexture(PTextureStream);
       CTexture(GLenum target);
       CTexture(EType type);
       ~CTexture();
@@ -58,7 +59,7 @@ namespace ogl {
       virtual GLvoid bind(bool=true) const override;
               GLvoid bind(GLuint);
       GLvoid         sampler(CShader*);
-      virtual void   load(const CTextureData*&) final;
+      virtual void   load(PTextureStream) final;
     public: // get/set-ers
       GLvoid        filtering(EFiltering eFiltering);
       EFiltering    filtering() const;
@@ -73,34 +74,13 @@ namespace ogl {
       inline void   mipmaps(GLcount m)  { mMipmaps = m == 0 ? 1 : m; }
   };
   
-  class CTextureData : public CResourceData {
-    protected:
-      // meta
-      uint   mWidth;
-      uint   mHeight;
-      uint   mDepth;
-      size_t mSize;
-      uint   mMipmaps;
-      uint   mFlags;
-      uint   mFormat;
-      // data
-      ubyte* mStart;
-      ubyte* mCursor;
-      ubyte* mLast;
-  };
-  
   class CTextureManager : public CResourceManager, public sys::CSingleton<CTextureManager> {
     public:
       CTextureManager();
       ~CTextureManager();
     public:
       static PTexture load(const sys::CString& name);
-  };
-  
-  class CTextureLoader : public CResourceLoader {
-    public:
-      virtual bool     able(const sys::CString& name) const;
-      virtual PTexture load(const sys::CFile& name) const;
+      static PTexture load(PTextureStream stream, const sys::CString& name = "");
   };
 }
 

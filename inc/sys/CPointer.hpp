@@ -19,8 +19,10 @@ namespace sys {
       CPointer(T* pPointer) : mPointer{pPointer}, mCount{new uint32_t{1}} { }
       // pointer + count constructor
       CPointer(T* pPointer, uint32_t* pCount) : mPointer{pPointer}, mCount{pCount} { }
+      // move object into pointer
+      CPointer(T&& oObject) : mPointer{new T{std::move(oObject)}}, mCount{new uint32_t{1}} { }
       // take ownership
-      template <typename Y> CPointer(Y* pPointer) : mPointer{pPointer}, mCount{new uint32_t{0}} { if (mPointer) { ++(*mCount); } }
+      template <typename Y, class = typename std::enable_if<std::is_convertible<Y*,T*>::value>::type> CPointer(Y* pPointer) : mPointer{pPointer}, mCount{new uint32_t{0}} { if (mPointer) { ++(*mCount); } }
       // copy constructor // 2 CPointers will have same mCount
       CPointer(const CPointer& that) : mPointer{that.mPointer}, mCount{that.mCount} { if (mPointer) { ++(*mCount); } }
       // copy foreign constructor
@@ -102,8 +104,6 @@ namespace sys {
       template <typename Y> friend CPointer<Y> static_pointer_cast(const CPointer<T>& p);
       template <typename Y> friend CPointer<Y> dynamic_pointer_cast(const CPointer<T>& p);
   };
-  
-  template<typename T> using ptr = CPointer<T>;
   
   template <typename Y, typename T> inline CPointer<Y> static_pointer_cast(const CPointer<T>& p) {
     if (p.mPointer) {

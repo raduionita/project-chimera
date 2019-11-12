@@ -9,7 +9,7 @@
 #include "uix/CButton.hpp"
 
 #include "ogl/CBuffer.hpp"
-#include "ogl/CArray.hpp"
+#include "ogl/CVertexArray.hpp"
 #include "ogl/CLayout.hpp"
 #include "ogl/CShader.hpp"
 #include "ogl/CTexture.hpp"
@@ -54,11 +54,16 @@ namespace app {
     vao.buffer(vbo, vlo);
     ogl::CIndexBuffer   ibo {indices, 6};
   
-  //ogl::CShaderLoader csl;
-  //ogl::PShader       shd {csl.load("name")}
+  //ogl::PModel        mdl {ogl::CModelManager::load(new CModelStream{vertices,indices}, "name")};
+  //ogl::PModel        mdl {ogl::CModelManager::load("/path/to/model.3ds")};
+  //ogl::PModel        mdl {ogl::CModelBuilder::make(ogl::SSphere{30})
+  //ogl::CModelManager::save(mdl, "sphere")
+    
+  //ogl::PShader       shd {ogl::CShaderManager::load("name")}
     ogl::CShader       shd {"../../res/shaders/simple/color.csl"};
     
-    ogl::PTexture      tex = ogl::CTextureManager::load("../../res/textures/monster.dds");
+    ogl::PTexture      tex {ogl::CTextureManager::load("../../res/textures/monster.dds")};
+  //ogl::PTexture      tex {ogl::CTextureBuilder::make(ogl::CNoise{1,2,3})};
     
     vao.bind(false);
     shd.bind(false);

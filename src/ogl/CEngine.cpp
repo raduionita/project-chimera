@@ -12,10 +12,22 @@ namespace ogl {
    }
    
    void CEngine::init() {
-     
+     load<ogl::CTextureManager>();
    } 
    
    void CEngine::free() {
      
+   }
+   
+   // @usage: load<ogl::CTextureManager>();
+   template <> ogl::CTextureManager* CEngine::load<ogl::CTextureManager>() {
+     // loads default or through extending ogl::CEngine, replace logic
+     throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__);
+   }
+   
+   // @usage: load(new ogl::CTextureManager);
+   template <> ogl::CTextureManager* CEngine::load<ogl::CTextureManager>(ogl::CTextureManager*) {
+     // dynamic replacement, w/o needing to extend ogl::CEngine 
+     throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__);
    }
 }

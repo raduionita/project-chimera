@@ -6,7 +6,7 @@
 GLfloat p[] = {-0.5,-0.5, +0.5,-0.5, +0.5,+0.5, -0.5,+0.5};  // vertex.positions
 GLint   e[] = {0,1,2, 1,2,0};                                // indices(elements)
 
-ogl::CArray        a;                             // vao + vbo + ibo                              
+ogl::CVertexArray  a;                             // vao + vbo + ibo                              
 ogl::CVertexBuffer b(p, 4 * 2 * sizeof(GLfloat)); // vbo => ::glGenBuffers() + ::glBindBuffer(GL_ARRAY_BUFFER...) + ::glBufferData()
 ogl::CIndexBuffer  i(e, 6);                       // ibo => ::glGenBuffers() + ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER...) + ::glBufferData()
 ogl::CVertexLayout l;                             // layout, stores how many (here) floats are there per vertex component

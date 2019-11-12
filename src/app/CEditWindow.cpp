@@ -8,7 +8,7 @@
 #include "uix/CSurface.hpp"
 
 #include <ogl/CBuffer.hpp>
-#include <ogl/CArray.hpp>
+#include <ogl/CVertexArray.hpp>
 #include <ogl/CLayout.hpp>
 #include <ogl/CShader.hpp>
 

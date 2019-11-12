@@ -5,6 +5,7 @@
 #include "ogl/CTexture.hpp"
 
 #include "sys/CSingleton.hpp"
+#include "sys/CException.hpp"
 
 namespace ogl {
   class CEngine : public sys::CSingleton<CEngine> {
@@ -14,16 +15,17 @@ namespace ogl {
       // CInputSystem*
       
       CTextureManager* mTextureManager {nullptr};
-      
-      
     public:
       CEngine();
       ~CEngine();
-    public:
+    protected:
       virtual void init();
       virtual void free();
+      template <typename T> T*                  load() { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
+      template <> virtual ogl::CTextureManager* load<ogl::CTextureManager>();
     public:
-      inline CTextureManager* textureManager() { return mTextureManager; }
+      template <typename T> T*                  load(T*) { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
+      template <> virtual ogl::CTextureManager* load<ogl::CTextureManager>(ogl::CTextureManager*);
       // @todo: connects(and befriends) all *System(s)
   };
 }

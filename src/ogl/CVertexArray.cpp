@@ -1,4 +1,4 @@
-#include "ogl/CArray.hpp"
+#include "ogl/CVertexArray.hpp"
 #include "ogl/CBuffer.hpp"
 #include "ogl/CLayout.hpp"
 

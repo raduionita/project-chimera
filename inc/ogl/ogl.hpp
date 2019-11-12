@@ -21,10 +21,10 @@ namespace ogl {
   class CCamera;
   class CLight;
   class CResource;
-    class CResourceData;
+    class CResourceStream;
     class CModel; // a group of CMesh
     class CTexture;
-      class CTextureData;
+      class CTextureStream;
     class CMaterial;
     class CAnimation;
     class CShader;
@@ -43,8 +43,7 @@ namespace ogl {
         class CIndexBuffer;
     class CLayout;
       class CVertexLayout;
-    class CArray;
-      class CVertexArray;
+    class CVertexArray;
     class CShader;
   class CUniform;
   class CVertex; // @todo: this should be a template that describes components
@@ -56,13 +55,13 @@ namespace ogl {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  typedef sys::CPointer<CResource> PResource;
-  typedef sys::CPointer<CResourceData> PResourceData;
-  typedef sys::CPointer<CTexture>  PTexture; 
-  typedef sys::CPointer<CTextureData>  PTextureData;
-  typedef sys::CPointer<CMaterial> PMaterial;
-  typedef sys::CPointer<CShader>   PShader;  
-  typedef sys::CPointer<CModel>    PModel;   
+  typedef sys::CPointer<CResource>       PResource;
+  typedef sys::CPointer<CResourceStream> PResourceStream;
+  typedef sys::CPointer<CTexture>        PTexture; 
+  typedef sys::CPointer<CTextureStream>  PTextureStream;
+  typedef sys::CPointer<CMaterial>       PMaterial;
+  typedef sys::CPointer<CShader>         PShader;  
+  typedef sys::CPointer<CModel>          PModel;   
   
   typedef sys::CPointer<CTextureManager> PTextureManager;
   
