@@ -51,9 +51,24 @@ namespace ogl {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  CTextureManager::CTextureManager() { 
+  CFileTextureBuilder::CFileTextureBuilder() {
     loader(new CDDSTextureLoader);
     loader(new CTGATextureLoader);
+  }
+  
+  PTextureStream CFileTextureBuilder::from(const sys::CFile& file) {
+    log::nfo << "ogl::CFileTextureBuilder::from(sys::CString&)::" << this << " FILE:" << file << log::end;
+
+    
+    
+    
+    throw CException("Missing CTextureLoader!", __FILE__, __LINE__);
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  CTextureManager::CTextureManager() { 
+    builder(new CFileTextureBuilder);
   }
   
   CTextureManager::~CTextureManager() { }
@@ -61,23 +76,42 @@ namespace ogl {
   PTexture CTextureManager::load(const sys::CString& name) {
     static PTextureManager& self = CTextureManager::instance();
     log::nfo << "ogl::CTextureManager::load(sys::CString&)::" << self << " NAME:" << name << log::end;
+    // don't try to use another builder if the process has already started 
+    static auto pBuilder = sys::static_pointer_cast<CFileTextureBuilder>(self->builder("file"));
 // @todo: search for texture in cache
+    PTextureStream pStream  {pBuilder->from(name)};
+// @todo: return null texture (stream) from cache if can't build texture
+    PTexture       pTexture {pStream};
+// @todo: put texture in cache
+    return pTexture;
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  PTextureStream CTextureLoader::load(const sys::CString& file) {
+    static PTextureManager& mang = CTextureManager::instance();
+    log::nfo << "ogl::CTextureLoader::load(sys::CString&)::" << " FILE:" << file << log::end;
     CTextureLoader* pUsable {nullptr};
 // @todo: these loaders SHOULD be shared pointers
-    for (auto& pLoader : self->mLoaders) {
-      if (pLoader->able(name)) {
+    for (auto& pLoader : mang->loaders()) {
+      if (pLoader->able(file)) {
         pUsable = static_cast<CTextureLoader*>(pLoader);
-        auto pStream  = pUsable->load(name);
-        auto pTexture = new CTexture(pStream);
-// @todo: put texture in cache
-        return pTexture;
+        return pUsable->from(file);
       }
     }
 // @todo: return null texture from cache
-    throw CException("Missing CTexture::CLoader!");
+    throw sys::CException("Missing CTexture::CLoader!", __FILE__, __LINE__);
   }
   
-  PTexture CTextureManager::load(PTextureStream stream, const CString& name) {
-    return ogl::PTexture();
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  PTextureStream CDDSTextureLoader::from(const sys::CString& file) {
+    log::nfo << "ogl::CDDSTextureLoader::from(sys::CString&)::" << this << " FILE:" << file << log::end;
+    // @todo: open file
+    
+    CTextureStream* pStream {new CTextureStream};
+    
+    
+    return pStream;
   }
 }
