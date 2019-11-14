@@ -2,6 +2,7 @@
 #define __sys_cfile_hpp__
 
 #include "sys/sys.hpp"
+#include "CLogger.hpp"
 
 #include <fstream>
 
@@ -33,15 +34,24 @@ namespace sys {
       CFile& operator =(const char*         filepath);
       friend CString operator +(const char* text, const CFile& file);
     public:
-      inline const char*     extension() const { return &mFilepath[mFilepath.find_last_of('.')]; }
+      explicit inline operator CString()             { return mFilepath; }
+      explicit inline operator const CString() const { return mFilepath; }
+    public:
+      inline const char*     extension() const { return &mFilepath[mFilepath.find_last_of('.')+1]; }
       inline std::streamsize size()      const { return mStream ? mStream->gcount() : 0; }
       inline bool            empty()     const { return mFilepath.empty(); }
       inline void            read(char* data, std::streamsize len) const { mStream->read(data, len); }
       inline bool            good() const { return mStream ? mStream->good() : false; }
       inline bool            fail() const { return !good(); }
+      inline const char*     path() const { return mFilepath.c_str(); }
     public:
       bool                   open(sys::bitfield = EOption::READ) const;
   };
+  
+  inline const CLogger::ELevel& operator <<(const CLogger::ELevel& type, const CFile& file) {
+    CLogger::instance()->push(file.path());
+    return type;
+  }
 }
 
 #endif //__sys_cfile_hpp__

@@ -5,6 +5,8 @@
 
 namespace sys {
   template <typename T> class CPointer {
+    public:
+      typedef T* ptr_type;
     protected:
       // the payload
       T*        mPointer;
@@ -99,30 +101,32 @@ namespace sys {
       // pointer
       T*       ptr() const noexcept { return mPointer; }
       uint32_t cnt() const noexcept { return mCount;   }
+      template <typename Y> CPointer<Y> spc() const {
+        if (mPointer) {
+          ++(*mCount);
+          return CPointer<Y>(static_cast<Y*>(mPointer), mCount);
+        } else {
+          return CPointer<Y>();
+        }
+      }
+      template <typename Y> CPointer<Y> dpc() const {
+        Y* pPointer = dynamic_cast<Y*>(mPointer);
+        if (pPointer) {
+          ++(*mCount);
+          return CPointer<Y>(pPointer, mCount);
+        } else {
+          return CPointer<Y>();
+        }
+      }
     public:
       template <typename Y> friend class CPointer;
       template <typename Y> friend CPointer<Y> static_pointer_cast(const CPointer<T>& p);
       template <typename Y> friend CPointer<Y> dynamic_pointer_cast(const CPointer<T>& p);
   };
   
-  template <typename Y, typename T> inline CPointer<Y> static_pointer_cast(const CPointer<T>& p) {
-    if (p.mPointer) {
-      ++(*p.mCount);
-      return CPointer<T>(static_cast<Y*>(p.mPointer), p.mCount);
-    } else {
-      return CPointer<Y>();
-    }
-  }
+  template <typename Y, typename T> inline CPointer<Y> static_pointer_cast(const CPointer<T>& p) { return p.template spc<Y>(); }
   
-  template <typename Y, typename T> inline CPointer<Y> dynamic_pointer_cast(const CPointer<T>& p) {
-    Y* pPointer = dynamic_cast<Y*>(p.mPointer);
-    if (pPointer) {
-      ++(*p.mCount);
-      return CPointer<T>(pPointer, p.mCount);
-    } else {
-      return CPointer<Y>();
-    }
-  }
+  template <typename Y, typename T> inline CPointer<Y> dynamic_pointer_cast(const CPointer<T>& p) { return p.template dpc<Y>(); }
 }
 
 #endif //__cpointer_hpp__

@@ -1765,14 +1765,14 @@ bool glCheckError(const GLchar* func, const GLchar* file, GLushort line) {
   GLshort cnt = 0;
   while (GLenum err = ::glGetError()) {
     cnt++;
-    std::string enm;
+    std::string out;
     switch (err) {
-      case GL_INVALID_ENUM     : enm = "GL_INVALID_ENUM";      break; 
-      case GL_INVALID_VALUE    : enm = "GL_INVALID_VALUE";     break; 
-      case GL_INVALID_OPERATION: enm = "GL_INVALID_OPERATION"; break; 
-      case GL_OUT_OF_MEMORY    : enm = "GL_OUT_OF_MEMORY";     break; 
+      case GL_INVALID_ENUM     : out.assign("GL_INVALID_ENUM");      break; 
+      case GL_INVALID_VALUE    : out.assign("GL_INVALID_VALUE");     break; 
+      case GL_INVALID_OPERATION: out.assign("GL_INVALID_OPERATION"); break; 
+      case GL_OUT_OF_MEMORY    : out.assign("GL_OUT_OF_MEMORY");     break; 
     } 
-    std::cerr << enm << " on " << func << " in " << file << ":" << line << std::endl; 
+    std::cerr << out << " on " << func << " in " << file << ":" << line << std::endl; 
   }
   return cnt == 0;
 }

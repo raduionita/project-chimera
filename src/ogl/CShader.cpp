@@ -166,6 +166,8 @@ namespace ogl {
     if (loc != GL_NOT_FOUND) {
       tex->bind();
       GLCALL(::glUniform1ui(loc, (GLuint)(*(tex.ptr()))));
+    } else {
+      log::wrn << "ogl::CShader::sampler(CString&,PTexture&)::" << this << " Uniform NOT found!" << log::end;
     }
     // @todo: there should be a warn here if not found
   } 

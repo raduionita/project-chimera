@@ -62,7 +62,7 @@ namespace app {
   //ogl::PShader       shd {ogl::CShaderManager::load("name")}
     ogl::CShader       shd {"../../res/shaders/simple/color.csl"};
     
-    ogl::PTexture      tex {ogl::CTextureLoader::load("../../res/textures/monster.dds")};
+    ogl::PTexture      tex {ogl::CTextureManager::load(sys::CFile("../../res/textures/monster.dds"))};
   //ogl::PTexture      tex {ogl::CTextureBuilder::make(ogl::CNoise{1,2,3})};
     
     vao.bind(false);
@@ -78,7 +78,7 @@ namespace app {
       log::nfo << "app::CApplication::exec()::" << this << " LOOP" << log::end;
   
       shd.bind(true);
-      shd.sampler("u_sTexture", tex);
+      // shd.sampler("u_sTexture", tex);
       shd.uniform("u_vColor", glm::loop(r,0.05f,0.f,1.f),0.7f,0.2f,1.0f);
       
       vao.bind(true);

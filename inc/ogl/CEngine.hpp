@@ -14,19 +14,16 @@ namespace ogl {
       // CAudioSystem*
       // CInputSystem*
       
-      CTextureManager* mTextureManager {nullptr};
+      ogl::PTextureManager mTextureManager;
     public:
       CEngine();
       ~CEngine();
     protected:
       virtual void init();
       virtual void free();
-      template <typename T> T*                  load() { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
-      template <> virtual ogl::CTextureManager* load<ogl::CTextureManager>();
     public:
-      template <typename T> T*                  load(T*) { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
-      template <> virtual ogl::CTextureManager* load<ogl::CTextureManager>(ogl::CTextureManager*);
-      // @todo: connects(and befriends) all *System(s)
+      virtual inline ogl::PTextureManager load(ogl::PTextureManager pManager) { mTextureManager = pManager; return mTextureManager; }
+// @todo: connects(and befriends) all *System(s)
   };
 }
 

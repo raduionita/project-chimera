@@ -56,7 +56,7 @@ namespace ogl {
       CResourceLoader() = default;
       virtual ~CResourceLoader() = default;
     public:
-      virtual inline bool able(const std::any&) const = 0;
+      virtual inline sys::CString type() const = 0;
   };
   
   class CResourceBuilder {
@@ -64,7 +64,7 @@ namespace ogl {
       CResourceBuilder() = default;
       virtual ~CResourceBuilder() = default;
     public:
-      virtual inline sys::CString type() const = 0;
+      virtual inline sys::CString type() const { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); };
   };
   
   class CResourceManager {
@@ -77,11 +77,11 @@ namespace ogl {
       CResourceManager();
       virtual ~CResourceManager();
     public:
-      template <typename T, class = typename std::enable_if<std::is_base_of<ogl::CResourceBuilder,T>::value>::type> const T* builder(T* pBuilder) {
+      template <typename T, class = typename std::enable_if<std::is_base_of<ogl::CResourceBuilder,T>::value>::type> const PResourceBuilder builder(T* pBuilder) {
         // move loader to list of loaders
         mBuilders.push_back(pBuilder);
         // return inserted
-        return mBuilders.back().ptr();
+        return mBuilders.back();
       }
       inline sys::CVector<PResourceBuilder>::value_type builder(const sys::CString& type) { 
         for (auto& pBuilder : mBuilders) {

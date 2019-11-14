@@ -8,12 +8,16 @@
 #include "sys/CSingleton.hpp"
 #include "sys/CException.hpp"
 
+#include <type_traits>
+
 namespace ogl {
   class CTexture;             typedef sys::CPointer<CTexture>            PTexture; 
   class CTextureManager;      typedef sys::CPointer<CTextureManager>     PTextureManager;
   class CTextureLoader;       typedef sys::CPointer<CTextureLoader>      PTextureLoader;
   class CTextureStream;       typedef sys::CPointer<CTextureStream>      PTextureStream;
+  template <typename T> class CTextureBuilder; template <typename T> using PTextureBuilder = sys::CPointer<CTextureBuilder<T>>;
   class CFileTextureBuilder;  typedef sys::CPointer<CFileTextureBuilder> PFileTextureBuilder;
+  class CDataTextureBuilder;  typedef sys::CPointer<CDataTextureBuilder> PDataTextureBuilder;
   
   class CTexture : public CResource, public CObject { // or should this be CBuffer since it holds data/memory
     public:
@@ -63,17 +67,17 @@ namespace ogl {
       GLvoid         sampler(CShader*);
       virtual void   load(PTextureStream) final;
     public: // get/set-ers
-      GLvoid        filtering(EFiltering eFiltering);
-      EFiltering    filtering() const;
+      GLvoid        filtering(EFiltering eFiltering) { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
+      EFiltering    filtering() const { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
       inline GLenum target() const { return mTarget; }
       inline void   type(EType eType) { mType = eType; mTarget = (eType == EType::CUBEMAP ? GL_TEXTURE_CUBE_MAP : (eType == EType::VOLUME ? GL_TEXTURE_3D : mTarget)); }
       inline EType  type() const { return mType; }
       inline void   format(GLenum format) { mFormat = format; }
       inline GLenum format() const { return mFormat; }
-      inline void   width(GLsizei w)  { mWidth  = w; }
-      inline void   height(GLsizei h) { mHeight = h; }
-      inline void   depth(GLsizei d)  { mDepth  = d; }
-      inline void   mipmaps(GLcount m)  { mMipmaps = m == 0 ? 1 : m; }
+      inline void   width(GLsizei w)   { mWidth  = w; }
+      inline void   height(GLsizei h)  { mHeight = h; }
+      inline void   depth(GLsizei d)   { mDepth  = d; }
+      inline void   mipmaps(GLcount m) { mMipmaps = m == 0 ? 1 : m; }
   };
   
   class CTextureStream : public CResourceStream {
@@ -98,38 +102,46 @@ namespace ogl {
   class CTextureLoader : public CResourceLoader {
       using ogl::CResourceLoader::CResourceLoader;
     public:
-      static PTextureStream load(const sys::CString& file);
+      virtual inline sys::CString type() const { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
     public:
-      virtual PTextureStream from(const sys::CString& file) { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
+      virtual PTextureStream from(const sys::CFile& file) { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
   };
   
   template <typename T> class CTextureBuilder : public CResourceBuilder {
       using CResourceBuilder::CResourceBuilder;
     public:
-      virtual PTextureStream from(const T& file) = 0;
+      virtual PTexture from(const T&) { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); };
   };
   
   class CTextureManager : public CResourceManager, public sys::CSingleton<CTextureManager> {
     public:
       CTextureManager();
       ~CTextureManager();
+    protected:
+      template <typename T> inline PTextureBuilder<T> cast(PResourceBuilder pBuilder) {
+        log::nfo << "ogl::CTextureManager::cast<"<< typeid(T).name() <<">(PResourceBuilder)::" << this << log::end;
+        static auto pUsing = sys::dynamic_pointer_cast<CTextureBuilder<T>>(pBuilder);
+        return pUsing;
+      } 
     public:
-      static PTexture load(const sys::CString& name);
-      
       template <typename T> static PTexture load(const T& that, const sys::CString& name = "") {
         static PTextureManager& self = CTextureManager::instance();
-        log::nfo << "ogl::CTextureManager::load(T&,sys::CString&)::" << self << " NAME:" << name << log::end;
+        log::nfo << "ogl::CTextureManager::load(T&,sys::CString&)::" << self.ptr() << " NAME:" << name << log::end;
 // @todo: search for texture in cache
-        CTextureBuilder<T> pUsing {nullptr};
-        for (auto& pBuilder : self->builders()) {
-          if ((pUsing = sys::dynamic_pointer_cast<CTextureBuilder<T>>(pBuilder))) {
-            pUsing->from(that);
-            
+        PTextureBuilder<T> pUsing;
+        
+// @bug: reverse the cast //  
+        
+        for (auto pBuilder : self->builders()) { // sys::CVector<PResourceBuilder>
+          if ((pUsing = self->cast<T>(pBuilder))) {         // PResourceBuilder
 // @todo: put texture in cache
+            return pUsing->from(that);
           }
         }
 // @todo: return null texture (stream) from cache if can't build texture
+        return nullptr;
       }
+      static inline PTexture load(const sys::CString& file, const sys::CString& name) { return load(sys::CFile(file), name); }
   };
   
   class CFileTextureBuilder : public CTextureBuilder<sys::CFile> {
@@ -141,15 +153,15 @@ namespace ogl {
     public: // type
       virtual inline sys::CString type() const override { return "file"; }
     public: // loaders
-      template <typename T, class = typename std::enable_if<std::is_base_of<ogl::CTextureLoader,T>::value>::type> const T* loader(T* pLoader) {
+      template <typename T, class = typename std::enable_if<std::is_base_of<ogl::CTextureLoader,T>::value>::type> const PTextureLoader loader(T* pLoader) {
         // move loader to list of loaders
         mLoaders.push_back(pLoader);
         // return inserted
-        return mLoaders.back().ptr();
+        return mLoaders.back();
       }
       inline sys::CVector<PTextureLoader>::value_type loader(const sys::CString& name) { 
         for (auto& pLoader : mLoaders) {
-          if (pLoader->able(name)) {
+          if (name.find_last_of('.'+pLoader->type()) != sys::CString::npos) {
             return pLoader;
           }
         }
@@ -157,35 +169,29 @@ namespace ogl {
       }
       inline const sys::CVector<PTextureLoader>& loaders() const { return mLoaders; }
     public: // build
-      PTextureStream from(const sys::CFile& file);
+      PTexture from(const sys::CFile& file) override;
+  };
+  
+  class CDataTextureBuilder : public CTextureBuilder<float> {
+      using CTextureBuilder::CTextureBuilder;
+    public: // type
+      virtual inline sys::CString type() const override { return "data"; }
+    public:
+      PTexture from(const float& data) override { return nullptr; }
   };
   
   class CDDSTextureLoader : public CTextureLoader {
       using ogl::CTextureLoader::CTextureLoader;
     public:
-      virtual inline bool    able(const std::any& that) const {
-        try {
-          auto file = std::any_cast<std::string>(that);
-          return 0 == file.substr(file.find_first_of(".")+1).compare("dds");
-        } catch (const std::bad_any_cast& e) {
-          throw sys::CException(e.what(), __FILE__, __LINE__);
-        }
-      }
-      virtual PTextureStream from(const sys::CString& file);
+      virtual inline sys::CString type() const override { return "dds"; }
+      virtual PTextureStream      from(const sys::CFile& file) override;
   };
   
   class CTGATextureLoader : public CTextureLoader {
       using ogl::CTextureLoader::CTextureLoader;
     public:
-      virtual inline bool    able(const std::any& that) const {
-        try {
-          auto file = std::any_cast<std::string>(that);
-          return 0 == file.substr(file.find_first_of(".")+1).compare("tga");
-        } catch (const std::bad_any_cast& e) {
-          throw sys::CException(e.what(), __FILE__, __LINE__);
-        }
-      }
-      virtual PTextureStream load(const sys::CString& file) { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
+      virtual inline sys::CString type() const override { return "tga"; }
+      virtual PTextureStream      from(const sys::CFile& file) override { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
   };
 }
 
