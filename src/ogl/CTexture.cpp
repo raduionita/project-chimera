@@ -10,7 +10,7 @@ namespace ogl {
     // mMipmaps = 1 + glm::floor(glm::log2(glm::max(glm::max(mWidth,mHeight),mDepth)));
   }
   
-  CTexture::CTexture(PTextureStream stream) {
+  CTexture::CTexture(PTextureLoader stream) {
     load(stream);
   }
   
@@ -30,7 +30,7 @@ namespace ogl {
     GLCALL(::glBindTexture(mTarget, 0));
   }
   
-  void CTexture::load(PTextureStream) {
+  void CTexture::load(PTextureLoader) {
     log::nfo << "ogl::CTexture::load(PTextureStream)::" << this << log::end;
 // @todo: create the texture
   }
@@ -56,43 +56,28 @@ namespace ogl {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  CFileTextureBuilder::CFileTextureBuilder() {
-    loader(new CTGATextureLoader);
-    loader(new CDDSTextureLoader);
-  }
-  
-  PTexture CFileTextureBuilder::from(const sys::CFile& file) {
-    log::nfo << "ogl::CFileTextureBuilder::from(sys::CFile&)::" << this << " FILE:" << file.path() << log::end;
-
-    for (auto& pLoader : mLoaders) {
-      if (pLoader->type().compare(file.extension()) == 0) {
-        return new CTexture {pLoader->from(file)};
-      }
-    }
-    
-    throw CException("Missing CTextureLoader!", __FILE__, __LINE__);
-  }
-  
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
   CTextureManager::CTextureManager() { 
-    builder(new CDataTextureBuilder);
-    builder(new CFileTextureBuilder);
+    // ...
   }
   
   CTextureManager::~CTextureManager() { }
   
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
-  PTextureStream CDDSTextureLoader::from(const sys::CFile& file) {
-    log::nfo << "ogl::CDDSTextureLoader::from(sys::CFile&)::" << this << " FILE:" << file << log::end;
-    // @todo: open file
-    
-    CTextureStream* pStream {new CTextureStream};
-    
-    
-    
-    
-    return pStream;
+  PTexture CTextureManager::load(const sys::CFile& file) {
+    return sys::static_pointer_cast<CTexture>(ogl::CResourceManager::load(file));
   }
+  
+  PTexture CTextureManager::load(PTextureLoader loader/*=nullptr*/) {
+    // load w/ loader
+    // load w/ file = name
+    // find name OR null tex
+    if (loader) {  // custom loader 
+      
+      return nullptr;
+    } else {       // default loader // from file = name
+  
+      return nullptr;
+    }
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }

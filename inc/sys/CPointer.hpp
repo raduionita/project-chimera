@@ -6,7 +6,8 @@
 namespace sys {
   template <typename T> class CPointer {
     public:
-      typedef T* ptr_type;
+      typedef T  object_type;
+      typedef T* pointer_type;
     protected:
       // the payload
       T*        mPointer;

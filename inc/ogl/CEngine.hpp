@@ -3,6 +3,7 @@
 
 #include "ogl/ogl.hpp"
 #include "ogl/CTexture.hpp"
+#include "ogl/CModel.hpp"
 
 #include "sys/CSingleton.hpp"
 #include "sys/CException.hpp"

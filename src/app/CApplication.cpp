@@ -19,7 +19,7 @@
 namespace app {
   int CApplication::exec() {
     log::nfo << "app::CApplication::exec()::" << this << log::end;
-    
+  
     init();
     
     // mEngine->textureManager()->loader(new CDdsLoader);
@@ -54,16 +54,9 @@ namespace app {
     vao.buffer(vbo, vlo);
     ogl::CIndexBuffer   ibo {indices, 6};
   
-  //ogl::PModel        mdl {ogl::CModelManager::load(new CModelStream{vertices,indices}, "name")};
-  //ogl::PModel        mdl {ogl::CModelManager::load("/path/to/model.3ds")};
-  //ogl::PModel        mdl {ogl::CModelBuilder::make(ogl::SSphere{30})
-  //ogl::CModelManager::save(mdl, "sphere")
-    
-  //ogl::PShader       shd {ogl::CShaderManager::load("name")}
     ogl::CShader       shd {"../../res/shaders/simple/color.csl"};
     
-    ogl::PTexture      tex {ogl::CTextureManager::load(sys::CFile("../../res/textures/monster.dds"))};
-  //ogl::PTexture      tex {ogl::CTextureBuilder::make(ogl::CNoise{1,2,3})};
+    ogl::PTexture tex {ogl::CTextureManager::load(sys::CFile("../../res/textures/monster.dds"))};
     
     vao.bind(false);
     shd.bind(false);

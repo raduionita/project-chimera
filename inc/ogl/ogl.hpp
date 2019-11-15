@@ -56,9 +56,7 @@ namespace ogl {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   typedef sys::CPointer<CResource>       PResource;
-  typedef sys::CPointer<CResourceStream> PResourceStream;
   typedef sys::CPointer<CTexture>        PTexture; 
-  typedef sys::CPointer<CTextureStream>  PTextureStream;
   typedef sys::CPointer<CMaterial>       PMaterial;
   typedef sys::CPointer<CShader>         PShader;  
   typedef sys::CPointer<CModel>          PModel;   
