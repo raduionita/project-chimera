@@ -1,3 +1,4 @@
+#include <type_traits>
 #include "ogl/CTexture.hpp"
 #include "ogl/CShader.hpp"
 #include "ogl/CException.hpp"
@@ -10,7 +11,7 @@ namespace ogl {
     // mMipmaps = 1 + glm::floor(glm::log2(glm::max(glm::max(mWidth,mHeight),mDepth)));
   }
   
-  CTexture::CTexture(PTextureLoader stream) {
+  CTexture::CTexture(PTextureStream stream) {
     load(stream);
   }
   
@@ -30,7 +31,7 @@ namespace ogl {
     GLCALL(::glBindTexture(mTarget, 0));
   }
   
-  void CTexture::load(PTextureLoader) {
+  void CTexture::load(PTextureStream) {
     log::nfo << "ogl::CTexture::load(PTextureStream)::" << this << log::end;
 // @todo: create the texture
   }
@@ -56,27 +57,20 @@ namespace ogl {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  CTextureManager::CTextureManager() { 
-    // ...
-  }
+  CTextureManager::CTextureManager() { }
   
   CTextureManager::~CTextureManager() { }
   
-  PTexture CTextureManager::load(const sys::CFile& file) {
-    return sys::static_pointer_cast<CTexture>(ogl::CResourceManager::load(file));
-  }
-  
-  PTexture CTextureManager::load(PTextureLoader loader/*=nullptr*/) {
-    // load w/ loader
-    // load w/ file = name
-    // find name OR null tex
-    if (loader) {  // custom loader 
-      
-      return nullptr;
-    } else {       // default loader // from file = name
-  
-      return nullptr;
-    }
+  PTexture CTextureManager::load(const sys::CFile& file, const sys::CString& name/*=""*/) {
+    log::nfo << "ogl::CTextureManager::load(sys::CString&, sys::CFile&)::" << this << " FILE:" << file << " NAME:" << name << log::end;
+    PTexture pTexture;
+// @todo: search cache
+
+    // use file loader
+
+
+// @todo: update cache
+    return pTexture;
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

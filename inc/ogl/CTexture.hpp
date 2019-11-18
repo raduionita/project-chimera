@@ -12,11 +12,11 @@
 namespace ogl {
   class CTexture;        typedef sys::CPointer<CTexture>        PTexture; 
   class CTextureManager; typedef sys::CPointer<CTextureManager> PTextureManager;
-  class CTextureLoader;  typedef sys::CPointer<CTextureLoader>  PTextureLoader;
+  class CTextureStream;  typedef sys::CPointer<CTextureStream>  PTextureStream;
   
   class CTexture : public ogl::CResource, public CObject { // or should this be CBuffer since it holds data/memory
       friend class CTextureManager;
-      friend class CTextureLoader;
+      friend class CTextureStream;
     public:
       enum class EFiltering : GLbitfield {
         NONE            = 0b00000000'00000000, // 0
@@ -54,7 +54,7 @@ namespace ogl {
       GLcount mMipmaps  {1};
     public:
       CTexture();
-      CTexture(PTextureLoader);
+      CTexture(PTextureStream);
       CTexture(GLenum target);
       CTexture(EType type);
       ~CTexture();
@@ -62,7 +62,7 @@ namespace ogl {
       virtual GLvoid bind(bool=true) const override;
               GLvoid bind(GLuint);
       GLvoid         sampler(CShader*);
-      virtual void   load(PTextureLoader) final;
+      virtual void   load(PTextureStream) final;
     public: // get/set-ers
       GLvoid        filtering(EFiltering eFiltering) { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
       EFiltering    filtering() const { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
@@ -77,18 +77,7 @@ namespace ogl {
       inline void   mipmaps(GLcount m) { mMipmaps = m == 0 ? 1 : m; }
   };
   
-  class CTextureManager : public ogl::CResourceManager, public sys::CSingleton<CTextureManager> {
-      friend class CTexture;
-      friend class CTextureLoader;
-    public:
-      CTextureManager();
-      ~CTextureManager();
-    public:
-      static PTexture load(const sys::CFile& file);
-      static PTexture load(PTextureLoader loader = nullptr);
-  };
-  
-  class CTextureLoader : public CResourceLoader {
+  class CTextureStream : public CResourceStream {
       friend class CTexture;
       friend class CTextureManager;
     protected:
@@ -104,23 +93,21 @@ namespace ogl {
       ubyte* mStart;
       ubyte* mCursor;
       ubyte* mLast;
-    private:
-      typedef std::function<PTextureLoader(std::any)> TBuilder;
-      static std::vector<TBuilder> sBuilders;
     public:
-      template <typename T> static void builder(std::function<PTextureLoader(T&)>&) {
-        
-      }
-      
-      template <typename T> static void builder(PTextureLoader(*fBuilder)(T&)) {
-        sBuilders.push_back([fBuilder](std::any a)->ogl::PTextureLoader {
-          fBuilder(std::any_cast<T&>(a));
-        });  
-      }
+      inline PTexture load()                   { PTexture pTexture = new CTexture; pTexture->load(this); return pTexture; }
+      inline PTexture load(PTexture pTexture)  { if (!pTexture) pTexture = new CTexture; pTexture->load(this); return pTexture; }
+      inline PTexture load(CTexture* pTexture) { pTexture->load(this); return pTexture; }
+  };
+  
+  class CTextureManager : public ogl::CResourceManager, public sys::CSingleton<CTextureManager> {
+      friend class CTexture;
+      friend class CTextureStream;
     public:
-      template <typename T> static PTextureLoader from(const T& info) {
-        return nullptr;
-      }
+      CTextureManager();
+      ~CTextureManager();
+    public:
+      PTexture load(const sys::CFile& file, const sys::CString& name = "");
+      PTexture find(const sys::CString& name) const { throw sys::CException("NOT IMPLEMENTED",__FILE__,__LINE__); }
   };
 }
 

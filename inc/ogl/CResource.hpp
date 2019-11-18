@@ -13,32 +13,31 @@
 namespace ogl {
   class CResource;        typedef sys::CPointer<CResource>        PResource;
   class CResourceManager; typedef sys::CPointer<CResourceManager> PResourceManager;
-  class CResourceLoader;  typedef sys::CPointer<CResourceLoader>  PResourceLoader;
+  class CResourceStream;  typedef sys::CPointer<CResourceStream>  PResourceStream;
   
   class CResource { // loadable entity/file/object
-      friend class CResourceLoader;
+      friend class CResourceStream;
       friend class CResourceManager;
     public:
       CResource() = default;
       virtual ~CResource() = default;
   };
   
-  class CResourceLoader {
+  class CResourceStream {
       friend class CResource;
       friend class CResourceManager;
     public:
-      CResourceLoader() = default;
-      virtual ~CResourceLoader() = default;
+      CResourceStream() = default;
+      virtual ~CResourceStream() = default;
   };
   
   class CResourceManager {
       friend class CResource;
-      friend class CResourceLoader;
+      friend class CResourceStream;
     public:
       CResourceManager() = default;
       virtual ~CResourceManager() = default;
     public:
-      static PResource load(const sys::CFile& file) { return nullptr; } 
   };
 }
 

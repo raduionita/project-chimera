@@ -45,7 +45,7 @@ namespace ogl {
       void  sampler(const CString& name, const PTexture&);
   };
   
-  class CShaderLoader : public CResourceLoader {
+  class CShaderLoader : public CResourceStream {
     public:
   };
       

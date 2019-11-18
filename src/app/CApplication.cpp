@@ -56,7 +56,9 @@ namespace app {
   
     ogl::CShader       shd {"../../res/shaders/simple/color.csl"};
     
-    ogl::PTexture tex {ogl::CTextureManager::load(sys::CFile("../../res/textures/monster.dds"))};
+    ogl::PTextureManager man {ogl::CTextureManager::instance()};
+    ogl::PTexture        tx1 {man->load(sys::CFile("../../res/textures/monster.dds"), "monster")};
+    //ogl::PTexture tx2 {ogl::CTextureManager::load({1.0f, 0.5f, 1.0f})};
     
     vao.bind(false);
     shd.bind(false);
