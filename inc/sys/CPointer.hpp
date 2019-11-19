@@ -3,11 +3,18 @@
 
 #include "sys.hpp"
 
+#include <type_traits>
+
 namespace sys {
-  template <typename T> class CPointer {
+  class BPointer {
     public:
-      typedef T  object_type;
-      typedef T* pointer_type;
+      BPointer() = default;
+      virtual ~BPointer() = default;
+  };
+  
+  template <typename T> class CPointer : public BPointer {
+    public:
+      typedef T  type;
     protected:
       // the payload
       T*        mPointer;

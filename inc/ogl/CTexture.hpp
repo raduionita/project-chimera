@@ -13,10 +13,12 @@ namespace ogl {
   class CTexture;        typedef sys::CPointer<CTexture>        PTexture; 
   class CTextureManager; typedef sys::CPointer<CTextureManager> PTextureManager;
   class CTextureStream;  typedef sys::CPointer<CTextureStream>  PTextureStream;
+  class CTextureReader;  typedef sys::CPointer<CTextureReader>  PTextureReader;
   
   class CTexture : public ogl::CResource, public CObject { // or should this be CBuffer since it holds data/memory
-      friend class CTextureManager;
       friend class CTextureStream;
+      friend class CTextureManager;
+      friend class CTextureReader;
     public:
       enum class EFiltering : GLbitfield {
         NONE            = 0b00000000'00000000, // 0
@@ -59,10 +61,12 @@ namespace ogl {
       CTexture(EType type);
       ~CTexture();
     public: // actions
-      virtual GLvoid bind(bool=true) const override;
-              GLvoid bind(GLuint);
-      GLvoid         sampler(CShader*);
-      virtual void   load(PTextureStream) final;
+      virtual GLvoid   bind(bool=true) const override;
+              GLvoid   bind(GLuint);
+      GLvoid           sampler(CShader*);
+      virtual void     load(PTextureStream) final;
+    public:
+      static  PTexture from(PTextureStream pStream) { return new CTexture(pStream); }
     public: // get/set-ers
       GLvoid        filtering(EFiltering eFiltering) { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
       EFiltering    filtering() const { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
@@ -80,6 +84,7 @@ namespace ogl {
   class CTextureStream : public CResourceStream {
       friend class CTexture;
       friend class CTextureManager;
+      friend class CTextureReader;
     protected:
       // meta
       uint   mWidth;
@@ -102,12 +107,34 @@ namespace ogl {
   class CTextureManager : public ogl::CResourceManager, public sys::CSingleton<CTextureManager> {
       friend class CTexture;
       friend class CTextureStream;
+      friend class CTextureReader;
     public:
       CTextureManager();
       ~CTextureManager();
     public:
-      PTexture load(const sys::CFile& file, const sys::CString& name = "");
-      PTexture find(const sys::CString& name) const { throw sys::CException("NOT IMPLEMENTED",__FILE__,__LINE__); }
+      PTexture load(PTextureStream, const sys::CString& = "") const { throw sys::CException("NOT IMPLEMENTED",__FILE__,__LINE__); }
+      PTexture load(const sys::CFile& file, const sys::CString& = "");
+      PTexture find(const sys::CString&) const { throw sys::CException("NOT IMPLEMENTED",__FILE__,__LINE__); }
+      void     save(PTexture pTexture) { ogl::CResourceManager::save(pTexture); } 
+  };
+  
+  class CTextureReader : public CResourceReader {
+      friend class CTexture;
+      friend class CTextureStream;
+      friend class CTextureManager;
+    public:
+      virtual PTextureStream read(const sys::CFile&) { throw sys::CException("NOT IMPLEMENTED",__FILE__,__LINE__); };
+  };
+  
+  class CDdsTextureReader : public CTextureReader {
+    public:
+      virtual inline const char*    type() const { return "dds"; }
+      virtual PTextureStream read(const sys::CFile&) override;
+  }; 
+  
+  class CTgaTextureReader : public CTextureReader {
+    public:
+      virtual PTextureStream read(const sys::CFile&) override { throw sys::CException("NOT IMPLEMENTED",__FILE__,__LINE__); }
   };
 }
 

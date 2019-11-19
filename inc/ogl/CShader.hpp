@@ -31,7 +31,7 @@ namespace ogl {
     protected:
       GLint                                  mType {0};
       std::string                            mFilepath;
-      std::unordered_map<std::string, GLint> mUniforms;
+      std::unordered_map<sys::CString, GLint> mUniforms;
     public:
       CShader(const std::string&);
       ~CShader();
