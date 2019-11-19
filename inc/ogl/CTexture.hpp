@@ -127,9 +127,66 @@ namespace ogl {
   };
   
   class CDdsTextureReader : public CTextureReader {
+      enum {
+        DDS_CAPS        = 0x00000001,
+        DDS_HEIGHT      = 0x00000002,
+        DDS_WIDTH       = 0x00000004,
+        DDS_PITCH       = 0x00000008,
+        DDS_PIXELFORMAT = 0x00001000,
+        DDS_MIPMAPCOUNT = 0x00020000,
+        DDS_LINEARSIZE  = 0x00080000,
+        DDS_DEPTH       = 0x00800000,
+        // pixel format flags
+        DDS_ALPHAPIXELS = 0x00000001,
+        DDS_FOURCC      = 0x00000004,
+        DDS_RGB         = 0x00000040,
+        DDS_RGBA        = 0x00000041,
+        // caps1 flags
+        DDS_COMPLEX     = 0x00000008,
+        DDS_TEXTURE     = 0x00001000,
+        DDS_MIPMAP      = 0x00400000,
+        // caps2 flags
+        DDS_CUBEMAP           = 0x00000200,
+        DDS_CUBEMAP_POSITIVEX = 0x00000400,
+        DDS_CUBEMAP_NEGATIVEX = 0x00000800,
+        DDS_CUBEMAP_POSITIVEY = 0x00001000,
+        DDS_CUBEMAP_NEGATIVEY = 0x00002000,
+        DDS_CUBEMAP_POSITIVEZ = 0x00004000,
+        DDS_CUBEMAP_NEGATIVEZ = 0x00008000,
+        DDS_CUBEMAP_ALL_FACES = 0x0000FC00,
+        DDS_VOLUME            = 0x00200000,
+        //
+        DDS_FOURCC_DTX1 = 0x31545844, // = DTX1(in ASCII)
+        DDS_FOURCC_DTX3 = 0x33545844, // = DTX3(in ASCII)
+        DDS_FOURCC_DTX5 = 0x35545844, // = DTX5(in ASCII)
+      };
+      struct SFormat {
+        uint    size;
+        uint    flags;
+        uint    fourcc;
+        uint    bpp;
+        uint    rbitmask;
+        uint    gbitmask;
+        uint    bbitmask;
+        uint    abitmask;
+      };
+      struct Sheader {
+        uint    flags;
+        uint    size;
+        uint    height;
+        uint    width;
+        uint    linearsize;
+        uint    depth;          // only if DDS_HEADER_FLAGS_VOLUME is in header_t::flags
+        uint    mipmapcount;
+        uint    _reserved1[11];
+        SFormat format; 
+        uint    caps1;
+        uint    caps2;
+        uint    _reserved2[3];
+      };
     public:
-      virtual inline const char*    type() const { return "dds"; }
-      virtual PTextureStream read(const sys::CFile&) override;
+      virtual inline const char* type() const override { return "dds"; }
+      virtual PTextureStream     read(const sys::CFile&) override;
   }; 
   
   class CTgaTextureReader : public CTextureReader {

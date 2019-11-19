@@ -94,6 +94,17 @@ namespace ogl {
   
   PTextureStream CDdsTextureReader::read(const sys::CFile& file) {
     log::nfo << "ogl::CDdsTextureReader::read(CFile&)::" << this << " FILE:" << file << log::end;
+    
+    sys::throw_if(!file.open(), "Cannot open file!"); // + file.path());
+    
+    char ftype[4];
+    file.read(ftype, 4);
+    if (::strcmp(ftype, "DDS ", 4) != 0) {
+// @todo: warn
+// @todo: return empty stream
+    }
+    
+    
     PTextureStream pStream {new CTextureStream};
     
     
