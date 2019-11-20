@@ -37,7 +37,7 @@ namespace sys {
       explicit inline operator CString()             { return mFilepath; }
       explicit inline operator const CString() const { return mFilepath; }
     public:
-      inline void            read(char* data, std::streamsize len) const { mStream->read(data, len); }
+             void            read(byte* data, std::streamsize len) const;
       inline bool            good() const { return mStream ? mStream->good() : false; }
       inline bool            fail() const { return !good(); }
       inline std::streamsize size()      const { return mStream ? mStream->gcount() : 0; }

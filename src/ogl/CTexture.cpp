@@ -94,31 +94,86 @@ namespace ogl {
   
   PTextureStream CDdsTextureReader::read(const sys::CFile& file) {
     log::nfo << "ogl::CDdsTextureReader::read(CFile&)::" << this << " FILE:" << file << log::end;
+    PTextureStream stream {new CTextureStream};
     
     sys::throw_if(!file.open(), "Cannot open file!"); // + file.path());
     
     char ftype[4];
     file.read(ftype, 4);
-    if (::strncmp(ftype, "DDS ", 4) != 0) {
-// @todo: warn
-// @todo: return empty stream
+    sys::throw_if(::strncmp(ftype, "DDS ", 4) != 0, "File not of .DDS format!");
+    
+    SHeader head;
+    file.read((byte*)(&head), sizeof(head));
+    
+    if(head.caps2 & DDS_CUBEMAP) {
+      stream->set(CTexture::EFlag::CUBEMAP);
+    } else if((head.caps2 & DDS_VOLUME) && (head.depth > 0)) {
+      stream->mMeta.flags |= CTexture::EFlag::VOLUME;
+    } else {
+      stream->set(CTexture::EFlag::PLANEMAP);
     }
     
-    Sheader head;
-    file.read((char*)(&head), sizeof(head));
+    uint faces    = stream->add(CTexture::EFlag::CUBEMAP) ? 6 : 1;
+    uint channels = head.format.fourcc == DDS_FOURCC || head.format.bpp == 24 ? 3 : 4;
     
-    CTexture::EType type = CTexture::EType::FLATMAP;
-    if(head.caps2 & DDS_CUBEMAP)
-      type = CTexture::EType::CUBEMAP;
-    if((head.caps2 & DDS_VOLUME) && (head.depth > 0))
-      type = CTexture::EType::VOLUME;
+    if (head.format.flags & DDS_FOURCC) {
+      switch (head.format.fourcc) {
+        case DDS_FOURCC_DTX1:
+          stream->set(CTexture::EFlag::RGBA_S3TC_DXT1);
+        case DDS_FOURCC_DTX3:
+          stream->set(CTexture::EFlag::RGBA_S3TC_DXT3);
+        case DDS_FOURCC_DTX5:
+          stream->add(CTexture::EFlag::RGBA_S3TC_DXT5);
+      }
+      stream->add(CTexture::EFlag::COMPRESSED);
+    } else if(head.format.flags == DDS_RGBA && head.format.bpp == 32) {
+      stream->add(CTexture::EFlag::RGBA);
+    } else if(head.format.flags == DDS_RGB && head.format.bpp == 32) {
+      stream->add(CTexture::EFlag::RGBA);
+    } else if(head.format.flags == DDS_RGB && head.format.bpp == 24) {
+      stream->add(CTexture::EFlag::RGB);
+    } else if(head.format.bpp == 8) {
+      stream->add(CTexture::EFlag::LUMINANCE);
+    } else {
+      sys::throw_if(true, "Pixel format not supported!");
+    }
     
-    uint   components = head.format.fourcc == DDS_FOURCC || head.format.bpp == 24 ? 3 : 4;
-    GLenum format     = 0;
-    //GLenum target     = get_target(type);
-    bool   compressed = false;
+    stream->width(head.width);
+    stream->height(clamp2one(head.height));
+    stream->depth(clamp2one(head.depth));
+    stream->mipmaps(clamp2one(head.mipmapcount));
     
-    PTextureStream stream {new CTextureStream};
+    uint size = 0;
+    
+    ubyte* data = stream->data(size);
+    
+    // bind
+    // glPixelStorei
+    
+    uint  width   = 0;
+    uint  height  = 0;
+    uint  depth   = 0;
+    uint& mipmaps = stream->mipmaps;
+    uint& flags   = stream->flags;
+    for(uint i = 0; i < faces; i++) {
+      
+      width  = head.width;
+      height = head.height;
+      depth  = head.depth ? head.depth : 1;
+      
+      for(ushort j = 0; j < mipmaps && (width || height); j++) {
+        
+        uint   bufsize = mapsize(width, height, depth, channels, flags);
+        ubyte* buffer  = new ubyte[bufsize];
+        
+        
+        
+        
+        width  = clamp2one(width  >> 1);
+        height = clamp2one(height >> 1);
+        depth  = clamp2one(depth  >> 1);
+      }
+    }
     
     return stream;
   }
