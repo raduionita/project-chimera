@@ -99,16 +99,27 @@ namespace ogl {
     
     char ftype[4];
     file.read(ftype, 4);
-    if (::strcmp(ftype, "DDS ", 4) != 0) {
+    if (::strncmp(ftype, "DDS ", 4) != 0) {
 // @todo: warn
 // @todo: return empty stream
     }
     
+    Sheader head;
+    file.read((char*)(&head), sizeof(head));
     
-    PTextureStream pStream {new CTextureStream};
+    CTexture::EType type = CTexture::EType::FLATMAP;
+    if(head.caps2 & DDS_CUBEMAP)
+      type = CTexture::EType::CUBEMAP;
+    if((head.caps2 & DDS_VOLUME) && (head.depth > 0))
+      type = CTexture::EType::VOLUME;
     
+    uint   components = head.format.fourcc == DDS_FOURCC || head.format.bpp == 24 ? 3 : 4;
+    GLenum format     = 0;
+    //GLenum target     = get_target(type);
+    bool   compressed = false;
     
+    PTextureStream stream {new CTextureStream};
     
-    return pStream;
+    return stream;
   }
 }

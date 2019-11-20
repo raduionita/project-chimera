@@ -94,6 +94,7 @@ namespace ogl {
       uint   mMipmaps;
       uint   mFlags;
       uint   mFormat;
+      uint   mType;
       // data
       ubyte* mStart;
       ubyte* mCursor;
