@@ -34,6 +34,7 @@ namespace ogl {
         RGBA           = FLAG <<  9,
         RGB            = FLAG << 10,
         LUMINANCE      = FLAG << 11,
+        MIPMAPED       = FLAG << 12,
       };
       enum class EFiltering : GLbitfield {
         NONE            = 0b00000000'00000000, // 0
@@ -59,15 +60,8 @@ namespace ogl {
         NONE            = 0b00000000'00000000, //
         MIPMAPS         = 0b00001000'00000000, //
       };
-      struct SMeta {
-        uint   width;
-        uint   height;
-        uint   depth;
-        uint   mipmaps;
-        uint   flags;
-      };
     protected:
-      GLuint  mSlot     {0};             // move to COGLTexture
+      GLint   mSlot     {0};             // move to COGLTexture
       GLenum  mTarget   {GL_TEXTURE_2D}; // move to COGLTexture
       GLenum  mInternal {GL_NONE};       // move to COGLTexture
       GLenum  mFormat   {GL_NONE};
@@ -76,20 +70,17 @@ namespace ogl {
       GLsizei mHeight   {0};
       GLsizei mDepth    {1};
       GLcount mMipmaps  {1};
-      SMeta   mMeta;
     public:
       CTexture();
       CTexture(PTextureStream);
-      CTexture(GLenum target);
-      CTexture(EType type);
       ~CTexture();
     public: // actions
       virtual GLvoid   bind(bool=true) const override;
-              GLvoid   bind(GLuint);
+              GLvoid   bind(GLint);
       GLvoid           sampler(CShader*);
       virtual void     load(PTextureStream) final;
     public:
-      static  PTexture from(PTextureStream pStream) { return new CTexture(pStream); }
+      // template <typename T> static PTexture from(const T& src) { return manager()->load(src); }
     public: // get/set-ers
       GLvoid        filtering(EFiltering eFiltering) { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
       EFiltering    filtering() const { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
@@ -102,22 +93,42 @@ namespace ogl {
       inline void   height(GLsizei h)  { mHeight = h; }
       inline void   depth(GLsizei d)   { mDepth  = d; }
       inline void   mipmaps(GLcount m) { mMipmaps = m == 0 ? 1 : m; }
+      inline GLint  slot() const { return mSlot; }
   };
   
   class CTextureStream : public sys::CStream {
+      friend class CTexture;
+      friend class CTextureManager;
+      friend class CTextureReader;
     public:
       using sys::CStream::CStream;
-      using SMeta = CTexture::SMeta;
       using EFlag = CTexture::EFlag;
     public:
-      CTexture::SMeta mMeta;
+      struct SInfo {
+        uint flags    {0};
+        uint width    {0};
+        uint height   {0};
+        uint depth    {0};
+        uint mipmaps  {1};
+        uint size     {0};
+        uint bpp     {32};
+      };
+    protected:
+      SInfo mInfo;
     public:
-      inline void set(EFlag flag) { mMeta.flags |= flag; }
-      inline bool add(EFlag flag) { return mMeta.flags & flag; }
-      inline void width(uint w)   { mMeta.width = w; }
-      inline void height(uint h)  { mMeta.height = h; }
-      inline void depth(uint d)   { mMeta.depth = d; }
-      inline void mipmaps(uint m) { mMeta.mipmaps = m; }
+      inline void set(EFlag flag) { mInfo.flags |= flag; }
+      inline bool has(EFlag flag) { return mInfo.flags & flag; }
+      inline void width(uint w)   { mInfo.width = w; }
+      inline void height(uint h)  { mInfo.height = h; }
+      inline void depth(uint d)   { mInfo.depth = d; }
+      inline void mipmaps(uint m) { mInfo.mipmaps = m; }
+    public:
+      inline SInfo info() const         { return mInfo; }
+      inline void  info(const SInfo& i) { mInfo = i; }
+    public:
+      static inline uint clamp2one(uint value) { return value < 1 ? 1 : value; }
+      static inline uint texsize(uint width, uint height, uint depth, uint channels, uint faces, uint mipmaps) { return 0; }
+      static inline uint mapsize(uint width, uint height, uint depth, uint channels, uint flags = 0) { return flags & CTexture::COMPRESSED ? (((width + 3) >> 2) * ((height + 3) >> 2) * depth * (flags & CTexture::RGBA_S3TC_DXT1 ? 8 : 16)) : (width * height * depth * channels); }
   };
   
   class CTextureManager : public ogl::CResourceManager, public sys::CSingleton<CTextureManager> {
@@ -128,10 +139,10 @@ namespace ogl {
       CTextureManager();
       ~CTextureManager();
     public:
-      PTexture load(PTextureStream, const sys::CString& = "") const { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
       PTexture load(const sys::CFile& file, const sys::CString& = "");
+      PTexture load(PTextureStream, const sys::CString& = "");
       PTexture find(const sys::CString&) const { throw sys::CException("NOT IMPLEMENTED",__FILE__,__LINE__); }
-      void     save(PTexture pTexture) { ogl::CResourceManager::save(pTexture); } 
+      PTexture save(PTexture pTexture) { ogl::CResourceManager::save(pTexture); return pTexture; } 
   };
   
   class CTextureReader : public CResourceReader {
@@ -203,10 +214,6 @@ namespace ogl {
     public:
       virtual inline const char* type() const override { return "dds"; }
       virtual PTextureStream     read(const sys::CFile&) override;
-    private:
-      static inline uint clamp2one(uint value) { return value < 1 ? 1 : value; }
-      static inline uint texsize(uint width, uint height, uint depth, uint channels, uint faces, uint mipmaps) { return 0; }
-      static inline uint mapsize(uint width, uint height, uint depth, uint channels, uint flags = 0) { return flags & CTexture::COMPRESSED ? (((width + 3) >> 2) * ((height + 3) >> 2) * depth * (flags & CTexture::RGBA_S3TC_DXT1 ? 8 : 16)) : (width * height * depth * channels); }
   }; 
   
   class CTgaTextureReader : public CTextureReader {

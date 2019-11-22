@@ -65,7 +65,7 @@ namespace sys {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  void CFile::read(sys::byte * data, std::streamsize len) const {
+  void CFile::read(sys::byte* data, std::streamsize len) const {
      mStream->read(data, len);
   }
   

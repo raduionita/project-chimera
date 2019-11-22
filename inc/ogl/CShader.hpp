@@ -40,6 +40,7 @@ namespace ogl {
       // uniforms
       void  uniform(const CString& name, float x, float y, float z, float w);
       void  uniform(const CString& name, float x);
+      void  uniform(const CString& name, const PTexture&);
       GLint uniform(const CString& name);
       void  sampler(const CString& name, GLuint);
       void  sampler(const CString& name, const PTexture&);

@@ -31,6 +31,7 @@ namespace sys {
       CPointer(T* pPointer, uint32_t* pCount) : mPointer{pPointer}, mCount{pCount} { }
       // move object into pointer
       CPointer(T&& oObject) : mPointer{new T{std::move(oObject)}}, mCount{new uint32_t{1}} { }
+      CPointer(const T& oObject)  : mPointer{new T{std::move(oObject)}}, mCount{new uint32_t{1}} { }
       // take ownership
       template <typename Y, class = typename std::enable_if<std::is_convertible<Y*,T*>::value>::type> CPointer(Y* pPointer) : mPointer{pPointer}, mCount{new uint32_t{0}} { if (mPointer) { ++(*mCount); } }
       // copy constructor // 2 CPointers will have same mCount

@@ -153,10 +153,21 @@ namespace ogl {
     // @todo: there should be a warn here if not found
   }
   
+  void CShader::uniform(const ogl::CString& name, const PTexture& tex) {
+    GLint loc = uniform(name);
+    if (loc != GL_NOT_FOUND) {
+      tex->bind();
+      GLCALL(::glUniform1i(loc, tex->slot()));
+    } else {
+      log::wrn << "ogl::CShader::uniform(CString&,PTexture&)::" << this << " Uniform NOT found!" << log::end;
+    }
+    // @todo: there should be a warn here if not found
+  }
+  
   void CShader::sampler(const CString& name, GLuint i) {
     GLint loc = uniform(name);
     if (loc != GL_NOT_FOUND) {
-      GLCALL(::glUniform1ui(loc, i));
+      GLCALL(::glUniform1i(loc, i));
     }
     // @todo: there should be a warn here if not found
   }
@@ -165,7 +176,7 @@ namespace ogl {
     GLint loc = uniform(name);
     if (loc != GL_NOT_FOUND) {
       tex->bind();
-      GLCALL(::glUniform1ui(loc, (GLuint)(*(tex.ptr()))));
+      GLCALL(::glUniform1i(loc, tex->slot()));
     } else {
       log::wrn << "ogl::CShader::sampler(CString&,PTexture&)::" << this << " Uniform NOT found!" << log::end;
     }

@@ -15,19 +15,20 @@ namespace sys {
     protected:
       size_t mSize {0};
       uint   mOpts {0};
-      ubyte* mData {nullptr};
-      ubyte* mCurr {nullptr};
-      ubyte* mEnds {nullptr};
+      byte*  mData {nullptr};
+      byte*  mCurr {nullptr};
+      byte*  mEnds {nullptr};
     public:
       CStream() = default;
-      virtual ~CStream() = default;
+      virtual ~CStream();
       CStream(void* ptr, size_t size, uint flags = 0);
       CStream(size_t size, uint flags = 0);
     public: // inline
-      inline ubyte* ptr() const { return mCurr; }
-      inline bool   empty() const { return mSize == 0; }
+      inline byte* ptr() const { return mCurr; }
+      inline bool  empty() const { return mSize == 0; }
     public:
-      ubyte* data(size_t, uint = 0);
+      byte* data(byte*, size_t, uint = 0);
+      byte* data(size_t, uint = 0);
   };
   
 }

@@ -54,11 +54,9 @@ namespace app {
     vao.buffer(vbo, vlo);
     ogl::CIndexBuffer   ibo {indices, 6};
   
-    ogl::CShader       shd {"../../res/shaders/simple/color.csl"};
-    
+    ogl::CShader         shd {"../../res/shaders/simple/color.hlsl"};
     ogl::PTextureManager man {ogl::CTextureManager::instance()};
     ogl::PTexture        tx1 {man->load(sys::CFile("../../res/textures/monster.dds"), "monster")};
-    //ogl::PTexture tx2 {ogl::CTextureManager::load({1.0f, 0.5f, 1.0f})};
     
     vao.bind(false);
     shd.bind(false);
@@ -73,9 +71,9 @@ namespace app {
       log::nfo << "app::CApplication::exec()::" << this << " LOOP" << log::end;
   
       shd.bind(true);
-      // shd.sampler("u_sTexture", tex);
       shd.uniform("u_vColor", glm::loop(r,0.05f,0.f,1.f),0.7f,0.2f,1.0f);
-      
+      shd.uniform("u_sTexture", tx1);
+  
       vao.bind(true);
       ibo.bind(true);
       

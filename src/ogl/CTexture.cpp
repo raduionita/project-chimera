@@ -15,25 +15,75 @@ namespace ogl {
     load(stream);
   }
   
-  CTexture::CTexture(GLenum target) : mTarget{target} {
-    GLCALL(::glGenTextures(1, &mID));
-    GLCALL(::glBindTexture(mTarget, mID));
-  }
-  
-  CTexture::CTexture(EType t) : mType{t} {
-    type(mType);
-    GLCALL(::glGenTextures(1, &mID));
-    GLCALL(::glBindTexture(mTarget, mID));
-  }
-  
   CTexture::~CTexture() {
     GLCALL(::glDeleteTextures(1, &mID));
     GLCALL(::glBindTexture(mTarget, 0));
   }
   
-  void CTexture::load(PTextureStream) {
+  void CTexture::load(PTextureStream stream) {
     log::nfo << "ogl::CTexture::load(PTextureStream)::" << this << log::end;
-// @todo: create the texture
+    CTextureStream::SInfo& info = stream->mInfo;
+    
+    static GLenum targets[6] = {
+      GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+      GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+      GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+      GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+      GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+      GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+    };
+    uint   faces    = info.flags & EFlag::CUBEMAP ? 6 : 1;
+    uint   channels = info.bpp == 24 ? 3 : 4;
+    uint   width    = 0;
+    uint   height   = 0;
+    uint   depth    = 0;
+    uint   size     = 0;
+    uint&  mipmaps  = info.mipmaps;
+    uint&  flags    = info.flags;
+    byte*  data     = stream->ptr();
+    GLenum target   = (flags & EFlag::CUBEMAP) ? GL_TEXTURE_CUBE_MAP : (flags & EFlag::VOLUME) ? GL_TEXTURE_3D : GL_TEXTURE_2D;
+    GLenum format   = flags & EFlag::RGBA_S3TC_DXT1 ? GL_COMPRESSED_RGBA_S3TC_DXT1_EXT : flags & EFlag::RGBA_S3TC_DXT3 ? GL_COMPRESSED_RGBA_S3TC_DXT3_EXT : flags & EFlag::RGBA_S3TC_DXT5 ? GL_COMPRESSED_RGBA_S3TC_DXT5_EXT : flags & EFlag::RGBA ? GL_RGBA : flags & EFlag::RGB ? GL_RGB : GL_LUMINANCE;
+    
+    mTarget = target;
+    mFormat = format;
+    
+    GLCALL(::glGenTextures(1, &mID));
+    GLCALL(::glBindTexture(mTarget, mID));
+    GLCALL(::glPixelStorei(GL_UNPACK_ALIGNMENT, 1)); 
+    
+    GLCALL(::glTexParameteri(mTarget, GL_TEXTURE_BASE_LEVEL, 0));
+    GLCALL(::glTexParameteri(mTarget, GL_TEXTURE_MAX_LEVEL, mipmaps));
+    GLCALL(::glTexParameteri(mTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+    GLCALL(::glTexParameteri(mTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+    GLCALL(::glTexParameteri(mTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+    GLCALL(::glTexParameteri(mTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+    GLCALL(::glTexParameteri(mTarget, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
+    
+// @todo: this might not be good for all formats
+
+    for (uint i = 0; i < faces; i++) {
+      if(faces > 1) target = targets[i];
+      width  = info.width;
+      height = info.height;
+      depth  = info.depth;
+      for (ushort j = 0; j < mipmaps && (width || height); j++) {
+        size  += CTextureStream::mapsize(width, height, depth, channels, flags);
+        if (flags & EFlag::COMPRESSED)
+          if (flags & EFlag::VOLUME)
+            GLCALL(::glCompressedTexImage3D(target, j, format, width, height, depth, 0, size, data));
+          else
+            GLCALL(::glCompressedTexImage2D(target, j, format, width, height, 0, size, data));
+        else
+          if (flags & EFlag::VOLUME)
+            GLCALL(::glTexImage3D(target, j, format, width, height, depth, 0, format, GL_UNSIGNED_BYTE, data));
+          else
+            GLCALL(::glTexImage2D(target, j, format, width, height, 0, format, GL_UNSIGNED_BYTE, data));
+        data += size;
+      }
+    }
+    if (mipmaps <= 1 && flags & EFlag::MIPMAPED) {
+      GLCALL(::glGenerateMipmap(GL_TEXTURE_2D));
+    }
   }
   
   GLvoid CTexture::bind(bool state/*=true*/) const {
@@ -46,7 +96,7 @@ namespace ogl {
     }
   }
   
-  GLvoid CTexture::bind(GLuint slot) {
+  GLvoid CTexture::bind(GLint slot) {
     GLCALL(::glActiveTexture(GL_TEXTURE0 + (mSlot = slot)));
     GLCALL(::glBindTexture(mTarget, mID));
   }
@@ -64,14 +114,14 @@ namespace ogl {
   CTextureManager::~CTextureManager() { }
   
   PTexture CTextureManager::load(const sys::CFile& file, const sys::CString& name/*=""*/) {
-    log::nfo << "ogl::CTextureManager::load(CFile&,CString&)::" << this << " FILE:" << file << " NAME:" << name << log::end;
+    log::nfo << "ogl::CTextureManager::load(CFile&,CString&)::" << this << " FILE:" << file << log::end;
     PTexture pTexture;
 // @todo: if name is empty then name = filename.ext
 // @todo: search cache
 
     PTextureReader pReader = sys::static_pointer_cast<PTextureReader::type>(reader(file.ext()));
     if (pReader) {
-      pTexture = CTexture::from(pReader->read(file));
+      pTexture = new CTexture{pReader->read(file)};
       
       
       
@@ -90,11 +140,18 @@ namespace ogl {
     return pTexture;
   }
   
+  PTexture CTextureManager::load(PTextureStream stream, const sys::CString& name/*=""*/) {
+    log::nfo << "ogl::CTextureManager::load(PTextureStream,CString&)::" << this << " STREAM: ?" << " NAME:" << name << log::end;
+    
+    return new CTexture{stream};
+  }
+  
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   PTextureStream CDdsTextureReader::read(const sys::CFile& file) {
     log::nfo << "ogl::CDdsTextureReader::read(CFile&)::" << this << " FILE:" << file << log::end;
-    PTextureStream stream {new CTextureStream};
+    CTextureStream*       stream {new CTextureStream};
+    CTextureStream::SInfo info {}; 
     
     sys::throw_if(!file.open(), "Cannot open file!"); // + file.path());
     
@@ -106,75 +163,74 @@ namespace ogl {
     file.read((byte*)(&head), sizeof(head));
     
     if(head.caps2 & DDS_CUBEMAP) {
-      stream->set(CTexture::EFlag::CUBEMAP);
+      info.flags |= CTexture::EFlag::CUBEMAP;
     } else if((head.caps2 & DDS_VOLUME) && (head.depth > 0)) {
-      stream->mMeta.flags |= CTexture::EFlag::VOLUME;
+      info.flags |= CTexture::EFlag::VOLUME;
     } else {
-      stream->set(CTexture::EFlag::PLANEMAP);
+      info.flags |= CTexture::EFlag::PLANEMAP;
     }
     
-    uint faces    = stream->add(CTexture::EFlag::CUBEMAP) ? 6 : 1;
+    uint faces    = info.flags & CTexture::EFlag::CUBEMAP ? 6 : 1;
     uint channels = head.format.fourcc == DDS_FOURCC || head.format.bpp == 24 ? 3 : 4;
     
     if (head.format.flags & DDS_FOURCC) {
       switch (head.format.fourcc) {
-        case DDS_FOURCC_DTX1:
-          stream->set(CTexture::EFlag::RGBA_S3TC_DXT1);
-        case DDS_FOURCC_DTX3:
-          stream->set(CTexture::EFlag::RGBA_S3TC_DXT3);
-        case DDS_FOURCC_DTX5:
-          stream->add(CTexture::EFlag::RGBA_S3TC_DXT5);
+        case DDS_FOURCC_DTX1: info.flags |= CTexture::EFlag::RGBA_S3TC_DXT1; break;
+        case DDS_FOURCC_DTX3: info.flags |= CTexture::EFlag::RGBA_S3TC_DXT3; break;
+        case DDS_FOURCC_DTX5: info.flags |= CTexture::EFlag::RGBA_S3TC_DXT5; break;
       }
-      stream->add(CTexture::EFlag::COMPRESSED);
+      info.flags |= CTexture::EFlag::COMPRESSED;
     } else if(head.format.flags == DDS_RGBA && head.format.bpp == 32) {
-      stream->add(CTexture::EFlag::RGBA);
+      info.flags |= CTexture::EFlag::RGBA;
     } else if(head.format.flags == DDS_RGB && head.format.bpp == 32) {
-      stream->add(CTexture::EFlag::RGBA);
+      info.flags |= CTexture::EFlag::RGBA;
     } else if(head.format.flags == DDS_RGB && head.format.bpp == 24) {
-      stream->add(CTexture::EFlag::RGB);
+      info.flags |= CTexture::EFlag::RGB;
     } else if(head.format.bpp == 8) {
-      stream->add(CTexture::EFlag::LUMINANCE);
+      info.flags |= CTexture::EFlag::LUMINANCE;
     } else {
       sys::throw_if(true, "Pixel format not supported!");
     }
     
-    stream->width(head.width);
-    stream->height(clamp2one(head.height));
-    stream->depth(clamp2one(head.depth));
-    stream->mipmaps(clamp2one(head.mipmapcount));
-    
-    uint size = 0;
-    
-    ubyte* data = stream->data(size);
-    
-    // bind
-    // glPixelStorei
+    info.width   = head.width;
+    info.height  = CTextureStream::clamp2one(head.height);
+    info.depth   = CTextureStream::clamp2one(head.depth);
+    info.mipmaps = CTextureStream::clamp2one(head.mipmapcount);
     
     uint  width   = 0;
     uint  height  = 0;
     uint  depth   = 0;
-    uint& mipmaps = stream->mipmaps;
-    uint& flags   = stream->flags;
+    uint& mipmaps = info.mipmaps;
+    uint& flags   = info.flags;
     for(uint i = 0; i < faces; i++) {
-      
       width  = head.width;
       height = head.height;
       depth  = head.depth ? head.depth : 1;
-      
-      for(ushort j = 0; j < mipmaps && (width || height); j++) {
-        
-        uint   bufsize = mapsize(width, height, depth, channels, flags);
-        ubyte* buffer  = new ubyte[bufsize];
-        
-        
-        
-        
-        width  = clamp2one(width  >> 1);
-        height = clamp2one(height >> 1);
-        depth  = clamp2one(depth  >> 1);
+      for (ushort j = 0; j < mipmaps && (width || height); j++) {
+        info.size  += CTextureStream::mapsize(width, height, depth, channels, flags);
+        width       = CTextureStream::clamp2one(width  >> 1);
+        height      = CTextureStream::clamp2one(height >> 1);
+        depth       = CTextureStream::clamp2one(depth  >> 1);
       }
     }
     
+    byte* data = stream->data(info.size);
+    uint  size = 0;
+    for(uint i = 0; i < faces; i++) {
+      width  = head.width;
+      height = head.height;
+      depth  = head.depth ? head.depth : 1;
+      for(ushort j = 0; j < mipmaps && (width || height); j++) {
+        size = CTextureStream::mapsize(width, height, depth, channels, flags);
+        file.read(data,size);
+        data += size;
+        width  = CTextureStream::clamp2one(width  >> 1);
+        height = CTextureStream::clamp2one(height >> 1);
+        depth  = CTextureStream::clamp2one(depth  >> 1);
+      }
+    }
+    
+    stream->info(info);
     return stream;
   }
 }
