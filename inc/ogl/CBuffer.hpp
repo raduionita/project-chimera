@@ -31,7 +31,7 @@ namespace ogl {
     public:
       using CDataBuffer::CDataBuffer;
     public:
-      CVertexBuffer(const GLvoid*, GLuint, GLenum = GL_STATIC_DRAW);
+      CVertexBuffer(const GLvoid* data, GLuint size, GLenum usage = GL_STATIC_DRAW);
     public:
       void bind(bool state = true) const override;
   };

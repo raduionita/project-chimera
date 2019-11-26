@@ -44,19 +44,26 @@ namespace app {
     
     pSurface->current();
     
-    GLfloat2 vertices[] {{-0.5f,-0.5f},{+0.5f,-0.5f},{+0.5f,+0.5f},{-0.5f,+0.5f}};
-    GLuint   indices [] {0,1,2, 2,3,0};
+    GLCALL(::glEnable(GL_BLEND));
+    GLCALL(::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+    
+    GLfloat vertices[]  {-0.5f,-0.5f, 0.0f,0.0f,  // 0 // bottom-left
+                         +0.5f,-0.5f, 1.0f,0.0f,  // 1 // bottom-right
+                         +0.5f,+0.5f, 1.0f,1.0f,  // 2 // top-right
+                         -0.5f,+0.5f, 0.0f,1.0f}; // 3  // top-left
+    GLuint  indices [] {0,1,2, 2,3,0};
   
     ogl::CVertexArray   vao;
-    ogl::CVertexBuffer  vbo {vertices, 4 * 2 * sizeof(GLfloat)};
+    ogl::CVertexBuffer  vbo {vertices, 4 * 4 * sizeof(GLfloat)};
     ogl::CVertexLayout  vlo;
+    vlo.push({GL_FLOAT, 2});
     vlo.push({GL_FLOAT, 2});
     vao.buffer(vbo, vlo);
     ogl::CIndexBuffer   ibo {indices, 6};
   
-    ogl::CShader         shd {"../../res/shaders/simple/color.hlsl"};
+    ogl::CShader         shd {"../../res/shaders/simple/texture.hlsl"};
     ogl::PTextureManager man {ogl::CTextureManager::instance()};
-    ogl::PTexture        tx1 {man->load(sys::CFile("../../res/textures/monster.dds"), "monster")};
+    ogl::PTexture        tx1 {man->load(sys::CFile("../../res/textures/notfound.dds"), "notfound")};
     
     vao.bind(false);
     shd.bind(false);
@@ -66,12 +73,15 @@ namespace app {
     float r = 0.0f;
     
     while (runs()) {
-      pSurface->clear();
+      GLCALL(::glClearColor(0.1f,0.1f,0.1f,0.f));
+      GLCALL(::glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT));
       
       log::nfo << "app::CApplication::exec()::" << this << " LOOP" << log::end;
   
       shd.bind(true);
       shd.uniform("u_vColor", glm::loop(r,0.05f,0.f,1.f),0.7f,0.2f,1.0f);
+      tx1->filtering(ogl::CTexture::EFiltering::TRILINEAR);
+      tx1->wrapping(ogl::CTexture::EWrapping::REPEAT);
       shd.uniform("u_sTexture", tx1);
   
       vao.bind(true);

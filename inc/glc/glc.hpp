@@ -1976,7 +1976,7 @@ extern bool glSwapBuffers();
 #endif//GLC_DEBUG_EXIT
 
 #ifdef GLC_DEBUG
-  #define GLCALL(stmt) stmt; if (!::glCheckError(#stmt,__FILE__,__LINE__)) ::glExit(-1)
+  #define GLCALL(stmt) glClearError(); stmt; if (!::glCheckError(#stmt,__FILE__,__LINE__)) ::glExit(-1)
 #else//!GLC_DEBUG
   #define GLCALL(stmt) stmt
 #endif//GLC_DEBUG

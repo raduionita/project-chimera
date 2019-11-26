@@ -82,8 +82,9 @@ namespace ogl {
     public:
       // template <typename T> static PTexture from(const T& src) { return manager()->load(src); }
     public: // get/set-ers
-      GLvoid        filtering(EFiltering eFiltering) { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
+      void          filtering(EFiltering eFiltering);
       EFiltering    filtering() const { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
+      void          wrapping(EWrapping eWrapping);
       inline GLenum target() const { return mTarget; }
       inline void   type(EType eType) { mType = eType; mTarget = (eType == EType::CUBEMAP ? GL_TEXTURE_CUBE_MAP : (eType == EType::VOLUME ? GL_TEXTURE_3D : mTarget)); }
       inline EType  type() const { return mType; }
@@ -94,7 +95,13 @@ namespace ogl {
       inline void   depth(GLsizei d)   { mDepth  = d; }
       inline void   mipmaps(GLcount m) { mMipmaps = m == 0 ? 1 : m; }
       inline GLint  slot() const { return mSlot; }
+      
+      friend inline GLbitfield operator |(const CTexture::EWrapping&, const CTexture::EWrapping&);
+      friend inline GLbitfield operator |(const CTexture::EFiltering&, const CTexture::EWrapping&);
   };
+  
+  inline GLbitfield operator |(const CTexture::EWrapping& lhs, const CTexture::EWrapping& rhs) { return (GLbitfield)((GLbitfield)(lhs) | (GLbitfield)(rhs)); }
+  inline GLbitfield operator |(const CTexture::EFiltering& lhs, const CTexture::EWrapping& rhs) { return (GLbitfield)((GLbitfield)(lhs) | (GLbitfield)(rhs)); }
   
   class CTextureStream : public sys::CStream {
       friend class CTexture;
@@ -210,6 +217,19 @@ namespace ogl {
         uint    caps1;
         uint    caps2;
         uint    _reserved2[3];
+      };
+      struct SDXTColBlock {
+        ushort col0;
+        ushort col1;
+        utiny  row[4];
+      };
+      struct SDXT3AlphaBlock {
+        ushort row[4];
+      };
+      struct SDXT5AlphaBlock {
+        utiny alpha0;
+        utiny alpha1;
+        utiny row[6];
       };
     public:
       virtual inline const char* type() const override { return "dds"; }

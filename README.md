@@ -33,11 +33,6 @@ ogl::CTexture*        t = m->load(sys::CFile("res/textures/paint.dds"));
 
 t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uniform
 ```
-###### Texture::Loader
-```c++
-ogl::CTextureManager* m = ogl::CTextureManager::instance();
-m->loader(new app::CNewTextureLoader());
-```
 
 ### Research
 - `Game Programming Patterns` (by Robert Nystrom)
@@ -73,6 +68,8 @@ m->loader(new app::CNewTextureLoader());
   - add viewports (windows + cameras) to engine // new `CViewport` = `CWindow` + `CCamera`
   
 - precision: `#ifdef OGL_DOUBLE_PRECISION` -> `typrdef double real` #else `typedef float real`
+- fix: dds texture flipped
+- fix: texture wrapping + filtering + blending 
 
 - `glx` draw something // start the ogl framework
   - engine picks the context
