@@ -11,7 +11,7 @@ namespace ogl {
       virtual ~CVertexArray();
     public:
       void bind(bool = true) const override;
-      void buffer(const CVertexBuffer&, const CVertexLayout&);
+      void buffer(const CDataBuffer&, const CVertexLayout&);
   };
 }
 

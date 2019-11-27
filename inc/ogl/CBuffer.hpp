@@ -1,8 +1,8 @@
 #ifndef __ogl_cbuffer_hpp__
 #define __ogl_cbuffer_hpp__
 
-#include "ogl.hpp"
-#include "CObject.hpp"
+#include "ogl/ogl.hpp"
+#include "ogl/CObject.hpp"
 
 namespace ogl {
   class CBuffer : public CObject {
@@ -12,43 +12,26 @@ namespace ogl {
   
   class CDataBuffer : public CBuffer {
     public:
+      enum EType {VERTEX,INDEX};
+    public:
       using CBuffer::CBuffer;
+    protected:
+      GLcount mCount;
+      GLenum  mTarget;
     public:
       CDataBuffer();
-      template <typename T> CDataBuffer(const T* data, GLcount count, GLenum target, GLenum usage = GL_STATIC_DRAW) { 
+      template <typename T> CDataBuffer(const T* data, GLcount count, EType type, GLenum usage = GL_STATIC_DRAW) { 
         log::nfo << "ogl::CDataBuffer::CDataBuffer(T*,GLcount,GLenum,GLenum)::" << this << log::end;
+        mCount  = count;
+        mTarget = type == EType::VERTEX ? GL_ARRAY_BUFFER : GL_ELEMENT_ARRAY_BUFFER;
         GLCALL(::glGenBuffers(1, &mID));
-        GLCALL(::glBindBuffer(target, mID));
-        GLCALL(::glBufferData(target, count * sizeof(T), data, usage));
+        GLCALL(::glBindBuffer(mTarget, mID));
+        GLCALL(::glBufferData(mTarget, count * sizeof(T), data, usage));
       }
       ~CDataBuffer();
-  };
-  
-  /// float vertices[] = { -0.5, -0.5,   +0.5, -0.5,   +0.5, +0.5,   -0.5, +0.5 };
-  /// CVertexBuffer vbo{vertices, 4*2*sizeof(float)}; // bound
-  /// vbo.bind(false)                                 // unbound
-  class CVertexBuffer : public CDataBuffer {
     public:
-      using CDataBuffer::CDataBuffer;
-    public:
-      CVertexBuffer(const GLvoid* data, GLuint size, GLenum usage = GL_STATIC_DRAW);
-    public:
-      void bind(bool state = true) const override;
-  };
-  
-  /// uint indices[] = { 0,1,2,   2,3,0 };
-  // CIndexBuffer ibo{indices, 6); // 6 = 6 vertices // 6 = sizeof(indices) / size(uint)
-  class CIndexBuffer : public CDataBuffer {
-    public:
-      using CDataBuffer::CDataBuffer;
-    protected:
-      GLuint mCount;
-    public:
-      CIndexBuffer(const GLuint*, GLuint, GLenum = GL_STATIC_DRAW);
-    public:
-      void bind(bool state = true) const override;
-      // other
-      inline GLuint count() const { return mCount; }
+      inline GLcount count() const { return mCount; }
+      inline void bind(bool state = true) const { GLCALL(::glBindBuffer(mTarget, state ? mID : 0));  }
   };
 }
 

@@ -14,7 +14,8 @@
 #include "ogl/CShader.hpp"
 #include "ogl/CTexture.hpp"
 
-#include "glm/glm.hpp"
+#include "glm/CMatrix.hpp"
+#include "glm/CVector.hpp"
 
 namespace app {
   int CApplication::exec() {
@@ -47,19 +48,19 @@ namespace app {
     GLCALL(::glEnable(GL_BLEND));
     GLCALL(::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     
-    GLfloat vertices[]  {-0.5f,-0.5f, 0.0f,0.0f,  // 0 // bottom-left
-                         +0.5f,-0.5f, 1.0f,0.0f,  // 1 // bottom-right
-                         +0.5f,+0.5f, 1.0f,1.0f,  // 2 // top-right
-                         -0.5f,+0.5f, 0.0f,1.0f}; // 3  // top-left
+    GLfloat vertices[] {-0.5f,-0.5f, 0.0f,0.0f,  // 0 // bottom-left
+                        +0.5f,-0.5f, 1.0f,0.0f,  // 1 // bottom-right
+                        +0.5f,+0.5f, 1.0f,1.0f,  // 2 // top-right
+                        -0.5f,+0.5f, 0.0f,1.0f}; // 3  // top-left
     GLuint  indices [] {0,1,2, 2,3,0};
   
     ogl::CVertexArray   vao;
-    ogl::CVertexBuffer  vbo {vertices, 4 * 4 * sizeof(GLfloat)};
+    ogl::CDataBuffer    vbo {vertices, 4 * 4, ogl::CDataBuffer::VERTEX}; // 4 vertices * 4 components (xyuv)
     ogl::CVertexLayout  vlo;
     vlo.push({GL_FLOAT, 2});
     vlo.push({GL_FLOAT, 2});
     vao.buffer(vbo, vlo);
-    ogl::CIndexBuffer   ibo {indices, 6};
+    ogl::CDataBuffer    ibo {indices, 2 * 3, ogl::CDataBuffer::INDEX}; // 2 triangles * 3 vertices
   
     ogl::CShader         shd {"../../res/shaders/simple/texture.hlsl"};
     ogl::PTextureManager man {ogl::CTextureManager::instance()};

@@ -6,10 +6,10 @@
 GLfloat p[] = {-0.5,-0.5, +0.5,-0.5, +0.5,+0.5, -0.5,+0.5};  // vertex.positions
 GLint   e[] = {0,1,2, 1,2,0};                                // indices(elements)
 
-ogl::CVertexArray  a;                             // vao + vbo + ibo                              
-ogl::CVertexBuffer b(p, 4 * 2 * sizeof(GLfloat)); // vbo => ::glGenBuffers() + ::glBindBuffer(GL_ARRAY_BUFFER...) + ::glBufferData()
-ogl::CIndexBuffer  i(e, 6);                       // ibo => ::glGenBuffers() + ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER...) + ::glBufferData()
-ogl::CVertexLayout l;                             // layout, stores how many (here) floats are there per vertex component
+ogl::CVertexArray  a;                                     // vao + vbo + ibo                              
+ogl::CVertexBuffer b(p, 4 * 2, ogl::CDataBuffer::VERTEX); // vbo => ::glGenBuffers() + ::glBindBuffer(GL_ARRAY_BUFFER...) + ::glBufferData()
+ogl::CIndexBuffer  i(e, 2 * 3, ogl::CDataBuffer::INDEX);  // ibo => ::glGenBuffers() + ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER...) + ::glBufferData()
+ogl::CVertexLayout l;                                     // layout, stores how many (here) floats are there per vertex component
 
 l.push({GL_FLOAT, 2, GL_FALSE}); // tell layout about the each vertex component (=2 floats) => adds to a list of elelemts
 a.buffer(b,l);                   // add buffer + layout to VAO => does ::glEnableVertexAttribArray() + ::glVertexAttribPointer()
@@ -111,6 +111,8 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 - styles: revisited (application) integrate UIX_STYLE // ifndef use win32 else use UIX_STYLE
 - window: alpha/transparency usin' layered windows
 - widget: widgets don't init until added to toplevel(popup) windows 
+
+- update `uix::CWindow` system to use `PWindow = sys::CPointer<uix::CWindow>` like in ogl
 
 - finish: mouse click events // pair events (mouse click, key press/tab) 
 - finish: window events

@@ -18,8 +18,8 @@ namespace ogl {
     GLCALL(::glBindVertexArray(state ? mID : 0));
   }
   
-  void CVertexArray::buffer(const CVertexBuffer& buffer, const CVertexLayout& layout) {
-    log::nfo << "ogl::CVertexArray::buffer(CVertexBuffer&, CVertexLayout&)::" << this << log::end;
+  void CVertexArray::buffer(const CDataBuffer& buffer, const CVertexLayout& layout) {
+    log::nfo << "ogl::CVertexArray::buffer(CDataBuffer&, CVertexLayout&)::" << this << log::end;
     bind();
     buffer.bind();
     const auto& elements = layout.elements();

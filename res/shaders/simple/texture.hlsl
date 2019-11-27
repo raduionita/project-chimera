@@ -14,14 +14,8 @@ void main() {
 
 @shader GL_FRAGMENT_SHADER
 #version 420 core
-// @todo: implement include...
-@include "feature.csl"
 
-@if ()
-
-@else
-
-@endif
+@include "feature.hlsl"
 
 #define OGL_TEXTURE_0 0
 
@@ -32,5 +26,5 @@ layout (location = 0) out vec4 f_vColor;
 layout (binding = OGL_TEXTURE_0) uniform sampler2D u_sTexture;
 
 void main() {
-  f_vColor = vec4(texture(u_sTexture, v_vTexcoord).rgb, 1.0);
+  f_vColor = texture(u_sTexture, v_vTexcoord);
 }
