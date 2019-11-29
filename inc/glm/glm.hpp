@@ -26,6 +26,8 @@ namespace glm {
 
   template <typename T> class CQuaterion;
   
+  template <typename T, ushort c, ushort r> using mat = CMatrix<T,c,r>;
+  
   typedef CMatrix<float, 4, 4>  mat4;
   typedef CMatrix<float, 4, 3>  mat4x3;
   typedef CMatrix<float, 3, 3>  mat3;
@@ -34,6 +36,8 @@ namespace glm {
   typedef CMatrix<double, 4, 3> dmat4x3;
   typedef CMatrix<double, 3, 3> dmat3;
   typedef CMatrix<double, 2, 2> dmat2;
+  
+  template <typename T, ushort s> using vec = CVector<T,s>;
   
   typedef CVector<float, 4>   vec4;
   typedef CVector<float, 3>   vec3;
@@ -54,6 +58,19 @@ namespace glm {
   typedef CQuaterion<float>   quat;
   typedef CQuaterion<double> dquat;
   typedef CQuaterion<int>    iquat;
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  /// glm::epsilon<float>()
+  template <typename T> using epsilon = decltype(std::numeric_limits<T>::epsilon); 
+  using epsilond                      = decltype(std::numeric_limits<double>::epsilon);
+  using epsilonf                      = decltype(std::numeric_limits<float>::epsilon);
+  using epsilonl                      = decltype(std::numeric_limits<long>::epsilon);
+  using epsilonul                     = decltype(std::numeric_limits<unsigned long>::epsilon);
+  using epsiloni                      = decltype(std::numeric_limits<int>::epsilon);
+  using epsiloni32                    = epsiloni;
+  using epsilonui                     = decltype(std::numeric_limits<unsigned int>::epsilon);
+  using epsilonui32                   = decltype(std::numeric_limits<uint32_t>::epsilon);
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -87,9 +104,10 @@ namespace glm {
   
   template <typename T> inline T max(T a, T b) { return a >= b ? a : b; }
   
-  // @todo: glm::epsilon
-    // std::numeric_limits<T>::epsilon()
+  template <typename T> T abs(const T& val) { return val < T(0) ? val * T(-1) : val; }
   
+  template <typename T> inline bool equals(const T& lhs, const T& rhs) { return glm::abs(lhs-rhs) < epsilon<T>(); } // eq
+  template <typename T, ushort s> inline bool equals(const glm::vec<T,s>& lhs, const glm::vec<T,s>& rhs) { return glm::abs(lhs-rhs) < epsilon<T>(); } // eq
   
   // OGL is RightHanded + Negative Z
   
@@ -143,6 +161,18 @@ namespace glm {
     //   CVector<T, 4>(T(0),                           T(0),                           -T(1),                           T(0))
     // );
   // @todo glm::perspective(T fov, T width, T hight, T near, T far)
+    // assert(width > 0)
+    // assert(height > 0)
+    // assert(fov > 0)
+    // rad = fov
+    // m11 = cos(0.5 * rad)/sin(0.5 * rad)
+    // m00 = m11 * height/width 
+    // mat4 m{0}
+    // m[0][0] = m00
+    // m[1][1] = m11
+    // m[2][2] = - (far + near)/(far - near)
+    // m[2][2] = - 1
+    // m[3][2] = - (2 * far * near)/(far - near)
   // @todo glm::perspective(T fovy, T ratio, T near, T far)
     // assert(far > near);
     // assert(ratio - epsilon > 0)
@@ -157,10 +187,41 @@ namespace glm {
     //   CVector<T, 4>(T(0), T(0),    C, T(0))
     // );
   // @todo glm::perspective(T fovy, T ratio, T near) = infinite perspective
-  // @todo glm::lookat(vec3 position, vec3 target, vec3 up)
-    //
+    // range = tan(fovy, 2) * near
+    // left  = -range * ratio
+    // right = range * ratio
+    // bottom = -range
+    // top    = range
+    // mat4 m{0}
+    // m[0][0] = (2 * near)/(right-left)
+    // m[1][1] = (2 * near)/(top - bottom)
+    // m[2][2] = 1
+    // m[2][3] = 1
+    // m[3][2] = 2 * near
+  // @todo glm::lookat(vec3 position, vec3 target, vec3 up) // eye, center, up
+    // const CVector<T, 3> f(normalize(target - position)); // direction = target - position
+    // const CVector<T, 3> s(normalize(cross(f, up)));      // side = forward x up
+    // const CVector<T, 3> u(cross(s, f));                  // up - recomputed
+    // const CMatrix<T, 4, 4> M = CMatrix<T, 4, 4>(                                     // glm::mat4 m{1}
+    //   CVector<T, 4>(-s.x,  u.x, -f.x, T(0)),                                         // [0][0] +s.x      | [0][1] +u.x      | [0][2] -f.x
+    //   CVector<T, 4>(-s.y,  u.y, -f.y, T(0)),                                         // [1][0] +s.y      | [1][1] +u.y      | [1][2] -f.y
+    //   CVector<T, 4>(-s.z,  u.z, -f.z, T(0)),                                         // [2][0] +s.z      | [2][1] +u.z      | [2][2] -f.z
+    //   CVector<T, 4>(T(0), T(0), T(0), T(1))                                          // [3][0] -dot(s,e) | [3][1] -dot(s,e) | [3][2] +dot(f,e)
+    //   //CVector<T, 4>(-dot(s, position), -dot(u, position), dot(f, position), T(1))
+    // );
+    // return M * translate(-position);
   // @todo glm::unproject(vec3 window, mat4 modelview, mat4 perspective, vec4 viewport)
-    //
+    // CVector<T, 4> inverse = math::inverse(projection * modelview);
+    // 
+    // CVector<T, 4> temp(window, T(1));
+    // temp.x = (temp.x - T(viewport[0])) / T(viewport[2]) ;
+    // temp.x = (temp.y - T(viewport[1])) / T(viewport[3]) ;
+    // temp = temp * T(2) - T(1);
+    // 
+    // CVector<T, 4> object = inverse * temp;
+    // object /= object.w;
+    // 
+    // return CVector<T, 3>(object.x, object.y, object.z);
 }
 
 #endif //__glm_hpp__

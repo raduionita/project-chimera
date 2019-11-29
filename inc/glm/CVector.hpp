@@ -14,6 +14,8 @@ namespace glm {
         struct { T s; T t; };
         struct { T r; T g; };
       };
+    public:
+      CVector(T v) : x(v), y(v) { }
   };
 }
 
