@@ -26,22 +26,35 @@ namespace glm {
 
   template <typename T> class CQuaterion;
   
-  template <typename T, ushort c, ushort r> using mat = CMatrix<T,c,r>;
+  template <typename T, ushort c, ushort r> using  mat = CMatrix<T,c,r>;
+  template <typename T, ushort c, ushort r> using tmat = mat<T,c,r>;
   
-  typedef CMatrix<float, 4, 4>  mat4;
-  typedef CMatrix<float, 4, 3>  mat4x3;
-  typedef CMatrix<float, 3, 3>  mat3;
-  typedef CMatrix<float, 2, 2>  mat2;
+  typedef CMatrix<float,  4, 4>  mat4;
+  typedef CMatrix<float,  4, 3>  mat4x3;
+  typedef CMatrix<float,  3, 3>  mat3;
+  typedef CMatrix<float,  2, 2>  mat2;
+  typedef CMatrix<float,  4, 4> fmat4;
+  typedef CMatrix<float,  4, 3> fmat4x3;
+  typedef CMatrix<float,  3, 3> fmat3;
+  typedef CMatrix<float,  2, 2> fmat2;
   typedef CMatrix<double, 4, 4> dmat4;
   typedef CMatrix<double, 4, 3> dmat4x3;
   typedef CMatrix<double, 3, 3> dmat3;
   typedef CMatrix<double, 2, 2> dmat2;
+  typedef CMatrix<double, 4, 4> imat4;
+  typedef CMatrix<double, 4, 3> imat4x3;
+  typedef CMatrix<double, 3, 3> imat3;
+  typedef CMatrix<double, 2, 2> imat2;
   
-  template <typename T, ushort s> using vec = CVector<T,s>;
+  template <typename T, ushort s> using vec  = CVector<T,s>;
+  template <typename T, ushort s> using tvec = vec<T,s>;
   
   typedef CVector<float, 4>   vec4;
   typedef CVector<float, 3>   vec3;
   typedef CVector<float, 2>   vec2;  
+  typedef CVector<float, 4>  fvec4;
+  typedef CVector<float, 3>  fvec3;
+  typedef CVector<float, 2>  fvec2;  
   typedef CVector<double, 4> dvec4;
   typedef CVector<double, 3> dvec3;
   typedef CVector<double, 2> dvec2;
@@ -56,6 +69,7 @@ namespace glm {
   typedef CVector<bool, 2>   bvec2;
   
   typedef CQuaterion<float>   quat;
+  typedef CQuaterion<float>  fquat;
   typedef CQuaterion<double> dquat;
   typedef CQuaterion<int>    iquat;
   
@@ -108,6 +122,33 @@ namespace glm {
   
   template <typename T> inline bool equals(const T& lhs, const T& rhs) { return glm::abs(lhs-rhs) < epsilon<T>(); } // eq
   template <typename T, ushort s> inline bool equals(const glm::vec<T,s>& lhs, const glm::vec<T,s>& rhs) { return glm::abs(lhs-rhs) < epsilon<T>(); } // eq
+  template <typename T> inline bool eq(const T& lhs, const T& rhs) { return glm::equals(lhs,rhs); }
+  template <typename T, ushort s> inline bool eq(const glm::vec<T,s>& lhs, const glm::vec<T,s>& rhs) { return glm::equals(lhs,rhs); }
+  
+  // linear interpolation
+  template <typename T, typename S> inline T mix(const T& A, const T& B, const S& t) { 
+    return B + t * (B - A); 
+  } 
+  // quadratic bezier (3 component interpolation)
+  template <typename T, typename S> inline T mix(const T& A, const T& B, const T& C, const S& t)  {
+    T D = mix(A, B, t); // D = A + t(B - A)
+    T E = mix(B, C, t); // E = B + t(C - B)
+    T P = mix(D, E, t); // P = D + t(E - D)
+    return P;
+  }
+  // cubic bezier (4 component interpolation)
+  template <typename T, typename S> inline T mix(const T& A, const T& B, const T& C, const T& D, const S& t) { 
+    
+    T E = mix(A, B, t);
+    T F = mix(B, C, t);
+    T G = mix(C, D, t);
+    T P = mix(E, F, G, t);
+    return P;
+  }
+  
+  template <typename T, typename S> inline T lerp(const T& A, const T& B, const S& t) { 
+    return glm::mix(A,B,t); 
+  } 
   
   // OGL is RightHanded + Negative Z
   
@@ -123,7 +164,6 @@ namespace glm {
   // @todo glm::clamp
   // @todo glm::step  // 
   // @todo glm::sstep // smoothstep
-  // @todo glm::mix   // linear blend
   // @todo glm::lerp  // linear interpolation
   // @todo glm::slerp // spherical linear interpolation
   // @todo glm::isnan
@@ -133,6 +173,31 @@ namespace glm {
   // @todo glm::log
   // @todo glm::sqrt
   // @todo glm::isqrt OR rsqrt
+  // @todo glm::wrap
+  
+  // @todo glm::distance // between 2 vecs
+  // @todo glm::dot
+  // @todo glm::cross
+  // @todo glm::conjugate
+  // @todo glm::axis // ret q rotation axis
+  // @todo glm::normalize
+  // @todo glm::length
+  // @todo glm::inverse
+  // @todo glm::transpose
+  // @todo glm::identity
+  // @todo glm::det
+  
+  // @todo glm::angle
+  // @todo glm::radian
+  
+  // @todo glm::yaw
+  // @todo glm::roll
+  // @todo glm::pitch
+  // @todo glm::rotate
+  // @todo glm::scale
+  // @todo glm::reflect
+  // @todo glm::refract
+  // @todo glm::translate
   
   // @todo glm::eq
   // @todo glm::gt

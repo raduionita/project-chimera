@@ -1,5 +1,7 @@
 #include "sys/CLogger.hpp"
 
+#include <cstring>
+
 namespace sys {
   const CLogger::ELevel       CLogger::dbg{ELevel::DEBUG};
   const CLogger::ELevel       CLogger::nfo{ELevel::INFO};
@@ -22,39 +24,53 @@ namespace sys {
   
   const CLogger::ELevel& operator <<(const CLogger::ELevel& eLevel, const CLogger::EManipulator& eManipulator) {
     auto sLogger = CLogger::instance();
-    
-    if (!sLogger->mOutput.empty()) {
-      // logging level matches
-      if (int(eLevel) <= int(sLogger->level())) {
-        switch(eLevel) {
-          default:
-          case CLogger::ELevel::DEBUG: sLogger->mOutput = "[DBG] " + sLogger->mOutput; break;
-          case CLogger::ELevel::INFO : sLogger->mOutput = "[NFO] " + sLogger->mOutput; break;
-          case CLogger::ELevel::WARN : sLogger->mOutput = "[WRN] " + sLogger->mOutput; break;
-          case CLogger::ELevel::FATAL: sLogger->mOutput = "[ERR] " + sLogger->mOutput; break;
+    // emptyness guard
+    if (sLogger->mOutput.empty())
+      return eLevel;
+    // logging level matches
+    if (int(eLevel) <= int(sLogger->level())) {
+      // prefix
+      time_t nTime  = std::time(nullptr);
+      auto   oLocal = std::localtime(&nTime);
+      //->[2019-12-02 17:19:34] [NFO] <-
+      char zPrefix[29]; zPrefix[28] = '\0';
+      std::strftime(zPrefix, 29, "[%Y-%m-%d %H:%M:%S] [XXX]", oLocal);
+      // level
+      switch(eLevel) {
+        default:
+        case CLogger::ELevel::DEBUG: ::strncpy(&zPrefix[22],"[DBG] ",6); break;
+        case CLogger::ELevel::INFO : ::strncpy(&zPrefix[22],"[NFO] ",6); break;
+        case CLogger::ELevel::WARN : ::strncpy(&zPrefix[22],"[WRN] ",6); break;
+        case CLogger::ELevel::FATAL: ::strncpy(&zPrefix[22],"[ERR] ",6); break;
+      }
+      // end the stream
+      switch (eManipulator) {
+        default: break;
+        case CLogger::EManipulator::NL: {
+          sLogger->mOutput.append("\n");
+          break;
         }
-  
-        time_t nTime  = std::time(nullptr);
-        auto   sLocal = std::localtime(&nTime);
-  
-        char szTime[23];
-        std::strftime(szTime, 23, "[%Y-%m-%d %H:%M:%S] ", sLocal);
-        szTime[22] = '\0';
-  
-        sLogger->mOutput = szTime + sLogger->mOutput;
-  
-        switch (eManipulator) {
-          case CLogger::EManipulator::END: {
-            sLogger->mOutput.append("\n");
-            sLogger->provider()->log(sLogger->mOutput);
+        case CLogger::EManipulator::END: {
+          std::stringstream stream;
+          std::string&      output = sLogger->mOutput; 
+          stream << output;
+          output.clear();
+          std::string line;
+          for (int i = 0; std::getline(stream, line); i++) {
+            if (i == 0) 
+              output.append(zPrefix);
+            else
+              output.append("                            ");
+            output.append(line).append("\n");
           }
-          default:/*do nothing*/break;
+          sLogger->provider()->log(output);
+          break;
         }
       }
-      // clear output
-      sLogger->mOutput.clear();
     }
-    
+    // clear output
+    sLogger->mOutput.clear();
+    // chaining
     return eLevel;
   }
     

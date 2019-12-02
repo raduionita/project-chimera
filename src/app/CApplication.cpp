@@ -71,7 +71,12 @@ namespace app {
     ibo.bind(false);
     vbo.bind(false);
     
-    float r = 0.0f;
+    float     r = 0.0f;
+    glm::mat4 m;
+    
+    
+    
+    log::nfo << m << log::end;
     
     while (runs()) {
       GLCALL(::glClearColor(0.1f,0.1f,0.1f,0.f));

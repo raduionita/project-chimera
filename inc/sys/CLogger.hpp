@@ -74,6 +74,8 @@ namespace sys {
     public:
       enum class EManipulator: int {
         END = 0x0,
+        NL  = 0x1,
+        TAB = 0x2,
       };
       enum class ELevel      : int {
         NONE  = 0,         //  0
@@ -90,7 +92,7 @@ namespace sys {
       static const ELevel       err;
       static const EManipulator end;
     protected:
-      std::string      mOutput   {""};
+      std::string      mOutput;
       ELevel           mLevel    {CYM_LOGGER_LEVEL};
       CLoggerProvider* mProvider {nullptr};
     public:
