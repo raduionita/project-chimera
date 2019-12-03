@@ -72,11 +72,13 @@ namespace app {
     vbo.bind(false);
     
     float     r = 0.0f;
-    glm::mat4 m;
+    glm::mat4 M = glm::lookat({1.0f,2.0f,1.0f}, {0.0f,0.0f,0.0f}, glm::Y);
+    glm::vec4 v;
     
     
     
-    log::nfo << m << log::end;
+    log::nfo << M << log::end;
+    log::nfo << v << log::end;
     
     while (runs()) {
       GLCALL(::glClearColor(0.1f,0.1f,0.1f,0.f));
@@ -86,8 +88,6 @@ namespace app {
   
       shd.bind(true);
       shd.uniform("u_vColor", glm::loop(r,0.05f,0.f,1.f),0.7f,0.2f,1.0f);
-      tx1->filtering(ogl::CTexture::EFiltering::TRILINEAR);
-      tx1->wrapping(ogl::CTexture::EWrapping::REPEAT);
       shd.uniform("u_sTexture", tx1);
   
       vao.bind(true);

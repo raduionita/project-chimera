@@ -68,6 +68,8 @@ namespace glm {
   typedef CVector<bool, 3>   bvec3;
   typedef CVector<bool, 2>   bvec2;
   
+  template <typename T> using tquat = CQuaterion<T>;
+  
   typedef CQuaterion<float>   quat;
   typedef CQuaterion<float>  fquat;
   typedef CQuaterion<double> dquat;
@@ -121,14 +123,23 @@ namespace glm {
   template <typename T> T abs(const T& val) { return val < T(0) ? val * T(-1) : val; }
   
   template <typename T> inline bool equals(const T& lhs, const T& rhs) { return glm::abs(lhs-rhs) < epsilon<T>(); } // eq
+  
   template <typename T, ushort s> inline bool equals(const glm::vec<T,s>& lhs, const glm::vec<T,s>& rhs) { return glm::abs(lhs-rhs) < epsilon<T>(); } // eq
+  
   template <typename T> inline bool eq(const T& lhs, const T& rhs) { return glm::equals(lhs,rhs); }
+  
   template <typename T, ushort s> inline bool eq(const glm::vec<T,s>& lhs, const glm::vec<T,s>& rhs) { return glm::equals(lhs,rhs); }
   
   // linear interpolation
   template <typename T, typename S> inline T mix(const T& A, const T& B, const S& t) { 
     return B + t * (B - A); 
   } 
+  
+  // linear interpolation
+  template <typename T, typename S> inline T lerp(const T& A, const T& B, const S& t) { 
+    return glm::mix(A,B,t); 
+  } 
+  
   // quadratic bezier (3 component interpolation)
   template <typename T, typename S> inline T mix(const T& A, const T& B, const T& C, const S& t)  {
     T D = mix(A, B, t); // D = A + t(B - A)
@@ -136,6 +147,7 @@ namespace glm {
     T P = mix(D, E, t); // P = D + t(E - D)
     return P;
   }
+  
   // cubic bezier (4 component interpolation)
   template <typename T, typename S> inline T mix(const T& A, const T& B, const T& C, const T& D, const S& t) { 
     
@@ -146,9 +158,7 @@ namespace glm {
     return P;
   }
   
-  template <typename T, typename S> inline T lerp(const T& A, const T& B, const S& t) { 
-    return glm::mix(A,B,t); 
-  } 
+  //
   
   // OGL is RightHanded + Negative Z
   
@@ -164,7 +174,6 @@ namespace glm {
   // @todo glm::clamp
   // @todo glm::step  // 
   // @todo glm::sstep // smoothstep
-  // @todo glm::lerp  // linear interpolation
   // @todo glm::slerp // spherical linear interpolation
   // @todo glm::isnan
   // @todo glm::isinf
@@ -176,12 +185,49 @@ namespace glm {
   // @todo glm::wrap
   
   // @todo glm::distance // between 2 vecs
-  // @todo glm::dot
-  // @todo glm::cross
   // @todo glm::conjugate
   // @todo glm::axis // ret q rotation axis
-  // @todo glm::normalize
-  // @todo glm::length
+  
+  
+  // glm::dot
+  template <typename T, const ushort n> T dot(const tvec<T, n>& v1, const tvec<T, n>& v2) {
+    T res(0);
+    for(ushort i = 0; i < n; i++)
+      res += v1[i] * v2[i];
+    return res;
+  }  
+  
+  // glm::dot quat
+  template <typename T> T dot(const tquat<T>& q1, const tquat<T>& q2) {
+    T res(0);
+    for(ushort i = 0; i < 4; ++i)
+      res += q1[i] * q2[i];
+    return res;
+  }
+  
+  // glm::cross
+  template <typename T> tvec<T, 3> cross(const tvec<T, 3>& v1, const tvec<T, 3>& v2) {
+    return tvec<T,3>(
+      v1.y * v2.z - v1.z * v2.y,
+      v1.z * v2.x - v1.x * v2.z,
+      v1.x * v2.y - v1.y * v2.x);
+  }
+  
+  // glm::length
+  template <typename T, const ushort n> T length(const CVector<T, n>& v) {
+    T sum {0};
+    for(ushort i = 0; i < n; i++)
+      sum += v[i] * v[i];
+    return (T)std::sqrt(sum);
+  }
+  
+  // glm::normalize
+  template <typename T, const ushort n> vec<T, n> normalize(const vec<T, n>& v) {
+    return v / glm::length(v);
+  }
+  
+  
+  
   // @todo glm::inverse
   // @todo glm::transpose
   // @todo glm::identity
@@ -264,6 +310,29 @@ namespace glm {
     // m[2][3] = 1
     // m[3][2] = 2 * near
   // @todo glm::lookat(vec3 position, vec3 target, vec3 up) // eye, center, up
+  
+  template <typename T> inline tmat<T,4,4> lookat(vec<T,3> p/*position,eye*/, tvec<T,3> t/*target,center*/, tvec<T,3> a/*up*/) {
+    const tvec<T,  3> f(glm::normalize(t - p));
+    const tvec<T,  3> s(glm::normalize(glm::cross(f,a)));
+    const tvec<T,  3> u(glm::cross(s,f));
+    const tmat<T,4,4> m {T(1)};
+    
+    m[0][0] = +s.x;
+    m[1][0] = +s.y;
+    m[2][0] = +s.z;
+    m[3][0] = -dot(s,t);
+    m[0][1] = +u.x;
+    m[1][1] = +u.y;
+    m[2][1] = +u.z;
+    m[3][1] = -dot(u,t);
+    m[0][2] = -f.x;
+    m[1][2] = -f.y;
+    m[2][2] = -f.z;
+    m[3][2] = -dot(f,t);
+    
+    return m;
+  }
+  
     // const CVector<T, 3> f(normalize(target - position)); // direction = target - position
     // const CVector<T, 3> s(normalize(cross(f, up)));      // side = forward x up
     // const CVector<T, 3> u(cross(s, f));                  // up - recomputed
