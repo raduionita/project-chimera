@@ -4,6 +4,8 @@
 #include "ogl/ogl.hpp"
 #include "ogl/CObject.hpp"
 #include "ogl/CResource.hpp"
+#include "glm/glm.hpp"
+#include "glm/CMatrix.hpp"
 
 #include <string>
 #include <unordered_map>
@@ -38,10 +40,11 @@ namespace ogl {
     public:
       void bind(bool state = true) const override;
       // uniforms
+      GLint uniform(const CString& name);
       void  uniform(const CString& name, float x, float y, float z, float w);
       void  uniform(const CString& name, float x);
       void  uniform(const CString& name, const PTexture&);
-      GLint uniform(const CString& name);
+      void  uniform(const CString& name, const glm::mat4& m);
       void  sampler(const CString& name, GLuint);
       void  sampler(const CString& name, const PTexture&);
   };

@@ -5,6 +5,9 @@
 
 #include <cmath>
 
+#undef near
+#undef far
+
 namespace glm {
 #ifdef GLM_DOUBLE_PRECISION
   typedef double real;
@@ -20,67 +23,71 @@ namespace glm {
   using uint   = sys::uint;
   using ulong  = sys::ulong;
   
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   template <typename T, ushort cols, ushort rows> class CMatrix;
   
   template <typename T, ushort size> class CVector;
 
   template <typename T> class CQuaterion;
   
-  template <typename T, ushort c, ushort r> using  mat = CMatrix<T,c,r>;
-  template <typename T, ushort c, ushort r> using tmat = mat<T,c,r>;
+  template <typename T, ushort c, ushort r> using tmat = CMatrix<T,c,r>;
   
-  typedef CMatrix<float,  4, 4>  mat4;
-  typedef CMatrix<float,  4, 3>  mat4x3;
-  typedef CMatrix<float,  3, 3>  mat3;
-  typedef CMatrix<float,  2, 2>  mat2;
-  typedef CMatrix<float,  4, 4> fmat4;
-  typedef CMatrix<float,  4, 3> fmat4x3;
-  typedef CMatrix<float,  3, 3> fmat3;
-  typedef CMatrix<float,  2, 2> fmat2;
-  typedef CMatrix<double, 4, 4> dmat4;
-  typedef CMatrix<double, 4, 3> dmat4x3;
-  typedef CMatrix<double, 3, 3> dmat3;
-  typedef CMatrix<double, 2, 2> dmat2;
-  typedef CMatrix<double, 4, 4> imat4;
-  typedef CMatrix<double, 4, 3> imat4x3;
-  typedef CMatrix<double, 3, 3> imat3;
-  typedef CMatrix<double, 2, 2> imat2;
+  typedef tmat<real,  4, 4>   mat4;
+  typedef tmat<real,  4, 3>   mat4x3;
+  typedef tmat<real,  3, 3>   mat3;
+  typedef tmat<real,  2, 2>   mat2;
+  typedef tmat<float,  4, 4> fmat4;
+  typedef tmat<float,  4, 3> fmat4x3;
+  typedef tmat<float,  3, 3> fmat3;
+  typedef tmat<float,  2, 2> fmat2;
+  typedef tmat<double, 4, 4> dmat4;
+  typedef tmat<double, 4, 3> dmat4x3;
+  typedef tmat<double, 3, 3> dmat3;
+  typedef tmat<double, 2, 2> dmat2;
+  typedef tmat<double, 4, 4> imat4;
+  typedef tmat<double, 4, 3> imat4x3;
+  typedef tmat<double, 3, 3> imat3;
+  typedef tmat<double, 2, 2> imat2;
   
-  template <typename T, ushort s> using vec  = CVector<T,s>;
-  template <typename T, ushort s> using tvec = vec<T,s>;
+  template <typename T, ushort s> using tvec = CVector<T,s>;
   
-  typedef CVector<float, 4>   vec4;
-  typedef CVector<float, 3>   vec3;
-  typedef CVector<float, 2>   vec2;  
-  typedef CVector<float, 4>  fvec4;
-  typedef CVector<float, 3>  fvec3;
-  typedef CVector<float, 2>  fvec2;  
-  typedef CVector<double, 4> dvec4;
-  typedef CVector<double, 3> dvec3;
-  typedef CVector<double, 2> dvec2;
-  typedef CVector<int, 4>    ivec4;
-  typedef CVector<int, 3>    ivec3;
-  typedef CVector<int, 2>    ivec2;
-  typedef CVector<uint, 4>   uvec4;
-  typedef CVector<uint, 3>   uvec3;
-  typedef CVector<uint, 2>   uvec2;
-  typedef CVector<bool, 4>   bvec4;
-  typedef CVector<bool, 3>   bvec3;
-  typedef CVector<bool, 2>   bvec2;
+  typedef tvec<real,  4>   vec4;
+  typedef tvec<real,  3>   vec3;
+  typedef tvec<real,  2>   vec2;  
+  typedef tvec<float, 4>  fvec4;
+  typedef tvec<float, 3>  fvec3;
+  typedef tvec<float, 2>  fvec2;  
+  typedef tvec<double, 4> dvec4;
+  typedef tvec<double, 3> dvec3;
+  typedef tvec<double, 2> dvec2;
+  typedef tvec<int, 4>    ivec4;
+  typedef tvec<int, 3>    ivec3;
+  typedef tvec<int, 2>    ivec2;
+  typedef tvec<uint, 4>   uvec4;
+  typedef tvec<uint, 3>   uvec3;
+  typedef tvec<uint, 2>   uvec2;
+  typedef tvec<bool, 4>   bvec4;
+  typedef tvec<bool, 3>   bvec3;
+  typedef tvec<bool, 2>   bvec2;
   
   template <typename T> using tquat = CQuaterion<T>;
   
-  typedef CQuaterion<float>   quat;
+  typedef CQuaterion<real>    quat;
   typedef CQuaterion<float>  fquat;
   typedef CQuaterion<double> dquat;
   typedef CQuaterion<int>    iquat;
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  /// glm::epsilon<float>()
-  template <typename T> using epsilon = decltype(std::numeric_limits<T>::epsilon); 
-  using epsilond                      = decltype(std::numeric_limits<double>::epsilon);
+  const real E        = real(2.71828182845904);
+  const real PI       = real(3.14159265358979);
+  const real RAD      = PI / real(180.0f);
+  
+  // glm::epsilon<float>()
+  template <typename T> using epsilon = decltype(std::numeric_limits<T>::epsilon);
   using epsilonf                      = decltype(std::numeric_limits<float>::epsilon);
+  using epsilond                      = decltype(std::numeric_limits<double>::epsilon);
   using epsilonl                      = decltype(std::numeric_limits<long>::epsilon);
   using epsilonul                     = decltype(std::numeric_limits<unsigned long>::epsilon);
   using epsiloni                      = decltype(std::numeric_limits<int>::epsilon);
@@ -95,7 +102,7 @@ namespace glm {
     T max;
   };
   
-  template <typename T> void swap(T& lhs, T& rhs) { T tmp = lhs; lhs = rhs; rhs = tmp; }
+  template <typename T> inline void swap(T& lhs, T& rhs) { T tmp = lhs; lhs = rhs; rhs = tmp; }
   
   inline real loop(real& fVal, real fStep = 0.1f, real fFirst = -1.0f, real fLast = 1.0f) {
     bool bRevRange = fLast < fFirst;
@@ -120,15 +127,15 @@ namespace glm {
   
   template <typename T> inline T max(T a, T b) { return a >= b ? a : b; }
   
-  template <typename T> T abs(const T& val) { return val < T(0) ? val * T(-1) : val; }
+  template <typename T> T inline abs(const T& val) { return val < T(0) ? val * T(-1) : val; }
   
   template <typename T> inline bool equals(const T& lhs, const T& rhs) { return glm::abs(lhs-rhs) < epsilon<T>(); } // eq
   
-  template <typename T, ushort s> inline bool equals(const glm::vec<T,s>& lhs, const glm::vec<T,s>& rhs) { return glm::abs(lhs-rhs) < epsilon<T>(); } // eq
+  template <typename T, ushort s> inline bool equals(const glm::tvec<T,s>& lhs, const glm::tvec<T,s>& rhs) { return glm::abs(lhs-rhs) < epsilon<T>(); } // eq
   
   template <typename T> inline bool eq(const T& lhs, const T& rhs) { return glm::equals(lhs,rhs); }
   
-  template <typename T, ushort s> inline bool eq(const glm::vec<T,s>& lhs, const glm::vec<T,s>& rhs) { return glm::equals(lhs,rhs); }
+  template <typename T, ushort s> inline bool eq(const glm::tvec<T,s>& lhs, const glm::tvec<T,s>& rhs) { return glm::equals(lhs,rhs); }
   
   // linear interpolation
   template <typename T, typename S> inline T mix(const T& A, const T& B, const S& t) { 
@@ -142,19 +149,19 @@ namespace glm {
   
   // quadratic bezier (3 component interpolation)
   template <typename T, typename S> inline T mix(const T& A, const T& B, const T& C, const S& t)  {
-    T D = mix(A, B, t); // D = A + t(B - A)
-    T E = mix(B, C, t); // E = B + t(C - B)
-    T P = mix(D, E, t); // P = D + t(E - D)
+    T D = glm::mix(A, B, t); // D = A + t(B - A)
+    T E = glm::mix(B, C, t); // E = B + t(C - B)
+    T P = glm::mix(D, E, t); // P = D + t(E - D)
     return P;
   }
   
   // cubic bezier (4 component interpolation)
   template <typename T, typename S> inline T mix(const T& A, const T& B, const T& C, const T& D, const S& t) { 
     
-    T E = mix(A, B, t);
-    T F = mix(B, C, t);
-    T G = mix(C, D, t);
-    T P = mix(E, F, G, t);
+    T E = glm::mix(A, B, t);
+    T F = glm::mix(B, C, t);
+    T G = glm::mix(C, D, t);
+    T P = glm::mix(E, F, G, t);
     return P;
   }
   
@@ -190,7 +197,7 @@ namespace glm {
   
   
   // glm::dot
-  template <typename T, const ushort n> T dot(const tvec<T, n>& v1, const tvec<T, n>& v2) {
+  template <typename T, const ushort n> T inline dot(const glm::tvec<T, n>& v1, const glm::tvec<T, n>& v2) {
     T res(0);
     for(ushort i = 0; i < n; i++)
       res += v1[i] * v2[i];
@@ -198,7 +205,7 @@ namespace glm {
   }  
   
   // glm::dot quat
-  template <typename T> T dot(const tquat<T>& q1, const tquat<T>& q2) {
+  template <typename T> T inline dot(const glm::tquat<T>& q1, const glm::tquat<T>& q2) {
     T res(0);
     for(ushort i = 0; i < 4; ++i)
       res += q1[i] * q2[i];
@@ -206,7 +213,7 @@ namespace glm {
   }
   
   // glm::cross
-  template <typename T> tvec<T, 3> cross(const tvec<T, 3>& v1, const tvec<T, 3>& v2) {
+  template <typename T> tvec<T, 3> inline cross(const glm::tvec<T, 3>& v1, const glm::tvec<T, 3>& v2) {
     return tvec<T,3>(
       v1.y * v2.z - v1.z * v2.y,
       v1.z * v2.x - v1.x * v2.z,
@@ -214,7 +221,7 @@ namespace glm {
   }
   
   // glm::length
-  template <typename T, const ushort n> T length(const CVector<T, n>& v) {
+  template <typename T, const ushort n> T inline length(const glm::tvec<T, n>& v) {
     T sum {0};
     for(ushort i = 0; i < n; i++)
       sum += v[i] * v[i];
@@ -222,28 +229,84 @@ namespace glm {
   }
   
   // glm::normalize
-  template <typename T, const ushort n> vec<T, n> normalize(const vec<T, n>& v) {
+  template <typename T, const ushort n> tvec<T, n> inline normalize(const glm::tvec<T, n>& v) {
     return v / glm::length(v);
   }
-  
-  
   
   // @todo glm::inverse
   // @todo glm::transpose
   // @todo glm::identity
   // @todo glm::det
   
-  // @todo glm::angle
-  // @todo glm::radian
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  // glm::radian
+  template <typename T> inline T radians(T degrees) { return degrees * static_cast<T>(RAD); } // return degrees * RAD;
+  
+  template <typename T> inline T deg2rad(T degrees) { return glm::radians(degrees); } // return degrees * RAD;
+  
+  // glm::angle
+  template <typename T> inline T degrees(T radians) { return radians / static_cast<T>(RAD); } // return radians / RAD;
+  
+  template <typename T> inline T rad2deg(T radians) { return glm::degrees(radians); } // return radians / RAD;
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   // @todo glm::yaw
   // @todo glm::roll
   // @todo glm::pitch
-  // @todo glm::rotate
+  
+  // glm::rotate // rotation matrix from axis and angle | R = cos*I + sin*[u]x + (1-cos)uXu | tensor product
+  template <typename T> inline tmat<T, 4, 4> rotate(const T& a, const T& x, const T& y, const T& z) {
+    const T xx = x * x;
+    const T yy = y * y;
+    const T zz = z * z;
+    const T xy = x * y;
+    const T xz = x * z;
+    const T yz = y * z;
+    
+    const T rads = glm::radians(a);  // float
+    const T c    = (T) ::cos(rads);  // float
+    const T s    = (T) ::sin(rads);  // float
+    const T omc  = T(1) - c;         // one minus cos
+    
+    return tmat<T, 4, 4>(
+      tvec<T, 4>(T(xx * omc + c),     T(xy * omc + z * s), T(xz * omc - y * s), T(0)),
+      tvec<T, 4>(T(xy * omc - z * s), T(yy * omc + c),     T(yz * omc + x * s), T(0)),
+      tvec<T, 4>(T(xz * omc + y * s), T(yz * omc - x * s), T(zz * omc + c),     T(0)),
+      tvec<T, 4>(T(0),                T(0),                T(0),                T(1))
+    );
+  }
+  
+  // glm::rotate // rotation matrix - vector
+  template <typename T> inline glm::tmat<T, 4, 4> rotate(const T& a, const glm::tvec<T, 3>& v) {
+    return glm::rotate(a, v[0], v[1], v[2]);
+  }
+  
+  // glm::rotate // matrix rotation using angles
+  template <typename T> inline glm::tmat<T, 4, 4> rotate(const T& ax, const T& ay, const T& az) {
+    return glm::rotate(ax, T(1), T(0), T(0)) * glm::rotate(ay, T(0), T(1), T(0)) * glm::rotate(az, T(0), T(0), T(1));
+  }
+  
+  // rotate vector
+  template <typename T, const ushort n> inline glm::tvec<T, n> rotateY(const T& a, const glm::tvec<T, n>& vec) {
+    glm::tvec<T, n> res(vec);
+    const T rads = glm::radians(a);
+    const T cosa = ::cos(rads);
+    const T sina = ::cos(rads);
+    // calc x & z
+    res.x = vec.x * cosa + vec.z * sina;
+    res.z =-vec.x * sina + vec.z * cosa;
+    // done
+    return res;
+  }
+  
   // @todo glm::scale
   // @todo glm::reflect
   // @todo glm::refract
   // @todo glm::translate
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   // @todo glm::eq
   // @todo glm::gt
@@ -251,6 +314,8 @@ namespace glm {
   // @todo glm::lt
   // @todo glm::lte
   // @todo glm::ne
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   // @todo glm::ortho(T left, T right, T bottom, T top, T near, T far) // 
     // CMatrix<T, 4, 4> result;
@@ -266,37 +331,45 @@ namespace glm {
     // if((right == left) || (top == bottom) || (near == far) || (near < T(0)) || (far < T(0)))
     //   return identity<T, 4>();
     // return CMatrix<T, 4, 4>(
-    //   CVector<T, 4>((T(2) * near) / (right - left), T(0) ,                          (right + left) / (right - left), T(0)),
-    //   CVector<T, 4>(T(0),                           (T(2) * near) / (top - bottom), (top + bottom) / (top - bottom), T(0)),
-    //   CVector<T, 4>(T(0),                           T(0),                           -(far + near)  / (far - near),    -(T(2) * far * near) / (far - near)),
-    //   CVector<T, 4>(T(0),                           T(0),                           -T(1),                           T(0))
+    //   tvec<T, 4>((T(2) * near) / (right - left), T(0) ,                          (right + left) / (right - left), T(0)),
+    //   tvec<T, 4>(T(0),                           (T(2) * near) / (top - bottom), (top + bottom) / (top - bottom), T(0)),
+    //   tvec<T, 4>(T(0),                           T(0),                           -(far + near)  / (far - near),    -(T(2) * far * near) / (far - near)),
+    //   tvec<T, 4>(T(0),                           T(0),                           -T(1),                           T(0))
     // );
-  // @todo glm::perspective(T fov, T width, T hight, T near, T far)
-    // assert(width > 0)
-    // assert(height > 0)
-    // assert(fov > 0)
-    // rad = fov
-    // m11 = cos(0.5 * rad)/sin(0.5 * rad)
-    // m00 = m11 * height/width 
-    // mat4 m{0}
-    // m[0][0] = m00
-    // m[1][1] = m11
-    // m[2][2] = - (far + near)/(far - near)
-    // m[2][2] = - 1
-    // m[3][2] = - (2 * far * near)/(far - near)
-  // @todo glm::perspective(T fovy, T ratio, T near, T far)
-    // assert(far > near);
-    // assert(ratio - epsilon > 0)
-    // T q = T(1) / tan(radians(fovy / T(2)));      // tanhfov = 1/tan(fovy/2)
-    // T A = q / ratio;                             // 1/(ratio*tanhfov)
-    // T B = (near + far) / (near - far);           // -(far+near)/(far-near)
-    // T C = (T(2) * near *  far) / (near - far);   // -(2*far*near)/(far-near)
-    // return CMatrix<T, 4, 4>(
-    //   CVector<T, 4>(   A, T(0), T(0), T(0)),
-    //   CVector<T, 4>(T(0),    q, T(0), T(0)),
-    //   CVector<T, 4>(T(0), T(0),    B, T(-1)),
-    //   CVector<T, 4>(T(0), T(0),    C, T(0))
-    // );
+    
+  // glm::perspective(T fov, T width, T hight, T near, T far)
+  template <typename T> CMatrix<T,4,4> inline perspective(T fov, T width, T height, T near, T far) {
+    assert(width  > T(0));
+    assert(height > T(0));
+    assert(fov    > T(0));
+    const T rad = fov;
+    const T m11 = cos(T(0.5) * rad)/sin(T(0.5) * rad); 
+    const T m00 = m11 * height/width;
+    CMatrix<T,4,4> M {T(0)};
+    M[0][0] = m00;
+    M[1][1] = m11;
+    M[2][2] = (near + far)/(near - far);
+    M[2][2] = -T(1);
+    M[3][2] = (2 * near * far)/(near - far);
+    return M;
+  }
+
+  // glm::perspective // return perspective matrix using field of view, aspect ratio, near & far planes
+  template <typename T> CMatrix<T,4,4> inline perspective(T fovy, T ratio, T near, T far) {
+    assert(far > near);
+    assert(glm::abs(ratio - std::numeric_limits<T>::epsilon() > T(0)));
+    T q = T(1) / std::tan(glm::radians(fovy / T(2))); //  tanhfov = 1/tan(fovy/2)
+    T A = q / ratio;                                  //  1/(ratio*tanhfov)
+    T B = (near + far) / (near - far);                // -(far+near)/(far-near)
+    T C = (T(2) * near *  far) / (near - far);        // -(2*far*near)/(far-near)    
+    return CMatrix<T, 4, 4>(
+      CVector<T,4>(   A, T(0), T(0), T(0)),
+      CVector<T,4>(T(0),    q, T(0), T(0)),
+      CVector<T,4>(T(0), T(0),    B, T(-1)),
+      CVector<T,4>(T(0), T(0),    C, T(0))
+    );
+  }
+
   // @todo glm::perspective(T fovy, T ratio, T near) = infinite perspective
     // range = tan(fovy, 2) * near
     // left  = -range * ratio
@@ -309,53 +382,46 @@ namespace glm {
     // m[2][2] = 1
     // m[2][3] = 1
     // m[3][2] = 2 * near
-  // @todo glm::lookat(vec3 position, vec3 target, vec3 up) // eye, center, up
   
-  template <typename T> inline tmat<T,4,4> lookat(vec<T,3> p/*position,eye*/, tvec<T,3> t/*target,center*/, tvec<T,3> a/*up*/) {
+  // glm::lookat(vec3 position, vec3 target, vec3 up) // eye, center, up
+  template <typename T> inline tmat<T,4,4> lookat(glm::tvec<T,3> p/*position,eye*/, glm::tvec<T,3> t/*target,center*/, tvec<T,3> a/*up*/) {
     const tvec<T,  3> f(glm::normalize(t - p));
     const tvec<T,  3> s(glm::normalize(glm::cross(f,a)));
     const tvec<T,  3> u(glm::cross(s,f));
-    const tmat<T,4,4> m {T(1)};
-    
-    m[0][0] = +s.x;
-    m[1][0] = +s.y;
-    m[2][0] = +s.z;
-    m[3][0] = -dot(s,t);
-    m[0][1] = +u.x;
-    m[1][1] = +u.y;
-    m[2][1] = +u.z;
-    m[3][1] = -dot(u,t);
-    m[0][2] = -f.x;
-    m[1][2] = -f.y;
-    m[2][2] = -f.z;
-    m[3][2] = -dot(f,t);
-    
+          tmat<T,4,4> m {T(1)};
+    // 
+    m[0][0] = +s.x;      m[0][1] = +u.x;       m[0][2] = -f.x;
+    m[1][0] = +s.y;      m[1][1] = +u.y;       m[1][2] = -f.y;
+    m[2][0] = +s.z;      m[2][1] = +u.z;       m[2][2] = -f.z;
+    m[3][0] = -dot(s,t); m[3][1] = -dot(u,t);  m[3][2] = -dot(f,t);
+    // 
     return m;
-  }
-  
-    // const CVector<T, 3> f(normalize(target - position)); // direction = target - position
-    // const CVector<T, 3> s(normalize(cross(f, up)));      // side = forward x up
-    // const CVector<T, 3> u(cross(s, f));                  // up - recomputed
+    // old
+    // const tvec<T, 3> f(normalize(target - position)); // direction = target - position
+    // const tvec<T, 3> s(normalize(cross(f, up)));      // side = forward x up
+    // const tvec<T, 3> u(cross(s, f));                  // up - recomputed
     // const CMatrix<T, 4, 4> M = CMatrix<T, 4, 4>(                                     // glm::mat4 m{1}
-    //   CVector<T, 4>(-s.x,  u.x, -f.x, T(0)),                                         // [0][0] +s.x      | [0][1] +u.x      | [0][2] -f.x
-    //   CVector<T, 4>(-s.y,  u.y, -f.y, T(0)),                                         // [1][0] +s.y      | [1][1] +u.y      | [1][2] -f.y
-    //   CVector<T, 4>(-s.z,  u.z, -f.z, T(0)),                                         // [2][0] +s.z      | [2][1] +u.z      | [2][2] -f.z
-    //   CVector<T, 4>(T(0), T(0), T(0), T(1))                                          // [3][0] -dot(s,e) | [3][1] -dot(s,e) | [3][2] +dot(f,e)
-    //   //CVector<T, 4>(-dot(s, position), -dot(u, position), dot(f, position), T(1))
+    //   tvec<T, 4>(-s.x,  u.x, -f.x, T(0)),                                         // [0][0] +s.x      | [0][1] +u.x      | [0][2] -f.x
+    //   tvec<T, 4>(-s.y,  u.y, -f.y, T(0)),                                         // [1][0] +s.y      | [1][1] +u.y      | [1][2] -f.y
+    //   tvec<T, 4>(-s.z,  u.z, -f.z, T(0)),                                         // [2][0] +s.z      | [2][1] +u.z      | [2][2] -f.z
+    //   tvec<T, 4>(T(0), T(0), T(0), T(1))                                          // [3][0] -dot(s,e) | [3][1] -dot(s,e) | [3][2] +dot(f,e)
+    //   //tvec<T, 4>(-dot(s, position), -dot(u, position), dot(f, position), T(1))
     // );
     // return M * translate(-position);
+  }
+  
   // @todo glm::unproject(vec3 window, mat4 modelview, mat4 perspective, vec4 viewport)
-    // CVector<T, 4> inverse = math::inverse(projection * modelview);
+    // tvec<T, 4> inverse = math::inverse(projection * modelview);
     // 
-    // CVector<T, 4> temp(window, T(1));
+    // tvec<T, 4> temp(window, T(1));
     // temp.x = (temp.x - T(viewport[0])) / T(viewport[2]) ;
     // temp.x = (temp.y - T(viewport[1])) / T(viewport[3]) ;
     // temp = temp * T(2) - T(1);
     // 
-    // CVector<T, 4> object = inverse * temp;
+    // tvec<T, 4> object = inverse * temp;
     // object /= object.w;
     // 
-    // return CVector<T, 3>(object.x, object.y, object.z);
+    // return tvec<T, 3>(object.x, object.y, object.z);
 }
 
 #endif //__glm_hpp__

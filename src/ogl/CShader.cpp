@@ -164,6 +164,13 @@ namespace ogl {
     // @todo: there should be a warn here if not found
   }
   
+  void CShader::uniform(const ogl::CString& name, const glm::mat4& M) {
+    GLint loc = uniform(name);
+    if (loc != GL_NOT_FOUND) {
+      GLCALL(::glUniformMatrix4fv(loc, 1, false, (const float*)(M)));
+    }
+  }
+  
   void CShader::sampler(const CString& name, GLuint i) {
     GLint loc = uniform(name);
     if (loc != GL_NOT_FOUND) {

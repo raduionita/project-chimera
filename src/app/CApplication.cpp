@@ -62,7 +62,7 @@ namespace app {
     vao.buffer(vbo, vlo);
     ogl::CDataBuffer    ibo {indices, 2 * 3, ogl::CDataBuffer::INDEX}; // 2 triangles * 3 vertices
   
-    ogl::CShader         shd {"../../res/shaders/simple/texture.hlsl"};
+    ogl::CShader         shd {"../../res/shaders/simple/perspective.hlsl"};
     ogl::PTextureManager man {ogl::CTextureManager::instance()};
     ogl::PTexture        tx1 {man->load(sys::CFile("../../res/textures/notfound.dds"), "notfound")};
     
@@ -72,23 +72,25 @@ namespace app {
     vbo.bind(false);
     
     float     r = 0.0f;
-    glm::mat4 M = glm::lookat({1.0f,2.0f,1.0f}, {0.0f,0.0f,0.0f}, glm::Y);
-    glm::vec4 v;
+    glm::mat4 M;
+    glm::mat4 V = glm::lookat({1.0f,2.0f,1.0f}, {0.0f,0.0f,0.0f}, glm::Y);
+    glm::mat4 P = glm::perspective(60.f, 1.33f, 0.1f, 100.f);
     
-    
-    
-    log::nfo << M << log::end;
-    log::nfo << v << log::end;
+    log::nfo << M * V * P << log::end;
     
     while (runs()) {
       GLCALL(::glClearColor(0.1f,0.1f,0.1f,0.f));
       GLCALL(::glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT));
       
+      
+      glm::loop(r,0.05f,0.f,1.f);
+      
       log::nfo << "app::CApplication::exec()::" << this << " LOOP" << log::end;
   
       shd.bind(true);
-      shd.uniform("u_vColor", glm::loop(r,0.05f,0.f,1.f),0.7f,0.2f,1.0f);
       shd.uniform("u_sTexture", tx1);
+      shd.uniform("u_mMVP", (M * glm::rotate(r, glm::Y)) * V * P);
+      
   
       vao.bind(true);
       ibo.bind(true);
