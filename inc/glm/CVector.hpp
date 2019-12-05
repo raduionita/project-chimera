@@ -4,21 +4,15 @@
 #include "glm/glm.hpp"
 
 namespace glm {
-  template <typename T, ushort s> class CVector { 
-      typedef CVector<T, s>  vec_t;
-      static const ushort size = s;
+  template<typename T, ushort s> class CVector {
+      typedef CVector<T, s> vec_t;
+      static const ushort   size = s;
   };
   
-  template <typename T> class CVector<T,2>;
-  template <typename T> class CVector<T,3>;
-  template <typename T> class CVector<T,4>;
-  
-  template <typename T> class CVector<T,2> {
-      template <typename F, const ushort n>     friend class CVector;
-      template <typename F, ushort c, ushort r> friend class CMatrix;
-      template <typename F, ushort s1> friend const sys::CLogger::ELevel& operator <<(const sys::CLogger::ELevel&, const CVector<F,s1>&);
-      typedef CVector<T, 2>  vec_t;
-      static const ushort size = 2;
+  template<typename T> class CVector<T,2> {
+      template<typename F, const ushort n> friend class CVector;
+      typedef CVector<T,2> vec_t;
+      static const ushort  size = 2;
     public:
       union {
         T data[2];
@@ -26,76 +20,135 @@ namespace glm {
         struct { T s, t; };
         struct { T r, g; };
       };
-    public: // ctors
-      CVector(T v = T(0)) : x(v), y(v) { }
-      CVector(T x, T y) : x(x), y(y) { }
-      CVector(const CVector<T,2>& v) : x(v.x), y(v.y) { }
-      CVector(const CVector<T,3>& v) : x(v.x), y(v.y) { }
-      CVector(const CVector<T,4>& v) : x(v.x), y(v.y) { }
-      virtual ~CVector() { }
-    public: // operators: assing
-      CVector& operator = (const CVector& rhs) {
-        for(ushort i = 0; i < size; i++)
+    public:
+      CVector() : x(T(0)), y(T(0)) {
+        // nothing
+      }
+      CVector(const CVector& that) {
+        data[0] = that.data[0];
+        data[1] = that.data[1];
+      }
+      CVector(const T s) {
+        data[0] = s;
+        data[1] = s;
+      }
+      CVector(const T x, const T y) {
+        data[0] = x;
+        data[1] = y;
+      }
+      CVector(const CVector<T,3>& xyz) {
+        data[0] = xyz.data[0];
+        data[1] = xyz.data[1];
+      }
+      CVector(const CVector<T,4>& xyzw) {
+        data[0] = xyzw.data[0];
+        data[1] = xyzw.data[1];
+      }
+    public: // operator: assignment
+      CVector& operator =(const CVector& rhs) {
+        for (ushort i = 0; i < size; i++)
           data[i] = rhs.data[i];
         return *this;
       }
-      CVector& operator = (const T rhs) {
-        for(ushort i = 0; i < size; i++)
-          data[i] = rhs.data[i];
+      CVector& operator =(const T rhs) {
+        for (ushort i = 0; i < size; i++)
+          data[i]     = rhs.data[i];
         return *this;
       }
-    public: // operators
-      T&       operator [] (const ushort i)       { return data[i]; }
-      const T& operator [] (const ushort i) const { return data[i]; }
-      CVector operator  +  (const CVector& rhs) const {
-        CVector result;
-        for(ushort i = 0; i < size; i++)
+    public: // operator: data  
+      T&       operator [](const ushort i) {
+        return data[i];
+      }
+      const T& operator [](const ushort i) const {
+        return data[i];
+      }
+    public: // operator: math
+      CVector operator   +(const CVector& rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
           result.data[i] = data[i] + rhs.data[i];
-        return result;  
+        return result;
       }
-      CVector& operator += (const CVector& rhs) {
+      CVector& operator +=(const CVector& rhs) {
         return (*this = *this + rhs);
       }
-      CVector  operator -  (const CVector& rhs) const {
-        CVector result;
-        for(ushort i = 0; i < size; i++) 
+      CVector  operator-(const CVector& rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
           result.data[i] = data[i] - rhs.data[i];
-        return result;  
+        return result;
       }
-      CVector& operator -= (const CVector& rhs) {
+      CVector& operator -=(const CVector& rhs) {
         return (*this = *this - rhs);
       }
-      CVector  operator -  () const {
-        CVector result;
-        for(ushort i = 0; i < size; i++) 
+      CVector  operator  -() const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
           result.data[i] = -data[i];
-        return result;  
+        return result;
       }
-      CVector  operator /  (const CVector& rhs) const {
-        CVector lhs;
-        for(ushort i = 0; i < size; i++)
-          lhs.data[i] = data[i] / rhs.data[i];
-        return lhs;  
+      CVector  operator  *(const CVector& rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
+          result.data[i] = data[i] * rhs.data[i];
+        return result;
       }
-      CVector  operator /  (const T rhs) const {
-        CVector lhs;
-        for(ushort i = 0; i < size; i++)
-          lhs.data[i] = data[i] / rhs;
-        return lhs;  
+      CVector& operator *=(const CVector& rhs) {
+        return (*this = *this * rhs);
       }
-      CVector& operator /= (const CVector& rhs) { return (*this = *this / rhs); }
-      CVector& operator /= (const T rhs) { return (*this = *this / rhs); }
-    public: // casts
-      explicit inline operator       T* ()       { return       (T*)(&data[0]); }    
-      explicit inline operator const T* () const { return (const T*)(&data[0]); }    
+      CVector  operator  *(const T rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
+          result.data[i] = data[i] * rhs;
+        return result;
+      }
+      CVector& operator *=(const T rhs) {
+        return (*this = *this * rhs);
+      }
+      CVector  operator  /(const CVector& rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
+          result.data[i] = data[i] / rhs.data[i];
+        return result;
+      }
+      CVector& operator /=(const CVector& rhs) {
+        return (*this = *this / rhs);   // assing(*this / rhs);
+      }
+      CVector  operator  /(const T rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
+          result.data[i] = data[i] / rhs;
+        return result;
+      }
+      CVector& operator /=(const T rhs) {
+        return (*this = *this / rhs);   // assing(*this / rhs);
+      }
+      bool     operator  <(const CVector& rhs) const {
+        if (x < rhs.x) {
+          return true;
+        } else if (x == rhs.x) {
+          return y < rhs.y;
+        }
+        return false;
+      }
+    public: // operator: cast
+      explicit operator       T*()       { return       (T*) (&data[0]); }
+      explicit operator const T*() const { return (const T*) (&data[0]); }
+    public:
+      T    length() { return (T) ::sqrt(x * x + y * y);}
+      void normalize() {
+        T l = length();
+        if (l != T(1)) {
+          x /= l;
+          y /= l;
+        }
+      }
   };
   
-  template <typename T> class CVector<T,3> {
-      template <typename F, const ushort n>     friend class CVector;
-      template <typename F, ushort c, ushort r> friend class CMatrix;
-      template <typename F, ushort s1> friend const sys::CLogger::ELevel& operator <<(const sys::CLogger::ELevel&, const CVector<F,s1>&);
-      typedef CVector<T, 3>  vec_t;
-      static const ushort size = 3;
+  template<typename T> class CVector<T,3> {
+      template<typename F, const ushort n> friend class CVector;
+      typedef CVector<T, 3> vec_t;
+      static const ushort   size = 3;
     public:
       union {
         T data[3];
@@ -103,77 +156,150 @@ namespace glm {
         struct { T s, t, p; };
         struct { T r, g, b; };
       };
-    public: // ctors
-      CVector(T v = T(0)) : x(v), y(v), z(v) { }
-      CVector(T x, T y) : x(x), y(y), z(T(0)) { }
-      CVector(T x, T y, T z) : x(x), y(y), z(z) { }
-      CVector(const CVector<T,2>& v) : x(v.x), y(v.y), z(T(0)) { }
-      CVector(const CVector<T,3>& v) : x(v.x), y(v.y), z(v.z)  { }
-      CVector(const CVector<T,4>& v) : x(v.x), y(v.y), z(v.z)  { }
-      virtual ~CVector() { }
-    public: // operators: assing
-      CVector& operator = (const CVector& rhs) {
-        for(ushort i = 0; i < size; i++)
-          data[i] = rhs.data[i];
+    public:
+      CVector() : x(T(0)), y(T(0)), z(T(0)) {}
+      CVector(const T s) {
+        for (ushort i = 0; i < size; i++)
+          data[i]     = s;
+      }
+      CVector(const T x, const T y, const T z) {
+        data[0] = x;
+        data[1] = y;
+        data[2] = z;
+      }
+      CVector(const CVector& xyz) {
+        for (ushort i = 0; i < size; i++)
+          data[i] = xyz.data[i];
+      }
+      CVector(const CVector<T,2>& xy, const T z) {
+        data[0] = xy.data[0];
+        data[1] = xy.data[1];
+        data[2] = z;
+      }
+      CVector(const T x, const CVector<T,2>& yz) {
+        data[0] = x;
+        data[1] = yz.data[1];
+        data[2] = yz.data[2];
+      }
+      CVector(const CVector<T,4>& xyzw) {
+        data[0] = xyzw.data[0];
+        data[1] = xyzw.data[1];
+        data[2] = xyzw.data[2];
+      }      
+    public: // operator: assign
+      CVector& operator  =(const CVector& rhs) {
+        if (this != &this)
+          for (ushort i = 0; i < size; i++)
+            data[i] = rhs.data[i];
         return *this;
       }
-      CVector& operator = (const T rhs) {
-        for(ushort i = 0; i < size; i++)
-          data[i] = rhs.data[i];
+      CVector& operator  =(const T rhs) {
+        if (this != &this)
+          for (ushort i = 0; i < size; i++)
+            data[i]     = rhs;
         return *this;
       }
-    public: // operators
-      T&       operator [] (const ushort i)       { return data[i]; }
-      const T& operator [] (const ushort i) const { return data[i]; }
-      CVector operator  +  (const CVector& rhs) const {
-        CVector result;
-        for(ushort i = 0; i < size; i++)
+    public: // operator: data  
+      T&       operator [](ushort i)       { return data[i]; }
+      const T& operator [](ushort i) const { return data[i]; }
+    public: // operator: math  
+      CVector  operator  +(const CVector& rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
           result.data[i] = data[i] + rhs.data[i];
-        return result;  
+        return result;
       }
-      CVector& operator += (const CVector& rhs) {
+      CVector& operator +=(const CVector& rhs) {
         return (*this = *this + rhs);
       }
-      CVector  operator -  (const CVector& rhs) const {
-        CVector result;
-        for(ushort i = 0; i < size; i++) 
+      CVector  operator  -(const CVector& rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
           result.data[i] = data[i] - rhs.data[i];
-        return result;  
+        return result;
       }
-      CVector& operator -= (const CVector& rhs) {
+      CVector& operator -=(const CVector& rhs) {
         return (*this = *this - rhs);
       }
-      CVector  operator -  () const {
-        CVector result;
-        for(ushort i = 0; i < size; i++) 
+      CVector  operator  -() const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
           result.data[i] = -data[i];
-        return result;  
+        return result;
       }
-      CVector  operator /  (const CVector& rhs) const {
-        CVector lhs;
-        for(ushort i = 0; i < size; i++)
-          lhs.data[i] = data[i] / rhs.data[i];
-        return lhs;  
+      CVector  operator  *(const CVector& rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
+          result.data[i] = data[i] * rhs.data[i];
+        return result;
       }
-      CVector  operator /  (const T rhs) const {
-        CVector lhs;
-        for(ushort i = 0; i < size; i++)
-          lhs.data[i] = data[i] / rhs;
-        return lhs;  
+      CVector& operator *=(const CVector& rhs) {
+        return (*this = *this * rhs);
       }
-      CVector& operator /= (const CVector& rhs) { return (*this = *this / rhs); }
-      CVector& operator /= (const T rhs) { return (*this = *this / rhs); }
-    public: // casts
-      explicit inline operator       T* ()       { return       (T*)(&data[0]); }    
-      explicit inline operator const T* () const { return (const T*)(&data[0]); }    
+      CVector  operator  *(const T rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
+          result.data[i] = data[i] * rhs;
+        return result;
+      }
+      CVector& operator *=(const T rhs) {
+        return (*this = *this * rhs);
+      }
+      CVector  operator  /(const CVector& rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
+          result.data[i] = data[i] / rhs.data[i];
+        return result;
+      }
+      CVector& operator /=(const CVector& rhs) {
+        return (*this = *this / rhs);   // assing(*this / rhs);
+      }
+      CVector  operator  /(const T rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
+          result.data[i] = data[i] / rhs;
+        return result;
+      }
+      CVector& operator /=(const T rhs) {
+        return (*this = *this / rhs);   // assing(*this / rhs);
+      }
+      bool     operator  <(const CVector& rhs) const {
+        if (x < rhs.x) {
+          return true;
+        } else if (x == rhs.x) {
+          if (y < rhs.y) {
+            return true;
+          } else if (y == rhs.y) {
+            return z < rhs.z;
+          }
+        }
+        return false;
+      }
+    public: // operator: cast
+      explicit operator       T*()       { return (T*) (&data[0]); }
+      explicit operator const T*() const { return (const T*) (&data[0]); }
+    public: 
+      T    length() {
+        return (T) sqrt(x * x + y * y + z * z);
+      }
+      void normalize() {
+        T l = length();
+        if (l != T(1)) {
+          x /= l;
+          y /= l;
+          z /= l;
+        }
+      }
+      // rotate vector to quat orientation
+      void rotate(const CQuaterion <T>& Q) {
+        *this = Q * (*this);
+      }
   };
   
-  template <typename T> class CVector<T,4> {
-      template <typename F, const ushort n>     friend class CVector;
-      template <typename F, ushort c, ushort r> friend class CMatrix;
-      template <typename F, ushort s1> friend const sys::CLogger::ELevel& operator <<(const sys::CLogger::ELevel&, const CVector<F,s1>&);
-      typedef CVector<T, 4>  vec_t;
-      static const ushort size = 4;
+  template<typename T> class CVector<T, 4> {
+      template<typename F, const ushort n> friend class CVector;
+      typedef CVector<T,4> vec_t;
+      static const ushort  size = 4;
     public:
       union {
         T data[4];
@@ -182,78 +308,198 @@ namespace glm {
         struct { T r, g, b, a; };
       };
     public:
-      CVector() : x(T(0)), y(T(0)), z(T(0)), w(T(1)) { }
-      CVector(T v) : x(v), y(v), z(v), w(v) { }
-      CVector(T x, T y) : x(x), y(y), z(T(0)), w(T(1)) { }
-      CVector(T x, T y, T z) : x(x), y(y), z(z), w(T(1)) { }
-      CVector(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) { }
-      CVector(const CVector<T,2>& v) : x(v.x), y(v.y), z(T(0)), w(T(1)) { }
-      CVector(const CVector<T,3>& v) : x(v.x), y(v.y), z(v.z),  w(T(1)) { }
-      CVector(const CVector<T,4>& v) : x(v.x), y(v.y), z(v.z),  w(v.w)  { }
-      virtual ~CVector() { }
-    public: // operators: data
-      T&       operator [] (const ushort i)       { return data[i]; }
-      const T& operator [] (const ushort i) const { return data[i]; }
-    public: // operators: assing
-      CVector& operator = (const CVector& rhs) {
-        for(ushort i = 0; i < size; i++)
+      CVector() : x(T(0)), y(T(0)), z(T(0)), w(T(0)) {}
+      
+      CVector(const CVector& that) {
+        for (ushort i = 0; i < size; i++)
+          data[i] = that.data[i];
+      }
+      
+      CVector(const T s) {
+        for (ushort i = 0; i < size; i++)
+          data[i]     = s;
+      }
+      
+      CVector(const T x, const T y, const T z, const T w) {
+        data[0] = x;
+        data[1] = y;
+        data[2] = z;
+        data[3] = w;
+      }
+      
+      CVector(const CVector<T, 2>& xy, const T z, const T w) {
+        data[0] = xy.data[0];
+        data[1] = xy.data[1];
+        data[2] = z;
+        data[3] = w;
+      }
+      
+      CVector(const T x, const CVector<T, 2>& yz, const T w) {
+        data[0] = x;
+        data[1] = yz.data[1];
+        data[2] = yz.data[2];
+        data[3] = w;
+      }
+      
+      CVector(const T x, const T y, const CVector<T, 2>& zw) {
+        data[0] = x;
+        data[1] = y;
+        data[2] = zw.data[2];
+        data[3] = zw.data[3];
+      }
+      
+      CVector(const CVector<T, 3>& xyz, const T w) {
+        data[0] = xyz.data[0];
+        data[1] = xyz.data[1];
+        data[2] = xyz.data[2];
+        data[3] = w;
+      }
+      
+      CVector(const T x, const CVector<T, 3>& yzw) {
+        data[0] = x;
+        data[1] = yzw.data[1];
+        data[2] = yzw.data[2];
+        data[3] = yzw.data[3];
+      }
+      
+      CVector& operator=(const CVector& rhs) {
+        for (ushort i = 0; i < size; i++)
           data[i] = rhs.data[i];
         return *this;
       }
-      CVector& operator = (const T rhs) {
-        for(ushort i = 0; i < size; i++)
-          data[i] = rhs.data[i];
+      
+      CVector& operator=(const T rhs) {
+        for (ushort i = 0; i < size; i++)
+          data[i]     = rhs;
         return *this;
       }
-    public: // operators: math
-      CVector operator  +  (const CVector& rhs) const {
-        CVector result;
-        for(ushort i = 0; i < size; i++)
+      
+      T& operator[](const ushort i) {
+        return data[i];
+      }
+      
+      const T& operator[](const ushort i) const {
+        return data[i];
+      }
+      
+      CVector operator+(const CVector& rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
           result.data[i] = data[i] + rhs.data[i];
-        return result;  
+        return result;
       }
-      CVector& operator += (const CVector& rhs) {
+      
+      CVector& operator+=(const CVector& rhs) {
         return (*this = *this + rhs);
       }
-      CVector  operator -  (const CVector& rhs) const {
-        CVector result;
-        for(ushort i = 0; i < size; i++) 
+      
+      CVector operator-(const CVector& rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
           result.data[i] = data[i] - rhs.data[i];
-        return result;  
+        return result;
       }
-      CVector& operator -= (const CVector& rhs) {
+      
+      CVector& operator-=(const CVector& rhs) {
         return (*this = *this - rhs);
       }
-      CVector  operator -  () const {
-        CVector result;
-        for(ushort i = 0; i < size; i++) 
+      
+      CVector operator-() const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
           result.data[i] = -data[i];
-        return result;  
+        return result;
       }
-      CVector  operator /  (const CVector& rhs) const {
-        CVector lhs;
-        for(ushort i = 0; i < size; i++)
-          lhs.data[i] = data[i] / rhs.data[i];
-        return lhs;  
+      
+      CVector operator*(const CVector& rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
+          result.data[i] = data[i] * rhs.data[i];
+        return result;
       }
-      CVector  operator /  (const T rhs) const {
-        CVector lhs;
-        for(ushort i = 0; i < size; i++)
-          lhs.data[i] = data[i] / rhs;
-        return lhs;  
+      
+      CVector& operator*=(const CVector& rhs) {
+        return (*this = *this * rhs);
       }
-      CVector& operator /= (const CVector& rhs) { return (*this = *this / rhs); }
-      CVector& operator /= (const T rhs) { return (*this = *this / rhs); }
-    public: // casts
-      explicit inline operator       T* ()       { return       (T*)(&data[0]); }    
-      explicit inline operator const T* () const { return (const T*)(&data[0]); }    
+      
+      CVector operator*(const T rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
+          result.data[i] = data[i] * rhs;
+        return result;
+      }
+      
+      CVector& operator*=(const T rhs) {
+        return (*this = *this * rhs);
+      }
+      
+      CVector operator/(const CVector& rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
+          result.data[i] = data[i] / rhs.data[i];
+        return result;
+      }
+      
+      CVector& operator/=(const CVector& rhs) {
+        return (*this = *this / rhs);   // assing(*this / rhs);
+      }
+      
+      CVector operator/(const T rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
+          result.data[i] = data[i] / rhs;
+        return result;
+      }
+      
+      CVector& operator/=(const T rhs) {
+        return (*this = *this / rhs);   // assing(*this / rhs);
+      }
+      
+      bool operator<(const CVector& rhs) const {
+        if (x < rhs.x)                       // TODO: use math::greater()
+        {
+          return true;
+        } else if (x == rhs.x)                 // TODO: use math::equals()
+        {
+          if (y < rhs.y) {
+            return true;
+          } else if (y == rhs.y) {
+            if (z < rhs.z) {
+              return true;
+            } else if (z == rhs.z) {
+              return w < rhs.w;
+            }
+          }
+        }
+        return false;
+      }
+      
+      explicit operator T*() {
+        return (T*) (&data[0]);
+      }
+      
+      explicit operator const T*() const {
+        return (const T*) (&data[0]);
+      }
+    public:
+      T    length() {
+        return (T) sqrt(x * x + y * y + z * z + w * w);
+      }
+      void normalize() {
+        T l = length();
+        if (l != T(1)) {
+          x /= l;
+          y /= l;
+          z /= l;
+          w /= l;
+        }
+      }
   };
   
-  template <typename T, const ushort s> inline const sys::CLogger::ELevel& operator <<(const sys::CLogger::ELevel& type, const CVector<T,s>& m) {
+  template<typename T, const ushort s> inline const sys::CLogger::ELevel& operator<<(const sys::CLogger::ELevel& type, const CVector<T, s>& v) {
     std::ostringstream os;
-    for (ushort i = 0; i < s; i++) {
-      os << m.data[i] << " ";
-    }
+    for (ushort        i = 0; i < s; i++)
+      os << v[i] << " ";
     sys::CLogger::instance()->push(os.str());
     return type;
   }

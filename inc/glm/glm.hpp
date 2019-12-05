@@ -258,18 +258,19 @@ namespace glm {
   
   // glm::rotate // rotation matrix from axis and angle | R = cos*I + sin*[u]x + (1-cos)uXu | tensor product
   template <typename T> inline tmat<T, 4, 4> rotate(const T& a, const T& x, const T& y, const T& z) {
+    // return glm::rotate(a, glm::tvec<T,3>{x,y,z});
     const T xx = x * x;
     const T yy = y * y;
     const T zz = z * z;
     const T xy = x * y;
     const T xz = x * z;
     const T yz = y * z;
-    
+
     const T rads = glm::radians(a);  // float
     const T c    = (T) ::cos(rads);  // float
     const T s    = (T) ::sin(rads);  // float
     const T omc  = T(1) - c;         // one minus cos
-    
+
     return tmat<T, 4, 4>(
       tvec<T, 4>(T(xx * omc + c),     T(xy * omc + z * s), T(xz * omc - y * s), T(0)),
       tvec<T, 4>(T(xy * omc - z * s), T(yy * omc + c),     T(yz * omc + x * s), T(0)),
@@ -279,8 +280,18 @@ namespace glm {
   }
   
   // glm::rotate // rotation matrix - vector
-  template <typename T> inline glm::tmat<T, 4, 4> rotate(const T& a, const glm::tvec<T, 3>& v) {
-    return glm::rotate(a, v[0], v[1], v[2]);
+  template <typename T> inline glm::tmat<T, 4, 4> rotate(const T& a, const glm::tvec<T,3>& vec) {
+    return glm::rotate(a, vec.x, vec.y, vec.z);
+    // const T c = ::cos(a);
+    // const T s = ::sin(a);
+    //
+    // glm::tvec<T,3> axis {glm::normalize(vec)};
+    // glm::tvec<T,3> omca {(T(1) - c) * axis};
+    //
+    //
+    // return tmat<T, 4, 4>(
+    //  
+    // );
   }
   
   // glm::rotate // matrix rotation using angles
@@ -384,11 +395,11 @@ namespace glm {
     // m[3][2] = 2 * near
   
   // glm::lookat(vec3 position, vec3 target, vec3 up) // eye, center, up
-  template <typename T> inline tmat<T,4,4> lookat(glm::tvec<T,3> p/*position,eye*/, glm::tvec<T,3> t/*target,center*/, tvec<T,3> a/*up*/) {
-    const tvec<T,  3> f(glm::normalize(t - p));
-    const tvec<T,  3> s(glm::normalize(glm::cross(f,a)));
-    const tvec<T,  3> u(glm::cross(s,f));
-          tmat<T,4,4> m {T(1)};
+  template <typename T> inline CMatrix<T,4,4> lookat(glm::CVector<T,3> p/*position,eye*/, glm::CVector<T,3> t/*target,center*/, CVector<T,3> a/*up*/) {
+    const CVector<T,  3> f(glm::normalize(t - p));
+    const CVector<T,  3> s(glm::normalize(glm::cross(f,a)));
+    const CVector<T,  3> u(glm::cross(s,f));
+          CMatrix<T,4,4> m {T(1)};
     // 
     m[0][0] = +s.x;      m[0][1] = +u.x;       m[0][2] = -f.x;
     m[1][0] = +s.y;      m[1][1] = +u.y;       m[1][2] = -f.y;
