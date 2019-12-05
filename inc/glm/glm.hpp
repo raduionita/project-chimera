@@ -315,7 +315,16 @@ namespace glm {
   // @todo glm::scale
   // @todo glm::reflect
   // @todo glm::refract
-  // @todo glm::translate
+  
+  // glm::translate // create translation matrix from a direction vector
+  template <typename T> CMatrix<T,4,4> translate(const CVector<T,3>& v) {
+    return CMatrix<T, 4, 4>{
+      CVector<T,4> {T(1), T(0), T(0), T(0)},
+      CVector<T,4> {T(0), T(1), T(0), T(0)},
+      CVector<T,4> {T(0), T(0), T(1), T(0)},
+      CVector<T,4> {v[0], v[1], v[2], T(1)}
+    };
+  }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -369,16 +378,23 @@ namespace glm {
   template <typename T> CMatrix<T,4,4> inline perspective(T fovy, T ratio, T near, T far) {
     assert(far > near);
     assert(glm::abs(ratio - std::numeric_limits<T>::epsilon() > T(0)));
-    T q = T(1) / std::tan(glm::radians(fovy / T(2))); //  tanhfov = 1/tan(fovy/2)
-    T A = q / ratio;                                  //  1/(ratio*tanhfov)
-    T B = (near + far) / (near - far);                // -(far+near)/(far-near)
-    T C = (T(2) * near *  far) / (near - far);        // -(2*far*near)/(far-near)    
-    return CMatrix<T, 4, 4>(
-      CVector<T,4>(   A, T(0), T(0), T(0)),
-      CVector<T,4>(T(0),    q, T(0), T(0)),
-      CVector<T,4>(T(0), T(0),    B, T(-1)),
-      CVector<T,4>(T(0), T(0),    C, T(0))
-    );
+    // T q = T(1) / std::tan(glm::radians(fovy / T(2))); //  tanhfov = 1/tan(fovy/2)
+    // T A = q / ratio;                                  //  1/(ratio*tanhfov)
+    // T B = (near + far) / (near - far);                // -(far+near)/(far-near)
+    // T C = (T(2) * near *  far) / (near - far);        // -(2*far*near)/(far-near)    
+    // return CMatrix<T, 4, 4>{
+    //   CVector<T,4> {   A, T(0), T(0), T(0)},
+    //   CVector<T,4> {T(0),    q, T(0), T(0)},
+    //   CVector<T,4> {T(0), T(0),    B, T(-1)},
+    //   CVector<T,4> {T(0), T(0),    C, T(0)}
+    // };
+    const T thf = ::tan(fovy / T(2));
+    return CMatrix<T,4,4> {
+      CVector<T,4> { T(1)/(ratio * thf), T(0),       T(0),                        T(0) },
+      CVector<T,4> { T(0),               T(1)/(thf), T(0),                        T(0) },
+      CVector<T,4> { T(0),               T(0),       -(far+near)/(far-near),     -T(1) },
+      CVector<T,4> { T(0),               T(0),       (T(2)*far*near)/(far-near), -T(0) },
+    };
   }
 
   // @todo glm::perspective(T fovy, T ratio, T near) = infinite perspective
@@ -399,18 +415,24 @@ namespace glm {
     const CVector<T,  3> f(glm::normalize(t - p));
     const CVector<T,  3> s(glm::normalize(glm::cross(f,a)));
     const CVector<T,  3> u(glm::cross(s,f));
-          CMatrix<T,4,4> m {T(1)};
-    // 
-    m[0][0] = +s.x;      m[0][1] = +u.x;       m[0][2] = -f.x;
-    m[1][0] = +s.y;      m[1][1] = +u.y;       m[1][2] = -f.y;
-    m[2][0] = +s.z;      m[2][1] = +u.z;       m[2][2] = -f.z;
-    m[3][0] = -dot(s,t); m[3][1] = -dot(u,t);  m[3][2] = -dot(f,t);
-    // 
-    return m;
+    return CMatrix<T,4,4>{                                     // glm::mat4 m{1}
+      CVector<T,4>(+s.x,      +u.x,      -f.x,      T(1)),     // [0][0] +s.x      | [0][1] +u.x      | [0][2] -f.x
+      CVector<T,4>(+s.y,      +u.y,      -f.y,      T(1)),     // [1][0] +s.y      | [1][1] +u.y      | [1][2] -f.y
+      CVector<T,4>(+s.z,      +u.z,      -f.z,      T(1)),     // [2][0] +s.z      | [2][1] +u.z      | [2][2] -f.z
+      CVector<T,4>(-dot(s,t), -dot(u,t), -dot(f,t), T(1))
+    };
+    
+    // CMatrix<T,4,4> m {T(1)};
+    // m[0][0] = +s.x;      m[0][1] = +u.x;       m[0][2] = -f.x;
+    // m[1][0] = +s.y;      m[1][1] = +u.y;       m[1][2] = -f.y;
+    // m[2][0] = +s.z;      m[2][1] = +u.z;       m[2][2] = -f.z;
+    // m[3][0] = -dot(s,t); m[3][1] = -dot(u,t);  m[3][2] = -dot(f,t);
+    // return m;
+    
     // old
-    // const tvec<T, 3> f(normalize(target - position)); // direction = target - position
-    // const tvec<T, 3> s(normalize(cross(f, up)));      // side = forward x up
-    // const tvec<T, 3> u(cross(s, f));                  // up - recomputed
+    // const tvec<T, 3> f(glm::normalize(t - p)); // direction = target - position
+    // const tvec<T, 3> s(glm::normalize(glm::cross(f, a)));      // side = forward x up
+    // const tvec<T, 3> u(glm::cross(s, f));                  // up - recomputed
     // const CMatrix<T, 4, 4> M = CMatrix<T, 4, 4>(                                     // glm::mat4 m{1}
     //   tvec<T, 4>(-s.x,  u.x, -f.x, T(0)),                                         // [0][0] +s.x      | [0][1] +u.x      | [0][2] -f.x
     //   tvec<T, 4>(-s.y,  u.y, -f.y, T(0)),                                         // [1][0] +s.y      | [1][1] +u.y      | [1][2] -f.y
@@ -418,7 +440,7 @@ namespace glm {
     //   tvec<T, 4>(T(0), T(0), T(0), T(1))                                          // [3][0] -dot(s,e) | [3][1] -dot(s,e) | [3][2] +dot(f,e)
     //   //tvec<T, 4>(-dot(s, position), -dot(u, position), dot(f, position), T(1))
     // );
-    // return M * translate(-position);
+    // return M * glm::translate(-p);
   }
   
   // @todo glm::unproject(vec3 window, mat4 modelview, mat4 perspective, vec4 viewport)

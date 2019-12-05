@@ -13,7 +13,7 @@ namespace glm {
       typedef CMatrix<T,c,r> mat_t;
       typedef CVector<T,r>   vec_t;
     private:
-      CVector<T, r> data[c];
+      CVector<T,r> data[c];
     public:
       CMatrix() {
         for (ushort j = 0; j < c; j++)
