@@ -197,7 +197,7 @@ namespace glm {
   
   
   // glm::dot
-  template <typename T, const ushort n> T inline dot(const glm::tvec<T, n>& v1, const glm::tvec<T, n>& v2) {
+  template <typename T, const ushort n> T inline dot(const glm::CVector<T,n>& v1, const glm::CVector<T,n>& v2) {
     T res(0);
     for(ushort i = 0; i < n; i++)
       res += v1[i] * v2[i];
@@ -205,7 +205,7 @@ namespace glm {
   }  
   
   // glm::dot quat
-  template <typename T> T inline dot(const glm::tquat<T>& q1, const glm::tquat<T>& q2) {
+  template <typename T> T inline dot(const glm::CQuaterion<T>& q1, const glm::CQuaterion<T>& q2) {
     T res(0);
     for(ushort i = 0; i < 4; ++i)
       res += q1[i] * q2[i];
@@ -213,15 +213,15 @@ namespace glm {
   }
   
   // glm::cross
-  template <typename T> tvec<T, 3> inline cross(const glm::tvec<T, 3>& v1, const glm::tvec<T, 3>& v2) {
-    return tvec<T,3>(
-      v1.y * v2.z - v1.z * v2.y,
-      v1.z * v2.x - v1.x * v2.z,
-      v1.x * v2.y - v1.y * v2.x);
+  template <typename T> glm::CVector<T,3> inline cross(const glm::CVector<T, 3>& x, const glm::CVector<T,3>& y) {
+    return glm::CVector<T,3>(
+      (x.y * y.z - y.y * x.z),
+      (x.z * y.x - y.z * x.x),
+      (x.x * y.y - y.x * x.y));
   }
   
   // glm::length
-  template <typename T, const ushort n> T inline length(const glm::tvec<T, n>& v) {
+  template <typename T, const ushort n> T inline length(const glm::CVector<T,n>& v) {
     T sum {0};
     for(ushort i = 0; i < n; i++)
       sum += v[i] * v[i];
@@ -229,7 +229,7 @@ namespace glm {
   }
   
   // glm::normalize
-  template <typename T, const ushort n> tvec<T, n> inline normalize(const glm::tvec<T, n>& v) {
+  template <typename T, const ushort n> CVector<T,n> inline normalize(const glm::CVector<T,n>& v) {
     return v / glm::length(v);
   }
   
@@ -266,10 +266,10 @@ namespace glm {
     const T xz = x * z;
     const T yz = y * z;
 
-    const T rads = glm::radians(a);  // float
-    const T c    = (T) ::cos(rads);  // float
-    const T s    = (T) ::sin(rads);  // float
-    const T omc  = T(1) - c;         // one minus cos
+    const T rad = glm::radians(a);  // float
+    const T c   = (T) ::cos(rad);  // float
+    const T s   = (T) ::sin(rad);  // float
+    const T omc = T(1) - c;         // one minus cos
 
     return tmat<T, 4, 4>(
       tvec<T, 4>(T(xx * omc + c),     T(xy * omc + z * s), T(xz * omc - y * s), T(0)),
@@ -362,15 +362,16 @@ namespace glm {
     assert(width  > T(0));
     assert(height > T(0));
     assert(fov    > T(0));
-    const T rad = fov;
-    const T m11 = cos(T(0.5) * rad)/sin(T(0.5) * rad); 
-    const T m00 = m11 * height/width;
+    // @todo: allow radians or degrees
+    const T rad = glm::radians(fov);
+    const T m11 = ::cos(T(0.5) * rad)/::sin(T(0.5) * rad); // h
+    const T m00 = m11 * height/width;                      // w
     CMatrix<T,4,4> M {T(0)};
-    M[0][0] = m00;
-    M[1][1] = m11;
-    M[2][2] = (near + far)/(near - far);
+    M[0][0] = m00; // w
+    M[1][1] = m11; // h
+    M[2][2] = -(far + near)/(far - near);        // (near + far)/(near - far);
     M[2][2] = -T(1);
-    M[3][2] = (2 * near * far)/(near - far);
+    M[3][2] = -(T(2) * far * near)/(far - near); // (T(2) * near * far)/(near - far);
     return M;
   }
 
@@ -388,12 +389,13 @@ namespace glm {
     //   CVector<T,4> {T(0), T(0),    B, T(-1)},
     //   CVector<T,4> {T(0), T(0),    C, T(0)}
     // };
-    const T thf = ::tan(fovy / T(2));
+    const T thf = ::tan(glm::radians(fovy / T(2)));
+    // @todo: allow radians or degrees
     return CMatrix<T,4,4> {
-      CVector<T,4> { T(1)/(ratio * thf), T(0),       T(0),                        T(0) },
-      CVector<T,4> { T(0),               T(1)/(thf), T(0),                        T(0) },
-      CVector<T,4> { T(0),               T(0),       -(far+near)/(far-near),     -T(1) },
-      CVector<T,4> { T(0),               T(0),       (T(2)*far*near)/(far-near), -T(0) },
+      CVector<T,4> { T(1)/(ratio * thf), T(0),       T(0),                         T(0) },
+      CVector<T,4> { T(0),               T(1)/(thf), T(0),                         T(0) },
+      CVector<T,4> { T(0),               T(0),       -(far+near)/(far-near),      -T(1) },
+      CVector<T,4> { T(0),               T(0),       -(T(2)*far*near)/(far-near),  T(0) },
     };
   }
 
@@ -412,21 +414,21 @@ namespace glm {
   
   // glm::lookat(vec3 position, vec3 target, vec3 up) // eye, center, up
   template <typename T> inline CMatrix<T,4,4> lookat(glm::CVector<T,3> p/*position,eye*/, glm::CVector<T,3> t/*target,center*/, CVector<T,3> a/*up*/) {
-    const CVector<T,  3> f(glm::normalize(t - p));
-    const CVector<T,  3> s(glm::normalize(glm::cross(f,a)));
-    const CVector<T,  3> u(glm::cross(s,f));
-    return CMatrix<T,4,4>{                                     // glm::mat4 m{1}
-      CVector<T,4>(+s.x,      +u.x,      -f.x,      T(1)),     // [0][0] +s.x      | [0][1] +u.x      | [0][2] -f.x
-      CVector<T,4>(+s.y,      +u.y,      -f.y,      T(1)),     // [1][0] +s.y      | [1][1] +u.y      | [1][2] -f.y
-      CVector<T,4>(+s.z,      +u.z,      -f.z,      T(1)),     // [2][0] +s.z      | [2][1] +u.z      | [2][2] -f.z
-      CVector<T,4>(-dot(s,t), -dot(u,t), -dot(f,t), T(1))
+    const CVector<T,3> f {glm::normalize(t - p)};
+    const CVector<T,3> s {glm::normalize(glm::cross(f,a))};
+    const CVector<T,3> u {glm::cross(s,f)};
+    return CMatrix<T,4,4>{
+      CVector<T,4>(+s.x,      +u.x,      -f.x,      T(1)),
+      CVector<T,4>(+s.y,      +u.y,      -f.y,      T(1)),
+      CVector<T,4>(+s.z,      +u.z,      -f.z,      T(1)),
+      CVector<T,4>(-dot(s,p), -dot(u,p), +dot(f,p), T(1))
     };
     
     // CMatrix<T,4,4> m {T(1)};
     // m[0][0] = +s.x;      m[0][1] = +u.x;       m[0][2] = -f.x;
     // m[1][0] = +s.y;      m[1][1] = +u.y;       m[1][2] = -f.y;
     // m[2][0] = +s.z;      m[2][1] = +u.z;       m[2][2] = -f.z;
-    // m[3][0] = -dot(s,t); m[3][1] = -dot(u,t);  m[3][2] = -dot(f,t);
+    // m[3][0] = -dot(s,p); m[3][1] = -dot(u,p);  m[3][2] = dot(f,p);
     // return m;
     
     // old
@@ -434,11 +436,11 @@ namespace glm {
     // const tvec<T, 3> s(glm::normalize(glm::cross(f, a)));      // side = forward x up
     // const tvec<T, 3> u(glm::cross(s, f));                  // up - recomputed
     // const CMatrix<T, 4, 4> M = CMatrix<T, 4, 4>(                                     // glm::mat4 m{1}
-    //   tvec<T, 4>(-s.x,  u.x, -f.x, T(0)),                                         // [0][0] +s.x      | [0][1] +u.x      | [0][2] -f.x
-    //   tvec<T, 4>(-s.y,  u.y, -f.y, T(0)),                                         // [1][0] +s.y      | [1][1] +u.y      | [1][2] -f.y
-    //   tvec<T, 4>(-s.z,  u.z, -f.z, T(0)),                                         // [2][0] +s.z      | [2][1] +u.z      | [2][2] -f.z
-    //   tvec<T, 4>(T(0), T(0), T(0), T(1))                                          // [3][0] -dot(s,e) | [3][1] -dot(s,e) | [3][2] +dot(f,e)
-    //   //tvec<T, 4>(-dot(s, position), -dot(u, position), dot(f, position), T(1))
+    //   tvec<T, 4>(-s.x,  u.x, -f.x, T(0)),
+    //   tvec<T, 4>(-s.y,  u.y, -f.y, T(0)),
+    //   tvec<T, 4>(-s.z,  u.z, -f.z, T(0)),
+    //   tvec<T, 4>(T(0), T(0), T(0), T(1)),
+    //   //tvec<T, 4>(-dot(s, p), -dot(u, p), dot(f, p), T(1))
     // );
     // return M * glm::translate(-p);
   }

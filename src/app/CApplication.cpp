@@ -48,16 +48,20 @@ namespace app {
     GLCALL(::glEnable(GL_BLEND));
     GLCALL(::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     
-    GLfloat vertices[] {-0.5f,-0.5f, 0.0f,0.0f,  // 0 // bottom-left
-                        +0.5f,-0.5f, 1.0f,0.0f,  // 1 // bottom-right
-                        +0.5f,+0.5f, 1.0f,1.0f,  // 2 // top-right
-                        -0.5f,+0.5f, 0.0f,1.0f}; // 3  // top-left
+    auto    area {pSurface->area()};
+    
+    log::nfo << "app::CApplication::exec()::" << this << " w:" << area.w << " h:" << area.h << log::end;
+    
+    GLfloat vertices[] {-0.5f,-0.5f,+0.0f, 0.0f,0.0f,  // 0 // bottom-left
+                        +0.5f,-0.5f,+0.0f, 1.0f,0.0f,  // 1 // bottom-right
+                        +0.5f,+0.5f,+0.0f, 1.0f,1.0f,  // 2 // top-right
+                        -0.5f,+0.5f,+0.0f, 0.0f,1.0f}; // 3  // top-left
     GLuint  indices [] {0,1,2, 2,3,0};
   
     ogl::CVertexArray   vao;
-    ogl::CDataBuffer    vbo {vertices, 4 * 4, ogl::CDataBuffer::VERTEX}; // 4 vertices * 4 components (xyuv)
+    ogl::CDataBuffer    vbo {vertices, 4 * 5, ogl::CDataBuffer::VERTEX}; // 4 vertices * 5 components (xyzuv)
     ogl::CVertexLayout  vlo;
-    vlo.push({GL_FLOAT, 2});
+    vlo.push({GL_FLOAT, 3});
     vlo.push({GL_FLOAT, 2});
     vao.buffer(vbo, vlo);
     ogl::CDataBuffer    ibo {indices, 2 * 3, ogl::CDataBuffer::INDEX}; // 2 triangles * 3 vertices
@@ -73,8 +77,8 @@ namespace app {
     
     float     r = 0.0f;
     glm::mat4 M;
-    glm::mat4 V = glm::lookat({5.0f,5.0f,5.0f}, {0.0f,0.0f,0.0f}, glm::Y);
-    glm::mat4 P = glm::perspective(60.f, 1.33f, 0.1f, 1000.f);
+    glm::mat4 V = glm::lookat({+0.0f,+0.0f,-1.0f}, {0.0f,0.0f,0.0f}, glm::Y);
+    glm::mat4 P = glm::perspective(60.f, (float)(area.w), (float)(area.h), 0.1f, 1000.f);
     
     while (runs()) {
       GLCALL(::glClearColor(0.f,0.f,0.0f,1.f));
@@ -86,7 +90,7 @@ namespace app {
   
       shd.bind(true);
       // shd.uniform("u_sTexture", tx1);
-      shd.uniform("u_mMVP", M * glm::rotate(r, glm::Y) * V * P);
+      shd.uniform("u_mMVP", M * glm::rotate(r,glm::Y) * V * P);
       
   
       vao.bind(true);

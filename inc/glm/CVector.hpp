@@ -158,19 +158,9 @@ namespace glm {
       };
     public:
       CVector() : x(T(0)), y(T(0)), z(T(0)) {}
-      CVector(const T s) {
-        for (ushort i = 0; i < size; i++)
-          data[i]     = s;
-      }
-      CVector(const T x, const T y, const T z) {
-        data[0] = x;
-        data[1] = y;
-        data[2] = z;
-      }
-      CVector(const CVector& xyz) {
-        for (ushort i = 0; i < size; i++)
-          data[i] = xyz.data[i];
-      }
+      CVector(const T s) : x{s}, y{s}, z{s} { }
+      CVector(const T x, const T y, const T z) : x{x}, y{y}, z{z} { }
+      CVector(const CVector& xyz) : x{xyz.x}, y{xyz.y}, z{xyz.z} { }
       CVector(const CVector<T,2>& xy, const T z) {
         data[0] = xy.data[0];
         data[1] = xy.data[1];
@@ -228,10 +218,10 @@ namespace glm {
         return result;
       }
       CVector  operator  *(const CVector& rhs) const {
-        CVector     result;
+        CVector out;
         for (ushort i = 0; i < size; i++)
-          result.data[i] = data[i] * rhs.data[i];
-        return result;
+          out.data[i] = data[i] * rhs.data[i];
+        return out;
       }
       CVector& operator *=(const CVector& rhs) {
         return (*this = *this * rhs);
@@ -276,7 +266,7 @@ namespace glm {
         return false;
       }
     public: // operator: cast
-      explicit operator       T*()       { return (T*) (&data[0]); }
+      explicit operator       T*()       { return       (T*) (&data[0]); }
       explicit operator const T*() const { return (const T*) (&data[0]); }
     public: 
       T    length() {
@@ -424,7 +414,7 @@ namespace glm {
         return (*this = *this / rhs);   // assing(*this / rhs);
       }
       CVector  operator  /(const T rhs) const {
-        CVector     result;
+        CVector<T,size> result;
         for (ushort i = 0; i < size; i++)
           result.data[i] = data[i] / rhs;
         return result;
@@ -456,7 +446,7 @@ namespace glm {
       explicit operator const T*() const { return (const T*)(&data[0]); }
     public:
       T    length() {
-        return (T) sqrt(x * x + y * y + z * z + w * w);
+        return (T)(std::sqrt(x * x + y * y + z * z + w * w));
       }
       void normalize() {
         T l = length();
