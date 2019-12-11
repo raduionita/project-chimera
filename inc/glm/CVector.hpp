@@ -286,7 +286,7 @@ namespace glm {
       }
   };
   
-  template<typename T> class CVector<T, 4> {
+  template<typename T> class CVector<T,4> {
       template<typename F, const ushort n> friend class CVector;
       typedef CVector<T,4> vec_t;
       static const ushort  size = 4;
@@ -459,12 +459,33 @@ namespace glm {
       }
   };
   
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   template<typename T, const ushort s> inline const sys::CLogger::ELevel& operator<<(const sys::CLogger::ELevel& type, const CVector<T,s>& v) {
     std::ostringstream os;
     for (ushort        i = 0; i < s; i++)
       os << v[i] << " ";
     sys::CLogger::instance()->push(os.str());
     return type;
+  }
+  
+  template <typename T, const ushort n> const CVector<T, n> operator *(const T s, const CVector<T, n>& v) {
+    return v * s;
+  }
+  
+  template <typename T, const ushort n> const CVector<T, n> operator /(const T s, const CVector<T, n>& v) {
+    CVector<T, n> out(0);
+    for(ushort i = 0; i < n; i++)
+      out[i] = s / v[i];
+    return out;
+  }
+  
+  template <typename T, const ushort c, const ushort r> CVector<T,c> operator *(const CMatrix<T,c,r>& mat, const CVector<T,r>& vec) {
+    CVector<T,c> out(T(0));
+    for(ushort i = 0; i < r; i++)
+      for(ushort j = 0; j < c; j++)
+        out[j] += vec[i] * mat[j][i];
+    return out;  
   }
   
   const vec3 O {0.0f, 0.0f, 0.0f};

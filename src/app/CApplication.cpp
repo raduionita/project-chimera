@@ -14,6 +14,7 @@
 #include "ogl/CShader.hpp"
 #include "ogl/CTexture.hpp"
 
+#include "glm/glm.hpp"
 #include "glm/CMatrix.hpp"
 #include "glm/CVector.hpp"
 
@@ -55,7 +56,7 @@ namespace app {
     GLfloat vertices[] {-0.5f,-0.5f,+0.0f, 0.0f,0.0f,  // 0 // bottom-left
                         +0.5f,-0.5f,+0.0f, 1.0f,0.0f,  // 1 // bottom-right
                         +0.5f,+0.5f,+0.0f, 1.0f,1.0f,  // 2 // top-right
-                        -0.5f,+0.5f,+0.0f, 0.0f,1.0f}; // 3  // top-left
+                        -0.5f,+0.5f,+0.0f, 0.0f,1.0f}; // 3 // top-left
     GLuint  indices [] {0,1,2, 2,3,0};
   
     ogl::CVertexArray   vao;
@@ -76,23 +77,25 @@ namespace app {
     vbo.bind(false);
     
     float     r = 0.0f;
-    glm::mat4 M;
-    glm::mat4 V = glm::lookat({+0.0f,+0.0f,-1.0f}, {0.0f,0.0f,0.0f}, glm::Y);
-    glm::mat4 P = glm::perspective(60.f, (float)(area.w), (float)(area.h), 0.1f, 1000.f);
+    glm::mat4 M = glm::translate(glm::vec3{0.f,0.f,-1.f});
+    glm::mat4 V = glm::lookat({+0.0f,+0.0f,+1.0f}, {0.0f,0.0f,0.0f}, glm::Y);
+    glm::mat4 P = glm::perspective(60.f, float(area.w)/float(area.h), 1.f, 1000.f);
     
     while (runs()) {
       GLCALL(::glClearColor(0.f,0.f,0.0f,1.f));
       GLCALL(::glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT));
       
-      glm::loop(r,1.f,0.f,360.f);
+      glm::loop(r, 1.f, 0.f, 360.f);
       
       log::nfo << "app::CApplication::exec()::" << this << " LOOP" << log::end;
   
       shd.bind(true);
       // shd.uniform("u_sTexture", tx1);
-      shd.uniform("u_mMVP", M * glm::rotate(r,glm::Y) * V * P);
+      shd.uniform("u_mMVP", P*V*M*glm::rotate(r,glm::Z)*glm::rotate(r,glm::Y));
+      shd.uniform("u_mM", M);
+      shd.uniform("u_mV", V);
+      shd.uniform("u_mP", P);
       
-  
       vao.bind(true);
       ibo.bind(true);
       

@@ -1,6 +1,8 @@
 #include "ogl/CShader.hpp"
 #include "ogl/CTexture.hpp"
 
+#include "glm/CMatrix.hpp"
+
 #include <fstream>
 #include <cassert>
 #include <vector>

@@ -4,6 +4,9 @@
 layout (location = 0) in vec4 a_vPosition;
 layout (location = 1) in vec4 a_vTexcoord;
 
+uniform mat4 u_mM;
+uniform mat4 u_mV;
+uniform mat4 u_mP;
 uniform mat4 u_mMVP;
 
 out vec2 v_vTexcoord;

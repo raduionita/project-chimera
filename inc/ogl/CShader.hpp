@@ -5,7 +5,6 @@
 #include "ogl/CObject.hpp"
 #include "ogl/CResource.hpp"
 #include "glm/glm.hpp"
-#include "glm/CMatrix.hpp"
 
 #include <string>
 #include <unordered_map>

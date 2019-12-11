@@ -27,7 +27,8 @@ namespace glm {
       }
       explicit CMatrix(const T s) {
         for (ushort j = 0; j < c; j++)
-          data[j]     = s;
+          for (ushort i = 0; i < r; i++)
+            data[j][i] = i == j ? s : T(0);
       }
       CMatrix(const CVector<T,r>& vec) {
         for (ushort j = 0; j < c; j++)
@@ -93,17 +94,17 @@ namespace glm {
         return &this;
       }
       CMatrix operator   *(const CMatrix& that) const {
-        CMatrix     result;
-        T           sum;
+        CMatrix out;
+        T       sum;
         for (ushort j = 0; j < c; j++) {
           for (ushort i = 0; i < r; i++) {
             sum = T(0);
             for (ushort k = 0; k < c; k++)
-              sum += data[k][i] * that[j][k];
-            result[j][i] = sum;
+              sum += data[k][i] * that.data[j][k];
+            out[j][i] = sum;
           }
         }
-        return result;
+        return out;
       }
       CMatrix& operator *=(const CMatrix& that) {
         return (*this = *this * that);
@@ -264,11 +265,11 @@ namespace glm {
   
   template<typename T, const ushort c, const ushort r>
   CVector<T, c> inline operator*(const CVector<T, r>& vec, const CMatrix<T, c, r>& mat) {
-    CVector<T, c> result(T(0));
+    CVector<T, c> out(T(0));
     for (ushort   i = 0; i < r; i++)
       for (ushort j = 0; j < c; j++)
-        result[j] += vec[i] * mat[j][i];
-    return result;
+        out[j] += vec[i] * mat[j][i];
+    return out;
   }
 }
 
