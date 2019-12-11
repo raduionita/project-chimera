@@ -31,5 +31,5 @@ layout (location = 0) out vec4 f_vColor;
 layout (binding = OGL_TEXTURE_0) uniform sampler2D u_sTexture;
 
 void main() {
-  f_vColor = vec4(1.0,1.0,1.0,1.0);
+  f_vColor = vec4(texture(u_sTexture, v_vTexcoord).rgb,1.0);
 }

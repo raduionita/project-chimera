@@ -82,7 +82,7 @@ namespace app {
     glm::mat4 P = glm::perspective(60.f, float(area.w)/float(area.h), 1.f, 1000.f);
     
     while (runs()) {
-      GLCALL(::glClearColor(0.f,0.f,0.0f,1.f));
+      GLCALL(::glClearColor(0.1f,0.1f,0.1f,1.f));
       GLCALL(::glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT));
       
       glm::loop(r, 1.f, 0.f, 360.f);
@@ -90,7 +90,7 @@ namespace app {
       log::nfo << "app::CApplication::exec()::" << this << " LOOP" << log::end;
   
       shd.bind(true);
-      // shd.uniform("u_sTexture", tx1);
+      shd.uniform("u_sTexture", tx1);
       shd.uniform("u_mMVP", P*V*M*glm::rotate(r,glm::Z)*glm::rotate(r,glm::Y));
       shd.uniform("u_mM", M);
       shd.uniform("u_mV", V);
