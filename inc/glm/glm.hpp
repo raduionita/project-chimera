@@ -85,9 +85,9 @@ namespace glm {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  const real E        = real(2.71828182845904);
-  const real PI       = real(3.14159265358979);
-  const real RAD      = PI / real(180.0);
+  constexpr real E        = real(2.71828182845904);
+  constexpr real PI       = real(3.14159265358979);
+  constexpr real RAD      = PI / real(180.0);
   
   // glm::epsilon<float>()
   template <typename T> using epsilon = decltype(std::numeric_limits<T>::epsilon);
@@ -342,16 +342,16 @@ namespace glm {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  // @todo glm::ortho(T left, T right, T bottom, T top, T near, T far) // 
-    // CMatrix<T, 4, 4> result;
-    // result[0][0] = + T(2) / (right - left);
-    // result[1][1] = + T(2) / (top - bottom);
-    // result[2][2] = - T(2) / (far - near);               // == // 2 / (near - far)
-    // result[3][0] = - (right + left) / (right - left);   // == // (left + right) / (left - right)
-    // result[3][1] = - (bottom + top) / (top - bottom);   // == // (bottom + top) / (bottom - top)
-    // result[3][2] = - (far + near) / (far - near);       // == // (near + far) / (near - far)
-    // result[3][3] = + T(1);
-    // return result; 
+  // glm::ortho(T left, T right = screen.width, T bottom = screen.height, T top, T near, T far) //
+  template <typename T> CMatrix<T,4,4> inline ortho(T left, T right, T bottom, T top, T near, T far) {
+    return CMatrix<T,4,4> {
+      T(2)/(right-left),          T(0),                        T(0),            T(0),
+      T(0),                       T(2)/(top-bottom),           T(0),            T(0),
+      T(0),                       T(0),                       -T(1)/(far-near), T(0),
+      -(right+left)/(right-left), -(top+bottom)/(top-bottom), -near/(far-near), T(1),
+    };
+  } 
+    
   // @todo glm::frustum(T left, T right, T bottom, T top, T near, T far) // return mat4
     // if((right == left) || (top == bottom) || (near == far) || (near < T(0)) || (far < T(0)))
     //   return identity<T, 4>();
@@ -373,10 +373,10 @@ namespace glm {
     const T m11 = ::cos(rad)/::sin(rad); // h
     const T m00 = m11 * height/width;    // w
     return CMatrix<T,4,4> {
-      CVector<T,4> { m00,  T(0),  T(0),                  T(0) },
-      CVector<T,4> { T(0), m11,   T(0),                  T(0) },
-      CVector<T,4> { T(0), T(0), -(far)/(far-near),     -T(1) },
-      CVector<T,4> { T(0), T(0), -(far*near)/(far-near), T(0)},
+      m00,  T(0),  T(0),                  T(0),
+      T(0), m11,   T(0),                  T(0),
+      T(0), T(0), -(far)/(far-near),     -T(1),
+      T(0), T(0), -(far*near)/(far-near), T(0),
     };
   }
 
@@ -387,10 +387,10 @@ namespace glm {
     const T thf = ::tan(glm::radians(fovy / T(2)));
     // @todo: allow radians AND degrees
     return CMatrix<T,4,4> {
-      CVector<T,4> { T(1)/(ratio * thf), T(0),       T(0),                  T(0) },
-      CVector<T,4> { T(0),               T(1)/(thf), T(0),                  T(0) },
-      CVector<T,4> { T(0),               T(0),      -(far)/(far-near),     -T(1) },
-      CVector<T,4> { T(0),               T(0),      -(far*near)/(far-near), T(0) },
+      T(1)/(ratio * thf), T(0),       T(0),                  T(0),
+      T(0),               T(1)/(thf), T(0),                  T(0),
+      T(0),               T(0),      -(far)/(far-near),     -T(1),
+      T(0),               T(0),      -(far*near)/(far-near), T(0),
     };
   }
 

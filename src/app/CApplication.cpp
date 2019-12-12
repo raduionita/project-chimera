@@ -77,9 +77,10 @@ namespace app {
     vbo.bind(false);
     
     float     r = 0.0f;
-    glm::mat4 M = glm::translate(glm::vec3{0.f,0.f,-1.f});
-    glm::mat4 V = glm::lookat({+0.0f,+0.0f,+1.0f}, {0.0f,0.0f,0.0f}, glm::Y);
-    glm::mat4 P = glm::perspective(60.f, float(area.w)/float(area.h), 1.f, 1000.f);
+    glm::mat4 M {1.0f};
+    glm::mat4 V = glm::lookat({+0.0f,+0.0f,-2.0f}, {0.0f,0.0f,0.0f}, glm::Y);
+    glm::mat4 P = glm::perspective(60.f, float(area.w), float(area.h), 1.f, 1000.f);
+    // glm::mat4 P = glm::ortho(0.f,float(area.w), float(area.h),0.f, -1.f,+1.f);
     
     while (runs()) {
       GLCALL(::glClearColor(0.1f,0.1f,0.1f,1.f));
@@ -91,7 +92,7 @@ namespace app {
   
       shd.bind(true);
       shd.uniform("u_sTexture", tx1);
-      shd.uniform("u_mMVP", P*V*M*glm::rotate(r,glm::Z)*glm::rotate(r,glm::Y));
+      shd.uniform("u_mMVP", P*V*M*glm::rotate(r,glm::Y));
       shd.uniform("u_mM", M);
       shd.uniform("u_mV", V);
       shd.uniform("u_mP", P);

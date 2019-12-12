@@ -52,6 +52,15 @@ namespace glm {
         data[2] = v2;
         data[3] = v3;
       }
+      CMatrix(const T& m00, const T& m01, const T& m02, const T& m03,
+              const T& m10, const T& m11, const T& m12, const T& m13,
+              const T& m20, const T& m21, const T& m22, const T& m23,
+              const T& m30, const T& m31, const T& m32, const T& m33) {
+        data[0][0] = m00; data[0][1] = m01; data[0][2] = m02; data[0][3] = m03;
+        data[1][0] = m10; data[1][1] = m11; data[1][2] = m12; data[1][3] = m13;
+        data[2][0] = m20; data[2][1] = m21; data[2][2] = m22; data[2][3] = m23;
+        data[3][0] = m30; data[3][1] = m31; data[3][2] = m32; data[3][3] = m33;
+      }
     public: // operator: assign
       CMatrix& operator  =(const CMatrix& that) {
         for (ushort j = 0; j < c; j++)
