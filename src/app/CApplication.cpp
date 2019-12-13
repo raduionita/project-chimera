@@ -27,23 +27,13 @@ namespace app {
     // mEngine->textureManager()->loader(new CDdsLoader);
     
     app::CEditWindow* pMain   {new app::CEditWindow};
-    uix::CBoxLayout*  pLayout {new uix::CBoxLayout(uix::ELayout::VERTICAL)};
-    
-    uix::CSurface* pSurface = pLayout->add(new uix::CSurface(pMain, uix::EWindow::VISIBLE), uix::ELayout::ADJUST);
-    uix::CPanel*   pPanel   = pLayout->add(new uix::CPanel(pMain, uix::EWindow::VISIBLE), uix::ELayout::ADJUST);
-    uix::CButton*  pButton  = new uix::CButton(pPanel, "RESIZE", {50,50,90,40});
-    
-    pPanel->style()->background(uix::SColor{33,33,33});
+    uix::CSurface*    pSurface {new uix::CSurface(pMain, uix::EWindow::VISIBLE)};
     
     attach(this,    uix::EEvent::KEYDOWN,     &app::CApplication::onKeydown);
-    attach(pPanel,  uix::EEvent::COMMAND,     &app::CApplication::onCommand);
-    attach(pButton, uix::EEvent::LBUTTONDOWN, &app::CApplication::onClick);
     attach(pSurface,uix::EEvent::RESIZE,      &uix::CRender::onResize);
     
-    pMain->layout(pLayout);
     pMain->title(pSurface->version());
     pMain->show();
-    
     pSurface->current();
     
     GLCALL(::glEnable(GL_BLEND));
@@ -52,6 +42,11 @@ namespace app {
     auto    area {pSurface->area()};
     
     log::nfo << "app::CApplication::exec()::" << this << " w:" << area.w << " h:" << area.h << log::end;
+    
+    // ogl::PModelManager man {ogl::CModelManager::instance()};
+    // @todo: rectangle model builder here
+    // ogl::PModel        mdl {man->load(gls::rectangle{1.f})};
+    
     
     GLfloat vertices[] {-0.5f,-0.5f,+0.0f, 0.0f,0.0f,  // 0 // bottom-left
                         +0.5f,-0.5f,+0.0f, 1.0f,0.0f,  // 1 // bottom-right

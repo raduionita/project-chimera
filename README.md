@@ -45,6 +45,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 - `https://gamasutra.com/blogs/MichaelKissner/20151027/257369/Writing_a_Game_Engine_from_Scratch__Part_1_Messaging.php`
 
 ### Needed
+- new: sys info object // like getting the number threads/cores 
 - new: `CWindowApplication` or `???` // application that is also a (main) window // can extend `CCanvas` (for game)
   - move: `CModule` inside `CApplication`
   - or refactor `uix::CApplication` into a toplevel window | `template <typename T=CWindow> CApplication`
@@ -67,7 +68,6 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 - create engine (using context)
   - add viewports (windows + cameras) to engine // new `CViewport` = `CWindow` + `CCamera`
   
-- precision: `#ifdef OGL_DOUBLE_PRECISION` -> `typrdef double real` #else `typedef float real`
 - fix: dds texture flipped
 - fix: texture wrapping + filtering + blending 
 

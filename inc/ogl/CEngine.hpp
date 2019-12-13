@@ -13,7 +13,14 @@ namespace ogl {
     protected:
       // CRenderSystem*
       // CAudioSystem*
+      // COverlaySystem*
       // CInputSystem*
+      
+      // CSceneManager*
+      // CModelManager*
+      // CTextureManager*
+      // CMaterialManager*
+      // CShaderManager*
       
       ogl::PTextureManager mTextureManager;
     public:

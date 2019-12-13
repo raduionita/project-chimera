@@ -3,7 +3,11 @@
 
 namespace ogl {
   class CLight {
-      
+      enum class EType {
+        DIRECT,
+        POINT, OMNI = POINT
+        SPOT,
+      };
   };
 }
 
