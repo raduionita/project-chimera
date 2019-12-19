@@ -161,29 +161,21 @@ namespace ogl {
   
   CTextureManager::~CTextureManager() { }
   
-  PTexture CTextureManager::load(const sys::CFile& file, const sys::CString& name/*=""*/) {
+  PTexture CTextureManager::load(const sys::file& file, const sys::CString& name/*=""*/) {
     log::nfo << "ogl::CTextureManager::load(CFile&,CString&)::" << this << " FILE:" << file << log::end;
     PTexture pTexture;
+    PTextureStream pStream;
 // @todo: if name is empty then name = filename.ext
 // @todo: search cache
-
     PTextureReader pReader = sys::static_pointer_cast<PTextureReader::type>(reader(file.ext()));
     if (pReader) {
-      pTexture = new CTexture{pReader->read(file)};
-      
-      
-      
+      pStream  = pReader->read(file);
+      pTexture = new CTexture{pStream};
     } else {
 // @todo: pTexture = NULL Texture
 // @todo: cache null texture
     }
-    
-
-
-
-    // use file loader
-
-
+    // @todo: use file loader
 // @todo: update cache
     return pTexture;
   }

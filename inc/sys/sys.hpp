@@ -47,7 +47,6 @@ namespace sys {
       typedef T class_type;
   };  
   
-  
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   typedef char          byte;
@@ -69,6 +68,8 @@ namespace sys {
   template<typename L, typename R> using CPair              = std::pair<L,R>;
   template<typename V> using CVector              = std::vector<V>;
   template<typename V, std::size_t S> using CArray = std::array<V,S>;
+  
+  using file = sys::CFile;
   
   // usage: (64byte aligned)
   // buffer data;

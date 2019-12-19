@@ -409,35 +409,15 @@ namespace glm {
   
   // glm::lookat(vec3 position, vec3 target, vec3 up) // eye, center, up
   template <typename T> inline CMatrix<T,4,4> lookat(glm::CVector<T,3> p/*position,eye*/, glm::CVector<T,3> t/*target,center*/, CVector<T,3> a/*up*/) {
-    // const CVector<T,3> f {glm::normalize(t - p)};
-    // const CVector<T,3> s {glm::normalize(glm::cross(f,a))};
-    // const CVector<T,3> u {glm::cross(s,f)};
-    // return CMatrix<T,4,4>{
-    //   CVector<T,4>(+s.x,      +u.x,      -f.x,      T(1)),
-    //   CVector<T,4>(+s.y,      +u.y,      -f.y,      T(1)),
-    //   CVector<T,4>(+s.z,      +u.z,      -f.z,      T(1)),
-    //   CVector<T,4>(-dot(s,p), -dot(u,p), +dot(f,p), T(1))
-    // };
-    
-    // CMatrix<T,4,4> m {T(1)};
-    // m[0][0] = +s.x;      m[0][1] = +u.x;       m[0][2] = -f.x;
-    // m[1][0] = +s.y;      m[1][1] = +u.y;       m[1][2] = -f.y;
-    // m[2][0] = +s.z;      m[2][1] = +u.z;       m[2][2] = -f.z;
-    // m[3][0] = -dot(s,p); m[3][1] = -dot(u,p);  m[3][2] = dot(f,p);
-    // return m;
-    
-    // old
-    const CVector<T,3> f(glm::normalize(t - p)); // direction = target - position
-    const CVector<T,3> s(glm::normalize(glm::cross(f, a)));      // side = forward x up
-    const CVector<T,3> u(glm::cross(s, f));                  // up - recomputed
-    const CMatrix<T,4,4> M = {                                     // glm::mat4 m{1}
-      CVector<T, 4>(-s.x, u.x, -f.x,  T(0)),
-      CVector<T, 4>(-s.y, u.y, -f.y,  T(0)),
-      CVector<T, 4>(-s.z, u.z, -f.z,  T(0)),
-      CVector<T, 4>(T(0), T(0), T(0), T(1)),
-      //tvec<T, 4>(-dot(s, p), -dot(u, p), dot(f, p), T(1))
+    const CVector<T,3> f(glm::normalize(t - p));            // direction = target - position
+    const CVector<T,3> s(glm::normalize(glm::cross(f, a))); // side = forward x up
+    const CVector<T,3> u(glm::cross(s, f));                 // up - recomputed
+    return CMatrix<T,4,4> {                              // glm::mat4 m{1}
+      CVector<T,4>(-s.x,       u.x,      -f.x,       T(0)),
+      CVector<T,4>(-s.y,       u.y,      -f.y,       T(0)),
+      CVector<T,4>(-s.z,       u.z,      -f.z,       T(0)),
+      CVector<T,4>(-dot(s, p),-dot(u, p), dot(f, p), T(1))
     };
-    return M * glm::translate(-p);
   }
   
   // @todo glm::unproject(vec3 window, mat4 modelview, mat4 perspective, vec4 viewport)

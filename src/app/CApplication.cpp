@@ -42,9 +42,9 @@ namespace app {
     auto    area {pSurface->area()};
     
     log::nfo << "app::CApplication::exec()::" << this << " w:" << area.w << " h:" << area.h << log::end;
-    
-    // ogl::PModelManager man {ogl::CModelManager::instance()};
+  
     // @todo: rectangle model builder here
+    // ogl::PModelManager man {ogl::CModelManager::instance()};
     // ogl::PModel        mdl {man->load(gls::rectangle{1.f})};
     
     
@@ -62,20 +62,22 @@ namespace app {
     vao.buffer(vbo, vlo);
     ogl::CDataBuffer    ibo {indices, 2 * 3, ogl::CDataBuffer::INDEX}; // 2 triangles * 3 vertices
   
+    // @todo: ogl::PShaderManager man {ogl::CShaderManager::instance()}
     ogl::CShader         shd {"../../res/shaders/simple/perspective.hlsl"};
+    
     ogl::PTextureManager man {ogl::CTextureManager::instance()};
-    ogl::PTexture        tx1 {man->load(sys::CFile("../../res/textures/notfound.dds"), "notfound")};
+    ogl::PTexture        tx1 {man->load(sys::file("../../res/textures/notfound.dds"), "notfound")};
     
     vao.bind(false);
     shd.bind(false);
     ibo.bind(false);
     vbo.bind(false);
     
-    float     r = 0.0f;
+    float     r {0.0f};
     glm::mat4 M {1.0f};
-    glm::mat4 V = glm::lookat({+0.0f,+0.0f,-2.0f}, {0.0f,0.0f,0.0f}, glm::Y);
-    glm::mat4 P = glm::perspective(60.f, float(area.w), float(area.h), 1.f, 1000.f);
-    // glm::mat4 P = glm::ortho(0.f,float(area.w), float(area.h),0.f, -1.f,+1.f);
+    glm::mat4 V {glm::lookat({+0.0f,+0.0f,-2.0f}, {0.0f,0.0f,0.0f}, glm::Y)};
+    glm::mat4 P {glm::perspective(60.f, float(area.w), float(area.h), 1.f, 1000.f)};
+    // glm::mat4 P = glm::ortho(-2.0f,2.0f, -2.0f,2.0f, -1.f,+1.f);
     
     while (runs()) {
       GLCALL(::glClearColor(0.1f,0.1f,0.1f,1.f));
@@ -95,6 +97,7 @@ namespace app {
       vao.bind(true);
       ibo.bind(true);
       
+      // @todo: pRenderSystem->render(CDrawable);
       GLCALL(::glDrawElements(GL_TRIANGLES, ibo.count(), GL_UNSIGNED_INT, GL_NULL));
       
       pSurface->swap();
