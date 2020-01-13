@@ -26,7 +26,7 @@ namespace app {
     
     // mEngine->textureManager()->loader(new CDdsLoader);
     
-    app::CEditWindow* pMain   {new app::CEditWindow};
+    app::CEditWindow* pMain    {new app::CEditWindow};
     uix::CSurface*    pSurface {new uix::CSurface(pMain, uix::EWindow::VISIBLE)};
     
     attach(this,    uix::EEvent::KEYDOWN,     &app::CApplication::onKeydown);
