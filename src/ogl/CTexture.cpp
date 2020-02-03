@@ -1,4 +1,3 @@
-#include <type_traits>
 #include "ogl/CTexture.hpp"
 #include "ogl/CShader.hpp"
 #include "ogl/CException.hpp"

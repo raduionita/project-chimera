@@ -24,8 +24,6 @@ namespace app {
   
     init();
     
-    // mEngine->textureManager()->loader(new CDdsLoader);
-    
     app::CEditWindow* pMain    {new app::CEditWindow};
     uix::CSurface*    pSurface {new uix::CSurface(pMain, uix::EWindow::VISIBLE)};
     
