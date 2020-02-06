@@ -10,7 +10,7 @@
 #undef NEAR
 
 namespace ogl {
-  class CEngine;
+  class CCore;
   class CSystem;
     class CConsole;    // a system that outputs all posted messages, also sends messages (like commands)
     // cinematics      // a system that sends messages like rotate(object)+move(camera)

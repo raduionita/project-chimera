@@ -55,7 +55,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
   - refactor: find a replacement `::init()` and `::free()`
 - refactor: consider moving `glc`+`ogl` into `ogl` and putting everything inside a namespace 
 - update: move macros from `uix` to `sys` (sys should be everywhere)
-- use: `CGameLoop` to send update + render + input events to `CEngine` and its sub-systems 
+- use: `CGameLoop` to send update + render + input events to `CCore` and its sub-systems 
 - use: `::glDebugMessageCallback`
 - question: should `GLCALL` + `::glCheckError` trigger a system event to the `uix::CContext`
 - move: opengl code from `uix::CContext` to `glc::CContext : uix::CContext` // `uix` should stay abstract

@@ -9,7 +9,7 @@
 #include "sys/CException.hpp"
 
 namespace ogl {
-  class CEngine : public sys::CSingleton<CEngine> {
+  class CCore : public sys::CSingleton<CCore> {
     protected:
       // CRenderSystem*
       // CAudioSystem*
@@ -24,8 +24,8 @@ namespace ogl {
       
       ogl::PTextureManager mTextureManager;
     public:
-      CEngine();
-      ~CEngine();
+      CCore();
+      ~CCore();
     protected:
       virtual void init();
       virtual void free();
