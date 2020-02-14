@@ -13,7 +13,7 @@ namespace app {
       // void onFree()      override;
     protected: // loop events
       // void onRead(); // input read
-      // void onTick(); // update
+      // void onTick(); // update 
       // void onDraw(); // render
     protected:  
       void onKeydown(uix::CEvent*);
