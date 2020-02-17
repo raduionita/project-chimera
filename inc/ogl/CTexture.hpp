@@ -146,8 +146,8 @@ namespace ogl {
       CTextureManager();
       ~CTextureManager();
     public:
-      PTexture load(const sys::CFile& file, const sys::CString& = "");
-      PTexture load(PTextureStream, const sys::CString& = "");
+      PTexture load(const sys::CFile& file, const sys::CString& name = "");
+      PTexture load(PTextureStream, const sys::CString& name = "");
       PTexture find(const sys::CString&) const { throw sys::CException("NOT IMPLEMENTED",__FILE__,__LINE__); }
       PTexture save(PTexture pTexture) { ogl::CResourceManager::save(pTexture); return pTexture; } 
   };

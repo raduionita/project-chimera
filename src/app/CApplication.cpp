@@ -13,6 +13,7 @@
 #include "ogl/CLayout.hpp"
 #include "ogl/CShader.hpp"
 #include "ogl/CTexture.hpp"
+#include "ogl/CModel.hpp"
 
 #include "glm/glm.hpp"
 #include "glm/CMatrix.hpp"
@@ -43,7 +44,12 @@ namespace app {
   
     // @todo: rectangle model builder here
     // ogl::PModelManager man {ogl::CModelManager::instance()};
-    // ogl::PModel        mdl {man->load(gls::rectangle{1.f})};
+    // ogl::PModel        mdl {man->load(glm::rectangle{1.f})};
+    
+    
+    // ogl::CEngine::getInstance()->getModelManger()->
+    ogl::CModelManager::instance()->load(sys::CFile{""});
+    ogl::CModelManager::instance()->load(glm::CRectangle{});
     
     
     GLfloat vertices[] {-0.5f,-0.5f,+0.0f, 0.0f,0.0f,  // 0 // bottom-left

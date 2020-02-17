@@ -149,22 +149,27 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
   - render scene (draw calls/what camera sees)
 - code
   - `CMeshBuilder`
-    - `CMD5MeshBuilder`
-    - `CSphereMeshBuilder::build(CSphereMeshBuilder::EStrategy)` -> `CMesh` 
-      - `EStrategy::ICOSPHERE`                   // uses icosahedron to build a sphere
-      - `EStrategy::CUBESPHERE`                  // uses a cube to build a sphere 
-      - `EStrategy::UVSPHERE`  (this looks hard)
-  - `CCubeMeshBuilder`
-  - `CPyramidMeshBuilder::build(int nSides)`     // now many edges the base has // can be used to build a cone
+    - `CFileMeshBuilder`
+      - `CMD5MeshBuilder`
+    - `CProceduralMeshBuilder`
+      - `CSphereMeshBuilder::build(CSphereMeshBuilder::EStrategy)` -> `CMesh` 
+        - `EStrategy::ICOSPHERE`                   // uses icosahedron to build a sphere
+        - `EStrategy::CUBESPHERE`                  // uses a cube to build a sphere 
+        - `EStrategy::UVSPHERE`  (this looks hard)
+      - `CCubeMeshBuilder`
+      - `CPyramidMeshBuilder::build(int nSides)`     // now many edges the base has // can be used to build a cone
 
   - `CTextureBuilder`
-    - `CSimplexTextureBuilder`
-    - `CDDSTextureBuilder` 
-    - `CTGATextureBuilder` 
-    - `CPNGTextureBuilder` 
+    - `CProceduralTextureBuilder`
+      - `CSimplexTextureBuilder`
+    - `CFileTextureBuilder`
+      - `CDDSTextureBuilder` 
+      - `CTGATextureBuilder` 
+      - `CPNGTextureBuilder` 
   
   - `CAnimationBuilder`
-    - `CMD5AnimationBuilder`
+    - `CFileAnimationBuilder`
+      - `CMD5AnimationBuilder`
 ```
                  +-----+
                  |Logic|

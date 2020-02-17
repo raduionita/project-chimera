@@ -454,7 +454,7 @@ namespace glm {
   class CSpline;
   class CSector;
   class CPolygon;
-  class CRectangle;
+  class CRectangle { };
   class CPlane;
   class CTriangle; // extends poly
   
