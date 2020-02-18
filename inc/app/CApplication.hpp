@@ -12,7 +12,7 @@ namespace app {
       // void onInit()      override;
       // void onFree()      override;
     protected: // loop events
-      // void onRead(); // input read
+      // void onRead(); // input load
       // void onTick(); // update 
       // void onDraw(); // render
     protected:  

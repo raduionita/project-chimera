@@ -46,11 +46,9 @@ namespace app {
     // ogl::PModelManager man {ogl::CModelManager::instance()};
     // ogl::PModel        mdl {man->load(glm::rectangle{1.f})};
     
-    
     // ogl::CEngine::getInstance()->getModelManger()->
-    ogl::CModelManager::instance()->load(sys::CFile{""});
-    ogl::CModelManager::instance()->load(glm::CRectangle{});
-    
+    // ogl::CModelManager::instance()->load(sys::CFile{""});
+    ogl::PModel mdl = ogl::CModelManager::instance()->load(glm::rect{});
     
     GLfloat vertices[] {-0.5f,-0.5f,+0.0f, 0.0f,0.0f,  // 0 // bottom-left
                         +0.5f,-0.5f,+0.0f, 1.0f,0.0f,  // 1 // bottom-right

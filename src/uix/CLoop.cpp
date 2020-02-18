@@ -115,7 +115,7 @@ namespace uix {
   }
   
   void CGameLoop::read() {
-    log::dbg << "uix::CGameLoop::read()::" << this << log::end;
+    log::dbg << "uix::CGameLoop::load()::" << this << log::end;
     if (mRead) (*mRead)();
   }
   
@@ -142,7 +142,7 @@ namespace uix {
   }
   
   void CGameLoop::read(TCallback&& cRead) {
-    log::dbg << "uix::CGameLoop::read(TCallback&&)::" << this << log::end;
+    log::dbg << "uix::CGameLoop::load(TCallback&&)::" << this << log::end;
     DELETE(mRead);
     mRead = new TCallback{std::move(cRead)};
   }

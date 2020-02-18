@@ -13,13 +13,14 @@
 namespace ogl {
   class CTexture;        typedef sys::CPointer<CTexture>        PTexture; 
   class CTextureManager; typedef sys::CPointer<CTextureManager> PTextureManager;
-  class CTextureReader;  typedef sys::CPointer<CTextureReader>  PTextureReader;
   class CTextureStream;  typedef sys::CPointer<CTextureStream>  PTextureStream;
+  class CTextureLoader;  typedef sys::CPointer<CTextureLoader>  PTextureLoader;
+  class CFileTextureLoader; typedef sys::CPointer<CFileTextureLoader>  PFileTextureLoader;
   
   class CTexture : public ogl::CResource, public CObject { // or should this be CBuffer since it holds data/memory
       friend class CTextureStream;
       friend class CTextureManager;
-      friend class CTextureReader;
+      friend class CTextureLoader;
     public:
       enum EFlag {
         FLAG           = 0b00000000'00000001,
@@ -106,7 +107,7 @@ namespace ogl {
   class CTextureStream : public sys::CStream {
       friend class CTexture;
       friend class CTextureManager;
-      friend class CTextureReader;
+      friend class CTextureLoader;
     public:
       using sys::CStream::CStream;
       using EFlag = CTexture::EFlag;
@@ -141,7 +142,7 @@ namespace ogl {
   class CTextureManager : public ogl::CResourceManager, public sys::CSingleton<CTextureManager> {
       friend class CTexture;
       friend class CTextureStream;
-      friend class CTextureReader;
+      friend class CTextureLoader;
     public:
       CTextureManager();
       ~CTextureManager();
@@ -152,15 +153,17 @@ namespace ogl {
       PTexture save(PTexture pTexture) { ogl::CResourceManager::save(pTexture); return pTexture; } 
   };
   
-  class CTextureReader : public CResourceReader {
+  class CTextureLoader : public CResourceLoader { };
+  
+  class CFileTextureLoader : public CTextureLoader {
       friend class CTexture;
       friend class CTextureStream;
       friend class CTextureManager;
     public:
-      virtual PTextureStream read(const sys::CFile&) { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); };
+      virtual PTextureStream load(const sys::CFile&) { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); };
   };
   
-  class CDdsTextureReader : public CTextureReader {
+  class CDdsTextureLoader : public CFileTextureLoader {
       enum {
         DDS_CAPS        = 0x00000001,
         DDS_HEIGHT      = 0x00000002,
@@ -233,13 +236,19 @@ namespace ogl {
       };
     public:
       virtual inline const char* type() const override { return "dds"; }
-      virtual PTextureStream     read(const sys::CFile&) override;
+      virtual PTextureStream     load(const sys::CFile& file) override;
   }; 
   
-  class CTgaTextureReader : public CTextureReader {
+  class CTgaTextureLoader : public CFileTextureLoader {
     public:
-      virtual PTextureStream read(const sys::CFile&) override { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
+      virtual PTextureStream load(const sys::CFile&) override { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
   };
+  
+  
+  
+  class CNoiseTextureLoader : public CTextureLoader { };
+  class CPerlinTextureLoader : public CTextureLoader { };
+  class CSimplexTextureLoader : public CTextureLoader { };
 }
 
 #endif //__ogl_ctexture_hpp__

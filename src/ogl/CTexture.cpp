@@ -154,8 +154,8 @@ namespace ogl {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  CTextureManager::CTextureManager() { 
-    reader(new CDdsTextureReader);
+  CTextureManager::CTextureManager() {
+    loader(new CDdsTextureLoader);
   }
   
   CTextureManager::~CTextureManager() { }
@@ -166,9 +166,9 @@ namespace ogl {
     PTextureStream pStream;
 // @todo: if name is empty then name = filename.ext
 // @todo: search cache
-    PTextureReader pReader = sys::static_pointer_cast<PTextureReader::type>(reader(file.ext()));
-    if (pReader) {
-      pStream  = pReader->read(file);
+    PFileTextureLoader pLoader = sys::static_pointer_cast<PFileTextureLoader::type>(loader(file.ext()));
+    if (pLoader) {
+      pStream  = pLoader->load(file);
       pTexture = new CTexture{pStream};
     } else {
 // @todo: pTexture = NULL Texture
@@ -187,8 +187,8 @@ namespace ogl {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  PTextureStream CDdsTextureReader::read(const sys::CFile& file) {
-    log::nfo << "ogl::CDdsTextureReader::read(CFile&)::" << this << " FILE:" << file << log::end;
+  PTextureStream CDdsTextureLoader::load(const sys::CFile& file) {
+    log::nfo << "ogl::CDdsTextureLoader::load(CFile&)::" << this << " FILE:" << file << log::end;
     CTextureStream*       stream {new CTextureStream};
     CTextureStream::SInfo info {}; 
     

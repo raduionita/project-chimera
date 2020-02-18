@@ -14,12 +14,12 @@ namespace ogl {
   class CResource;        typedef sys::CPointer<CResource>        PResource;
   class CResourceManager; typedef sys::CPointer<CResourceManager> PResourceManager;
   class CResourceStream;  typedef sys::CPointer<CResourceStream>  PResourceStream;
-  class CResourceReader;  typedef sys::CPointer<CResourceReader>  PResourceReader;
+  class CResourceLoader;  typedef sys::CPointer<CResourceLoader>  PResourceLoader;
   
   class CResource { // loadable entity/file/object
       friend class CResourceStream;
       friend class CResourceManager;
-      friend class CResourceReader;
+      friend class CResourceLoader;
     public:
       CResource() = default;
       virtual ~CResource() = default;
@@ -28,19 +28,19 @@ namespace ogl {
   class CResourceStream {
       friend class CResource;
       friend class CResourceManager;
-      friend class CResourceReader;
+      friend class CResourceLoader;
     public:
       CResourceStream() = default;
       virtual ~CResourceStream() = default;
   };
   
-  class CResourceReader {
+  class CResourceLoader {
       friend class CResource;
       friend class CResourceStream;
       friend class CResourceManager;
     public:
-      CResourceReader() = default;
-      virtual ~CResourceReader() = default;
+      CResourceLoader() = default;
+      virtual ~CResourceLoader() = default;
     public:
       virtual const char* type() const { throw sys::CException("NOT IMPLEMENTED",__FILE__,__LINE__); };
   };
@@ -48,15 +48,15 @@ namespace ogl {
   class CResourceManager {
       friend class CResource;
       friend class CResourceStream;
-      friend class CResourceReader;
+      friend class CResourceLoader;
     protected:
-      sys::CMap<sys::CString, PResourceReader> mReaders;
+      sys::CMap<sys::CString, PResourceLoader> mLoaders;
     public:
       CResourceManager() = default;
       virtual ~CResourceManager() = default;
     public:
-      inline PResourceReader reader(const char* ext) { auto it = mReaders.find(ext); return it != mReaders.end() ? it->second : nullptr; }
-      inline void            reader(PResourceReader pReader) { mReaders[pReader->type()] = pReader; }
+      inline PResourceLoader loader(const char* ext) { auto it = mLoaders.find(ext); return it != mLoaders.end() ? it->second : nullptr; }
+      inline void            loader(PResourceLoader pLoader) { mLoaders[pLoader->type()] = pLoader; }
       inline void            save(PResource) { }
   };
 }

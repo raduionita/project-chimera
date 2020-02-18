@@ -175,7 +175,7 @@ inline STATE SwapWindowState(HWND hWnd) {
   if (states.size() == 0 || it == states.end()) {    // not found // insert
     states.insert(std::pair<HWND,STATE>(hWnd, curr));
   } else {                                           // found // swap
-    // read prev
+    // load prev
     STATE  temp{it->second};
     STATE& prev{it->second};
     // store
