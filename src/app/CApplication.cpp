@@ -8,6 +8,7 @@
 #include "uix/CLayout.hpp"
 #include "uix/CButton.hpp"
 
+#include "ogl/CCore.hpp"
 #include "ogl/CBuffer.hpp"
 #include "ogl/CVertexArray.hpp"
 #include "ogl/CLayout.hpp"
@@ -46,9 +47,10 @@ namespace app {
     // ogl::PModelManager man {ogl::CModelManager::instance()};
     // ogl::PModel        mdl {man->load(glm::rectangle{1.f})};
     
-    // ogl::CEngine::getInstance()->getModelManger()->
+    // ogl::CEngine::getModelManger()->
     // ogl::CModelManager::instance()->load(sys::CFile{""});
-    ogl::PModel mdl = ogl::CModelManager::instance()->load(glm::rect{});
+    /*ogl::PModel mdl = */ogl::CCore::getModelManager()->load(ogl::SShapeModelDescriptor{glm::CRectangle{}});
+    /*ogl::PModel mdl = */ogl::CCore::getModelManager()->load(ogl::SFileModelDescriptor{sys::CString{}});
     
     GLfloat vertices[] {-0.5f,-0.5f,+0.0f, 0.0f,0.0f,  // 0 // bottom-left
                         +0.5f,-0.5f,+0.0f, 1.0f,0.0f,  // 1 // bottom-right
@@ -67,7 +69,7 @@ namespace app {
     // @todo: ogl::PShaderManager man {ogl::CShaderManager::instance()}
     ogl::CShader         shd {"../../res/shaders/simple/perspective.hlsl"};
     
-    ogl::PTextureManager man {ogl::CTextureManager::instance()};
+    ogl::PTextureManager man {ogl::CCore::getTextureManager()};
     ogl::PTexture        tx1 {man->load(sys::file("../../res/textures/notfound.dds"), "notfound")};
     
     vao.bind(false);

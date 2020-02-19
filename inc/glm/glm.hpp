@@ -435,35 +435,38 @@ namespace glm {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
+  class CRay { };
+  
   enum class EShape {
+      S0D = 0,
       S1D = 1,
       S2D = 2,
       S3D = 3,
       S4D = 4,
   };
   
-  class CShape;
+  class BShape { };
+  template <EShape shape> class CShape : public BShape { };
   
-  class CPoint;
+  class CPoint : public CShape<EShape::S0D> { };
   
-  class CLine;
-  class CRay;
-  class CCircle;
-  class CEllipse;
-  class CArc;
-  class CSpline;
-  class CSector;
-  class CPolygon;
-  class CRectangle { }; typedef CRectangle rect;
-  class CPlane;
-  class CTriangle; // extends poly
+  class CLine      : public CShape<EShape::S1D> { };
+  class CCircle    : public CShape<EShape::S2D> { };
+  class CEllipse   : public CShape<EShape::S2D> { };
+  class CArc       : public CShape<EShape::S2D> { };
+  class CSpline    : public CShape<EShape::S2D> { };
+  class CSector    : public CShape<EShape::S2D> { };
+  class CPolygon   : public CShape<EShape::S2D> { };
+  class CRectangle : public CShape<EShape::S2D> { }; typedef CRectangle rect;
+  class CPlane     : public CShape<EShape::S2D> { };
+  class CTriangle  : public CPolygon { };
   
-  class CPrism;
-  class CPyramid;
-  class CCube;
-  class CSphere;
+  class CPrism   : public CShape<EShape::S3D> { };
+  class CPyramid : public CShape<EShape::S3D> { };
+  class CCube    : public CShape<EShape::S3D> { };
+  class CSphere  : public CShape<EShape::S3D> { };
   
-  class CTesseract; // hypercube = 4(spacial)d  cube
+  class CTesseract : public CShape<EShape::S4D> { }; // hypercube = 4(spacial)d  cube
 }
 
 #endif //__glm_hpp__

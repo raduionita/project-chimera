@@ -1,7 +1,8 @@
-#ifndef __ogl_cengine_hpp__
-#define __ogl_cengine_hpp__
+#ifndef __ogl_ccore_hpp__
+#define __ogl_ccore_hpp__
 
 #include "ogl/ogl.hpp"
+#include "ogl/CRenderSystem.hpp"
 #include "ogl/CTexture.hpp"
 #include "ogl/CModel.hpp"
 
@@ -11,10 +12,11 @@
 namespace ogl {
   class CCore : public sys::CSingleton<CCore> {
     protected:
-      // CRenderSystem*
+      PRenderSystem mRenderSystem;
       // CAudioSystem*
       // COverlaySystem*
       // CInputSystem*
+      // CPhysicsSystem*
       
       // CSceneManager*
       // CModelManager*
@@ -23,16 +25,22 @@ namespace ogl {
       // CShaderManager*
       
       ogl::PTextureManager mTextureManager;
+      ogl::PModelManager   mModelManager;
     public:
       CCore();
       ~CCore();
     protected:
-      virtual void init();
-      virtual void free();
+      void init();
+      void free();
     public:
       virtual inline ogl::PTextureManager load(ogl::PTextureManager pManager) { mTextureManager = pManager; return mTextureManager; }
+    
+      static PTextureManager getTextureManager() { return instance()->mTextureManager; }
+      static PModelManager getModelManager() { return instance()->mModelManager; }
+      
+      static PRenderSystem setRenderSystem(PRenderSystem system) { return instance()->mRenderSystem = system; }
 // @todo: connects(and befriends) all *System(s)
   };
 }
 
-#endif //__ogl_cengine_hpp__
+#endif //__ogl_ccore_hpp__

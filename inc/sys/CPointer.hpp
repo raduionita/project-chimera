@@ -40,10 +40,10 @@ namespace sys {
       template <typename Y, class = typename std::enable_if<std::is_convertible<Y*,T*>::value>::type> CPointer(const CPointer<Y>& that) : mPointer{that.mPointer}, mCount{that.mCount} { if (mPointer) { ++(*mCount); } }
       // destructor // decrements mCount // deletes mPointer only if mCount is 0 = nobody else has a ref to it
       virtual ~CPointer() {
-      if (--(*mCount) == 0) {
-        delete mPointer; mPointer = nullptr;
-        delete mCount;   mCount   = nullptr;
-      }
+        if (--(*mCount) == 0) {
+          delete mPointer; mPointer = nullptr;
+          delete mCount;   mCount   = nullptr;
+        }
     }
     public:
       // assignment operator

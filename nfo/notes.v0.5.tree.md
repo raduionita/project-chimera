@@ -57,7 +57,7 @@ class CGeometry
 ```xml
 <app>
   <data>
-    <entity type="light" uid="unique id"/>
+    <entity type="light" uid="unique id" />
     <!-- when saving most entities go here - the ones in scene are just references -->
     <animation name="" file="" info="for what skeleton?!" />
     <group type="animation" gid="gid" info="based on skeleton type">
@@ -66,8 +66,9 @@ class CGeometry
   </data>
   <world type="voxel|real">
     <node scope="scene">
-      <node type="root" info="unmutable - parent 2 all entities and nodes" />
+      <node type="root" info="unmutable - parent 2 all entities and nodes">
         <entity type="model" info="OPTIONAL - room or terrain/ground or planet/sun or..." />
+      </node>
         <!-- ... -->
     </node> <!-- node:scene -->
     
@@ -100,6 +101,7 @@ class CGeometry
           <component type="model" lod="1" file="path/to/toothless.ld.model"/>
           <component type="physx"/>
         </entity> <!-- entity:model -->
+        
         <node scope="joint" name="sadle" rid="root" matrix="should be same as parent node - probably a pointer"> <!-- OR <node scope="node" OR scope="controller">  -->
           <entity scope="model" ref="#toothless.model" /> <!-- if no reference found postpone it until found -->
           <!-- joint (node) - holds node as data/entity -->
@@ -110,9 +112,17 @@ class CGeometry
               </node> <!-- node:entity -->
             </component> <!-- component:node -->
           </entity> <!-- entity:node -->
-          <!-- continue w/ the hierarchy -->
+          
           <node type="joint" name="tail" rid="relative id to the parent" matrix="deviation from root">
-            
+            <entity scope="model" name="a.dumb.cube">
+              <component type="model" shape="cube">
+                <model>
+                  <mesh matrix="tx ty tz rx ry rz rw sx sy sz">
+                    <material name="pink" />
+                  </mesh>
+                </model>
+              </component>
+            </entity> <!-- entity:model:shape:cube -->
           </node> <!-- node:joint --> <!-- can only hold other joint type nodes -->
         </node> <!-- node:joint -->
       </node> <!-- node:entity --> <!-- can only hold joint type nodes -->
