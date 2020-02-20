@@ -435,9 +435,9 @@ namespace glm {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  class CRay { };
+  struct SRay { };
   
-  enum class EShape {
+  enum class EShape : ushort {
       S0D = 0,
       S1D = 1,
       S2D = 2,
@@ -445,28 +445,29 @@ namespace glm {
       S4D = 4,
   };
   
-  class BShape { };
-  template <EShape shape> class CShape : public BShape { };
+  struct BShape { };
+  template <EShape shape> struct SShape : public BShape { virtual sys::CString toString() const = 0; };
   
-  class CPoint : public CShape<EShape::S0D> { };
+  struct CPoint     : SShape<EShape::S0D> { };
   
-  class CLine      : public CShape<EShape::S1D> { };
-  class CCircle    : public CShape<EShape::S2D> { };
-  class CEllipse   : public CShape<EShape::S2D> { };
-  class CArc       : public CShape<EShape::S2D> { };
-  class CSpline    : public CShape<EShape::S2D> { };
-  class CSector    : public CShape<EShape::S2D> { };
-  class CPolygon   : public CShape<EShape::S2D> { };
-  class CRectangle : public CShape<EShape::S2D> { }; typedef CRectangle rect;
-  class CPlane     : public CShape<EShape::S2D> { };
-  class CTriangle  : public CPolygon { };
+  struct SLine      : SShape<EShape::S1D> { union {struct{real l;}; struct {real length;};}; virtual sys::CString toString() const override { return sys::CString("LS1D")+sys::CString("L")+std::to_string(l); } };
+  struct SCircle    : SShape<EShape::S2D> { union {struct{real r;}; struct {real radius;};}; };
+  struct SEllipse   : SShape<EShape::S2D> { };
+  struct SArc       : SShape<EShape::S2D> { };
+  struct SSpline    : SShape<EShape::S2D> { };
+  struct SSector    : SShape<EShape::S2D> { };
+  struct SPolygon   : SShape<EShape::S2D> { };
+  struct SRectangle : SShape<EShape::S2D> { union {struct{real w,h;}; struct {real width,height;};}; virtual sys::CString toString() const override { return sys::CString("RS2D")+sys::CString("W")+std::to_string(w)+sys::CString("H")+std::to_string(h); } }; 
+  typedef SRectangle rect;
+  struct SPlane     : SShape<EShape::S2D> { };
+  struct STriangle  : SPolygon { };
   
-  class CPrism   : public CShape<EShape::S3D> { };
-  class CPyramid : public CShape<EShape::S3D> { };
-  class CCube    : public CShape<EShape::S3D> { };
-  class CSphere  : public CShape<EShape::S3D> { };
+  struct SPrism     : SShape<EShape::S3D> { };
+  struct SPyramid   : SShape<EShape::S3D> { };
+  struct SCube      : SShape<EShape::S3D> { };
+  struct SSphere    : SShape<EShape::S3D> { union {struct{real r;}; struct {real radius;};}; };
   
-  class CTesseract : public CShape<EShape::S4D> { }; // hypercube = 4(spacial)d  cube
+  struct STesseract : SShape<EShape::S4D> { }; // hypercube = 4(spacial)d  cube
 }
 
 #endif //__glm_hpp__

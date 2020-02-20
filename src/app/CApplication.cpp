@@ -49,7 +49,7 @@ namespace app {
     
     // ogl::CEngine::getModelManger()->
     // ogl::CModelManager::instance()->load(sys::CFile{""});
-    /*ogl::PModel mdl = */ogl::CCore::getModelManager()->load(ogl::SShapeModelDescriptor{glm::CRectangle{}});
+    /*ogl::PModel mdl = */ogl::CCore::getModelManager()->load(ogl::SShapeModelDescriptor{glm::SRectangle{}});
     /*ogl::PModel mdl = */ogl::CCore::getModelManager()->load(ogl::SFileModelDescriptor{sys::CString{}});
     
     GLfloat vertices[] {-0.5f,-0.5f,+0.0f, 0.0f,0.0f,  // 0 // bottom-left
