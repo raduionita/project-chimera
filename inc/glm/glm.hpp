@@ -32,6 +32,8 @@ namespace glm {
   
   template <typename T, ushort cols, ushort rows> class CMatrix;
   
+  template <typename T> class CRay;
+  
   template <typename T, ushort size> class CVector;
 
   template <typename T> class CQuaterion;
@@ -82,6 +84,12 @@ namespace glm {
   typedef CQuaterion<float>  fquat;
   typedef CQuaterion<double> dquat;
   typedef CQuaterion<int>    iquat;
+  
+  template <typename T> using tray = CRay<T>;
+  
+  typedef CRay<real>    ray;
+  typedef CRay<float>  fray;
+  typedef CRay<double> dray;
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -434,8 +442,6 @@ namespace glm {
     // return tvec<T, 3>(object.x, object.y, object.z);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
-  struct SRay { };
   
   enum class EShape : ushort {
       S0D = 0,
