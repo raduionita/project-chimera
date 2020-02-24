@@ -33,6 +33,7 @@ namespace glm {
   template <typename T, ushort cols, ushort rows> class CMatrix;
   
   template <typename T> class CRay;
+  class CPlane;
   
   template <typename T, ushort size> class CVector;
 
@@ -90,6 +91,8 @@ namespace glm {
   typedef CRay<real>    ray;
   typedef CRay<float>  fray;
   typedef CRay<double> dray;
+  
+  typedef CPlane plane;
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -443,6 +446,13 @@ namespace glm {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
+  template <typename T> bool intersects(const glm::CRay<T>& r, const glm::CPlane& p) {
+    // @todo: implament this
+    return false;
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   enum class EShape : ushort {
       S0D = 0,
       S1D = 1,
@@ -452,20 +462,19 @@ namespace glm {
   };
   
   struct BShape { };
-  template <EShape shape> struct SShape : public BShape { virtual sys::CString toString() const = 0; };
+  template <EShape shape> struct SShape : public BShape { };
   
   struct CPoint     : SShape<EShape::S0D> { };
   
-  struct SLine      : SShape<EShape::S1D> { union {struct{real l;}; struct {real length;};}; virtual sys::CString toString() const override { return sys::CString("LS1D")+sys::CString("L")+std::to_string(l); } };
+  struct SLine      : SShape<EShape::S1D> { union {struct{real l;}; struct {real length;};}; };
   struct SCircle    : SShape<EShape::S2D> { union {struct{real r;}; struct {real radius;};}; };
   struct SEllipse   : SShape<EShape::S2D> { };
   struct SArc       : SShape<EShape::S2D> { };
   struct SSpline    : SShape<EShape::S2D> { };
   struct SSector    : SShape<EShape::S2D> { };
   struct SPolygon   : SShape<EShape::S2D> { };
-  struct SRectangle : SShape<EShape::S2D> { union {struct{real w,h;}; struct {real width,height;};}; virtual sys::CString toString() const override { return sys::CString("RS2D")+sys::CString("W")+std::to_string(w)+sys::CString("H")+std::to_string(h); } }; 
+  struct SRectangle : SShape<EShape::S2D> { union {struct{real w,h;}; struct {real width,height;};}; }; 
   typedef SRectangle rect;
-  struct SPlane     : SShape<EShape::S2D> { };
   struct STriangle  : SPolygon { };
   
   struct SPrism     : SShape<EShape::S3D> { };

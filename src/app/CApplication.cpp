@@ -20,6 +20,9 @@
 #include "glm/CMatrix.hpp"
 #include "glm/CVector.hpp"
 
+
+#include <tuple>
+
 namespace app {
   int CApplication::exec() {
     log::nfo << "app::CApplication::exec()::" << this << log::end;
@@ -49,8 +52,8 @@ namespace app {
     
     // ogl::CEngine::getModelManger()->
     // ogl::CModelManager::instance()->load(sys::CFile{""});
-    /*ogl::PModel mdl = */ogl::CCore::getModelManager()->load(ogl::SShapeModelDescriptor{glm::SRectangle{}});
-    /*ogl::PModel mdl = */ogl::CCore::getModelManager()->load(ogl::SFileModelDescriptor{sys::CString{}});
+    /*ogl::PModel mdl = */ogl::CCore::getModelManager()->load(glm::SRectangle{}, "");
+    /*ogl::PModel mdl = */ogl::CCore::getModelManager()->load(sys::CFile{});
     
     GLfloat vertices[] {-0.5f,-0.5f,+0.0f, 0.0f,0.0f,  // 0 // bottom-left
                         +0.5f,-0.5f,+0.0f, 1.0f,0.0f,  // 1 // bottom-right

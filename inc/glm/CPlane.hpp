@@ -6,8 +6,11 @@
 namespace glm {
   class CPlane : public CShape {
     public:
-      GLfloat3 mNormal;
-      GLreal   mDistance;
+      uniform {
+        struct { glm::vec3 mNormal; real mDistance; };
+        struct { glm::vec3 n; real d; };
+        struct { glm::vec4 plane; };
+      };
   };
 }
 
