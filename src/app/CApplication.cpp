@@ -46,14 +46,7 @@ namespace app {
     
     log::nfo << "app::CApplication::exec()::" << this << " w:" << area.w << " h:" << area.h << log::end;
   
-    // @todo: rectangle model builder here
-    // ogl::PModelManager man {ogl::CModelManager::instance()};
-    // ogl::PModel        mdl {man->load(glm::rectangle{1.f})};
-    
-    // ogl::CEngine::getModelManger()->
-    // ogl::CModelManager::instance()->load(sys::CFile{""});
-    /*ogl::PModel mdl = */ogl::CCore::getModelManager()->load(glm::SRectangle{}, "");
-    /*ogl::PModel mdl = */ogl::CCore::getModelManager()->load(sys::CFile{});
+    ogl::PModel mdl = ogl::CCore::getModelManager()->load(sys::CFile{"path/to/file.model"});
     
     GLfloat vertices[] {-0.5f,-0.5f,+0.0f, 0.0f,0.0f,  // 0 // bottom-left
                         +0.5f,-0.5f,+0.0f, 1.0f,0.0f,  // 1 // bottom-right

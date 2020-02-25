@@ -55,8 +55,14 @@ namespace ogl {
       CResourceManager() = default;
       virtual ~CResourceManager() = default;
     public:
-      inline PResourceLoader loader(const char* ext) { auto it = mLoaders.find(ext); return it != mLoaders.end() ? it->second : nullptr; }
-      inline void            loader(PResourceLoader pLoader) { mLoaders[pLoader->type()] = pLoader; }
+      template <typename T> inline PResourceLoader loader(const T& from) {
+        // @todo: for each loaded check if it matches
+        
+        
+      }
+      
+      template <typename T> inline void loader(T* pLoader) { mLoaders[typeid(pLoader).name()] = pLoader; }
+      
       inline void            save(PResource) { }
   };
 }

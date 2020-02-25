@@ -15,7 +15,7 @@ namespace ogl {
   class CMesh;         typedef sys::CPointer<CMesh>         PMesh; 
   class CModelManager; typedef sys::CPointer<CModelManager> PModelManager;
   class CModelStream;  typedef sys::CPointer<CModelStream>  PModelStream;
-  class CModelLoader;  typedef sys::CPointer<CModelLoader>  PModelLoader;
+  template <typename T> class CModelLoader; template <typename T> using PModelLoader =  sys::CPointer<CModelLoader<T>>;
   
   // model ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -29,7 +29,6 @@ namespace ogl {
   class CModel : public ogl::CResource {
       friend class CMesh;
       friend class CModelManager;
-      friend class CModelStream;
     protected:
       std::vector<PMesh> mMeshes;
     public:
@@ -49,7 +48,17 @@ namespace ogl {
   
   // loaders /////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  class CModelLoader; 
+  template <typename T> class CModelLoader : ogl::CResourceLoader {
+      friend class CModel;
+      friend class CModelManager;
+    public:
+      virtual PModel load(const T&) = 0;
+    protected:
+  };
+  
+  class CFileModelLoader : CModelLoader<sys::CFile> {
+      virtual PModel load(const sys::CFile& file) override;
+  };
   
   // manager /////////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -61,7 +70,15 @@ namespace ogl {
       PModel find(const sys::CString& name);
       
       template <typename T> PModel load(const T& from, const sys::CString& name = "") {
-        throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__);
+        PModel       pModel;
+        PModelStream pStream;
+        
+        PModelLoader<T> pLoader = loader(from);
+        if (pLoader) {
+          
+        }
+        
+        return pModel;
       }
       
       PModel load(const glm::SRectangle& from, const sys::CString& name = "") {
@@ -71,9 +88,8 @@ namespace ogl {
       PModel load(const sys::CFile& from, const sys::CString& name = "") {
         log::nfo << "ogl::CModelManager::load(T&,CString&)::" << this << log::end;
 
-        PModelLoader    pLoader {CModelLoader<T>::instance()};
-        PModelStream    pStream {pLoader->load(from)};
-        PModel          pModel  {new CModel{pStream}};
+        PModelLoader    pLoader ; // @todo: produce it somehow
+        PModel          pModel  {new CModel{pLoader}};
 
 
         // @todo: create key/id from descriptor
