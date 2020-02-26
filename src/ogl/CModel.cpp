@@ -20,7 +20,7 @@ namespace ogl {
     
   }
   
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // manager /////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   CModelManager::CModelManager() {
     // @todo: register all loaders through descriptors
@@ -29,5 +29,15 @@ namespace ogl {
   
   CModelManager::~CModelManager() {
     
+  }
+  
+  // loaders /////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  PModelStream CFileModelLoader::load(const sys::CFile &file) {
+    log::nfo << "ogl::CFileModelLoader::load(CFile&)::" << this << " FILE:" << file << log::end;
+    
+    // @todo: use the file extension to get/create a file codec
+    
+    // @todo: use the codec to load the model stream
   }
 }

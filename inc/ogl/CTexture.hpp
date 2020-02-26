@@ -14,13 +14,11 @@ namespace ogl {
   class CTexture;        typedef sys::CPointer<CTexture>        PTexture; 
   class CTextureManager; typedef sys::CPointer<CTextureManager> PTextureManager;
   class CTextureStream;  typedef sys::CPointer<CTextureStream>  PTextureStream;
-  class CTextureLoader;  typedef sys::CPointer<CTextureLoader>  PTextureLoader;
-  class CFileTextureLoader; typedef sys::CPointer<CFileTextureLoader>  PFileTextureLoader;
+  template <typename T> class CTextureLoader; template <typename T> using PTextureLoader =  sys::CPointer<CTextureLoader<T>>;
   
   class CTexture : public ogl::CResource, public CObject { // or should this be CBuffer since it holds data/memory
       friend class CTextureStream;
       friend class CTextureManager;
-      friend class CTextureLoader;
     public:
       enum EFlag {
         FLAG           = 0b00000000'00000001,
@@ -104,12 +102,13 @@ namespace ogl {
   inline GLbitfield operator |(const CTexture::EWrapping& lhs, const CTexture::EWrapping& rhs) { return (GLbitfield)((GLbitfield)(lhs) | (GLbitfield)(rhs)); }
   inline GLbitfield operator |(const CTexture::EFiltering& lhs, const CTexture::EWrapping& rhs) { return (GLbitfield)((GLbitfield)(lhs) | (GLbitfield)(rhs)); }
   
-  class CTextureStream : public sys::CStream {
+  // stream //////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  class CTextureStream : public ogl::CResourceStream {
       friend class CTexture;
       friend class CTextureManager;
-      friend class CTextureLoader;
     public:
-      using sys::CStream::CStream;
+      using ogl::CResourceStream::CResourceStream;
       using EFlag = CTexture::EFlag;
     public:
       struct SInfo {
@@ -139,116 +138,156 @@ namespace ogl {
       static inline uint mapsize(uint width, uint height, uint depth, uint channels, uint flags = 0) { return flags & CTexture::COMPRESSED ? (((width + 3) >> 2) * ((height + 3) >> 2) * depth * (flags & CTexture::RGBA_S3TC_DXT1 ? 8 : 16)) : (width * height * depth * channels); }
   };
   
-  class CTextureManager : public ogl::CResourceManager, public sys::CSingleton<CTextureManager> {
+  // manager /////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  template <typename T> class CTextureLoader : public ogl::CResourceLoader {
       friend class CTexture;
-      friend class CTextureStream;
-      friend class CTextureLoader;
+      friend class CTextureManager;
     public:
-      CTextureManager();
-      ~CTextureManager();
-    public:
-      PTexture load(const sys::CFile& file, const sys::CString& name = "");
-      PTexture load(PTextureStream, const sys::CString& name = "");
-      PTexture find(const sys::CString&) const { throw sys::CException("NOT IMPLEMENTED",__FILE__,__LINE__); }
-      PTexture save(PTexture pTexture) { ogl::CResourceManager::save(pTexture); return pTexture; } 
+      virtual PTextureStream load(const T&) = 0;
+    protected:
   };
   
-  class CTextureLoader : public CResourceLoader { };
-  
-  class CFileTextureLoader : public CTextureLoader {
+  class CFileTextureLoader : public CTextureLoader<sys::CFile> {
       friend class CTexture;
       friend class CTextureStream;
       friend class CTextureManager;
     public:
-      virtual PTextureStream load(const sys::CFile&) { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); };
+      static inline const char* name() { return typeid(CTextureLoader<sys::CFile>).name(); }
+      virtual PTextureStream    load(const sys::CFile& file) override;
   };
   
-  class CDdsTextureLoader : public CFileTextureLoader {
-      enum {
-        DDS_CAPS        = 0x00000001,
-        DDS_HEIGHT      = 0x00000002,
-        DDS_WIDTH       = 0x00000004,
-        DDS_PITCH       = 0x00000008,
-        DDS_PIXELFORMAT = 0x00001000,
-        DDS_MIPMAPCOUNT = 0x00020000,
-        DDS_LINEARSIZE  = 0x00080000,
-        DDS_DEPTH       = 0x00800000,
-        // pixel format flags
-        DDS_ALPHAPIXELS = 0x00000001,
-        DDS_FOURCC      = 0x00000004,
-        DDS_RGB         = 0x00000040,
-        DDS_RGBA        = 0x00000041,
-        // caps1 flags
-        DDS_COMPLEX     = 0x00000008,
-        DDS_TEXTURE     = 0x00001000,
-        DDS_MIPMAP      = 0x00400000,
-        // caps2 flags
-        DDS_CUBEMAP           = 0x00000200,
-        DDS_CUBEMAP_POSITIVEX = 0x00000400,
-        DDS_CUBEMAP_NEGATIVEX = 0x00000800,
-        DDS_CUBEMAP_POSITIVEY = 0x00001000,
-        DDS_CUBEMAP_NEGATIVEY = 0x00002000,
-        DDS_CUBEMAP_POSITIVEZ = 0x00004000,
-        DDS_CUBEMAP_NEGATIVEZ = 0x00008000,
-        DDS_CUBEMAP_ALL_FACES = 0x0000FC00,
-        DDS_VOLUME            = 0x00200000,
-        //
-        DDS_FOURCC_DTX1 = 0x31545844, // = DTX1(in ASCII)
-        DDS_FOURCC_DTX3 = 0x33545844, // = DTX3(in ASCII)
-        DDS_FOURCC_DTX5 = 0x35545844, // = DTX5(in ASCII)
-      };
-      struct SFormat {
-        uint    size;
-        uint    flags;
-        uint    fourcc;
-        uint    bpp;
-        uint    rbitmask;
-        uint    gbitmask;
-        uint    bbitmask;
-        uint    abitmask;
-      };
-      struct SHeader {
-        uint    flags;
-        uint    size;
-        uint    height;
-        uint    width;
-        uint    linearsize;
-        uint    depth;          // only if DDS_HEADER_FLAGS_VOLUME is in header_t::flags
-        uint    mipmapcount;
-        uint    _reserved1[11];
-        SFormat format; 
-        uint    caps1;
-        uint    caps2;
-        uint    _reserved2[3];
-      };
-      struct SDXTColBlock {
-        ushort col0;
-        ushort col1;
-        utiny  row[4];
-      };
-      struct SDXT3AlphaBlock {
-        ushort row[4];
-      };
-      struct SDXT5AlphaBlock {
-        utiny alpha0;
-        utiny alpha1;
-        utiny row[6];
-      };
-    public:
-      virtual inline const char* type() const override { return "dds"; }
-      virtual PTextureStream     load(const sys::CFile& file) override;
-  }; 
+  // class CDdsTextureLoader : public CFileTextureLoader {
+  //     enum {
+  //       DDS_CAPS        = 0x00000001,
+  //       DDS_HEIGHT      = 0x00000002,
+  //       DDS_WIDTH       = 0x00000004,
+  //       DDS_PITCH       = 0x00000008,
+  //       DDS_PIXELFORMAT = 0x00001000,
+  //       DDS_MIPMAPCOUNT = 0x00020000,
+  //       DDS_LINEARSIZE  = 0x00080000,
+  //       DDS_DEPTH       = 0x00800000,
+  //       // pixel format flags
+  //       DDS_ALPHAPIXELS = 0x00000001,
+  //       DDS_FOURCC      = 0x00000004,
+  //       DDS_RGB         = 0x00000040,
+  //       DDS_RGBA        = 0x00000041,
+  //       // caps1 flags
+  //       DDS_COMPLEX     = 0x00000008,
+  //       DDS_TEXTURE     = 0x00001000,
+  //       DDS_MIPMAP      = 0x00400000,
+  //       // caps2 flags
+  //       DDS_CUBEMAP           = 0x00000200,
+  //       DDS_CUBEMAP_POSITIVEX = 0x00000400,
+  //       DDS_CUBEMAP_NEGATIVEX = 0x00000800,
+  //       DDS_CUBEMAP_POSITIVEY = 0x00001000,
+  //       DDS_CUBEMAP_NEGATIVEY = 0x00002000,
+  //       DDS_CUBEMAP_POSITIVEZ = 0x00004000,
+  //       DDS_CUBEMAP_NEGATIVEZ = 0x00008000,
+  //       DDS_CUBEMAP_ALL_FACES = 0x0000FC00,
+  //       DDS_VOLUME            = 0x00200000,
+  //       //
+  //       DDS_FOURCC_DTX1 = 0x31545844, // = DTX1(in ASCII)
+  //       DDS_FOURCC_DTX3 = 0x33545844, // = DTX3(in ASCII)
+  //       DDS_FOURCC_DTX5 = 0x35545844, // = DTX5(in ASCII)
+  //     };
+  //     struct SFormat {
+  //       uint    size;
+  //       uint    flags;
+  //       uint    fourcc;
+  //       uint    bpp;
+  //       uint    rbitmask;
+  //       uint    gbitmask;
+  //       uint    bbitmask;
+  //       uint    abitmask;
+  //     };
+  //     struct SHeader {
+  //       uint    flags;
+  //       uint    size;
+  //       uint    height;
+  //       uint    width;
+  //       uint    linearsize;
+  //       uint    depth;          // only if DDS_HEADER_FLAGS_VOLUME is in header_t::flags
+  //       uint    mipmapcount;
+  //       uint    _reserved1[11];
+  //       SFormat format; 
+  //       uint    caps1;
+  //       uint    caps2;
+  //       uint    _reserved2[3];
+  //     };
+  //     struct SDXTColBlock {
+  //       ushort col0;
+  //       ushort col1;
+  //       utiny  row[4];
+  //     };
+  //     struct SDXT3AlphaBlock {
+  //       ushort row[4];
+  //     };
+  //     struct SDXT5AlphaBlock {
+  //       utiny alpha0;
+  //       utiny alpha1;
+  //       utiny row[6];
+  //     };
+  //   public:
+  //     virtual inline const char* type() const override { return "dds"; }
+  //     virtual PTextureStream     load(const sys::CFile& file) override;
+  // }; 
+  //
+  // class CTgaTextureLoader : public CFileTextureLoader {
+  //   public:
+  //     virtual PTextureStream load(const sys::CFile&) override { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
+  // };
+  //
+  //
+  //
+  // class CNoiseTextureLoader : public CTextureLoader { };
+  // class CPerlinTextureLoader : public CTextureLoader { };
+  // class CSimplexTextureLoader : public CTextureLoader { };
   
-  class CTgaTextureLoader : public CFileTextureLoader {
+  // manager /////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  class CTextureManager : public ogl::CResourceManager, public sys::CSingleton<CTextureManager> {
+      friend class CTexture;
+      friend class CTextureStream;
+    protected:
+      std::map<sys::CString,ogl::PTexture> mTextures;
     public:
-      virtual PTextureStream load(const sys::CFile&) override { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
+      CTextureManager();
+      ~CTextureManager();
+    public:
+      PTexture find(const sys::CString&) const { throw sys::CException("NOT IMPLEMENTED",__FILE__,__LINE__); }
+      PTexture save(PTexture pTexture) { ogl::CResourceManager::save(pTexture); return pTexture; } 
+      
+      template <typename T> PTexture load(const sys::CString& name, const T& from) {
+        log::nfo << "ogl::CTextureManager::load(CString&,T&)::" << this << log::end;
+        PTexture pTexture;
+        // try to find model in cache using that key
+        auto it = mTextures.find(name);
+        if (it != mTextures.end()) {
+          pTexture = it->second;
+        } else {
+          PTextureStream           pStream;
+          static PTextureLoader<T> pLoader = sys::static_pointer_cast<PTextureLoader<T>>(loader(typeid(CTextureLoader<T>).name()));
+          // is the loader ok?
+          if (pLoader) {
+            // @todo: start on another thread
+            pStream = pLoader->load(from);
+            // @todo: queue `new CModel{pStream}` for the main thread 
+            pTexture  = new CTexture{pStream};
+            // update cache
+            mTextures.insert({name, pTexture});
+          }
+        }
+        // return texture
+        return pTexture;
+      }
+      
+      PTexture load(const sys::CString& name, PTextureStream stream) {
+        log::nfo << "ogl::CTextureManager::load(CString&,PTextureStream)::" << this << " NAME:" << name << " STREAM: ?"  << log::end;
+        
+        return new CTexture{stream};
+      }
   };
-  
-  
-  
-  class CNoiseTextureLoader : public CTextureLoader { };
-  class CPerlinTextureLoader : public CTextureLoader { };
-  class CSimplexTextureLoader : public CTextureLoader { };
 }
 
 #endif //__ogl_ctexture_hpp__

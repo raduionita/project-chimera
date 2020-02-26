@@ -20,13 +20,10 @@
 #include "glm/CMatrix.hpp"
 #include "glm/CVector.hpp"
 
-
-#include <tuple>
-
 namespace app {
   int CApplication::exec() {
     log::nfo << "app::CApplication::exec()::" << this << log::end;
-  
+    
     init();
     
     app::CEditWindow* pMain    {new app::CEditWindow};
@@ -46,7 +43,7 @@ namespace app {
     
     log::nfo << "app::CApplication::exec()::" << this << " w:" << area.w << " h:" << area.h << log::end;
   
-    ogl::PModel mdl = ogl::CCore::getModelManager()->load(sys::CFile{"path/to/file.model"});
+    // ogl::PModel mdl = ogl::CCore::getModelManager()->load("file.model", sys::CFile{"path/to/file.model"});
     
     GLfloat vertices[] {-0.5f,-0.5f,+0.0f, 0.0f,0.0f,  // 0 // bottom-left
                         +0.5f,-0.5f,+0.0f, 1.0f,0.0f,  // 1 // bottom-right
@@ -65,8 +62,7 @@ namespace app {
     // @todo: ogl::PShaderManager man {ogl::CShaderManager::instance()}
     ogl::CShader         shd {"../../res/shaders/simple/perspective.hlsl"};
     
-    ogl::PTextureManager man {ogl::CCore::getTextureManager()};
-    ogl::PTexture        tx1 {man->load(sys::file("../../res/textures/notfound.dds"), "notfound")};
+    ogl::PTexture        tx1 {ogl::CCore::getTextureManager()->load("notfound.dds", sys::CFile("../../res/textures/notfound.dds"))};
     
     vao.bind(false);
     shd.bind(false);

@@ -3,6 +3,7 @@
 
 #include "ogl/ogl.hpp"
 #include "sys/CException.hpp"
+#include "sys/CStream.hpp"
 
 #include <unordered_map>
 #include <cassert>
@@ -25,10 +26,12 @@ namespace ogl {
       virtual ~CResource() = default;
   };
   
-  class CResourceStream {
+  class CResourceStream : public sys::CStream {
       friend class CResource;
       friend class CResourceManager;
       friend class CResourceLoader;
+    public:
+      using sys::CStream::CStream;
     public:
       CResourceStream() = default;
       virtual ~CResourceStream() = default;
@@ -42,7 +45,7 @@ namespace ogl {
       CResourceLoader() = default;
       virtual ~CResourceLoader() = default;
     public:
-      virtual const char* type() const { throw sys::CException("NOT IMPLEMENTED",__FILE__,__LINE__); };
+      static const char* name() { throw sys::CException("NOT IMPLEMENTED",__FILE__,__LINE__); };
   };
   
   class CResourceManager {
@@ -55,13 +58,18 @@ namespace ogl {
       CResourceManager() = default;
       virtual ~CResourceManager() = default;
     public:
-      template <typename T> inline PResourceLoader loader(const T& from) {
-        // @todo: for each loaded check if it matches
-        
-        
+      PResourceLoader loader(const char* name) {
+        auto it = mLoaders.find(name);
+        if (it != mLoaders.end()) {
+          return it->second;
+        }
+        return nullptr;
       }
       
-      template <typename T> inline void loader(T* pLoader) { mLoaders[typeid(pLoader).name()] = pLoader; }
+      template <typename T, class = typename std::enable_if<std::is_convertible<T*,CResourceLoader*>::value>::type> inline void loader(T* pLoader) {
+        // mLoaders["P8CFileTextureLoader"] = pLoader
+        mLoaders[T::name()] = pLoader; 
+      }
       
       inline void            save(PResource) { }
   };

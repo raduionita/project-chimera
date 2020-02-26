@@ -39,64 +39,69 @@ namespace ogl {
       virtual void load(PModelStream) final;
   };
   
-  class CModelStream : public sys::CStream {
+  // stream //////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  class CModelStream : public ogl::CResourceStream {
       friend class CModel;
       friend class CModelManager;
     public:
-      using sys::CStream::CStream;
+      using ogl::CResourceStream::CResourceStream;
   };
   
   // loaders /////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  template <typename T> class CModelLoader : ogl::CResourceLoader {
+  template <typename T> class CModelLoader : public ogl::CResourceLoader {
       friend class CModel;
       friend class CModelManager;
     public:
-      virtual PModel load(const T&) = 0;
+      virtual PModelStream load(const T&) = 0;
     protected:
   };
   
-  class CFileModelLoader : CModelLoader<sys::CFile> {
-      virtual PModel load(const sys::CFile& file) override;
+  class CFileModelLoader : public CModelLoader<sys::CFile> {
+    public:
+      virtual PModelStream      load(const sys::CFile& file) override;
+      static inline const char* name() { return typeid(CModelLoader<sys::CFile>).name(); }
   };
   
   // manager /////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   class CModelManager : public ogl::CResourceManager, public sys::CSingleton<CModelManager> {
+    protected:
+      std::map<sys::CString,ogl::PModel> mModels;
     public:
       CModelManager();
       ~CModelManager();
     public:
-      PModel find(const sys::CString& name);
-      
-      template <typename T> PModel load(const T& from, const sys::CString& name = "") {
-        PModel       pModel;
-        PModelStream pStream;
-        
-        PModelLoader<T> pLoader = loader(from);
-        if (pLoader) {
-          
+      PModel find(const sys::CString& name) {
+        auto it = mModels.find(name);
+        if (it != mModels.end()) {
+          return it->second;
         }
-        
-        return pModel;
+        return nullptr;
       }
       
-      PModel load(const glm::SRectangle& from, const sys::CString& name = "") {
-        
-      }
-      
-      PModel load(const sys::CFile& from, const sys::CString& name = "") {
-        log::nfo << "ogl::CModelManager::load(T&,CString&)::" << this << log::end;
-
-        PModelLoader    pLoader ; // @todo: produce it somehow
-        PModel          pModel  {new CModel{pLoader}};
-
-
-        // @todo: create key/id from descriptor
-        // @todo: try to find model in cache using that key
-        // @todo: else load it
-        // @todo: update cache
-
+      template <typename T> PModel load(const sys::CString& name, const T& from) {
+        log::nfo << "ogl::CModelManager::load(CString&,T&)::" << this << log::end;
+        PModel       pModel;
+        // try to find model in cache using that key
+        auto it = mModels.find(name);
+        if (it != mModels.end()) {
+          pModel = it->second;
+        } else {
+          PModelStream           pStream;
+          static PModelLoader<T> pLoader = sys::static_pointer_cast<PModelLoader<T>>(loader(typeid(CModelLoader<T>).name()));
+          // is the loader ok?
+          if (pLoader) {
+            // @todo: start on another thread
+            pStream = pLoader->load(from);
+            // @todo: queue `new CModel{pStream}` for the main thread 
+            pModel  = new CModel{pStream};
+            // update cache
+            mModels.insert({name,pModel});
+          }
+        }
+        // return model;
         return pModel;
       }
   };
