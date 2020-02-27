@@ -35,9 +35,13 @@ namespace ogl {
   
   PModelStream CFileModelLoader::load(const sys::CFile &file) {
     log::nfo << "ogl::CFileModelLoader::load(CFile&)::" << this << " FILE:" << file << log::end;
+    CModelStream* pStream {new CModelStream};  
+    
     
     // @todo: use the file extension to get/create a file codec
     
     // @todo: use the codec to load the model stream
+    
+    return pStream;
   }
 }

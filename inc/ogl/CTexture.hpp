@@ -144,8 +144,7 @@ namespace ogl {
       friend class CTexture;
       friend class CTextureManager;
     public:
-      virtual PTextureStream load(const T&) = 0;
-    protected:
+      virtual PTextureStream load(const T&) { throw sys::CException("NOT IMPLEMENTED",__FILE__,__LINE__); };
   };
   
   class CFileTextureLoader : public CTextureLoader<sys::CFile> {
@@ -154,7 +153,7 @@ namespace ogl {
       friend class CTextureManager;
     public:
       static inline const char* name() { return typeid(CTextureLoader<sys::CFile>).name(); }
-      virtual PTextureStream    load(const sys::CFile& file) override;
+      virtual PTextureStream load(const sys::CFile&) override;
   };
   
   // class CDdsTextureLoader : public CFileTextureLoader {
@@ -267,7 +266,7 @@ namespace ogl {
           pTexture = it->second;
         } else {
           PTextureStream           pStream;
-          static PTextureLoader<T> pLoader = sys::static_pointer_cast<PTextureLoader<T>>(loader(typeid(CTextureLoader<T>).name()));
+          static PTextureLoader<T> pLoader = sys::static_pointer_cast<PTextureLoader<T>::type>(loader(typeid(CTextureLoader<T>).name()));
           // is the loader ok?
           if (pLoader) {
             // @todo: start on another thread
