@@ -234,8 +234,8 @@ namespace uix {
     current();
         
     if (!::glLoad(mConfig.nMajorVersion, mConfig.nMinorVersion)) {
-      log::nfo << "[CContext] ogl::load() failed!" << log::end;
-      ::MessageBox(NULL, "[CContext] ogl::load() failed!", "Error", MB_OK);
+      log::nfo << "[CContext] cym::load() failed!" << log::end;
+      ::MessageBox(NULL, "[CContext] cym::load() failed!", "Error", MB_OK);
       
       ::wglMakeCurrent(NULL,NULL);
       ::wglDeleteContext(mRC);

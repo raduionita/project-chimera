@@ -30,16 +30,16 @@ namespace glm {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  template <typename T, ushort cols, ushort rows> class CMatrix;
+  template<typename T, ushort cols, ushort rows> class CMatrix;
   
-  template <typename T> class CRay;
+  template<typename T> class CRay;
   class CPlane;
   
-  template <typename T, ushort size> class CVector;
+  template<typename T, ushort size> class CVector;
 
-  template <typename T> class CQuaterion;
+  template<typename T> class CQuaterion;
   
-  template <typename T, ushort c, ushort r> using tmat = CMatrix<T,c,r>;
+  template<typename T, ushort c, ushort r> using tmat = CMatrix<T,c,r>;
   
   typedef tmat<real,  4, 4>   mat4;
   typedef tmat<real,  4, 3>   mat4x3;
@@ -58,35 +58,35 @@ namespace glm {
   typedef tmat<double, 3, 3> imat3;
   typedef tmat<double, 2, 2> imat2;
   
-  template <typename T, ushort s> using tvec = CVector<T,s>;
+  template<typename T, ushort s> using tvec = CVector<T,s>;
   
-  typedef tvec<real,  4>   vec4;
-  typedef tvec<real,  3>   vec3;
-  typedef tvec<real,  2>   vec2;  
-  typedef tvec<float, 4>  fvec4;
-  typedef tvec<float, 3>  fvec3;
-  typedef tvec<float, 2>  fvec2;  
-  typedef tvec<double, 4> dvec4;
-  typedef tvec<double, 3> dvec3;
-  typedef tvec<double, 2> dvec2;
-  typedef tvec<int, 4>    ivec4;
-  typedef tvec<int, 3>    ivec3;
-  typedef tvec<int, 2>    ivec2;
-  typedef tvec<uint, 4>   uvec4;
-  typedef tvec<uint, 3>   uvec3;
-  typedef tvec<uint, 2>   uvec2;
-  typedef tvec<bool, 4>   bvec4;
-  typedef tvec<bool, 3>   bvec3;
-  typedef tvec<bool, 2>   bvec2;
+  typedef tvec<real,  4>   vec4; typedef tvec<real,  4>    real4;
+  typedef tvec<real,  3>   vec3; typedef tvec<real,  3>    real3;
+  typedef tvec<real,  2>   vec2; typedef tvec<real,  2>    real2;  
+  typedef tvec<float, 4>  fvec4; typedef tvec<float, 4>   float4;
+  typedef tvec<float, 3>  fvec3; typedef tvec<float, 3>   float3;
+  typedef tvec<float, 2>  fvec2; typedef tvec<float, 2>   float2;  
+  typedef tvec<double, 4> dvec4; typedef tvec<double, 4> double4;
+  typedef tvec<double, 3> dvec3; typedef tvec<double, 3> double3;
+  typedef tvec<double, 2> dvec2; typedef tvec<double, 2> double2;
+  typedef tvec<int, 4>    ivec4; typedef tvec<int, 4>       int4;
+  typedef tvec<int, 3>    ivec3; typedef tvec<int, 3>       int3;
+  typedef tvec<int, 2>    ivec2; typedef tvec<int, 2>       int2;
+  typedef tvec<uint, 4>   uvec4; typedef tvec<uint, 4>     uint4;
+  typedef tvec<uint, 3>   uvec3; typedef tvec<uint, 3>     uint3; 
+  typedef tvec<uint, 2>   uvec2; typedef tvec<uint, 2>     uint2;
+  typedef tvec<bool, 4>   bvec4; typedef tvec<bool, 4>     bool4; 
+  typedef tvec<bool, 3>   bvec3; typedef tvec<bool, 3>     bool3; 
+  typedef tvec<bool, 2>   bvec2; typedef tvec<bool, 2>     bool2;
   
-  template <typename T> using tquat = CQuaterion<T>;
+  template<typename T> using tquat = CQuaterion<T>;
   
   typedef CQuaterion<real>    quat;
   typedef CQuaterion<float>  fquat;
   typedef CQuaterion<double> dquat;
   typedef CQuaterion<int>    iquat;
   
-  template <typename T> using tray = CRay<T>;
+  template<typename T> using tray = CRay<T>;
   
   typedef CRay<real>    ray;
   typedef CRay<float>  fray;
@@ -101,7 +101,7 @@ namespace glm {
   constexpr real RAD      = PI / real(180.0);
   
   // glm::epsilon<float>()
-  template <typename T> using epsilon = decltype(std::numeric_limits<T>::epsilon);
+  template<typename T> using epsilon = decltype(std::numeric_limits<T>::epsilon);
   using epsilonf                      = decltype(std::numeric_limits<float>::epsilon);
   using epsilond                      = decltype(std::numeric_limits<double>::epsilon);
   using epsilonl                      = decltype(std::numeric_limits<long>::epsilon);
@@ -113,12 +113,12 @@ namespace glm {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  template <typename T> struct SRange {
+  template<typename T> struct SRange {
     T min;
     T max;
   };
   
-  template <typename T> inline void swap(T& lhs, T& rhs) { T tmp = lhs; lhs = rhs; rhs = tmp; }
+  template<typename T> inline void swap(T& lhs, T& rhs) { T tmp = lhs; lhs = rhs; rhs = tmp; }
   
   inline real loop(real& fVal, real fStep = 0.1f, real fFirst = -1.0f, real fLast = 1.0f) {
     bool bRevRange = fLast < fFirst;
@@ -135,36 +135,36 @@ namespace glm {
     return fVal;
   }
   
-  template <typename T> inline T log2(T value) { return static_cast<T>(std::log2(value)); }
+  template<typename T> inline T log2(T value) { return static_cast<T>(std::log2(value)); }
   
-  template <typename T> inline T floor(T value) { return static_cast<T>(std::floor(value)); }
+  template<typename T> inline T floor(T value) { return static_cast<T>(std::floor(value)); }
   
-  template <typename T> inline T min(T a, T b) { return a < b ? a : b; }
+  template<typename T> inline T min(T a, T b) { return a < b ? a : b; }
   
-  template <typename T> inline T max(T a, T b) { return a >= b ? a : b; }
+  template<typename T> inline T max(T a, T b) { return a >= b ? a : b; }
   
-  template <typename T> T inline abs(const T& val) { return val < T(0) ? val * T(-1) : val; }
+  template<typename T> T inline abs(const T& val) { return val < T(0) ? val * T(-1) : val; }
   
-  template <typename T> inline bool equals(const T& lhs, const T& rhs) { return glm::abs(lhs-rhs) < epsilon<T>(); } // eq
+  template<typename T> inline bool equals(const T& lhs, const T& rhs) { return glm::abs(lhs-rhs) < epsilon<T>(); } // eq
   
-  template <typename T, ushort s> inline bool equals(const glm::tvec<T,s>& lhs, const glm::tvec<T,s>& rhs) { return glm::abs(lhs-rhs) < epsilon<T>(); } // eq
+  template<typename T, ushort s> inline bool equals(const glm::tvec<T,s>& lhs, const glm::tvec<T,s>& rhs) { return glm::abs(lhs-rhs) < epsilon<T>(); } // eq
   
-  template <typename T> inline bool eq(const T& lhs, const T& rhs) { return glm::equals(lhs,rhs); }
+  template<typename T> inline bool eq(const T& lhs, const T& rhs) { return glm::equals(lhs,rhs); }
   
-  template <typename T, ushort s> inline bool eq(const glm::tvec<T,s>& lhs, const glm::tvec<T,s>& rhs) { return glm::equals(lhs,rhs); }
+  template<typename T, ushort s> inline bool eq(const glm::tvec<T,s>& lhs, const glm::tvec<T,s>& rhs) { return glm::equals(lhs,rhs); }
   
   // linear interpolation
-  template <typename T, typename S> inline T mix(const T& A, const T& B, const S& t) { 
+  template<typename T, typename S> inline T mix(const T& A, const T& B, const S& t) { 
     return B + t * (B - A); 
   } 
   
   // linear interpolation
-  template <typename T, typename S> inline T lerp(const T& A, const T& B, const S& t) { 
+  template<typename T, typename S> inline T lerp(const T& A, const T& B, const S& t) { 
     return glm::mix(A,B,t); 
   } 
   
   // quadratic bezier (3 component interpolation)
-  template <typename T, typename S> inline T mix(const T& A, const T& B, const T& C, const S& t)  {
+  template<typename T, typename S> inline T mix(const T& A, const T& B, const T& C, const S& t)  {
     T D = glm::mix(A, B, t); // D = A + t(B - A)
     T E = glm::mix(B, C, t); // E = B + t(C - B)
     T P = glm::mix(D, E, t); // P = D + t(E - D)
@@ -172,7 +172,7 @@ namespace glm {
   }
   
   // cubic bezier (4 component interpolation)
-  template <typename T, typename S> inline T mix(const T& A, const T& B, const T& C, const T& D, const S& t) { 
+  template<typename T, typename S> inline T mix(const T& A, const T& B, const T& C, const T& D, const S& t) { 
     
     T E = glm::mix(A, B, t);
     T F = glm::mix(B, C, t);
@@ -181,7 +181,20 @@ namespace glm {
     return P;
   }
   
-  //
+  // clamp value between a min(left) and a max(right)
+  template<typename T> inline T clamp(T value, T left, T right) {
+    return std::min(std::max(value, left), right);
+  }  
+  
+  // clamp value between a min(left) and a max(right)
+  template<typename T> inline T clamp(T value, T limit = T(0)) {
+    return value < limit ? limit : value;
+  }
+  
+  // clamp vector between 2 vector limits
+  template<typename T, const ushort n> inline CVector<T, n> clamp(const CVector<T, n>& v, const CVector<T, n>& left, const CVector<T, n>& right) {
+    return min(max(v, left), right);
+  }
   
   // OGL is RightHanded + Negative Z
   
@@ -213,7 +226,7 @@ namespace glm {
   
   
   // glm::dot
-  template <typename T, const ushort n> T inline dot(const glm::CVector<T,n>& v1, const glm::CVector<T,n>& v2) {
+  template<typename T, const ushort n> T inline dot(const glm::CVector<T,n>& v1, const glm::CVector<T,n>& v2) {
     T res(0);
     for(ushort i = 0; i < n; i++)
       res += v1[i] * v2[i];
@@ -221,7 +234,7 @@ namespace glm {
   }  
   
   // glm::dot quat
-  template <typename T> T inline dot(const glm::CQuaterion<T>& q1, const glm::CQuaterion<T>& q2) {
+  template<typename T> T inline dot(const glm::CQuaterion<T>& q1, const glm::CQuaterion<T>& q2) {
     T res(0);
     for(ushort i = 0; i < 4; ++i)
       res += q1[i] * q2[i];
@@ -229,7 +242,7 @@ namespace glm {
   }
   
   // glm::cross
-  template <typename T> glm::CVector<T,3> inline cross(const glm::CVector<T, 3>& x, const glm::CVector<T,3>& y) {
+  template<typename T> glm::CVector<T,3> inline cross(const glm::CVector<T, 3>& x, const glm::CVector<T,3>& y) {
     return glm::CVector<T,3>(
       (x.y * y.z - y.y * x.z),
       (x.z * y.x - y.z * x.x),
@@ -237,7 +250,7 @@ namespace glm {
   }
   
   // glm::length
-  template <typename T, const ushort n> T inline length(const glm::CVector<T,n>& v) {
+  template<typename T, const ushort n> T inline length(const glm::CVector<T,n>& v) {
     T sum {0};
     for(ushort i = 0; i < n; i++)
       sum += v[i] * v[i];
@@ -245,7 +258,7 @@ namespace glm {
   }
   
   // glm::normalize
-  template <typename T, const ushort n> CVector<T,n> inline normalize(const glm::CVector<T,n>& v) {
+  template<typename T, const ushort n> CVector<T,n> inline normalize(const glm::CVector<T,n>& v) {
     return v / glm::length(v);
   }
   
@@ -257,14 +270,14 @@ namespace glm {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   // glm::radian
-  template <typename T> inline T radians(T degrees) { return degrees * static_cast<T>(RAD); } // return degrees * RAD;
+  template<typename T> inline T radians(T degrees) { return degrees * static_cast<T>(RAD); } // return degrees * RAD;
   
-  template <typename T> inline T deg2rad(T degrees) { return glm::radians(degrees); } // return degrees * RAD;
+  template<typename T> inline T deg2rad(T degrees) { return glm::radians(degrees); } // return degrees * RAD;
   
   // glm::angle
-  template <typename T> inline T degrees(T radians) { return radians / static_cast<T>(RAD); } // return radians / RAD;
+  template<typename T> inline T degrees(T radians) { return radians / static_cast<T>(RAD); } // return radians / RAD;
   
-  template <typename T> inline T rad2deg(T radians) { return glm::degrees(radians); } // return radians / RAD;
+  template<typename T> inline T rad2deg(T radians) { return glm::degrees(radians); } // return radians / RAD;
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -273,7 +286,7 @@ namespace glm {
   // @todo glm::pitch
   
   // glm::rotate // rotation matrix from axis and angle | R = cos*I + sin*[u]x + (1-cos)uXu | tensor product
-  template <typename T> inline tmat<T, 4, 4> rotate(const T& a, const T& x, const T& y, const T& z) {
+  template<typename T> inline tmat<T, 4, 4> rotate(const T& a, const T& x, const T& y, const T& z) {
     // return glm::rotate(a, glm::tvec<T,3>{x,y,z});
     const T xx = x * x;
     const T yy = y * y;
@@ -296,7 +309,7 @@ namespace glm {
   }
   
   // glm::rotate // rotation matrix - vector
-  template <typename T> inline glm::tmat<T, 4, 4> rotate(const T& a, const glm::tvec<T,3>& vec) {
+  template<typename T> inline glm::tmat<T, 4, 4> rotate(const T& a, const glm::tvec<T,3>& vec) {
     return glm::rotate(a, vec.x, vec.y, vec.z);
     // const T c = ::cos(a);
     // const T s = ::sin(a);
@@ -311,12 +324,12 @@ namespace glm {
   }
   
   // glm::rotate // matrix rotation using angles
-  template <typename T> inline glm::tmat<T, 4, 4> rotate(const T& ax, const T& ay, const T& az) {
+  template<typename T> inline glm::tmat<T, 4, 4> rotate(const T& ax, const T& ay, const T& az) {
     return glm::rotate(ax, T(1), T(0), T(0)) * glm::rotate(ay, T(0), T(1), T(0)) * glm::rotate(az, T(0), T(0), T(1));
   }
   
   // rotate vector
-  template <typename T, const ushort n> inline glm::tvec<T, n> rotateY(const T& a, const glm::tvec<T, n>& vec) {
+  template<typename T, const ushort n> inline glm::tvec<T, n> rotateY(const T& a, const glm::tvec<T, n>& vec) {
     glm::tvec<T, n> res(vec);
     const T rads = glm::radians(a);
     const T cosa = ::cos(rads);
@@ -333,7 +346,7 @@ namespace glm {
   // @todo glm::refract
   
   // glm::translate // create translation matrix from a direction vector
-  template <typename T> CMatrix<T,4,4> translate(const CVector<T,3>& v) {
+  template<typename T> CMatrix<T,4,4> translate(const CVector<T,3>& v) {
     return CMatrix<T, 4, 4>{
       CVector<T,4> {T(1), T(0), T(0), T(0)},
       CVector<T,4> {T(0), T(1), T(0), T(0)},
@@ -354,7 +367,7 @@ namespace glm {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   // glm::ortho(T left, T right = screen.width, T bottom = screen.height, T top, T near, T far) //
-  template <typename T> CMatrix<T,4,4> inline ortho(T left, T right, T bottom, T top, T near, T far) {
+  template<typename T> CMatrix<T,4,4> inline ortho(T left, T right, T bottom, T top, T near, T far) {
     return CMatrix<T,4,4> {
       T(2)/(right-left),          T(0),                        T(0),            T(0),
       T(0),                       T(2)/(top-bottom),           T(0),            T(0),
@@ -374,7 +387,7 @@ namespace glm {
     // );
     
   // glm::perspective(T fov, T width, T hight, T near, T far)
-  template <typename T> CMatrix<T,4,4> inline perspective(T fov, T width, T height, T near, T far) {
+  template<typename T> CMatrix<T,4,4> inline perspective(T fov, T width, T height, T near, T far) {
     assert(width  > T(0));
     assert(height > T(0));
     assert(fov    > T(0));
@@ -392,7 +405,7 @@ namespace glm {
   }
 
   // glm::perspective // return perspective matrix using field of view, aspect ratio, near & far planes
-  template <typename T> CMatrix<T,4,4> inline perspective(T fovy, T ratio, T near, T far) {
+  template<typename T> CMatrix<T,4,4> inline perspective(T fovy, T ratio, T near, T far) {
     assert(far > near);
     assert(glm::abs(ratio - std::numeric_limits<T>::epsilon() > T(0)));
     const T thf = ::tan(glm::radians(fovy / T(2)));
@@ -419,7 +432,7 @@ namespace glm {
     // m[3][2] = 2 * near
   
   // glm::lookat(vec3 position, vec3 target, vec3 up) // eye, center, up
-  template <typename T> inline CMatrix<T,4,4> lookat(glm::CVector<T,3> p/*position,eye*/, glm::CVector<T,3> t/*target,center*/, CVector<T,3> a/*up*/) {
+  template<typename T> inline CMatrix<T,4,4> lookat(glm::CVector<T,3> p/*position,eye*/, glm::CVector<T,3> t/*target,center*/, CVector<T,3> a/*up*/) {
     const CVector<T,3> f(glm::normalize(t - p));            // direction = target - position
     const CVector<T,3> s(glm::normalize(glm::cross(f, a))); // side = forward x up
     const CVector<T,3> u(glm::cross(s, f));                 // up - recomputed
@@ -446,7 +459,7 @@ namespace glm {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  template <typename T> bool intersects(const glm::CRay<T>& r, const glm::CPlane& p) {
+  template<typename T> bool intersects(const glm::CRay<T>& r, const glm::CPlane& p) {
     // @todo: implament this
     return false;
   }
@@ -461,28 +474,36 @@ namespace glm {
       S4D = 4,
   };
   
-  struct BShape { };
-  template <EShape shape> struct SShape : public BShape { };
+  struct SShape { }; 
+  using shape = SShape;
   
-  struct CPoint     : SShape<EShape::S0D> { };
+  template <EShape shape> struct TShape : public SShape { };
+    
+  struct SPoint     : TShape<EShape::S0D> { };
+  using point = SPoint;
   
-  struct SLine      : SShape<EShape::S1D> { union {struct{real l;}; struct {real length;};}; };
-  struct SCircle    : SShape<EShape::S2D> { union {struct{real r;}; struct {real radius;};}; };
-  struct SEllipse   : SShape<EShape::S2D> { };
-  struct SArc       : SShape<EShape::S2D> { };
-  struct SSpline    : SShape<EShape::S2D> { };
-  struct SSector    : SShape<EShape::S2D> { };
-  struct SPolygon   : SShape<EShape::S2D> { };
-  struct SRectangle : SShape<EShape::S2D> { union {struct{real w,h;}; struct {real width,height;};}; }; 
-  typedef SRectangle rect;
+  struct SLine      : TShape<EShape::S1D> { union {struct{real l;}; struct {real length;};}; };
+  using line = SLine;
+  struct SCircle    : TShape<EShape::S2D> { union {struct{real r;}; struct {real radius;};}; };
+  struct SEllipse   : TShape<EShape::S2D> { };
+  struct SArc       : TShape<EShape::S2D> { };
+  struct SSpline    : TShape<EShape::S2D> { };
+  struct SSector    : TShape<EShape::S2D> { };
+  struct SPolygon   : TShape<EShape::S2D> { };
+  using poly = SPolygon;
+  struct SRectangle : TShape<EShape::S2D> { union {struct{real w, h;}; struct {real width, height;};}; }; 
+  using rect = SRectangle;
   struct STriangle  : SPolygon { };
   
-  struct SPrism     : SShape<EShape::S3D> { };
-  struct SPyramid   : SShape<EShape::S3D> { };
-  struct SCube      : SShape<EShape::S3D> { };
-  struct SSphere    : SShape<EShape::S3D> { union {struct{real r;}; struct {real radius;};}; };
+  struct SPrism       : TShape<EShape::S3D> { };
+  struct SPyramid     : TShape<EShape::S3D> { };
+  struct STetrahedron : TShape<EShape::S3D> { };
+  struct SCube        : TShape<EShape::S3D> { union {struct {real l;}; struct {real length;};}; };
+  using cube = SCube;
+  struct SSphere      : TShape<EShape::S3D> { union {struct{real r;}; struct {real radius;};}; };
+  using sphere = SSphere;
   
-  struct STesseract : SShape<EShape::S4D> { }; // hypercube = 4(spacial)d  cube
+  struct STesseract   : TShape<EShape::S4D> { union {struct {real l;}; struct {real length;};}; }; // hypercube = 4(spacial)d  cube
 }
 
 #endif //__glm_hpp__

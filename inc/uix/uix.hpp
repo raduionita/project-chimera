@@ -274,7 +274,7 @@ namespace uix {
     class CTooltip;
     class CStyle;
     class CPainter;
-    template <typename T> class CGdio;         // graphics device interface object
+    template<typename T> class CGdio;         // graphics device interface object
       class CBitmap;
       class CBrush;
       class CPen;

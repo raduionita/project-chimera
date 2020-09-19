@@ -10,10 +10,10 @@ include_directories(inc)
 
 link_directories(lib)
 
-file(GLOB CYM "src/sys/*.cpp" "src/glc/*.cpp" "src/ogl/*.cpp" "src/uix/*.cpp")
+file(GLOB CYM "src/sys/*.cpp" "src/glc/*.cpp" "src/ogl/*.cpp" "src/cym/*.cpp" "src/uix/*.cpp")
 file(GLOB APP "src/app/*.cpp")
 
-add_library(ogl ${CYM})
+add_library(cym ${CYM})
 add_executable(app ${APP})
 
-target_link_libraries(app ogl) # libgdi32.a libopengl32.a
+target_link_libraries(app cym) # libgdi32.a libopengl32.a

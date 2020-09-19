@@ -21,7 +21,7 @@ namespace uix {
           virtual bool area(const SArea&) = 0;
           virtual bool calc() = 0;
       };
-      template <typename T> class TItem : public BItem {
+      template<typename T> class TItem : public BItem {
         protected:
           T mItem;
         public:
@@ -78,7 +78,7 @@ namespace uix {
       virtual bool calc() override;
     public:
       BItem*   item(typename decltype(mItems)::size_type i);
-      template <typename T> decltype(auto) add(T* item, const ELayout& eLayout = ELayout::EMPTY) {
+      template<typename T> decltype(auto) add(T* item, const ELayout& eLayout = ELayout::EMPTY) {
         log::nfo << "uix::CBoxLayout::add(T*,int)::" << this << log::end;
         mItems.push_back(std::move(new TItem<T*>(item,int(eLayout))));
         return item;

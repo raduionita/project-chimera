@@ -8,13 +8,13 @@
 #include "uix/CLayout.hpp"
 #include "uix/CButton.hpp"
 
-#include "ogl/CCore.hpp"
-#include "ogl/CBuffer.hpp"
-#include "ogl/CVertexArray.hpp"
-#include "ogl/CLayout.hpp"
-#include "ogl/CShader.hpp"
-#include "ogl/CTexture.hpp"
-#include "ogl/CModel.hpp"
+#include "cym/CCore.hpp"
+#include "cym/CBuffer.hpp"
+#include "cym/CVertexArray.hpp"
+#include "cym/CLayout.hpp"
+#include "cym/CShader.hpp"
+#include "cym/CTexture.hpp"
+#include "cym/CModel.hpp"
 
 #include "glm/glm.hpp"
 #include "glm/CMatrix.hpp"
@@ -42,8 +42,6 @@ namespace app {
     auto    area {pSurface->area()};
     
     log::nfo << "app::CApplication::exec()::" << this << " w:" << area.w << " h:" << area.h << log::end;
-  
-    // ogl::PModel mdl = ogl::CCore::getModelManager()->load("file.model", sys::CFile{"path/to/file.model"});
     
     GLfloat vertices[] {-0.5f,-0.5f,+0.0f, 0.0f,0.0f,  // 0 // bottom-left
                         +0.5f,-0.5f,+0.0f, 1.0f,0.0f,  // 1 // bottom-right
@@ -51,18 +49,21 @@ namespace app {
                         -0.5f,+0.5f,+0.0f, 0.0f,1.0f}; // 3 // top-left
     GLuint  indices [] {0,1,2, 2,3,0};
   
-    ogl::CVertexArray   vao;
-    ogl::CDataBuffer    vbo {vertices, 4 * 5, ogl::CDataBuffer::VERTEX}; // 4 vertices * 5 components (xyzuv)
-    ogl::CVertexLayout  vlo;
+    cym::CVertexArray   vao;
+    cym::CVertexBuffer  vbo {vertices, 4 * 5}; // 4 vertices * 5 components (xyzuv)
+    cym::CVertexLayout  vlo;
     vlo.push({GL_FLOAT, 3});
     vlo.push({GL_FLOAT, 2});
     vao.buffer(vbo, vlo);
-    ogl::CDataBuffer    ibo {indices, 2 * 3, ogl::CDataBuffer::INDEX}; // 2 triangles * 3 vertices
+    cym::CIndexBuffer   ibo {indices, 2*3}; // 2 triangles * 3 vertices
   
-    // @todo: ogl::PShaderManager man {ogl::CShaderManager::instance()}
-    ogl::CShader         shd {"../../res/shaders/simple/perspective.hlsl"};
+    // @todo: cym::PShaderManager man {cym::CShaderManager::instance()}
+    cym::CShader         shd {"../../res/shaders/simple/perspective.hlsl"};
     
-    ogl::PTexture        tx1 {ogl::CCore::getTextureManager()->load("notfound.dds", sys::CFile("../../res/textures/notfound.dds"))};
+    
+    cym::NModel          mdl {cym::CCore::getModelManager()->load("cube.obj", sys::CFile{"../../res/models/cube.obj"})};
+    
+    cym::PTexture        tx1 {cym::CCore::getTextureManager()->load("notfound.dds", sys::CFile("../../res/textures/notfound.dds"))};
     
     vao.bind(false);
     shd.bind(false);

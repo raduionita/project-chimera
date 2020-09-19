@@ -1,28 +1,38 @@
-#ifndef __csingleton_hpp__
-#define __csingleton_hpp__
+#ifndef __sys_csingleton_hpp__
+#define __sys_csingleton_hpp__
 
 #include "sys.hpp"
-#include "CPointer.hpp"
+#include "sys/CPointer.hpp"
 
 #include <cassert>
 
+// @warning
+// @todo: this might NOT WORK if TPointer<T> is deleted AFTER TSingleton<T>::sInstance
+// @warning
+
 namespace sys {
-  template <typename T> class CSingleton {
+  template<typename T> class TSingleton {
+      template<typename D> class TDeletable {
+        public:
+          D* mDeletable {nullptr};
+        public:
+          ~TDeletable() { if (mDeletable) delete mDeletable; }
+      };
     protected:
-      static CPointer<T> sInstance;
+      static TDeletable<T> sInstance;
     public:
-      CSingleton() { 
-        assert(!sInstance && "CSingleton<T>::sIntastace already defined");
-        sInstance = static_cast<T*>(this);
+      TSingleton() { 
+        assert(!sInstance.mDeletable && "TSingleton<>::sIntastace already created");
+        sInstance.mDeletable = static_cast<T*>(this);
       }
-    protected:
-      virtual ~CSingleton() { 
-        // deleted
+      virtual ~TSingleton() {
+        assert( sInstance.mDeletable && "TSingleton<>::sIntastace already deleted");
+        sInstance.mDeletable = nullptr;
       }
     public:
-      inline static CPointer<T>& instance() { if (!sInstance) new T; return sInstance; }
+      inline static T* instance() { if (!sInstance.mDeletable) new T; return sInstance.mDeletable; }
   };
-  template<typename T> CPointer<T> CSingleton<T>::sInstance{nullptr};
+  template<typename T> typename TSingleton<T>::template TDeletable<T> TSingleton<T>::sInstance;
 }
 
-#endif //__csingleton_hpp__
+#endif //__sys_csingleton_hpp__

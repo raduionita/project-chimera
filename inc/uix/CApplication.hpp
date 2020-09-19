@@ -2,11 +2,11 @@
 #define __uix_capplication_hpp__
 
 #include "uix.hpp"
-#include "CModule.hpp"
-#include "CListener.hpp"
+#include "uix/CModule.hpp"
+#include "uix/CListener.hpp"
 
 namespace uix { 
-  template <typename T>
+  template<typename T>
   class TApplication : public T {
       
   };
@@ -54,12 +54,12 @@ namespace uix {
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {                      \
   sys::log::nfo << "   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " INIT" << sys::log::end;           \
   try {                                                                                                                \
-    CLS app;                                                                                                \
-    INT result = app.exec();                                                                                          \
+    CLS app;                                                                                                           \
+    INT result = app.exec();                                                                                           \
     sys::log::nfo << "   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " EXIT" << sys::log::end;         \
     return result;                                                                                                     \
   } catch (sys::CException& ex) {                                                                                      \
-    sys::log::err << ex << sys::log::end;                                                                              \
+    sys::log::err << "FATAL! " << ex << sys::log::end;                                                                 \
     return -1;                                                                                                         \
   }                                                                                                                    \
 }                                                                                                                     //

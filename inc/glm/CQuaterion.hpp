@@ -2,7 +2,7 @@
 #define __glm_cquaterion_hpp__
 
 namespace glm {
-  template <typename T> class CQuaterion {
+  template<typename T> class CQuaterion {
       
   };
 }

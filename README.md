@@ -6,10 +6,10 @@
 GLfloat p[] = {-0.5,-0.5, +0.5,-0.5, +0.5,+0.5, -0.5,+0.5};  // vertex.positions
 GLint   e[] = {0,1,2, 1,2,0};                                // indices(elements)
 
-ogl::CVertexArray  a;                                     // vao + vbo + ibo                              
-ogl::CVertexBuffer b(p, 4 * 2, ogl::CDataBuffer::VERTEX); // vbo => ::glGenBuffers() + ::glBindBuffer(GL_ARRAY_BUFFER...) + ::glBufferData()
-ogl::CIndexBuffer  i(e, 2 * 3, ogl::CDataBuffer::INDEX);  // ibo => ::glGenBuffers() + ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER...) + ::glBufferData()
-ogl::CVertexLayout l;                                     // layout, stores how many (here) floats are there per vertex component
+cym::CVertexArray  a;                                     // vao + vbo + ibo                              
+cym::CVertexBuffer b(p, 4 * 2, cym::CDataBuffer::VERTEX); // vbo => ::glGenBuffers() + ::glBindBuffer(GL_ARRAY_BUFFER...) + ::glBufferData()
+cym::CIndexBuffer  i(e, 2 * 3, cym::CDataBuffer::INDEX);  // ibo => ::glGenBuffers() + ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER...) + ::glBufferData()
+cym::CVertexLayout l;                                     // layout, stores how many (here) floats are there per vertex component
 
 l.push({GL_FLOAT, 2, GL_FALSE}); // tell layout about the each vertex component (=2 floats) => adds to a list of elelemts
 a.buffer(b,l);                   // add buffer + layout to VAO => does ::glEnableVertexAttribArray() + ::glVertexAttribPointer()
@@ -21,15 +21,15 @@ i.bind();  // bind ibo => ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER...)
 ```
 ###### Shader
 ```c++
-ogl::CShader s{"res/shaders/simple/color.csl"}; // chimera shader language
+cym::CShader s{"res/shaders/simple/color.csl"}; // chimera shader language
 s.bind(0);                                      // slot 0
 s.uniform("u_vColor", .3f,.5f,.7f, 1.f);
 s.bind(false);
 ```
 ###### Texture
 ```c++
-ogl::CTextureManager* m = ogl::CTextureManager::instance();
-ogl::CTexture*        t = m->load(sys::CFile("res/textures/paint.dds"));
+cym::CTextureManager* m = cym::CTextureManager::instance();
+cym::CTexture*        t = m->load(sys::CFile("res/textures/paint.dds"));
 
 t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uniform
 ```
@@ -48,7 +48,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 - new: sys info object // like getting the number threads/cores 
 - new: `CWindowApplication` or `???` // application that is also a (main) window // can extend `CCanvas` (for game)
   - move: `CModule` inside `CApplication`
-  - or refactor `uix::CApplication` into a toplevel window | `template <typename T=CWindow> CApplication`
+  - or refactor `uix::CApplication` into a toplevel window | `template<typename T=CWindow> CApplication`
 - refactor: throw exception on `delete` `CWindow*` only the `CWindow::CRegistry` is allowed to
 - refactor: `CPopup` to replace `CToplevel` | only close app if `CPopup` has no parent
 - fix: need alternative for calling virtual methods from constructors
@@ -61,7 +61,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 - move: opengl code from `uix::CContext` to `glc::CContext : uix::CContext` // `uix` should stay abstract
 - restructure: move `CSufrface` + `CButton` (and panels) to `CEditWindow`
 - use: get unforms & attributes using `glGetActiveAttrib` && `glGetActiveUniform`
-- .ext to lowercase for `ogl::CCodec`s 
+- .ext to lowercase for `cym::CCodec`s 
 - replace(use): custom types (typedef uint) instead of opengl's GLxxx types
 - attach `CContext` to window(s) // by ref?!
 - opening files shouln't crash (through exception) the app, just show an error
@@ -73,7 +73,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 
 - `glx` draw something // start the ogl framework
   - engine picks the context
-  - move `CContext` to ogl (since it uses only opengl) // `uix::ogl::CContext` // `uix::COGLContext` extends `ogl::CContext`
+  - move `CContext` to ogl (since it uses only opengl) // `uix::cym::CContext` // `uix::COGLContext` extends `cym::CContext`
     - `CSurface` + `CCanvas` takes `CContext`(or ref) not SConfig
 
 - timer (proper timer object w/ start & elapsed)

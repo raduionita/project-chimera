@@ -3,10 +3,10 @@
 
 #include <vector>
 
-namespace ogl {
-  template <typename T> class CEntry;
+namespace cym {
+  template<typename T> class CEntry;
   
-  template <typename T> class CRegistry {
+  template<typename T> class CRegistry {
     friend class CEntry<T>;
     
     public:
@@ -21,7 +21,7 @@ namespace ogl {
     bool remove(T*);
   };
   
-  template <typename T> class CEntry {
+  template<typename T> class CEntry {
     friend class CRegistry<T>;
     
     private:

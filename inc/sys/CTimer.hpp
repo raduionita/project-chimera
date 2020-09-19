@@ -5,7 +5,7 @@
 
 #include <chrono>
 
-namespace ogl { 
+namespace cym { 
   class CTimer {
     protected:
       std::chrono::steady_clock::time_point mStart;

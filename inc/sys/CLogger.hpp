@@ -70,7 +70,7 @@ namespace sys {
     virtual void log(const std::string&);
   };
   
-  class CLogger : public CSingleton<CLogger> {
+  class CLogger : public TSingleton<CLogger> {
     public:
       enum class EManipulator: int {
         END = 0x0,
@@ -99,12 +99,12 @@ namespace sys {
       CLogger();
       virtual ~CLogger();
     public:
-      template <typename T> CLogger* operator << (const T& output) { return push(output); }
+      template<typename T> CLogger* operator << (const T& output) { return push(output); }
       friend const CLogger::ELevel& operator <<(const CLogger::ELevel&, const CLogger::EManipulator&);
-      template <typename T> friend const CLogger::ELevel& operator <<(const CLogger::ELevel&, const T&);
+      template<typename T> friend const CLogger::ELevel& operator <<(const CLogger::ELevel&, const T&);
       friend CLogger* operator <<(CLogger*, const std::string&);
     public:
-    template <typename T> CLogger* push(const T& output) {
+    template<typename T> CLogger* push(const T& output) {
 #if   defined(CYM_LOGGER_DEBUG)
       mLevel = ELevel::DEBUG;
 #elif defined(CYM_LOGGER_INFO)
@@ -130,7 +130,7 @@ namespace sys {
       CLoggerProvider* provider() { if (!mProvider) mProvider = new CYM_LOGGER_PROVIDER; return mProvider; }
   };
   
-  template <typename T> const CLogger::ELevel& operator <<(const CLogger::ELevel& type, const T& output) {
+  template<typename T> const CLogger::ELevel& operator <<(const CLogger::ELevel& type, const T& output) {
     CLogger::instance()->push(output);
     return type;
   }

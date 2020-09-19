@@ -37,15 +37,19 @@ namespace sys {
       explicit inline operator CString()             { return mFilepath; }
       explicit inline operator const CString() const { return mFilepath; }
     public:
-             void            read(byte* data, std::streamsize len) const;
+      inline void            read(byte* data, std::streamsize len) const { mStream->read(data, len); };
+      inline void            line(byte* data, std::streamsize len) const { mStream->getline(data,len); }
       inline bool            good() const { return mStream ? mStream->good() : false; }
       inline bool            fail() const { return !good(); }
       inline std::streamsize size()      const { return mStream ? mStream->gcount() : 0; }
       inline bool            empty()     const { return mFilepath.empty(); }
+      inline sys::CString    folder()    const { return mFilepath.substr(0,mFilepath.find_last_of('/')+1); }
       inline const char*     extension() const { return &mFilepath[mFilepath.find_last_of('.')+1]; }
       inline const char*     ext() const { return extension(); }
       inline const char*     path() const { return mFilepath.c_str(); }
       inline const char*     file() const { return &mFilepath[mFilepath.find_last_of('/')+1]; } 
+      inline int             peek() const { return mStream->peek(); } 
+      inline bool            eof() const { return mStream->peek() == EOF; } 
     public:
       bool                   open(sys::bitfield = EOption::READ) const;
   };

@@ -34,18 +34,19 @@ namespace sys {
   class CMemory;
   class CTimer;
   class CStream;
-  template <typename T> class CPointer;
-  template <typename T> class CEntry;
-  template <typename T> class CRegistry;
-  template <typename T> class CSingleton;
-  template <typename T> class CCollection;
+  template<typename T> class TPointer;
+  template<typename T> class CEntry;
+  template<typename T> class CRegistry;
+  template<typename T> class TSingleton;
+  template<typename T, typename A> class TBlock;
+  template <typename T> class TIterator;
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  template <typename T> class CType {
+  template<typename T> class CType {
     public:
       typedef T class_type;
-  };  
+  };
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -65,11 +66,23 @@ namespace sys {
   using CString                  = std::string;
   template<typename V> using CSet                 = std::set<V>;
   template<typename K, typename V> using CMap               = std::map<K,V>;
+  template<typename K, typename V> using CTable             = std::map<K,V>;
   template<typename L, typename R> using CPair              = std::pair<L,R>;
   template<typename V> using CVector              = std::vector<V>;
+  template<typename V> using CCollection          = std::vector<V>;
   template<typename V, std::size_t S> using CArray = std::array<V,S>;
   
-  using file = sys::CFile;
+  template<typename T, typename A = std::allocator<T>> using block = sys::TBlock<T,A>;
+  using file      = sys::CFile;
+  using stream    = sys::CStream;
+  
+  using string                  = std::string;
+  template<typename V> using set                 = std::set<V>;
+  template<typename K, typename V> using map               = std::map<K,V>;
+  template<typename K, typename V> using table             = std::map<K,V>;
+  template<typename L, typename R> using pair              = std::pair<L,R>;
+  template<typename V> using vector              = std::vector<V>;
+  template<typename V, std::size_t S> using array = std::array<V,S>;
   
   // usage: (64byte aligned)
   // buffer data;
@@ -79,7 +92,7 @@ namespace sys {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  template <typename T> inline std::string concat(const char* text, T frag) { std::ostringstream os; os << text << frag; return os.str(); }
+  template<typename T> inline std::string concat(const char* text, T frag) { std::ostringstream os; os << text << frag; return os.str(); }
     
   inline int64_t now() { return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count(); }
   
@@ -94,6 +107,14 @@ namespace sys {
     out.shrink_to_fit();
     return out;
   }
+  
+  inline bool strncmp(const char* lhs, const char* rhs, uint n) { for (uint i = 0; i < n; i++) if (lhs[i] != rhs[i]) return false; return true; }
+  
+  inline bool isnewline(const char& ch) { return (ch == '\n' || ch == '\r' || ch == '\0'); }
+  
+  template<typename K, typename V> inline bool find(const K& k, const sys::CMap<K,V>& m, V& b) { auto i{m.find(k)}; if (i != m.end()) { b = i->second; return true;} return false; } 
+  
+  template<typename K, typename V, typename E> inline const V& find_or_throw(const K& k, const sys::CMap<K,V>& m, const E& e) { auto i{m.find(k)}; if (i == m.end()) { throw e; } return i->second; }
   
   // using namespace std::chrono_literals;
   // auto day = 24h;

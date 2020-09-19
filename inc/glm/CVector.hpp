@@ -178,13 +178,13 @@ namespace glm {
       }      
     public: // operator: assign
       CVector& operator  =(const CVector& rhs) {
-        if (this != &this)
+        if (this != &rhs)
           for (ushort i = 0; i < size; i++)
             data[i] = rhs.data[i];
         return *this;
       }
       CVector& operator  =(const T rhs) {
-        if (this != &this)
+        if (this != &rhs)
           for (ushort i = 0; i < size; i++)
             data[i]     = rhs;
         return *this;
@@ -469,18 +469,18 @@ namespace glm {
     return type;
   }
   
-  template <typename T, const ushort n> const CVector<T, n> operator *(const T s, const CVector<T, n>& v) {
+  template<typename T, const ushort n> const CVector<T, n> operator *(const T s, const CVector<T, n>& v) {
     return v * s;
   }
   
-  template <typename T, const ushort n> const CVector<T, n> operator /(const T s, const CVector<T, n>& v) {
+  template<typename T, const ushort n> const CVector<T, n> operator /(const T s, const CVector<T, n>& v) {
     CVector<T, n> out(0);
     for(ushort i = 0; i < n; i++)
       out[i] = s / v[i];
     return out;
   }
   
-  template <typename T, const ushort c, const ushort r> CVector<T,c> operator *(const CMatrix<T,c,r>& mat, const CVector<T,r>& vec) {
+  template<typename T, const ushort c, const ushort r> CVector<T,c> operator *(const CMatrix<T,c,r>& mat, const CVector<T,r>& vec) {
     CVector<T,c> out(T(0));
     for(ushort i = 0; i < r; i++)
       for(ushort j = 0; j < c; j++)

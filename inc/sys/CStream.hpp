@@ -4,7 +4,7 @@
 #include "sys/sys.hpp"
 
 namespace sys {
-  class CStream; typedef sys::CPointer<CStream> PStream;
+  class CStream; typedef sys::TPointer<CStream> PStream;
   
   class CStream {
     public:

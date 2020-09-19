@@ -4,7 +4,7 @@
 #include "CObject.hpp"
 
 namespace uix {
-  template <typename T>
+  template<typename T>
   class CGdio : public CObject {
     protected:
       mutable bool mInited {false}; // allow update inside const methods

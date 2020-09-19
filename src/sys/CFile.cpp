@@ -65,10 +65,6 @@ namespace sys {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  void CFile::read(sys::byte* data, std::streamsize len) const {
-     mStream->read(data, len);
-  }
-  
   bool CFile::open(sys::bitfield eOptions) const {
     if (mStream == nullptr) {
       std::ifstream::openmode mode;

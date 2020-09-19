@@ -80,7 +80,7 @@ namespace uix {  // acme { gui { win, unx, osx } }
       virtual bool    style(CStyle*);
       virtual CStyle* style();
       auto            layout() const -> decltype(mLayout);
-      template <typename T> T*          layout(T* pLayout) { mLayout = pLayout; mLayout->layout(this); return pLayout; };
+      template<typename T> T*          layout(T* pLayout) { mLayout = pLayout; mLayout->layout(this); return pLayout; };
     protected:
       static CWindow*         find(const CString&);
       static CWindow*         find(HWND);
