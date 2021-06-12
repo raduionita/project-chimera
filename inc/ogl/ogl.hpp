@@ -1,6 +1,7 @@
 #ifndef __ogl_hpp__
 #define __ogl_hpp__
 
+#include "sys/sys.hpp"
 #include "glc/glc.hpp"
 
 namespace ogl {
@@ -14,4 +15,4 @@ namespace ogl {
   class CUniform;
 }
 
-#endif //__cym_hpp__
+#endif //__ogl_hpp__

@@ -8,9 +8,8 @@
 #include <vector>
 
 namespace cym {
-  
   CShader::CShader(const std::string& filepath) : mFilepath{filepath} {
-    log::nfo << "cym::CShader::CShader(std::string&)::" << this << " FILE:" << filepath << log::end;
+    CYM_LOG_NFO("cym::CShader::CShader(std::string&)::" << this << " FILE:" << filepath);
     // open file
     std::ifstream ifs(filepath);
     
@@ -124,6 +123,7 @@ namespace cym {
   // @todo: need better shader loading mechanisms
   
   CShader::~CShader() {
+    CYM_LOG_NFO("cym::CShader::~CShader()::" << this);
     GLCALL(::glDeleteProgram(mID));
   }
   
@@ -156,7 +156,7 @@ namespace cym {
     // @todo: there should be a warn here if not found
   }
   
-  void CShader::uniform(const cym::CString& name, const PTexture& tex) {
+  void CShader::uniform(const cym::CString& name, const sys::sptr<CTexture>& tex) {
     GLint loc = uniform(name);
     if (loc != GL_NOT_FOUND) {
       tex->bind();
@@ -182,7 +182,7 @@ namespace cym {
     // @todo: there should be a warn here if not found
   }
   
-  void CShader::sampler(const CString& name, const PTexture& tex) {
+  void CShader::sampler(const CString& name, const sys::sptr<CTexture>& tex) {
     GLint loc = uniform(name);
     if (loc != GL_NOT_FOUND) {
       tex->bind();
@@ -192,14 +192,4 @@ namespace cym {
     }
     // @todo: there should be a warn here if not found
   } 
-
-  // manager ///////////////////////////////////////////////////////
-  
-  cym::CShaderManager::CShaderManager() : cym::CResourceManager("shader") {
-    log::nfo << "cym::CShaderManager::CShaderManager()::" << this << log::end;
-  }
-  
-  cym::CShaderManager::~CShaderManager() {
-    log::nfo << "cym::CShaderManager::~CShaderManager()::" << this << log::end;
-  }
 }

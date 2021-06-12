@@ -1,7 +1,7 @@
 #ifndef __uix_cconsole_hpp__
 #define __uix_cconsole_hpp__
 
-#include "CObject.hpp"
+#include "uix/CObject.hpp"
 
 namespace uix {
   class CConsole : public CObject {

@@ -1,15 +1,16 @@
 #ifndef __app_ceditwindow_hpp__
 #define __app_ceditwindow_hpp__
 
-#include "app.hpp"
-#include "uix/CToplevel.hpp"
+#include "app/app.hpp"
+#include "uix/CFrame.hpp"
+#include "uix/CDialog.hpp"
 
 namespace app {
-  class CEditWindow : public uix::CToplevel {
+  class CEditWindow : public uix::CFrame {
       friend class CApplication;
-      using uix::CToplevel::CToplevel;
+      using uix::CFrame::CFrame;
     private:
-      uix::CSurface*    mSurface;
+      uix::CSurface*    mSurface {nullptr};
     public:
       CEditWindow() /*=default*/;
       ~CEditWindow() /*=default*/;

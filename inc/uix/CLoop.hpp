@@ -9,7 +9,6 @@ namespace uix {
   class CLoop {
       friend class CApplication;  
     protected:
-      int           mCurrTicks  {0};
       CApplication* mApplication;
     public:
       CLoop();
@@ -17,10 +16,8 @@ namespace uix {
     protected:
       virtual void init();
       virtual void done();
-      virtual void exec() = 0;
-      virtual void tick() = 0;
-    public:
-      long elapsed() const;
+      virtual void loop() { };
+      virtual void tick(float) { };
   };
   
   class CEventLoop : public CLoop {
@@ -28,35 +25,37 @@ namespace uix {
     public:
       CEventLoop();
     protected:
-      void exec() override;
-      void tick() override;
+      void loop() override;
+      void tick(float) override;
   };
   
   class CGameLoop : public CLoop {
       friend class CApplication;
-      using TCallback = std::function<void()>;
+      using FRead = std::function<void()>;
+      using FTick = std::function<void(float)>;
+      using FDraw = std::function<void()>;
     protected:
       int mMaxLoops    {10};
       int mTicksPerSec {25};
     protected:
-      TCallback* mRead {nullptr};
-      TCallback* mTick {nullptr};
-      TCallback* mDraw {nullptr};
+      FRead mRead;
+      FTick mTick;
+      FDraw mDraw;
     public:
       CGameLoop(int=10, int=25);
-      CGameLoop(TCallback&& cTick);
-      CGameLoop(TCallback&& cTick, TCallback&& cDraw);
-      CGameLoop(TCallback&& cTick, TCallback&& cDraw, TCallback&& cRead);
+      CGameLoop(FTick&& cTick);
+      CGameLoop(FTick&& cTick, FDraw&& cDraw);
+      CGameLoop(FTick&& cTick, FDraw&& cDraw, FRead&& cRead);
       ~CGameLoop();
     protected: // override
-      void exec() override;
-      void tick() override;
+      void loop()      override;
+      void tick(float) override;
       void read();
       void draw();
     public:
-      void tick(TCallback&&);
-      void draw(TCallback&&);
-      void read(TCallback&&);
+      void tick(FTick&&);
+      void draw(FDraw&&);
+      void read(FRead&&);
   };
 }
 

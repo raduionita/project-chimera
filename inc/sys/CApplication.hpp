@@ -1,5 +1,5 @@
-#ifndef __capplication_hpp__
-#define __capplication_hpp__
+#ifndef __sys_capplication_hpp__
+#define __sys_capplication_hpp__
 
 namespace sys {
   class CApplication {
@@ -13,4 +13,4 @@ namespace sys {
   };
 }
 
-#endif //__capplication_hpp__
+#endif //__sys_capplication_hpp__

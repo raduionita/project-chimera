@@ -2,15 +2,15 @@
 
 namespace uix {
   CModule::CModule(HINSTANCE hHandle/*=::GetModuleHandle(NULL)*/) : CObject(), mHandle{hHandle} {
-    log::nfo << "uix::CModule::CModule()::" << this << " INSTANCE:" << mHandle << log::end;
+    CYM_LOG_NFO("uix::CModule::CModule()::" << this << " INSTANCE:" << mHandle);
   }
   
   CModule::CModule(const char* dll) : CObject(), mHandle{::LoadLibrary(dll)} {
-    log::nfo << "uix::CModule::CModule(const char*)::" << this << " INSTANCE:" << mHandle << log::end;
+    CYM_LOG_NFO("uix::CModule::CModule(const char*)::" << this << " INSTANCE:" << mHandle);
   }
     
   CModule::~CModule() {
-    log::nfo << "uix::CModule::~CModule()::" << this << log::end;
+    CYM_LOG_NFO("uix::CModule::~CModule()::" << this);
   }
   
   CModule::operator HINSTANCE() {
@@ -24,13 +24,13 @@ namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   bool CModule::init() {
-    log::nfo << "uix::CModule::init()::" << this << log::end;
+    CYM_LOG_NFO("uix::CModule::init()::" << this);
     mInited = true;
     return mInited;
   }
   
   bool CModule::free() {
-    log::nfo << "uix::CModule::free()::" << this << log::end;
+    CYM_LOG_NFO("uix::CModule::free()::" << this);
     return true;
   }
 }

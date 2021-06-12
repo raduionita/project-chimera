@@ -1,11 +1,22 @@
 #include "cym/CMaterial.hpp"
 
 namespace cym {
-  CMaterial::CMaterial() {
-    log::nfo << "cym::CMaterial::CMaterial()::" << this << log::end;
+  CChannel::~CChannel() {
+    CYM_LOG_NFO("cym::CChannel::~CChannel()::" << this);
   }
   
   CMaterial::~CMaterial() {
-    log::nfo << "cym::CMaterial::~CMaterial()::" << this << log::end;
+    CYM_LOG_NFO("cym::CMaterial::~CMaterial()::" << this);
+  }
+  
+  // manager /////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  CMaterialManager::CMaterialManager() { 
+    CYM_LOG_NFO("cym::CTextureManager::CTextureManager()::" << this); 
+  }
+  
+  CMaterialManager::~CMaterialManager() { 
+    CYM_LOG_NFO("cym::CMaterialManager::~CMaterialManager()::" << this); 
+    mMaterials.clear(); 
   }
 }

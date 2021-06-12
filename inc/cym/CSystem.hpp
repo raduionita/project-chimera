@@ -2,7 +2,7 @@
 #define __cym_csystem_hpp__
 
 #include "cym/cym.hpp"
-#include "CMessenger.hpp"
+#include "cym/CMessenger.hpp"
 
 namespace cym {
   class CSystem {

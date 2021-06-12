@@ -4,7 +4,6 @@
 #include "cym/cym.hpp"
 
 namespace cym {
-  class CRenderSystem; typedef sys::TPointer<CRenderSystem> PRenderSystem;
   
   struct SRenderOperation {
     

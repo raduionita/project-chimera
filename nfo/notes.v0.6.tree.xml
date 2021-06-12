@@ -3,7 +3,7 @@
     <entity scope="light" uid="unique id"/>
     <!-- when saving most entities go here - the ones in scene are just references -->
     <animation name="" file="" info="for what skeleton?!" />
-    <group type="animation" gid="gid" info="based on skeleton type">
+    <group getType="animation" gid="gid" info="based on skeleton getType">
       <animation aid="#aid" name="" file="" info="for what skeleton?!" />
     </group>
   </data>

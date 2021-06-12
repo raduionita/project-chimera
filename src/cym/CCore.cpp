@@ -2,22 +2,36 @@
 
 namespace cym {
   CCore::CCore() {
-    log::nfo << "cym::CCore::CCore()::" << this << log::end;
-    init();
+    CYM_LOG_NFO("cym::CCore::CCore()::" << this);
+    
+    (!mInited) && init();
   }
   
   CCore::~CCore() {
-    log::nfo << "cym::CCore::~CCore::" << this << log::end;
+    CYM_LOG_NFO("cym::CCore::~CCore::" << this);
     free();
   }
   
-  void CCore::init() {
+  bool CCore::init() {
+    CYM_LOG_NFO("cym::CCore::init()::" << this);
+    
+    setMaterialManager(new cym::CMaterialManager);
     setTextureManager(new cym::CTextureManager);
     setModelManager(new cym::CModelManager);
     setShaderManager(new cym::CShaderManager);
+    
+    setCodecManager(new cym::CCodecManager);
+      getCodecManager()->addCodec(new TCodec<CTexture,ECodec::DDS>);
+      getCodecManager()->addCodec(new TCodec<CTexture,ECodec::TGA>);
+      getCodecManager()->addCodec(new TCodec<CTexture,ECodec::BMP>);
+      getCodecManager()->addCodec(new TCodec<CModel,ECodec::DAE>);
+      getCodecManager()->addCodec(new TCodec<CModel,ECodec::OBJ>);
+    
+    
+    return mInited = true;
   }
   
   void CCore::free() {
-    
+    CYM_LOG_NFO("cym::CCore::free()::" << this);
   }
 }

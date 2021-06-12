@@ -1,33 +1,34 @@
 #include "uix/CPanel.hpp"
 
 namespace uix {
-  CPanel::CPanel(CWindow* pParent, int nHints/*=ZERO*/) {
-    log::nfo << "uix::CPanel::CPanel(CWindow*,int)::" << this << log::end;
-    init(pParent, nHints | CPanel::WINDOW);
+  CPanel::CPanel(CWindow* pParent, uint nHints/*=WINDOW*/) {
+    CYM_LOG_NFO("uix::CPanel::CPanel(CWindow*,uint)::" << this);
+    CPanel::init(pParent,"",AUTO,nHints|WINDOW|EWindow::VISIBLE);
   }
   
   CPanel::~CPanel() {
-    log::nfo << "uix::CPanel::~CPanel()::" << this << log::end;
+    CYM_LOG_NFO("uix::CPanel::~CPanel()::" << this);
+    CPanel::free();
   }
   
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  bool CPanel::init(CWindow* pParent, int nHints) {
-    log::nfo << "uix::CPanel::init(CWindow*,int)::" << this << log::end;
+  bool CPanel::init(CWindow* pParent/*=nullptr*/, const CString& tTitle/*=""*/, const SArea& tArea/*=AUTO*/, uint nHints/*=WINDOW*/) {
+    CYM_LOG_NFO("uix::CPanel::init(uint)::" << this);
   
-    RETURN(mInited,true);
+    RETURN((mState & EState::INITED),true);
     
-    if (!super::init(pParent, nHints)) {
-      log::nfo << "[CPanel] super::init() failed!" << log::end;
+    if (!super::init(pParent,tTitle,tArea,nHints)) {
+      CYM_LOG_NFO("[CPanel] super::init() failed!");
       ::MessageBox(NULL, "[CPanel] super::init() failed!", "Error", MB_OK);
       return false;
     }
   
-    (nHints & EWindow::VISIBLE) && show();
-    (nHints & EWindow::AUTOXY)  && move(AUTO, AUTO);
-    (nHints & EWindow::AUTOWH)  && size(AUTO, AUTO); // init w/ parent size
-    (nHints & EWindow::CENTER)  && center();
+    (mHints & EWindow::VISIBLE) && show();
+    (mHints & EWindow::AUTOXY)  && move(AUTO, AUTO);
+    (mHints & EWindow::AUTOWH)  && size(AUTO, AUTO); // init w/ parent size
+    (mHints & EWindow::CENTER)  && center();
 
-    return mInited;
+    return (mState = (mState | EState::INITED));
   }
 }

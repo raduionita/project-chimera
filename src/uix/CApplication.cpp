@@ -1,36 +1,36 @@
 #include "uix/CApplication.hpp"
-#include "uix/CConsole.hpp"
 #include "uix/CStyle.hpp"
-#include "uix/CLoop.hpp"
 
 namespace uix {
   CApplication* CApplication::sInstance{nullptr};
   
   CApplication::CApplication(int nCmdShow/*=0*/) : CModule() {
-    log::nfo << "uix::CApplication::CApplication()::" << this << log::end;
+    CYM_LOG_NFO("uix::CApplication::CApplication()::" << this);
     assert(!sInstance && "CApplication::sIntastace already defined.");
     sInstance = this;
+    
     mConsole  = new CConsole(this, nCmdShow);
+    mLoop     = new CEventLoop();
   }
   
   CApplication::~CApplication() {
-    log::nfo << "uix::CApplication::~CApplication()::" << this << log::end;
-    DELETE(mConsole);
-    DELETE(mLoop);
+    CYM_LOG_NFO("uix::CApplication::~CApplication()::" << this);
+    // DELETE(mConsole);
+    // DELETE(mLoop);
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   CStyle* CApplication::style() {
     if (!mStyle) {
-      log::nfo << "uix::CApplication::style()::" << this << log::end;
+      CYM_LOG_NFO("uix::CApplication::style()::" << this);
       style(new CStyle);
     }
     return mStyle;
   }
   
   bool CApplication::style(CStyle* pStyle) {
-    log::nfo << "uix::CApplication::style(CStyle*)::" << this << log::end;
+    CYM_LOG_NFO("uix::CApplication::style(CStyle*)::" << this);
     if (mStyle != nullptr && mStyle != pStyle) {
       DELETE(mStyle);
     }
@@ -38,10 +38,10 @@ namespace uix {
   }
   
   bool CApplication::init() {
-    log::nfo << "uix::CApplication::init()::" << this << log::end;
+    CYM_LOG_NFO("uix::CApplication::init()::" << this);
   
     if (!CModule::init()) {
-      log::nfo << "[CApplication] CModel::init() failed!" << log::end;
+      CYM_LOG_NFO("[CApplication] CModel::init() failed!");
       ::MessageBox(NULL, "[CApplication] CModel::init() failed!", "Error", MB_OK);
       return false;
     }
@@ -51,14 +51,14 @@ namespace uix {
     return (mRunning = true);
   }
   
-  bool CApplication::tick(int nElapsed/*=0*/) {
-    // log::nfo << "uix::CApplication::tick("<< nElapsed <<")::" << this << log::end;
-    onTick(nElapsed);
+  bool CApplication::tick(float fElapsed/*=0*/) {
+    // CYM_LOG_NFO("uix::CApplication::tick("<< fElapsed <<")::" << this);
+    onTick(fElapsed);
     return true;
   }
   
   bool CApplication::free() {
-    log::nfo << "uix::CApplication::free()::" << this << log::end;
+    CYM_LOG_NFO("uix::CApplication::free()::" << this);
     onFree();
     return CModule::free();
   }
@@ -68,31 +68,55 @@ namespace uix {
     return TRUE == ::HandleMessage(&msg);
   }
   
-  int CApplication::exec() {
-    log::nfo << "uix::CApplication::exec()::" << this << log::end;
+  int  CApplication::load() {
+    CYM_LOG_NFO("uix::CApplication::load()::" << this);
     try {
+      CYM_LOG_NFO("uix::CApplication::load()::init");
       init();
-      // -> loop
-      loop()->exec();
-      // <- loop
+      
+      CYM_LOG_NFO("uix::CApplication::load()::exec");
+      try { exec(); } catch (sys::exception& ex) { CYM_LOG_ERR("EXEC exception! " << ex); } 
+      
+      CYM_LOG_NFO("uix::CApplication::load()::free");
       free();
+      
+      CYM_LOG_NFO("uix::CApplication::load()::exit");
+      exit();
+      
+      CYM_LOG_NFO("uix::CApplication::load()::poll");
+      poll();
+    
       return 0;
-    } catch (sys::CException& ex) {
-      log::err << ex << log::end;
+    } catch (sys::exception& ex) {
+      CYM_LOG_ERR("LOAD exception! " << ex);
       return -1;
     }
   }
   
-  CLoop* CApplication::loop() {
-    log::nfo << "uix::CApplication::loop()::" << this << log::end;
-    
-    return mLoop ? mLoop : mLoop = new CEventLoop();
+  void CApplication::exec() {
+    CYM_LOG_NFO("uix::CApplication::exec()::" << this);
+    // -> loop
+    loop();
+  }
+  
+  void CApplication::loop() {
+    CYM_LOG_NFO("uix::CApplication::loop()::" << this);
+    if (mLoop)
+      mLoop->loop();
+    else
+      while (runs())
+        tick(::GetTickElapsed()/1000.f) && poll();
   }
   
   bool CApplication::quit(int nCode/*=0*/) {
-    log::nfo << "uix::CApplication::quit(int)::" << this << log::end;
-    ::PostQuitMessage(nCode);
+    CYM_LOG_NFO("uix::CApplication::quit(int)::" << this);
     mRunning = false;
+    return true;
+  }
+  
+  bool CApplication::exit(int nCode/*=0*/) {
+    CYM_LOG_NFO("uix::CApplication::exit(int)::" << this);
+    ::PostQuitMessage(nCode);
     return true;
   }
   

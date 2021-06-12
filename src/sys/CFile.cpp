@@ -44,6 +44,7 @@ namespace sys {
   }
   
   CFile::~CFile() {
+    close();
     delete mStream;
   }
   
@@ -51,6 +52,11 @@ namespace sys {
   
   CFile& CFile::operator =(const sys::CString& filepath) {
     mFilepath = filepath;
+    return *this;
+  }  
+  
+  CFile& CFile::operator =(sys::CString&& filepath) {
+    mFilepath = std::move(filepath);
     return *this;
   }
   
@@ -65,7 +71,7 @@ namespace sys {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  bool CFile::open(sys::bitfield eOptions) const {
+  bool CFile::open(sys::bitfield eOptions) {
     if (mStream == nullptr) {
       std::ifstream::openmode mode;
       (eOptions & EOption::READ)   && (mode |= std::ifstream::in);
@@ -75,5 +81,12 @@ namespace sys {
       mStream = new std::ifstream(mFilepath, mode);
     }
     return mStream->good();
+  }
+  
+  bool CFile::close() {
+    bool bClosable = mStream != nullptr;
+    if (bClosable)
+      mStream->close();
+    return bClosable;
   }
 }

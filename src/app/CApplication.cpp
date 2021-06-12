@@ -7,11 +7,10 @@
 #include "uix/CPanel.hpp"
 #include "uix/CLayout.hpp"
 #include "uix/CButton.hpp"
+#include "uix/CDialog.hpp"
+#include "uix/CContext.hpp"
 
 #include "cym/CCore.hpp"
-#include "cym/CBuffer.hpp"
-#include "cym/CVertexArray.hpp"
-#include "cym/CLayout.hpp"
 #include "cym/CShader.hpp"
 #include "cym/CTexture.hpp"
 #include "cym/CModel.hpp"
@@ -21,95 +20,118 @@
 #include "glm/CVector.hpp"
 
 namespace app {
-  int CApplication::exec() {
-    log::nfo << "app::CApplication::exec()::" << this << log::end;
+  void CApplication::exec() {
+    CYM_LOG_NFO( "app::CApplication::exec()::" << this);
     
-    init();
-    
+// @todo: onInit
     app::CEditWindow* pMain    {new app::CEditWindow};
-    uix::CSurface*    pSurface {new uix::CSurface(pMain, uix::EWindow::VISIBLE)};
     
-    attach(this,    uix::EEvent::KEYDOWN,     &app::CApplication::onKeydown);
-    attach(pSurface,uix::EEvent::RESIZE,      &uix::CRender::onResize);
+    uix::CContext*    pContext {new uix::CContext{}};
     
-    pMain->title(pSurface->version());
+    uix::CButton*     pPush  {new uix::CButton{pMain,"PUSH",uix::SSize{120,40}}};
+    uix::CButton*     pSave  {new uix::CButton{pMain,"SAVE",uix::SSize{120,40}}};
+    uix::CPanel*      pLeft  {new uix::CPanel{pMain}};
+    uix::CSurface*    pRight {new uix::CSurface{pMain, pContext}};
+    
+    uix::CBoxLayout*  pTopMenu {new uix::CBoxLayout{uix::ELayout::HORIZONTAL,uix::SSize{uix::AUTO,50}}};
+    pTopMenu->add(pPush);
+    pTopMenu->add(pSave); // @todo: on resize the second button (or TItem) runs to the right
+    
+    uix::CBoxLayout*  pContent {new uix::CBoxLayout{uix::ELayout::HORIZONTAL}};
+    pContent->add(pLeft);
+    pContent->add(pRight);
+    
+    uix::CBoxLayout*  pLayout  {new uix::CBoxLayout{uix::ELayout::VERTICAL}};
+    pLayout->add(pTopMenu);
+    pLayout->add(pContent);
+    
+    pMain->layout(pLayout); // pLayout->apply(pMain);
+    
+    
+    //uix::CFileDialog* pDialog {new uix::CFileDialog{{"*.*","*.txt"}}};
+    // if (pDialog->show()) {
+    //   CYM_LOG_NFO( "app::CApplication::exec()::" << this << " " << pDialog->getFile());
+    //   return;
+    // }
+    
+    attach(this,     uix::CEvent::EType::KEYDOWN, &app::CApplication::onKeydown);
+    
     pMain->show();
-    pSurface->current();
+    pContext->vsync(true);
+    pContext->current(pRight);
     
+    cym::CCore::load();
+    
+    // render system flags/states
     GLCALL(::glEnable(GL_BLEND));
     GLCALL(::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+    // backface culling
+    GLCALL(::glDisable(GL_CULL_FACE));
+    GLCALL(::glCullFace(GL_BACK));
+    GLCALL(::glFrontFace(GL_CCW));
+    // depth test
+    GLCALL(::glEnable(GL_DEPTH_TEST));
+    GLCALL(::glDepthFunc(GL_LEQUAL));
+    GLCALL(::glDepthMask(GL_TRUE));
     
-    auto    area {pSurface->area()};
-    
-    log::nfo << "app::CApplication::exec()::" << this << " w:" << area.w << " h:" << area.h << log::end;
-    
-    GLfloat vertices[] {-0.5f,-0.5f,+0.0f, 0.0f,0.0f,  // 0 // bottom-left
-                        +0.5f,-0.5f,+0.0f, 1.0f,0.0f,  // 1 // bottom-right
-                        +0.5f,+0.5f,+0.0f, 1.0f,1.0f,  // 2 // top-right
-                        -0.5f,+0.5f,+0.0f, 0.0f,1.0f}; // 3 // top-left
-    GLuint  indices [] {0,1,2, 2,3,0};
+    auto    area {pRight->area()};
   
-    cym::CVertexArray   vao;
-    cym::CVertexBuffer  vbo {vertices, 4 * 5}; // 4 vertices * 5 components (xyzuv)
-    cym::CVertexLayout  vlo;
-    vlo.push({GL_FLOAT, 3});
-    vlo.push({GL_FLOAT, 2});
-    vao.buffer(vbo, vlo);
-    cym::CIndexBuffer   ibo {indices, 2*3}; // 2 triangles * 3 vertices
+    CYM_LOG_NFO("app::CApplication::loop()::" << this << " pTopMenu.area " << pTopMenu->area());
+    CYM_LOG_NFO("app::CApplication::loop()::" << this << " pContent.area " << pContent->area());
+    CYM_LOG_NFO("app::CApplication::loop()::" << this << " pLeft.area " << pLeft->area());
+    CYM_LOG_NFO("app::CApplication::loop()::" << this << " pRight.area " << pRight->area());
+    CYM_LOG_NFO("app::CApplication::loop()::" << this << " pMain.area " << pMain->area());
+    
+    // return;
   
-    // @todo: cym::PShaderManager man {cym::CShaderManager::instance()}
-    cym::CShader         shd {"../../res/shaders/simple/perspective.hlsl"};
+    auto shd {cym::CShader{"../../res/shaders/simple/perspective.hlsl"}};
     
+  //auto mdl {cym::CCore::getModelManager()->load(sys::CFile{"../../res/models/ambulance/Ambulance.dae"}, cym::CModelManager::EOption::VETICES)};
+    auto mdl {cym::CCore::getModelManager()->load(glm::cube{5.f})};
+    auto tex {cym::CCore::getTextureManager()->load(sys::CFile{"../../res/textures/notfound.bmp"})};
     
-    cym::NModel          mdl {cym::CCore::getModelManager()->load("cube.obj", sys::CFile{"../../res/models/cube.obj"})};
-    
-    cym::PTexture        tx1 {cym::CCore::getTextureManager()->load("notfound.dds", sys::CFile("../../res/textures/notfound.dds"))};
-    
-    vao.bind(false);
-    shd.bind(false);
-    ibo.bind(false);
-    vbo.bind(false);
-    
-    float     r {0.0f};
+// @todo: onTick
+    cym::uint nFPS{0};
+    glm::real r {0.0f};
     glm::mat4 M {1.0f};
-    glm::mat4 V {glm::lookat({+0.0f,+0.0f,-2.0f}, {0.0f,0.0f,0.0f}, glm::Y)};
+    glm::mat4 V {glm::lookat({+0.f,+6.f,-12.f}, {0.f,0.f,0.f}, glm::Y)};
     glm::mat4 P {glm::perspective(60.f, float(area.w), float(area.h), 1.f, 1000.f)};
     // glm::mat4 P = glm::ortho(-2.0f,2.0f, -2.0f,2.0f, -1.f,+1.f);
     
     while (runs()) {
+      cym::fps(nFPS);
+      pMain->title("VERSION:" + std::string(pContext->version()) + " | FPS:" + std::to_string(nFPS));
+  
       GLCALL(::glClearColor(0.1f,0.1f,0.1f,1.f));
       GLCALL(::glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT));
       
       glm::loop(r, 1.f, 0.f, 360.f);
       
-      log::nfo << "app::CApplication::exec()::" << this << " LOOP" << log::end;
-  
       shd.bind(true);
-      shd.uniform("u_sTexture", tx1);
+      shd.uniform("u_sTexture", tex);
       shd.uniform("u_mMVP", P*V*M*glm::rotate(r,glm::Y));
       shd.uniform("u_mM", M);
       shd.uniform("u_mV", V);
       shd.uniform("u_mP", P);
       
-      vao.bind(true);
-      ibo.bind(true);
-      
+      // vao.bind(true);
+      // ibo.bind(true);
       // @todo: pRenderSystem->render(CDrawable);
-      GLCALL(::glDrawElements(GL_TRIANGLES, ibo.count(), GL_UNSIGNED_INT, GL_NULL));
+      // GLCALL(::glDrawElements(GL_TRIANGLES, ibo.count(), GL_UNSIGNED_INT, GL_NULL));
       
-      pSurface->swap();
+      mdl->draw();
+      
+// @todo: CWindow::update()
+      pContext->swap();
       poll();
     }
   
+// @todo: onFree
     DELETE(pMain);
-
-    free();
-    
-    return 0;
   }
   
   void CApplication::onKeydown(uix::CEvent* pEvent) {
-    log::nfo << "app::CApplication::onKeydown(CEvent*)::" << this << " K:" << pEvent->key() << log::end;
+    CYM_LOG_NFO("app::CApplication::onKeydown(CEvent*)::" << this << " K:" << pEvent->key());
     
     switch (pEvent->key()) {
       case 'Q'      : quit(0); break;
@@ -120,14 +142,13 @@ namespace app {
   }
   
   void CApplication::onClick(uix::CEvent* pEvent) {
-    log::nfo << "app::CApplication::onClick(CEvent*)::" << this << " B:" << int(pEvent->button()) << " X:" << pEvent->clientX() << " Y:" << pEvent->clientY() << log::end;
+    CYM_LOG_NFO("app::CApplication::onClick(CEvent*)::" << this << " B:" << int(pEvent->button()) << " X:" << pEvent->clientX() << " Y:" << pEvent->clientY());
   
     quit(0);
   }
   
   void CApplication::onCommand(uix::CEvent* pEvent) {
-    log::nfo << "app::CApplication::onCommand(CEvent*)::" << this << " S:" << int(pEvent->state()) << log::end;
-    
+    CYM_LOG_NFO("app::CApplication::onCommand(CEvent*)::" << this << " S:" << int(pEvent->state()));
   }
 }
 

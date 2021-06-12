@@ -5,7 +5,9 @@
 
 namespace uix {
   class CIcon {
-      
+    public:
+      CIcon() { }
+      virtual ~CIcon() { }
   };
 }
 

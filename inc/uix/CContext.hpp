@@ -16,8 +16,17 @@
 
 namespace uix {
   class CContext : public CObject {
+    public:
+      enum EContext : sys::bitfield {
+        CONTEXT = 0,
+        DUMMY   = 1 << 1,
+        INITED  = 1 << 2,
+        COMPAT  = 1 << 3,
+        CORE    = 1 << 4,
+        DEBUG   = 1 << 5,
+        STEREO  = 1 << 6,
+      };
     protected:
-      using CObject::CObject;
       using CObject::operator=;
     protected:
       friend class CSurface;
@@ -34,28 +43,34 @@ namespace uix {
         BYTE nStencilBits  = {8};
         BYTE nAlphaBits    = {8};
         int  nSwapInterval = {2};
-        int  nFlags        = {0}; // debug | stereo
+        uint nFlags        = {EContext::CONTEXT|EContext::CORE|EContext::DUMMY}; // debug | stereo
       };
-    protected:
-      CWindow* mWindow {nullptr};
-      SConfig  mConfig {};
-      HWND     mHandle {NULL};
-      HDC      mDC     {NULL}; // device context
-      HGLRC    mRC     {NULL}; // render context
-    public: 
-      CContext(CWindow* pParent, const SConfig& = {UIX_CONTEXT_MAJOR,UIX_CONTEXT_MINOR,1,32,24,8,8,1,0});
-      ~CContext();
     private:
-      bool init();
-      bool free();
+      HWND  mHandle {NULL};
+      HDC   mDevice {NULL}; // device context
+      HGLRC mRender {NULL}; // render context
+    protected:
+      CWindow* mCurrent {nullptr};
+      SConfig  mConfig  {};
+      uint     mState   {0};
+    public: 
+      CContext(                  const SConfig& = {UIX_CONTEXT_MAJOR,UIX_CONTEXT_MINOR,1,32,24,8,8,1,EContext::CONTEXT|EContext::CORE});
+      CContext(CWindow* pParent, const SConfig& = {UIX_CONTEXT_MAJOR,UIX_CONTEXT_MINOR,1,32,24,8,8,1,EContext::CONTEXT|EContext::CORE});
+      ~CContext();
     public:
-      bool        swap()    const;
-      bool        current() const;
+      bool init(CWindow* pWindow);
+    protected:
+      bool free();
+      void bind(CWindow*);
+    public:
+      inline bool swap()    const { return ::SwapBuffers(mDevice); }
+      bool        current(CWindow* = nullptr);
       bool        clear(int = GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT) const;
-      bool        reset() const;
+      bool        reset();
       const char* version() const;
       bool        extension(const char*) const;
       void        interval(int) const;
+      void        vsync(bool);
     protected:
       static bool error(); 
   };

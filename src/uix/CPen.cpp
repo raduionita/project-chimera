@@ -2,11 +2,11 @@
 
 namespace uix {
   CPen::CPen() {
-    log::nfo << "uix::CPen::CPen()::" << this << log::end;
+    CYM_LOG_NFO("uix::CPen::CPen()::" << this);
     mHandle = HPEN(NULL_PEN);
   }
   
   CPen::~CPen() {
-    log::nfo << "uix::CPen::~CPen()::" << this << log::end;
+    CYM_LOG_NFO("uix::CPen::~CPen()::" << this);
   }
 }

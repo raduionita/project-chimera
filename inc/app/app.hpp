@@ -1,11 +1,12 @@
 #ifndef __app_hpp__
 #define __app_hpp__
 
-#define GLC_DEBUG
+#define APP_EDIT 0
+#define APP_GAME 1
 
-#define CYM_LOGGER 1
-#define CYM_LOGGER_INFO
-#define CYM_LOGGER_COUT
+#ifndef APP_BUILD
+#define APP_BUILD APP_EDIT
+#endif // APP_BUILD
 
 #define UIX_STYLE 1
 #define UIX_STYLE_BACKGROUND_COLOR RGB(33,33,33)

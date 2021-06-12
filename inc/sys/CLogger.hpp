@@ -1,13 +1,13 @@
-#ifndef __clogger_hpp__
-#define __clogger_hpp__
+#ifndef __sys_clogger_hpp__
+#define __sys_clogger_hpp__
 
-#include "sys.hpp"
-#include "CSingleton.hpp"
+#include "sys/sys.hpp"
+#include "sys/CSingleton.hpp"
 
 #include <memory>
 
 #ifndef CYM_LOGGER
-// not defined...no logging
+  // no logging
 #endif//CYM_LOGGER
 
 #ifdef CYM_LOGGER_DEBUG
@@ -39,6 +39,18 @@
 #ifndef CYM_LOGGER_PROVIDER
 #  define CYM_LOGGER_PROVIDER CCoutLoggerProvider
 #endif//CYM_LOGGER_PROVIDER
+
+#ifndef CYM_LOGGER
+  #define CYM_LOG_NFO(data)
+  #define CYM_LOG_DBG(data)
+  #define CYM_LOG_WRN(data)
+  #define CYM_LOG_ERR(data)
+#else
+  #define CYM_LOG_NFO(data) sys::log::nfo << data << sys::log::end;
+  #define CYM_LOG_DBG(data) sys::log::dbg << data << sys::log::end;
+  #define CYM_LOG_WRN(data) sys::log::wrn << data << sys::log::end;
+  #define CYM_LOG_ERR(data) sys::log::err << data << sys::log::end;
+#endif // CYM_LOGGER 
 
 namespace sys {
 #ifdef CYM_LOGGER
@@ -98,13 +110,14 @@ namespace sys {
     public:
       CLogger();
       virtual ~CLogger();
-    public:
+    public: // operators
       template<typename T> CLogger* operator << (const T& output) { return push(output); }
+    public: // friends
       friend const CLogger::ELevel& operator <<(const CLogger::ELevel&, const CLogger::EManipulator&);
       template<typename T> friend const CLogger::ELevel& operator <<(const CLogger::ELevel&, const T&);
       friend CLogger* operator <<(CLogger*, const std::string&);
     public:
-    template<typename T> CLogger* push(const T& output) {
+      template<typename T> CLogger* push(const T& output) {
 #if   defined(CYM_LOGGER_DEBUG)
       mLevel = ELevel::DEBUG;
 #elif defined(CYM_LOGGER_INFO)
@@ -131,7 +144,7 @@ namespace sys {
   };
   
   template<typename T> const CLogger::ELevel& operator <<(const CLogger::ELevel& type, const T& output) {
-    CLogger::instance()->push(output);
+    CLogger::getSingleton()->push(output);
     return type;
   }
   

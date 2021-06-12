@@ -38,36 +38,36 @@ class CEntity
   std::vector<CComponent> mComponents
   
 class CModel
-  CSkeleton*               mSkeleton;
+  CSkelet*               mSkeleton;
   CAnimator*               mAnimator;
   CGeometry*               mGeometry;
   
 class CAnimator
   std::string              mAID;        // something which identifies it among animations 
-  CSkeleton*               mSkeleton;   // same as the one inside model - maybe the one inside mode is redundant
+  CSkelet*               mSkeleton;   // same as the one inside model - maybe the one inside mode is redundant
   std::vector<CAnimation*> mAnimations; // real owner is CAnimationManager
 
 class CAnimation
-  CSkeleton*               mSkeleton;
+  CSkelet*               mSkeleton;
 
 class CGeometry
-  std::vector<CMesh>       mMeshes;     // meshes are imutable - models own their own meshes
+  std::vector<CMesh>       mMeshLoaders;     // meshes are imutable - models own their own meshes
 ```
 ------------------------------------------------------------------------------------------------------------------------
 ```xml
 <app>
   <data>
-    <entity type="light" uid="unique id" />
+    <entity getType="light" uid="unique id" />
     <!-- when saving most entities go here - the ones in scene are just references -->
     <animation name="" file="" info="for what skeleton?!" />
-    <group type="animation" gid="gid" info="based on skeleton type">
+    <group getType="animation" gid="gid" info="based on skeleton type">
       <animation aid="#aid" name="" file="" info="for what skeleton?!" />
     </group>
   </data>
-  <world type="voxel|real">
+  <world getType="voxel|real">
     <node scope="scene">
-      <node type="root" info="unmutable - parent 2 all entities and nodes">
-        <entity type="model" info="OPTIONAL - room or terrain/ground or planet/sun or..." />
+      <node getType="root" info="unmutable - parent 2 all entities and nodes">
+        <entity getType="model" info="OPTIONAL - room or terrain/ground or planet/sun or..." />
       </node>
         <!-- ... -->
     </node> <!-- node:scene -->
@@ -84,38 +84,38 @@ class CGeometry
       <node scope="entity" file="path/to/toothless.xml" matrix="tx ty tz rx ry rz rw sx sy sz">
         <!-- overrides entity model from inside "path/to/nimbus.xml" -->
         <entity scope="model" name="toothless">
-          <!-- OR remove the component tag and consider everything inside entity a component on load -->
-          <component type="model" lod="0" file="path/to/toothless.hd.model">
-            <model type="static|dynamic" info="static:rock - dynamic:dog (animated/deformable)">
+          <!-- OR remove the component tag and consider everything inside entity a component on init -->
+          <component getType="model" lod="0" file="path/to/toothless.hd.model">
+            <model getType="static|dynamic" info="static:rock - dynamic:dog (animated/deformable)">
               <!-- override mesh properties -->
               <mesh name="dragon">
                 <material name="black_night_fury" /> <!-- overrides model's meshe materials  -->
               </mesh>
               <mesh name="sadle" />
               <!-- animations can come from an external file or from the model (e.g. collada) -->
-              <group type="animation" gid="#gid" info="loads all animations from that animation group">
+              <group getType="animation" gid="#gid" info="loads all animations from that animation group">
                 <animation /> <!-- override one of the animations OR add new unique animation only here -->
               </group> <!-- group:animation -->
             </model>
           </component> <!-- component:model -->
-          <component type="model" lod="1" file="path/to/toothless.ld.model"/>
-          <component type="physx"/>
+          <component getType="model" lod="1" file="path/to/toothless.ld.model"/>
+          <component getType="physx"/>
         </entity> <!-- entity:model -->
         
         <node scope="joint" name="sadle" rid="root" matrix="should be same as parent node - probably a pointer"> <!-- OR <node scope="node" OR scope="controller">  -->
           <entity scope="model" ref="#toothless.model" /> <!-- if no reference found postpone it until found -->
           <!-- joint (node) - holds node as data/entity -->
           <entity scope="node">                       <!-- entity element, entity has a node -->
-            <component type="node">
+            <component getType="node">
               <node scope="entity">
-                <entity type="model" name="hiccup" />
+                <entity getType="model" name="hiccup" />
               </node> <!-- node:entity -->
             </component> <!-- component:node -->
           </entity> <!-- entity:node -->
           
-          <node type="joint" name="tail" rid="relative id to the parent" matrix="deviation from root">
+          <node getType="joint" name="tail" rid="relative id to the parent" matrix="deviation from root">
             <entity scope="model" name="a.dumb.cube">
-              <component type="model" shape="cube">
+              <component getType="model" shape="cube">
                 <model>
                   <mesh matrix="tx ty tz rx ry rz rw sx sy sz">
                     <material name="pink" />
@@ -123,9 +123,9 @@ class CGeometry
                 </model>
               </component>
             </entity> <!-- entity:model:shape:cube -->
-          </node> <!-- node:joint --> <!-- can only hold other joint type nodes -->
+          </node> <!-- node:joint --> <!-- can only hold other joint getType nodes -->
         </node> <!-- node:joint -->
-      </node> <!-- node:entity --> <!-- can only hold joint type nodes -->
+      </node> <!-- node:entity --> <!-- can only hold joint getType nodes -->
       
       
     </node>

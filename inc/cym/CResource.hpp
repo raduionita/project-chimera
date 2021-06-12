@@ -12,60 +12,55 @@
 #include <any>
 
 namespace cym {
-  class CResource;        typedef sys::TPointer<CResource> PResource;
-  class CResourceManager; typedef sys::TPointer<CResourceManager> PResourceManager;
-  class CResourceInfo;    typedef sys::TPointer<CResourceInfo> PResourceStream;
-  class CResourceLoader;  typedef sys::TPointer<CResourceLoader> PResourceLoader;
+  class CResource;
+  class CResourceManager;
+  class CResourceLoader;
   
   class CResource { // loadable entity/file/object
-      friend class CResourceInfo;
       friend class CResourceManager;
       friend class CResourceLoader;
-    public:
-      CResource() = default;
-      virtual ~CResource() = default;
-  };
-  
-  class CResourceInfo {
-      friend class CResource;
-      friend class CResourceManager;
-      friend class CResourceLoader;
-    public:
-      CResourceInfo() = default;
-      virtual ~CResourceInfo() = default;
-  };
-  
-  class CResourceLoader {
-      friend class CResource;
-      friend class CResourceInfo;
-      friend class CResourceManager;
-    public:
-      CResourceLoader();
-      virtual ~CResourceLoader();
+      enum EState { EMPTY =  0, LOADED = 1, READY  = 2, };
     protected:
-      static inline const char* type() { throw sys::CException("?Loader::type() NOT IMPLEMENTED", __FILE__, __LINE__); };
+      EState    mState {EState::EMPTY};
+      cym::name mName;
+    public:
+      inline CResource(const cym::name& tName = "") : mName{tName} { };
+      inline virtual ~CResource() { };
+    public:
+      inline void       setName(const cym::name& tName) { mName = tName; }
+      inline cym::name& getName()                       { return mName; }
   };
   
-  class CResourceManager {
+  class CLoader { };
+  
+  class CResourceLoader : public CLoader {
       friend class CResource;
-      friend class CResourceInfo;
-      friend class CResourceLoader;
-    private:
-      sys::CString mScope;
+      friend class CResourceManager;
     protected:
-      sys::CMap<sys::CString, PResourceLoader> mLoaders;
+      sys::string mName;
     public:
-      CResourceManager() = default;
-      CResourceManager(const sys::CString&);
-      virtual ~CResourceManager();
+      CResourceLoader() { };
+      CResourceLoader(const sys::string& tName) : mName{tName} { };
+      virtual ~CResourceLoader() = default;
     public:
-      const PResourceLoader& loader(const char* name) { return sys::find_or_throw(sys::CString(name),mLoaders,sys::CException("Loader NOT found!",__FILE__,__LINE__)); }
-      
-      template<typename T, class = typename std::enable_if<std::is_convertible<T*,CResourceLoader*>::value>::type> inline PResourceLoader loader() { return loader(typeid(T).name()); }
-      
-      template<typename T, class = typename std::enable_if<std::is_convertible<T*,CResourceLoader*>::value>::type> inline void loader(T* pLoader) { mLoaders[T::type()] = pLoader; /* mLoaders["P8CFileTextureLoader"] = pLoader */ }
-      
-      inline void            save(PResource) { }
+      virtual void load(sys::sptr<CResourceLoader>) { throw sys::exception("CResourceLoader::load() NOT overriden!",__FILE__,__LINE__);  };
+    public:
+      sys::string& getName() { return mName; }
+  };
+  
+  class CManager { };
+  
+  class CResourceManager : public CManager {
+      friend class CResource;
+      friend class CResourceLoader;
+    public:
+      CResourceManager() { };
+      virtual ~CResourceManager() { };
+  };
+  
+  template<typename T> class TManager : public CResourceManager {
+    public:
+      typedef T resource_type;
   };
 }
 

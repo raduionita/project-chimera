@@ -5,17 +5,19 @@
 
 namespace uix {
   class CPanel : public CWidget {
+      friend class CSurface;
     protected:
       using CWidget::CWidget;
       using CWidget::operator=;
       typedef CWidget super;
       static constexpr int WINDOW = CWidget::WINDOW;
-    public:
+    private:
       CPanel() = default;
-      CPanel(CWindow*, int = ZERO);
+    public:
+      CPanel(CWindow*, uint = WINDOW);
       ~CPanel();
     protected:
-      virtual bool init(CWindow*, int) override;
+      virtual bool init(CWindow* = nullptr, const CString& = "", const SArea& = AUTO, uint = WINDOW) override;
   };
 }
 

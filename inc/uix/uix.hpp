@@ -16,6 +16,7 @@
 #include <windef.h>
 #include <wingdi.h>
 #include <commctrl.h>
+#include <commdlg.h>
 
 #include <cassert>
 #include <iomanip>
@@ -56,8 +57,23 @@
 #define UIX_PEN NULL_PEN
 #endif
 
+#define UIX_ON  1
+#define UIX_OFF 0
+
+#ifndef UIX_EVENT_PROPAGATE
+#define UIX_EVENT_PROPAGATE UIX_ON
+#endif//UIX_EVENT_PROPAGATE
+
+#ifndef UIX_EVENT_APPLICATION
+#define UIX_EVENT_APPLICATION UIX_OFF
+#endif//UIX_EVENT_APPLICATION
+
+#ifndef UIX_EVENT_MOUSEMOVE
+#define UIX_EVENT_MOUSEMOVE UIX_ON
+#endif//UIX_EVENT_MOUSEMOVE
+
 #ifndef UIX_STYLE
-#define UIX_STYLE false
+#define UIX_STYLE UIX_OFF
 #endif//UIX_STYLE
 
 #ifndef UIX_STYLE_BACKGROUND
@@ -84,10 +100,6 @@
 #define UIX_STYLE_BORDER_TYPE      EStyle::SOLID
 #endif//UIX_STYLE_BORDER_TYPE
 
-#ifndef UIX_WINDOW
-#define UIX_WINDOW false
-#endif//UIX_WINDOW
-
 #ifndef UIX_WINDOW_AREA_X
 #define UIX_WINDOW_AREA_X CW_USEDEFAULT
 #endif//UIX_WINDOW_AREA_X
@@ -103,6 +115,17 @@
 #ifndef UIX_WINDOW_AREA_H
 #define UIX_WINDOW_AREA_H CW_USEDEFAULT
 #endif//UIX_WINDOW_AREA_H
+
+// #define UIX_PLATFORM_W32     WINDOWS
+// #define UIX_PLATFORM_WINDOWS WINDOWS
+// #define UIX_PLATFORM_MAC     MACOS
+// #define UIX_PLATFORM_MACOS   MACOS
+// #define UIX_PLATFORM_NIX     LINUX
+// #define UIX_PLATFORM_LINUX   LINUX
+// #define UIX_PLATFORM_DROID   ANDROID
+// #define UIX_PLATFORM_ANDROID ANDROID
+// #define UIX_PLATFORM_AND     ANDROID
+// #define UIX_PLATFORM_IOS     IOS
 
 // @here: functions that should have been in win32 
 
@@ -175,7 +198,7 @@ inline STATE SwapWindowState(HWND hWnd) {
   if (states.size() == 0 || it == states.end()) {    // not found // insert
     states.insert(std::pair<HWND,STATE>(hWnd, curr));
   } else {                                           // found // swap
-    // load prev
+    // init prev
     STATE  temp{it->second};
     STATE& prev{it->second};
     // store
@@ -209,7 +232,7 @@ inline WINBOOL HandleMessage(MSG* pMSG, const unsigned int kMax = 5, const unsig
   static const unsigned int kJumpTime{1000 / kTPS};
   static unsigned int       iLoop;
   
-  nCurTicks = ::GetTickCount();
+  nCurTicks = ::GetTickCount(); // millisecs since system started
   nNxtTicks = nCurTicks + kJumpTime;
   iLoop     = 0;
   
@@ -217,7 +240,6 @@ inline WINBOOL HandleMessage(MSG* pMSG, const unsigned int kMax = 5, const unsig
     if (::PeekMessage(pMSG, NULL, 0, 0, PM_REMOVE)) {
       if (WM_QUIT == pMSG->message) {
         return FALSE;
-        break;
       } else {
         ::TranslateMessage(pMSG);
         ::DispatchMessage(pMSG);
@@ -228,6 +250,11 @@ inline WINBOOL HandleMessage(MSG* pMSG, const unsigned int kMax = 5, const unsig
   }
   
   return TRUE;
+}
+
+inline DWORD GetTickElapsed() {
+  static DWORD tStart = ::GetTickCount();
+  return ::GetTickCount() - tStart;
 }
 
 namespace uix {
@@ -285,14 +312,14 @@ namespace uix {
     class CWindow;          // abstract
       class CPopup;         // abstract // toplevel windows
         class CFrame;       // titlebar + borders (opt: statusbar + menubar + toolbar)
-          class CToplevel;  // main app that will kill the app when closed
           class CSplash;    // spalsh screen // no titlebar, no borders, no buttons, only an image
           class CPreview;   // prevew (like printing)
           class CCanvas;    // ogl|d3d|vlk // no border no titlebar w/ CGLContext similar to CCanvas but only 1 class
         class CDialog;      // modal
           class CMessage;
           class CWizard;
-      class CWidget;        // abstract // child windows
+          class CFileDialog;
+      class CWidget;        // abstract // attach windows
         // class CSection;
         class CPanel;     // empty widget/window
           class CSurface;   // empty widget + context
@@ -323,16 +350,16 @@ namespace uix {
   struct SRect;
   struct SArea;
   
-  struct SShape { 
-    static constexpr int DEFAULT = -1;
-    int w, h;
-    SShape(int v = DEFAULT) : w(v), h(v) {} 
+  struct SMove { 
+    int x, y;
+    SMove(int v = AUTO) : x{v}, y{v} {}
+    SMove(int x, int y) : x{x}, y{y} {} 
   };
   
-  struct SPoint { 
-    static constexpr int DEFAULT = -1;
-    int x, y;
-    SPoint(int v = DEFAULT) : x(v), y(v) {} 
+  struct SSize { 
+    int w, h;
+    SSize(int v = AUTO) : w{v}, h{v} {} 
+    SSize(int w, int h) : w{w}, h{h} {} 
   };
     
   struct SRect {
@@ -347,14 +374,25 @@ namespace uix {
   };
   
   struct SArea {
-    static constexpr int DEFAULT = -1;
-    union {int data[4]; struct {int x, y, w, h;};};
-    SArea(int v = DEFAULT) : x(v), y(v), w(v), h(v) { }
-    SArea(int x, int y, int w, int h) : x(x), y(y), w(w), h(h) { }
+    int x, y, w, h;
+    SArea(int v = AUTO) : x{v}, y{v}, w{v}, h{v} { }
+    SArea(int v[4]) : x{v[0]}, y{v[1]}, w{v[2]}, h{v[3]} { }
+    SArea(int x, int y, int w, int h) : x{x}, y{y}, w{w}, h{h} { }
+    SArea(const SMove& tMove) : x{tMove.x}, y{tMove.y}, w{AUTO}, h{AUTO} { } 
+    SArea(const SSize& tSize) : x{AUTO}, y{AUTO}, w{tSize.w}, h{tSize.h} { } 
+    SArea(const SMove& tMove, const SSize& tSize) : x{tMove.x}, y{tMove.y}, w{tSize.w}, h{tSize.h} { } 
+    // operators
+    bool operator ==(const SArea& that) const { return x == that.x && y == that.y && w == that.w && h == that.h;}
+    bool operator ==(int value) const { return x == value && y == value && w == value && h == value;}
+    // casts
     operator       RECT();
     operator const RECT()  const;
     operator       SRect(); 
     operator const SRect() const; 
+    operator       SMove(); 
+    operator const SMove() const; 
+    operator       SSize(); 
+    operator const SSize() const; 
   };
   
   struct SColor {
@@ -375,46 +413,66 @@ namespace uix {
   inline SArea::operator const RECT()  const { return RECT{x,y,x+w,y+h}; }
   inline SArea::operator       SRect()       { return SRect{x,y,x+w,y+h}; }
   inline SArea::operator const SRect() const { return SRect{x,y,x+w,y+h}; }
+  inline SArea::operator       SMove()       { return SMove{x,y}; }
+  inline SArea::operator const SMove() const { return SMove{x,y}; }
+  inline SArea::operator       SSize()       { return SSize{w,h}; }
+  inline SArea::operator const SSize() const { return SSize{w,h}; }
   
   inline SColor::operator       COLORREF()       { return rgb; }
   inline SColor::operator const COLORREF() const { return rgb; }
     
-  typedef SShape S;
-  typedef SPoint P;
-  typedef SArea  A;
+  typedef SSize S;
+  typedef SMove P;
+  typedef SArea A;
   typedef SRect  R;
   typedef SColor C;
   
-  inline std::ostream& operator <<(std::ostream& o, const RECT& r) { return o << "l:" << r.left << " t:" << r.top << " r:" << r.right << " b:" << r.bottom; }
+  inline std::ostream& operator <<(std::ostream& o, const RECT& r)  { return o << "l:" << r.left << " t:" << r.top << " r:" << r.right << " b:" << r.bottom; }
+  
+  inline std::ostream& operator <<(std::ostream& o, const SArea& a) { return o << "x:" << a.x << " y:" << a.y << " w:" << a.w << " h:" << a.h; }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  inline sys::CString T(int num)          { return std::to_string(num); }
-  inline sys::CString T(const char* text) { return sys::CString(text); }
+  inline std::string T(int num)          { return std::to_string(num); }
+  inline std::string T(const char* text) { return std::string(text); }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   enum class EState : sys::bitfield {
     EMPTY      = ZERO,
-    PUSHED     = 0b00000000'00000001,
-    RELEASED   = 0b00000000'00000010,
-    FOCUSED    = 0b00000000'00000100,
-    BLURRED    = 0b00000000'00001000,
-    CHECKED    = 0b00000000'00010000,
-    MINIMIZED  = 0b00000000'00100000,
-    MAXIMIZED  = 0b00000000'01000000,
-    FULLSCREEN = 0b00000000'10000000,
-    PAINTING   = 0b00000001'00000000, 
-    CLICKED    = 0b00000010'00000000, 
-    DBLCLICKED = 0b00000100'00000000, 
-    DISABLE    = 0b00001000'00000000, 
+    INITED     = 1 <<  1,
+    PUSHED     = 1 <<  2,
+    RELEASED   = 1 <<  3,
+    FOCUSED    = 1 <<  4,
+    BLURRED    = 1 <<  5,
+    CHECKED    = 1 <<  6,
+    MINIMIZED  = 1 <<  7,
+    MAXIMIZED  = 1 <<  8,
+    FULLSCREEN = 1 <<  9,
+    PAINTING   = 1 << 10, 
+    CLICKED    = 1 << 11, 
+    DBLCLICKED = 1 << 12, 
+    DISABLE    = 1 << 13, 
+    FREED      = 1 << 14,
   };
   
-  inline int operator |(EState lhs, EState rhs) { return static_cast<int>(lhs) | static_cast<int>(rhs); }
-  inline int operator |(uint   lhs, EState rhs) { return lhs                   | static_cast<int>(rhs); }
-  inline int operator &(EState lhs, EState rhs) { return static_cast<int>(lhs) & static_cast<int>(rhs); }
-  inline int operator &(uint   lhs, EState rhs) { return lhs                   & static_cast<int>(rhs); }
-  inline int operator ~(EState rhs)             { return ~(static_cast<int>(rhs)); }
+  inline int operator  |(EState lhs, EState rhs) { return static_cast<int>(lhs) | static_cast<int>(rhs); }
+  inline int operator |=(EState lhs, EState rhs) { return static_cast<int>(lhs) | static_cast<int>(rhs); }
+  inline int operator  |(uint   lhs, EState rhs) { return lhs                   | static_cast<int>(rhs); }
+  inline int operator |=(uint   lhs, EState rhs) { return lhs                   | static_cast<int>(rhs); }
+  inline int operator  &(EState lhs, EState rhs) { return static_cast<int>(lhs) & static_cast<int>(rhs); }
+  inline int operator &=(EState lhs, EState rhs) { return static_cast<int>(lhs) & static_cast<int>(rhs); }
+  inline int operator  &(uint   lhs, EState rhs) { return lhs                   & static_cast<int>(rhs); }
+  inline int operator &=(uint   lhs, EState rhs) { return lhs                   & static_cast<int>(rhs); }
+  inline int operator  ~(EState rhs)             { return ~(static_cast<int>(rhs)); }
+  
+  enum EDialog : sys::bitfield {
+    DIALOG = ZERO,
+    OPEN      = 1 << 1, 
+    SAVE      = 1 << 2, 
+    MULTIPLE  = 1 << 3, 
+    MUSTEXIST = 1 << 4,
+  };
   
   enum EWindow : sys::bitfield {
     _HINT_     = ZERO,
@@ -475,7 +533,7 @@ namespace uix {
   inline int operator &(int         lhs, EFullscreen rhs) { return lhs                   & static_cast<int>(rhs); }
   inline int operator ~(EFullscreen rhs)                  { return ~(static_cast<int>(rhs)); }
   
-  enum class EMouse : int {
+  enum class EMouse : uint {
     EMPTY      = ZERO,
     LBUTTON    = MK_LBUTTON,  //  2
     RBUTTON    = MK_RBUTTON,  //  2
@@ -486,46 +544,24 @@ namespace uix {
     X2BUTTON   = MK_XBUTTON2  // 40
   };
   
-  inline int operator |(EMouse lhs, EMouse rhs)      { return static_cast<int>(lhs) | static_cast<int>(rhs); }
-  inline int operator |(int         lhs, EMouse rhs) { return lhs                   | static_cast<int>(rhs); }
-  inline int operator &(EMouse lhs, EMouse rhs)      { return static_cast<int>(lhs) & static_cast<int>(rhs); }
-  inline int operator &(int         lhs, EMouse rhs) { return lhs                   & static_cast<int>(rhs); }
-  inline int operator ~(EMouse rhs)                  { return ~(static_cast<int>(rhs)); }
-  
-  enum class EEvent : int {
-    EMPTY = ZERO,
-    CLOSE = 1,
-    QUIT  = 2,
-    KEYDOWN = 3,
-    KEYUP = 4,
-    KEYPRESS = 5, // keyup + keydown
-    MOVE = 6,
-    MOVING = 7,
-    RESIZE = 8, SIZE = RESIZE,
-    SIZING = 9,
-    FOCUS = 10,
-    UNFOCUS = 11, BLUR = UNFOCUS,
-    LBDOWN = 12, LBUTTONDOWN = LBDOWN, CLICK = LBDOWN, LCLICK = LBDOWN,
-    LBUP = 13, LBUTTONUP = LBUP,
-    RBDOWN = 14, RBUTTONDOWN = RBDOWN, RCLICK = RBDOWN,
-    RBUP = 15, RBUTTONUP = RBUP,
-    DBLCLICK,
-    PAINT, DRAW = PAINT,
-    SHOW,
-    HIDE,
-    COMMAND,
-  };
+  inline int operator |(EMouse lhs, EMouse rhs)      { return static_cast<uint>(lhs) | static_cast<uint>(rhs); }
+  inline int operator |(int         lhs, EMouse rhs) { return lhs                    | static_cast<uint>(rhs); }
+  inline int operator &(EMouse lhs, EMouse rhs)      { return static_cast<uint>(lhs) & static_cast<uint>(rhs); }
+  inline int operator &(int         lhs, EMouse rhs) { return lhs                    & static_cast<uint>(rhs); }
+  inline int operator ~(EMouse rhs)                  { return ~(static_cast<uint>(rhs)); }
   
   enum class ELayout : sys::bitfield {
-    EMPTY      = ZERO,
+    LAYOUT     = ZERO,
+    DEFAULT    = LAYOUT,
+    FIXED      = LAYOUT,
     LEFT       = 0b00000000'00000001,
     RIGHT      = 0b00000000'00000010,
     TOP        = 0b00000000'00000100,
     BOTTOM     = 0b00000000'00001000,
-    VERTICAL   = 0b00000000'00010000,
-    HORIZONTAL = 0b00000000'00100000,
-    ADJUST     = 0b00000000'01000000,
-    CENTER     = 0b00000000'10000000,
+    VERTICAL   = 0b00000000'00010000, //  16
+    HORIZONTAL = 0b00000000'00100000, //  32
+    ADJUST     = 0b00000000'01000000, //  64
+    CENTER     = 0b00000000'10000000, // 128
   };
   
   inline int operator |(ELayout lhs, ELayout rhs) { return static_cast<int>(lhs) | static_cast<int>(rhs); }

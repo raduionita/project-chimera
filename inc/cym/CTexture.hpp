@@ -8,24 +8,21 @@
 #include "sys/CStream.hpp"
 #include "sys/CSingleton.hpp"
 #include "sys/CException.hpp"
+#include "sys/CThreader.hpp"
+#include "cym/CInstance.hpp"
 #include "glm/CVector.hpp"
-#include "cym/CNode.hpp"
+#include "ogl/CTexture.hpp"
 
 namespace cym {
-  class CTexture;        typedef sys::TPointer<CTexture> PTexture; 
-  class CTextureManager; typedef sys::TPointer<CTextureManager> PTextureManager;
-  class CTextureData;    typedef sys::TPointer<CTextureData> PTextureData;
-  template<typename T> class CTextureLoader; template<typename T> using PTextureLoader =  sys::TPointer<CTextureLoader<T>>;
+  class CTexture;        
+  class CTextureManager;
+  class CTextureLoader;
+  template<typename T> class TTextureLoader;
   
-  // texture /////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // resources ///////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  class CColor {
-    public:
-      glm::vec3 mColor;
-  };
-  
-  class CTexture : public cym::CResource, public CObject { // or should this be CBuffer since it holds data/memory
-      friend class CTextureData;
+  class CTexture : public cym::CResource, /* @todo: ogl::CTexture */ public CObject { // or should this be CBuffer since it holds data/memory
+      friend class CTextureLoader;
       friend class CTextureManager;
     public:
       enum EFlag {
@@ -40,8 +37,10 @@ namespace cym {
         RGBA_S3TC_DXT5 = FLAG <<  8,
         RGBA           = FLAG <<  9,
         RGB            = FLAG << 10,
-        LUMINANCE      = FLAG << 11,
-        MIPMAPED       = FLAG << 12,
+        BGRA           = FLAG << 11,
+        BGR            = FLAG << 12,
+        LUMINANCE      = FLAG << 13,
+        MIPMAPED       = FLAG << 14,
       };
       enum class EFiltering : GLbitfield {
         NONE            = 0b00000000'00000000, // 0
@@ -70,24 +69,26 @@ namespace cym {
     protected:
       GLint   mSlot     {0};             // move to COGLTexture
       GLenum  mTarget   {GL_TEXTURE_2D}; // move to COGLTexture
-      GLenum  mInternal {GL_NONE};       // move to COGLTexture
-      GLenum  mFormat   {GL_NONE};
+      GLenum  mInternal {GL_RGBA};       // move to COGLTexture
+      GLenum  mFormat   {GL_RGBA};
       EType   mType     {EType::PLANEMAP};
       GLsizei mWidth    {0};
       GLsizei mHeight   {0};
       GLsizei mDepth    {1};
       GLcount mMipmaps  {1};
     public:
-      CTexture();
-      CTexture(PTextureData);
+      using cym::CResource::CResource;
+    public:
+      CTexture(const std::string& = "");
+      CTexture(sys::sptr<CTextureLoader>);
       ~CTexture();
     public: // actions
       virtual GLvoid   bind(bool=true) const override;
               GLvoid   bind(GLint);
       GLvoid           sampler(CShader*);
-      virtual void     load(PTextureData) final;
+      virtual void     load(sys::sptr<CTextureLoader>) final;
     public:
-      // template<typename T> static PTexture from(const T& src) { return manager()->load(src); }
+      // template<typename T> static PTexture from(const T& src) { return manager()->init(src); }
     public: // get/set-ers
       void          filtering(EFiltering eFiltering);
       EFiltering    filtering() const { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
@@ -114,129 +115,116 @@ namespace cym {
   // int miplevel = 0;
   // glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_WIDTH, &w);
   // glGetTexLevelParameteriv(GL_TEXTURE_2D, miplevel, GL_TEXTURE_HEIGHT, &h);
-
-  class NTexture : public TNode<cym::CTexture> {
-    protected:
-    //cym::PChannel mResource;
+  
+  // instances ///////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  class ITexture : public cym::TInstance<CTexture> {
+      friend class CTexture;
+    public:
+      using cym::TInstance<CTexture>::TInstance;
+    public:
+      inline const CTexture& getTexture() const { return mInstance.raw(); }
   };
   
-  // data ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // loaders /////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  class CTextureData : public cym::CResourceInfo {
+  class CTextureLoader : public cym::CResourceLoader {
       friend class CTexture;
       friend class CTextureManager;
     public:
-      using cym::CResourceInfo::CResourceInfo;
       using EFlag = CTexture::EFlag;
+      enum EHint { MIPMAPS = 1 };
     public:
-      struct SInfo {
-        uint flags    {0};
-        uint width    {0};
-        uint height   {0};
-        uint depth    {0};
-        uint mipmaps  {1};
-        uint size     {0};
-        uint bpp     {32};
-      };
+      sys::sptr<sys::CStream> mStream;
+    // properties
+      uint         flags   {0};
+      uint         width   {0};
+      uint         height  {0};
+      uint         depth   {1};
+      uint         mipmaps {1};
+      uint         size    {0};
+      ubyte        bpp    {32};
+      bool         alpha  {false};
     public:
-      SInfo        mInfo;
-      sys::PStream mStream;
+      using cym::CResourceLoader::CResourceLoader;
     public:
-      inline void set(EFlag flag) { mInfo.flags |= flag; }
-      inline bool has(EFlag flag) { return mInfo.flags & flag; }
-      inline void width(uint w)   { mInfo.width = w; }
-      inline void height(uint h)  { mInfo.height = h; }
-      inline void depth(uint d)   { mInfo.depth = d; }
-      inline void mipmaps(uint m) { mInfo.mipmaps = m; }
+      virtual inline void         load(sys::sptr<CResourceLoader>) { throw sys::exception("CTextureLoader::load() NOT overriden!",__FILE__,__LINE__);  };
     public:
-      inline SInfo info() const         { return mInfo; }
-      inline void  info(const SInfo& i) { mInfo = i; }
+      template<typename T> inline static sys::sptr<TTextureLoader<T>> from(const T& tSource) { return new TTextureLoader<T>{tSource}; }
+      template<typename T> inline static cym::name                    name(const T& tSource) { return TTextureLoader<T>::name(tSource); }
     public:
-      static inline uint size(uint width, uint height, uint depth, uint channels, uint flags = 0) { return flags & CTexture::COMPRESSED ? (((width + 3) >> 2) * ((height + 3) >> 2) * depth * (flags & CTexture::RGBA_S3TC_DXT1 ? 8 : 16)) : (width * height * depth * channels); }
+      inline sys::sptr<sys::CStream>& getStream() { return mStream; }
   };
   
-  struct STextureInfo {
-    using EFlag = CTexture::EFlag;
-  // identifier
-    sys::string  name;
-  // load
-    sys::PStream stream;
-    sys::file    file;
-  // fields
-    uint flags    {0};
-    uint width    {0};
-    uint height   {0};
-    uint depth    {0};
-    uint mipmaps  {1};
-    uint size     {0};
-    uint bpp     {32};
-  };
+  template<typename T> class TTextureLoader : public cym::CTextureLoader { };
   
-  // manager /////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
-  template<typename T> class CTextureLoader : public cym::CResourceLoader {
+  template<> class TTextureLoader<sys::CFile> : public CTextureLoader {
       friend class CTexture;
       friend class CTextureManager;
-    public:
-      ~CTextureLoader() { log::nfo << "cym::CTextureLoader::~CTextureLoader()::" << this << log::end; }
-    public:
-      virtual PTextureData load(const T&) { throw sys::CException("NOT IMPLEMENTED",__FILE__,__LINE__); };
-  };
-  
-  class CFileTextureLoader : public CTextureLoader<sys::CFile> {
-      friend class CTexture;
-      friend class CTextureData;
-      friend class CTextureManager;
     protected:
-      sys::CMap<sys::CString, PCodec> mCodecs;
+      sys::CFile mFile;
     public:
-      CFileTextureLoader();
-      ~CFileTextureLoader();
-    protected:
-      template<typename T, class = typename std::enable_if<std::is_convertible<T*,CCodec*>::value>::type> inline void codec(T* pCodec) { mCodecs[pCodec->type()] = pCodec; }
-      PCodec codec(const sys::CString& ext);
+      TTextureLoader(const sys::CFile& tFile) : CTextureLoader(tFile.path()), mFile{tFile} { };
     public:
-      static inline const char* type() { return typeid(CTextureLoader<sys::CFile>).name(); }
-      virtual PTextureData      load(const sys::CFile&) override;
+      virtual void load(sys::sptr<CResourceLoader>) override;
+    public:
+      inline static cym::name name(const sys::CFile& tFile) { return tFile.path(); }
+    public:
+      sys::CFile& getFile() { return mFile; }
   };
-  
-  class CNoiseTextureLoader : public CTextureLoader<int/*noise_descriptor*/> { };
-  // class CPerlinTextureLoader : public CTextureLoader { };
-  // class CSimplexTextureLoader : public CTextureLoader { };
   
   // manager /////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   class CTextureManager : public cym::CResourceManager, public sys::TSingleton<CTextureManager> {
       friend class CTexture;
-      friend class CTextureData;
+      friend class CTextureLoader;
     protected:
-      sys::CMap<sys::CString,cym::PTexture> mTextures;
+      sys::CMap<std::string, sys::sptr<CTexture>> mTextures;
     public:
       CTextureManager();
       ~CTextureManager();
     public:
-      PTexture find(const sys::CString&) const { throw sys::CException("NOT IMPLEMENTED",__FILE__,__LINE__); }
-      PTexture save(PTexture pTexture) { cym::CResourceManager::save(pTexture); return pTexture; } 
+      static void save(sys::sptr<CTexture> pTexture) {
+        static auto pThis {CTextureManager::getSingleton()};
+        CYM_LOG_NFO("cym::CTextureManager::save(sys::sptr<CTexture>)::" << pThis);
+        pThis->mTextures.insert(std::pair(pTexture->mName, pTexture));
+      }
       
-      template<typename T> PTexture load(const sys::CString& name, const T& from) {
-        log::nfo << "cym::CTextureManager::load(CString&,T&)::" << this << log::end;
-        PTexture pTexture;
-        // try to find model in cache using that key
-        auto it = mTextures.find(name);
-        if (it != mTextures.end()) {
-          pTexture = it->second;
-        } else {
-          static const PTextureLoader<T>& pLoader{sys::static_pointer_cast<typename PTextureLoader<T>::type>(loader(typeid(CTextureLoader<T>).name()))};
+      static sys::sptr<CTexture> load(sys::sptr<CTextureLoader> pTextureLoader) {
+        static auto pThis {cym::CTextureManager::getSingleton()};
+        CYM_LOG_NFO("cym::CTextureManager::load(sys::sptr<CTextureLoader>)::" << pThis);
+        
+        if (!pTextureLoader) return nullptr;
+        
+        sys::sptr<CTexture> pTexture = new CTexture{pTextureLoader->getName()};
+        
+        sys::async([&pTexture, pTextureLoader](){
           
-          // @todo: start on another thread
-          PTextureData pData = pLoader->load(from);
-          // @todo: queue `new CModel{pStream}` for the main thread 
-          pTexture = new CTexture{pData};
-          // update cache
-          mTextures.insert({name, pTexture});
-        }
-        // return texture
+          pTextureLoader->load(pTextureLoader);
+          
+          pTexture->load(pTextureLoader);
+          
+        }, sys::EAsync::SPAWN);
+        
+        CTextureManager::save(pTexture);
+        
         return pTexture;
+      }
+      
+      template<typename T> static sys::sptr<ITexture> load(const T& tSource) {
+        static auto pThis {cym::CTextureManager::getSingleton()};
+        CYM_LOG_NFO("cym::CTextureManager::load(T&)::" << pThis);
+      
+        sys::sptr<CTexture> tTexture;
+        const std::string&      tName  = CTextureLoader::name(tSource);
+        
+        if (!sys::find(tName, pThis->mTextures, tTexture)) {
+          sys::sptr<CTextureLoader> tLoader = new TTextureLoader<sys::CFile>(tSource);
+          
+          tTexture = CTextureManager::load(tLoader);
+        }
+        
+        return new ITexture{tTexture};
       }
   };
 

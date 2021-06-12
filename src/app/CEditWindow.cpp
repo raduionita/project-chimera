@@ -7,25 +7,25 @@
 #include "uix/CFrame.hpp"
 #include "uix/CSurface.hpp"
 
-#include <cym/CBuffer.hpp>
+#include <cym/CDataBuffer.hpp>
 #include <cym/CVertexArray.hpp>
-#include <cym/CLayout.hpp>
+#include <cym/CVertexLayout.hpp>
 #include <cym/CShader.hpp>
 
 namespace app {
-  CEditWindow::CEditWindow() : uix::CToplevel(uix::CToplevel::WINDOW) {
-    log::nfo << "app::CEditWindow::CEditWindow()::" << this << log::end;
+  CEditWindow::CEditWindow() : uix::CFrame(uix::CFrame::WINDOW) {
+    CYM_LOG_NFO("app::CEditWindow::CEditWindow()::" << this);
   }
   
   CEditWindow::~CEditWindow() {
-    log::nfo << "app::CEditWindow::~CEditWindow()::" << this << log::end;
+    CYM_LOG_NFO("app::CEditWindow::~CEditWindow()::" << this);
   }
   
   void CEditWindow::onInit() {
-    log::nfo << "app::CEditWindow::onInit()::" << this << log::end;
+    CYM_LOG_NFO("app::CEditWindow::onInit()::" << this);
   }
   
   void CEditWindow::onFree() {
-    log::nfo << "app::CEditWindow::onFree()::" << this << log::end;
+    CYM_LOG_NFO("app::CEditWindow::onFree()::" << this);
   }
 }

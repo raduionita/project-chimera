@@ -1,41 +1,52 @@
 #include "uix/CFrame.hpp"
 
 namespace uix {
-  CFrame::CFrame(int nHints) {
-    log::nfo << "uix::CFrame::CFrame(int)::" << this << log::end;
-    init(nullptr, nHints | CFrame::WINDOW);
+  CFrame::CFrame(uint nHints) {
+    CYM_LOG_NFO("uix::CFrame::CFrame(int)::" << this);
+    CFrame::init(nullptr,"",AUTO,nHints|WINDOW);
   }
   
-  CFrame::CFrame(CWindow* pParent/*=nullptr*/, int nHints/*=ZERO*/) {
-    log::nfo << "uix::CFrame::CFrame(CWindow*,int)::" << this << log::end;
-    init(pParent, nHints | CFrame::WINDOW);
+  CFrame::CFrame(CWindow* pParent/*=nullptr*/, uint nHints/*=WINDOW*/) {
+    CYM_LOG_NFO("uix::CFrame::CFrame(CWindow*,int)::" << this);
+    CFrame::init(pParent,"",AUTO,nHints|WINDOW);
+  }
+  
+  CFrame::CFrame(CWindow* pParent/*=nullptr*/, const CString& tTitle, uint nHints/*=WINDOW*/) {
+    CYM_LOG_NFO("uix::CFrame::CFrame(CWindow*,CString&,int)::" << this);
+    CFrame::init(pParent,tTitle,AUTO,nHints|WINDOW);
   }
   
   CFrame::~CFrame() {
-    log::nfo << "uix::CFrame::~CFrame()::" << this << log::end;
+    CYM_LOG_NFO("uix::CFrame::~CFrame()::" << this);
+    CFrame::free();
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  bool CFrame::init(CWindow* pParent, int nHints) {
-    log::nfo << "uix::CFrame::init(CWindow*,int)::" << this << log::end;
-  
-    RETURN(mInited,true);
+  bool CFrame::init(CWindow* pParent/*=nullptr*/, const CString& tTitle/*=""*/, const SArea& tArea/*=AUTO*/, uint nHints/*=WINDOW*/) {
+    CYM_LOG_NFO("uix::CFrame::init(CWindow*,CString&,SArea&,uint)::" << this);
     
-    if (!super::init(pParent, nHints)) {
-      log::nfo << "[CFrame] super::init() failed!" << log::end;
+    RETURN((mState & EState::INITED),true);
+    
+    if (!super::init(pParent,tTitle,tArea,nHints)) {
+      CYM_LOG_NFO("[CFrame] super::init() failed!");
       ::MessageBox(NULL, "[CFrame] super::init() failed!", "Error", MB_OK);
       return false;
     }
   
-    (nHints & EWindow::VISIBLE)    && show();
-    (nHints & EWindow::MAXIMIZE)   && maximize();
-    (nHints & EWindow::MINIMIZE)   && minimize();
-    (nHints & EWindow::AUTOWH)     && size(640, 480);
-    (nHints & EWindow::AUTOXY)     && (nHints |= EWindow::CENTER);
-    (nHints & EWindow::CENTER)     && center();
-    (nHints & EWindow::FULLSCREEN) && fullscreen();
+    (mHints & EWindow::VISIBLE)    && show();
+    (mHints & EWindow::MAXIMIZE)   && maximize();
+    (mHints & EWindow::MINIMIZE)   && minimize();
+    (mHints & EWindow::AUTOWH)     && size(640, 480);
+    (mHints & EWindow::AUTOXY)     && (mHints |= EWindow::CENTER);
+    (mHints & EWindow::CENTER)     && center();
+    (mHints & EWindow::FULLSCREEN) && fullscreen();
     
-    return mInited;
+    if (!mParent) {
+      // if this is toplevel (noparent) => on close => quit app
+      attach(this, CEvent::EType::CLOSE, [](CEvent*) { CApplication::instance()->quit(0); });
+    }
+    
+    return (mState = mState | EState::INITED);
   }
 }

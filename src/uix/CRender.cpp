@@ -1,17 +1,17 @@
 #include "uix/CRender.hpp"
 
 namespace uix {
-  CRender::CRender() {
-    log::nfo << "uix::CRender::CRender()::" << this << log::end;
+  CRender::CRender(CWindow* pWindow, const CContext::SConfig& tConfig /*= {}*/) : mWindow{pWindow}, mConfig{tConfig} {
+    CYM_LOG_NFO("uix::CRender::CRender()::" << this);
   }
   
   CRender::~CRender() {
-    log::nfo << "uix::CRender::~CRender()::" << this << log::end;
+    CYM_LOG_NFO("uix::CRender::~CRender()::" << this);
     DELETE(mContext);
   }
   
-  bool CRender::init(CWindow* pWindow, const CContext::SConfig& sConfig) {
-    mContext = new CContext(pWindow, sConfig);
+  bool CRender::init(uint nHints) {
+    mContext = new CContext(mWindow, mConfig);
     return true;
   }
   
@@ -22,8 +22,8 @@ namespace uix {
   const char* CRender::version() const       { return mContext->version(); }
   
   void CRender::onResize(CEvent* pEvent) {
-    log::nfo << "uix::CRender::onResize(CEvent*)::" << this << log::end;
+    CYM_LOG_NFO("uix::CRender::onResize(CEvent*)::" << this << " " << *pEvent);
     // update render viewport
-    ::glViewport(pEvent->clientX(),pEvent->clientY(),pEvent->width(),pEvent->height());
+    GLCALL(::glViewport(pEvent->clientX(),pEvent->clientY(),pEvent->width(),pEvent->height()));
   }
 }

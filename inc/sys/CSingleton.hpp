@@ -7,7 +7,7 @@
 #include <cassert>
 
 // @warning
-// @todo: this might NOT WORK if TPointer<T> is deleted AFTER TSingleton<T>::sInstance
+// @todo: this might NOT WORK if TPointer<T> is deleted AFTER TSingleton<T>::sSingleton
 // @warning
 
 namespace sys {
@@ -16,23 +16,26 @@ namespace sys {
         public:
           D* mDeletable {nullptr};
         public:
-          ~TDeletable() { if (mDeletable) delete mDeletable; }
+          inline TDeletable() = default;
+          inline ~TDeletable() { if (mDeletable) delete mDeletable; }
       };
-    protected:
-      static TDeletable<T> sInstance;
+    private:
+      static TDeletable<T> sSingleton;
     public:
-      TSingleton() { 
-        assert(!sInstance.mDeletable && "TSingleton<>::sIntastace already created");
-        sInstance.mDeletable = static_cast<T*>(this);
+      TSingleton() {
+        // std::cout << "TSingleton<" << typeid(T).name() << ">::TSingleton()" << std::endl;
+        assert(!sSingleton.mDeletable && "TSingleton<>::sIntastace already created");
+        sSingleton.mDeletable = static_cast<T*>(this);
       }
       virtual ~TSingleton() {
-        assert( sInstance.mDeletable && "TSingleton<>::sIntastace already deleted");
-        sInstance.mDeletable = nullptr;
+        // std::cout << "TSingleton<" << typeid(T).name() << ">::~TSingleton()" << std::endl;
+        assert(sSingleton.mDeletable && "TSingleton<>::sIntastace already deleted");
+        sSingleton.mDeletable = nullptr;
       }
     public:
-      inline static T* instance() { if (!sInstance.mDeletable) new T; return sInstance.mDeletable; }
+      inline static sys::wptr<T> getSingleton() { if (!sSingleton.mDeletable) new T; return sSingleton.mDeletable; }
   };
-  template<typename T> typename TSingleton<T>::template TDeletable<T> TSingleton<T>::sInstance;
+  template<typename T> typename TSingleton<T>::template TDeletable<T> TSingleton<T>::sSingleton;
 }
 
 #endif //__sys_csingleton_hpp__

@@ -7,6 +7,8 @@
 #include "cym/CTexture.hpp"
 #include "cym/CModel.hpp"
 #include "cym/CShader.hpp"
+#include "cym/CCodec.hpp"
+#include "cym/CScene.hpp"
 #include "cym/CNode.hpp"
 
 #include "sys/CSingleton.hpp"
@@ -15,40 +17,54 @@
 namespace cym {
   class CCore : public sys::TSingleton<CCore> {
     protected:
-      cym::PRenderSystem mRenderSystem;
+      sys::sptr<CRenderSystem> mRenderSystem;
       
       // CAudioSystem*
       // COverlaySystem*
       // CInputSystem*
       // CPhysicsSystem*
       
+      // CTaskManager*
+      
       // CSceneManager*
       // CMaterialManager*
       // CBufferManager* ? vbo/ibo
       
-      cym::PShaderManager  mShaderManager;
-      cym::PTextureManager mTextureManager;
-      cym::PModelManager   mModelManager;
+      sys::sptr<CShaderManager>   mShaderManager;
+      sys::sptr<CMaterialManager> mMaterialManager;
+      sys::sptr<CTextureManager>  mTextureManager;
+      sys::sptr<CModelManager>    mModelManager;
+      
+      sys::sptr<CCodecManager>    mCodecManager;
+      
+      bool mInited {false};
     public:
       CCore();
       ~CCore();
     protected:
-      void init();
+      bool init();
       void free();
     public:
-      virtual inline void    setShaderManager(cym::PShaderManager pManager) { mShaderManager = pManager; }
+      static sys::wptr<CCore> load() { return CCore::getSingleton(); }
+    public:
+      static sys::sptr<CCodecManager>&         getCodecManager() { return getSingleton()->mCodecManager; }
+      virtual inline sys::sptr<CCodecManager>& setCodecManager(sys::sptr<CCodecManager> pManager) { return mCodecManager = pManager; }
       
-      virtual inline void    setTextureManager(cym::PTextureManager pManager) { mTextureManager = pManager; }
-      static PTextureManager getTextureManager() { return instance()->mTextureManager; }
-      //static inline PTexture loadTexture(const sys::CString& name, const sys::CFile& file) { return instance()->mTextureManager->load(name,file); }
+      static sys::sptr<CShaderManager>& getShaderManager() { return getSingleton()->mShaderManager; }
+      virtual inline void               setShaderManager(sys::sptr<CShaderManager> pManager) { mShaderManager = pManager; }
       
-      virtual inline void  setModelManager(cym::PModelManager   pManager) { mModelManager = pManager; }
-      static PModelManager getModelManager() { return instance()->mModelManager; }
-      //static inline PModel loadModel(const sys::CString& name, const sys::CFile& file) { return instance()->mModelManager->load(name,file); }
+      static sys::sptr<CMaterialManager>& getMaterialManager() { return getSingleton()->mMaterialManager; }
+      virtual inline void                 setMaterialManager(sys::sptr<CMaterialManager> pManager) { mMaterialManager = pManager; }
       
-      static PRenderSystem setRenderSystem(PRenderSystem system) { return instance()->mRenderSystem = system; }
+      static sys::sptr<CTextureManager>& getTextureManager() { return getSingleton()->mTextureManager; }
+      virtual inline void                setTextureManager(sys::sptr<CTextureManager> pManager) { mTextureManager = pManager; }
       
-      // @todo: connects(and befriends) all *System(s)
+      static sys::sptr<CModelManager>& getModelManager() { return getSingleton()->mModelManager; }
+      virtual inline void              setModelManager(sys::sptr<CModelManager> pManager) { mModelManager = pManager; }
+      
+      static sys::sptr<CRenderSystem> setRenderSystem(sys::sptr<CRenderSystem> pSystem) { return getSingleton()->mRenderSystem = pSystem; }
+      
+// @todo: connects(and befriends) all *System(s)
   };
 }
 

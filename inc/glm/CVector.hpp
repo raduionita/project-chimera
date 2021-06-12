@@ -5,12 +5,14 @@
 
 namespace glm {
   template<typename T, ushort s> class CVector {
+    public:
       typedef CVector<T, s> vec_t;
       static const ushort   size = s;
   };
   
   template<typename T> class CVector<T,2> {
       template<typename F, const ushort n> friend class CVector;
+    public:
       typedef CVector<T,2> vec_t;
       static const ushort  size = 2;
     public:
@@ -56,7 +58,7 @@ namespace glm {
         return *this;
       }
     public: // operator: data  
-      T&       operator [](const ushort i) {
+            T& operator [](const ushort i) {
         return data[i];
       }
       const T& operator [](const ushort i) const {
@@ -134,6 +136,8 @@ namespace glm {
     public: // operator: cast
       explicit operator       T*()       { return       (T*) (&data[0]); }
       explicit operator const T*() const { return (const T*) (&data[0]); }
+            T* operator        *()       noexcept { return data; }
+      const T* operator        *() const noexcept { return data; }
     public:
       T    length() { return (T) ::sqrt(x * x + y * y);}
       void normalize() {
@@ -147,6 +151,7 @@ namespace glm {
   
   template<typename T> class CVector<T,3> {
       template<typename F, const ushort n> friend class CVector;
+    public:
       typedef CVector<T, 3> vec_t;
       static const ushort   size = 3;
     public:
@@ -184,13 +189,12 @@ namespace glm {
         return *this;
       }
       CVector& operator  =(const T rhs) {
-        if (this != &rhs)
-          for (ushort i = 0; i < size; i++)
-            data[i]     = rhs;
+        for (ushort i = 0; i < size; i++)
+          data[i]     = rhs;
         return *this;
       }
     public: // operator: data  
-      T&       operator [](ushort i)       { return data[i]; }
+            T& operator [](ushort i)       { return data[i]; }
       const T& operator [](ushort i) const { return data[i]; }
     public: // operator: math  
       CVector  operator  +(const CVector& rhs) const {
@@ -268,6 +272,8 @@ namespace glm {
     public: // operator: cast
       explicit operator       T*()       { return       (T*) (&data[0]); }
       explicit operator const T*() const { return (const T*) (&data[0]); }
+            T* operator        *()       noexcept { return data; }
+      const T* operator        *() const noexcept { return data; }
     public: 
       T    length() {
         return (T) sqrt(x * x + y * y + z * z);
@@ -288,6 +294,7 @@ namespace glm {
   
   template<typename T> class CVector<T,4> {
       template<typename F, const ushort n> friend class CVector;
+    public:
       typedef CVector<T,4> vec_t;
       static const ushort  size = 4;
     public:
@@ -355,7 +362,7 @@ namespace glm {
         return *this;
       }
     public: // operator: data
-      T&       operator [](const ushort i) {
+            T& operator [](const ushort i) {
         return data[i];
       }
       const T& operator [](const ushort i) const {
@@ -444,6 +451,8 @@ namespace glm {
     public: // operator: cast
       explicit operator       T*()       { return       (T*)(&data[0]); }
       explicit operator const T*() const { return (const T*)(&data[0]); }
+            T* operator        *()       noexcept { return data; }
+      const T* operator        *() const noexcept { return data; }
     public:
       T    length() {
         return (T)(std::sqrt(x * x + y * y + z * z + w * w));
@@ -465,7 +474,7 @@ namespace glm {
     std::ostringstream os;
     for (ushort        i = 0; i < s; i++)
       os << v[i] << " ";
-    sys::CLogger::instance()->push(os.str());
+    sys::CLogger::getSingleton()->push(os.str());
     return type;
   }
   

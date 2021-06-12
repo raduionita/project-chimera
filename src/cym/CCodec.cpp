@@ -1,80 +1,97 @@
 #include "cym/CCodec.hpp"
-#include "cym/CTexture.hpp"
-#include "cym/CModel.hpp"
+#include "sys/CParser.hpp"
 
 namespace cym {
-  // textures ////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // manager //////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  PResourceData CDDSCodec::decode(const sys::CFile& oFile) {
-    log::nfo << "cym::CDDSCodec::decode(CFile&)::" << this << " FILE:" << oFile << log::end;
+  void CCodecManager::addCodec(const sys::sptr<CCodec> pCodec) {
+    CYM_LOG_NFO("cym::CCodecManager::addCodec(sys::sptr<CCodec>)::" << pCodec->getType());
+    static auto pThis {cym::CCodecManager::getSingleton()};
+    pThis->mCodecs.insert(std::pair(pCodec->getType(), pCodec));
+  }
+  
+  sys::sptr<CCodec> CCodecManager::getCodec(const std::string& ext) {
+    CYM_LOG_NFO("cym::CCodecManager::getCodec(std::string&)::" << ext);
+    static auto self {cym::CCodecManager::getSingleton()};
+    auto it = self->mCodecs.find(ext);
+    if (it == self->mCodecs.end())
+      throw sys::exception("CANNOT decode "+ ext +" file type!",__FILE__,__LINE__);
+    return it->second;
+  }
+  
+  // texture:dds /////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  void TCodec<CTexture,ECodec::DDS>::decode(sys::sptr<CResourceLoader>& pResourceLoader) {
+    auto        pTextureLoader = sys::static_pointer_cast<cym::TTextureLoader<sys::CFile>>(pResourceLoader);
+    sys::CFile& rFile          = pTextureLoader->getFile();
     
-    sys::throw_if(!oFile.open(), "Cannot open file!"); // + oFile.path());
+    CYM_LOG_NFO("cym::TCodec<CTexture,ECodec::DDS>::decode(sys::sptr<CResourceLoader>)::" << this << " FILE:" << rFile);
     
-    cym::CTextureData*        pData   {new cym::CTextureData};  
-    cym::CTextureData::SInfo& oInfo   = pData->mInfo;
-    sys::PStream&             pStream = pData->mStream = new sys::CStream;
+    sys::throw_if(!rFile.open(), "Cannot open DDS file!"); // + rFile.path());
+    
+    sys::sptr<sys::CStream>& pStream = pTextureLoader->mStream = new sys::CStream;
     
     char ftype[4];
-    oFile.read(ftype, 4);
+    rFile.read(ftype, 4);
     sys::throw_if(::strncmp(ftype,"DDS ",4) != 0, "File not of .DDS format!");
     
     SHeader oHead;
-    oFile.read((byte*)(&oHead), sizeof(oHead));
+    rFile.read((byte*)(&oHead), sizeof(oHead));
     
     if(oHead.caps2 & DDS_CUBEMAP) {
-      oInfo.flags |= CTexture::EFlag::CUBEMAP;
+      pTextureLoader->flags |= CTexture::EFlag::CUBEMAP;
     } else if((oHead.caps2 & DDS_VOLUME) && (oHead.depth > 0)) {
-      oInfo.flags |= CTexture::EFlag::VOLUME;
+      pTextureLoader->flags |= CTexture::EFlag::VOLUME;
     } else {
-      oInfo.flags |= CTexture::EFlag::PLANEMAP;
+      pTextureLoader->flags |= CTexture::EFlag::PLANEMAP;
     }
     
-    uint nFaces    = oInfo.flags & CTexture::EFlag::CUBEMAP ? 6 : 1;
+    uint nFaces    = pTextureLoader->flags & CTexture::EFlag::CUBEMAP ? 6 : 1;
     uint nChannels = oHead.format.fourcc == DDS_FOURCC || oHead.format.bpp == 24 ? 3 : 4;
     
     if (oHead.format.flags & DDS_FOURCC) {
       switch (oHead.format.fourcc) {
-        case DDS_FOURCC_DTX1: oInfo.flags |= CTexture::EFlag::RGBA_S3TC_DXT1; break;
-        case DDS_FOURCC_DTX3: oInfo.flags |= CTexture::EFlag::RGBA_S3TC_DXT3; break;
-        case DDS_FOURCC_DTX5: oInfo.flags |= CTexture::EFlag::RGBA_S3TC_DXT5; break;
+        case DDS_FOURCC_DTX1: pTextureLoader->flags |= CTexture::EFlag::RGBA_S3TC_DXT1; break;
+        case DDS_FOURCC_DTX3: pTextureLoader->flags |= CTexture::EFlag::RGBA_S3TC_DXT3; break;
+        case DDS_FOURCC_DTX5: pTextureLoader->flags |= CTexture::EFlag::RGBA_S3TC_DXT5; break;
       }
-      oInfo.flags |= CTexture::EFlag::COMPRESSED;
+      pTextureLoader->flags |= CTexture::EFlag::COMPRESSED;
     } else if(oHead.format.flags == DDS_RGBA && oHead.format.bpp == 32) {
-      oInfo.flags |= CTexture::EFlag::RGBA;
+      pTextureLoader->flags |= CTexture::EFlag::RGBA;
     } else if(oHead.format.flags == DDS_RGB && oHead.format.bpp == 32) {
-      oInfo.flags |= CTexture::EFlag::RGBA;
+      pTextureLoader->flags |= CTexture::EFlag::RGBA;
     } else if(oHead.format.flags == DDS_RGB && oHead.format.bpp == 24) {
-      oInfo.flags |= CTexture::EFlag::RGB;
+      pTextureLoader->flags |= CTexture::EFlag::RGB;
     } else if(oHead.format.bpp == 8) {
-      oInfo.flags |= CTexture::EFlag::LUMINANCE;
+      pTextureLoader->flags |= CTexture::EFlag::LUMINANCE;
     } else {
-      sys::throw_if(true, "Pixel format not supported!");
+      throw sys::exception("Pixel format not supported!",__FILE__,__LINE__);
     }
-
-    oInfo.bpp     = oHead.format.bpp;
-    oInfo.width   = oHead.width;
-    oInfo.height  = glm::clamp(oHead.height,1u);
-    oInfo.depth   = glm::clamp(oHead.depth,1u);
-    oInfo.mipmaps = glm::clamp(oHead.mipmapcount,1u);
+  
+    pTextureLoader->bpp     = oHead.format.bpp;
+    pTextureLoader->width   = oHead.width;
+    pTextureLoader->height  = glm::clamp(oHead.height, 1u);
+    pTextureLoader->depth   = glm::clamp(oHead.depth, 1u);
+    pTextureLoader->mipmaps = glm::clamp(oHead.mipmapcount, 1u);
 
     uint  nWidth   {0};
     uint  nHeight  {0};
     uint  nDepth   {0};
-    uint& nMipmaps {oInfo.mipmaps};
-    uint& nFlags   {oInfo.flags};
+    uint& nMipmaps {pTextureLoader->mipmaps};
+    uint& nFlags   {pTextureLoader->flags};
     for(uint i = 0; i < nFaces; i++) {
       nWidth  = oHead.width;  
       nHeight = oHead.height;
       nDepth  = oHead.depth ? oHead.depth : 1;
       for (ushort j = 0; j < nMipmaps && (nWidth || nHeight); j++) {
-        oInfo.size  += cym::mapsize(nWidth, nHeight, nDepth, nChannels, nFlags);
+        pTextureLoader->size  += cym::mapsize(nWidth, nHeight, nDepth, nChannels, nFlags);
         nWidth       = glm::clamp(nWidth >> 1);
         nHeight      = glm::clamp(nHeight >> 1);
         nDepth       = glm::clamp(nDepth >> 1);
       }
     }
     
-    byte*        pBytes  {pStream->data(oInfo.size)};
+    byte*        pBytes  {pStream->data(pTextureLoader->size)};
     uint         nSize   {0};
     for(uint i = 0; i < nFaces; i++) {
       nWidth  = oHead.width;
@@ -82,91 +99,213 @@ namespace cym {
       nDepth  = oHead.depth ? oHead.depth : 1;
       for(ushort j = 0; j < nMipmaps && (nWidth || nHeight); j++) {
         nSize   = cym::mapsize(nWidth, nHeight, nDepth, nChannels, nFlags);
-        oFile.read(pBytes, nSize);
+        rFile.read(pBytes, nSize);
         pBytes  += nSize;
         nWidth  = glm::clamp(nWidth >> 1);
         nHeight = glm::clamp(nHeight >> 1);
         nDepth  = glm::clamp(nDepth >> 1);
       }
     }
-    
-    return sys::static_pointer_cast<PResourceData::type>(PTextureData{pData});
   }
   
-  // models //////////////////////////////////////////////////////////////////////////////////////////////////////////
+  void TCodec<CTexture,ECodec::TGA>::decode(sys::sptr<CResourceLoader>& pResourceLoader) {
+    auto pTextureLoader = sys::static_pointer_cast<cym::TTextureLoader<sys::CFile>>(pResourceLoader);
+    sys::CFile& rFile = pTextureLoader->getFile();
   
-  void COBJCodec::decode(cym::CResourceInfo& rnfo) {
-    cym::CFileModelInfo& info {static_cast<cym::CFileModelInfo&>(rnfo)};
-    sys::CFile&          file {info.source};
+    CYM_LOG_NFO("cym::TCodec<CTexture,ECodec::TGA>::decode(sys::sptr<CResourceLoader>)::" << this << " FILE:" << rFile);
+  
+    sys::throw_if(!rFile.open(), "Cannot open TGA file!"); // + rFile.path());
+  
+    sys::sptr<sys::CStream>& pStream = pTextureLoader->mStream = new sys::CStream;
     
-    log::nfo << "cym::COBJCodec::decode(CFile&)::" << this << " FILE:" << file << log::end;
+    sys::uint & rWidth  = pTextureLoader->width, 
+              & rHeight = pTextureLoader->height, 
+              & rSize   = pTextureLoader->size; 
+    sys::ubyte& rBPP    = pTextureLoader->bpp;
+    bool      & rAlpha  = pTextureLoader->alpha;
+    uint      & rFlags  = pTextureLoader->flags;
     
-    sys::throw_if(!file.open(), "Cannot open file!"); // + oFile.path());
+    sys::ubyte              tHeader[18] = {0};
     
-    // sys::block<float>& vertices {info.data.first};
-    // sys::block<uint>&  indices  {info.data.second};
+    static sys::byte tDeCompressed[12] = {0x0, 0x0, 0x2, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
+    static sys::byte tIsCompressed[12] = {0x0, 0x0, 0xA, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
     
-    sys::block<vec3_t> tPositions;
-    sys::block<vec2_t> tTexcoords;
-    sys::block<vec3_t> tNormals;
+    rFile.read((byte*)(&tHeader), sizeof(tHeader));
     
-    sys::block<mesh_t>    tMeshes;
+    rBPP    = tHeader[16]; sys::throw_if((rBPP != 24) && (rBPP != 32), "TGA's Pixel format not supported!");
+    rWidth  = tHeader[13] * 256 + tHeader[12];
+    rHeight = tHeader[15] * 256 + tHeader[14];
+    rSize   = ((rWidth * rBPP + 31) / 32) * 4 * rHeight;
+    rAlpha  = rBPP > 24;
+    rFlags |= (rBPP == 24) ? CTexture::EFlag::RGB : CTexture::EFlag::RGBA;
     
-    sys::block<index_t>   tIndices;
+    if (!std::memcmp(tDeCompressed, &tHeader, sizeof(tDeCompressed))) {
+      byte* rData {pStream->data(rSize)};
+      rFile.read(rData, rSize);
+    } else if (!std::memcmp(tIsCompressed, &tHeader, sizeof(tIsCompressed))) {
+      // rFlags |= CTexture::EFlag::COMPRESSED;
+           pixel tPixel {0};
+      sys::uint  iByte  = {0};
+      sys::ulong iPixel = {0};
+      
+      sys::ubyte nChunk = {0};
+      
+      uint nBytes = rBPP / 8; // 24/8 = 3 Bytes // 32/8 = 4 Bytes
+      
+      byte* rData {pStream->data(rWidth * rHeight * sizeof(pixel))};
+      
+      do {
+        rFile.read((byte*)(&nChunk), sizeof(nChunk));
+        // chunk size
+        if (nChunk < 128) {
+          ++nChunk;
+          // for each pixel in chunk
+          for (uint i = 0; i < nChunk; i++, iPixel++) {
+            rFile.read((byte*)(&tPixel), nBytes);
+            // write data
+            rData[iByte++] = tPixel.b;
+            rData[iByte++] = tPixel.g;
+            rData[iByte++] = tPixel.r;
+            if (rAlpha) rData[iByte++] = tPixel.a;
+          }
+        } else {
+          nChunk -= 127;
+          // read data
+          rFile.read((byte*)(&tPixel), nBytes);
+          // for each pixel in chunk
+          for (uint i = 0; i < nChunk; i++, iPixel++) {
+            // write data
+            rData[iByte++] = tPixel.b;
+            rData[iByte++] = tPixel.g;
+            rData[iByte++] = tPixel.r;
+            if (rAlpha) rData[iByte++] = tPixel.a;
+          }
+        }
+      } while (iPixel < (rWidth * rHeight));
+      
+      
+    } else {
+      throw sys::exception("TGA's Data format not supported!",__FILE__,__LINE__);
+    }
+  }
     
-    sys::CMap<sys::string, material_t> tMaterials;
-    material_t                         tMaterial;
-    sys::string                        tName;
+  void TCodec<CTexture,ECodec::BMP>::decode(sys::sptr<CResourceLoader>& pResourceLoader) {
+    auto pTextureLoader = sys::static_pointer_cast<cym::TTextureLoader<sys::CFile>>(pResourceLoader);
+    sys::CFile& rFile   = pTextureLoader->getFile();
+  
+    CYM_LOG_NFO("cym::TCodec<CTexture,ECodec::BMP>::decode(sys::sptr<CResourceLoader>)::" << this << " FILE:" << rFile);
+  
+    sys::throw_if(!rFile.open(), "Cannot open BMP file!"); // + rFile.path());
+  
+    sys::sptr<sys::CStream>& pStream = pTextureLoader->mStream = new sys::CStream;
     
-    while (!file.eof()) {
+    sys::uint  &rWidth  = pTextureLoader->width, 
+               &rHeight = pTextureLoader->height, 
+               &rSize   = pTextureLoader->size; 
+    sys::ubyte &rBPP    = pTextureLoader->bpp;
+    bool       &rAlpha  = pTextureLoader->alpha;
+    uint       &rFlags  = pTextureLoader->flags;
+    
+    sys::ulong tLength = rFile.size();
+    
+    std::vector<ubyte> tInfo(tLength);
+    
+    rFile.read((byte*)tInfo.data(), 54);
+    
+    sys::throw_if((tInfo[0] != 'B' && tInfo[1] != 'M'), "Not a BMP file format!");
+    
+    rBPP    = tInfo[28]; sys::throw_if((rBPP != 24) && (rBPP != 32), "BMP's Pixel format not supported!");
+    rWidth  = tInfo[18] + (tInfo[19] << 8);
+    rHeight = tInfo[22] + (tInfo[23] << 8);
+    rSize   = ((rWidth * rBPP + 31) / 32) * 4 * rHeight;
+    rFlags |= (rBPP == 24) ? CTexture::EFlag::BGR : CTexture::EFlag::BGRA;
+    rFlags |= (rBPP == 24) ? CTexture::EFlag::RGB : CTexture::EFlag::RGBA;
+    
+    uint tOffset = tInfo[10] + (tInfo[11] << 8);
+    
+    byte* rData {pStream->data(rSize)};
+    
+    rFile.seek(tOffset);
+    
+    rFile.read(rData, rSize);
+  }
+  
+  // model:obj ///////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  void TCodec<CModel,ECodec::OBJ>::decode(sys::sptr<CResourceLoader>& pResourceLoader) {
+    auto        pModelLoader = sys::static_pointer_cast<cym::TModelLoader<sys::CFile>>(pResourceLoader);
+    sys::CFile& rFile        = pModelLoader->getFile();
+    
+    CYM_LOG_NFO("cym::COBJCodec::decode(CResourceData&)::" << this << " FILE:" << rFile);
+    
+    sys::throw_if(!rFile.open(), "Cannot open file!"); // + rFile.path());
+    
+    SData tData;
+    
+    auto& rGeometry    = pModelLoader->getGeometry();
+    auto& rMeshLoaders = pModelLoader->getMeshLoaders(); 
+    
+    auto  rPositions = rGeometry.stream().create("positions", new cym::CPositionInput);
+    auto  rTexcoords = rGeometry.stream().create("texcoords", new cym::CTexcoordInput);
+    auto  rNormals   = rGeometry.stream().create("normals", new cym::CNormalInput);
+    auto& rLayout    = rGeometry.layout();
+    
+    sys::block<glm::vec3> tPositions;
+    sys::block<glm::vec2> tTexcoords;
+    sys::block<glm::vec3> tNormals;
+    
+    sys::block<SIndex> tIndices;
+    
+    sys::map<sys::string, sys::sptr<CMaterialLoader>> tMaterialLoaders;
+    sys::sptr<CMaterialLoader>                        tMaterialLoader;
+    sys::string                                       tName;
+    
+    while (!rFile.eof()) {
       char* zLine = new char[1024];
-      file.line(zLine, 1024);
+      rFile.line(zLine, 1024);
       // span of the characters
       zLine += ::strspn(zLine, " \t\r\n");
       
       if(zLine[0] =='\0' || zLine[0] =='#' || zLine[0] == '\n') continue;
       assert(zLine);
       
-      //log::nfo << "cym::COBJCodec::decode(CFile&)::" << this << "::" << zLine << log::end;
+      // CYM_LOG_NFO("cym::COBJCodec::decode(CResourceData&)::" << this << "::" << zLine);
       
       if (zLine[0] == 'v' && zLine[1] == ' ') {                             // position > v 0.191341 -0.980785 -0.038060
         zLine += 2;
-        vec3_t position;
-        ::sscanf(zLine, "%f %f %f\n", &position.x, &position.y, &position.z);
-        tPositions.push(position);
+        glm::vec3& p {tData.positions.next()};
+        ::sscanf(zLine, "%f %f %f\n", &p.x, &p.y, &p.z);
         continue;
       } else if (zLine[0] == 'v' && zLine[1] == 't' && zLine[2] == ' ') {   // texcoord > vt 0.167958 0.500000
         zLine += 3;
-        vec2_t texcoord;
-        ::sscanf(zLine, "%f %f\n", &texcoord.x, &texcoord.y);
-        tTexcoords.push(texcoord);
+        glm::vec2& t {tData.texcoords.next()};
+        ::sscanf(zLine, "%f %f\n", &t.x, &t.y);
         continue;
       } else if (zLine[0] == 'v' && zLine[1] == 'n' && zLine[2] == ' ') {   // normal > vn -0.451282 0.289004 -0.844288
         zLine += 3;
-        vec3_t normal;
-        ::sscanf(zLine, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
-        tNormals.push(normal);
+        glm::vec3& n {tData.normals.next()};
+        ::sscanf(zLine, "%f %f %f\n", &n.x, &n.y, &n.z);
         continue;
       } else if (zLine[0] == 'f' && zLine[1] == ' ') {                      // faces > f 75//83 79//83 76//83
         zLine += 2;
         zLine += ::strspn(zLine, " \t");
         // prepare to construct triangles
-        size_t psize = tPositions.size();
-        size_t tsize = tTexcoords.size();
-        size_t nsize = tNormals.size();
+        uint psize = tData.positions.size();
+        uint tsize = tData.texcoords.size();
+        uint nsize = tData.normals.size();
         // read index by index
-        while (false == sys::isnewline(*zLine)) {
-          index_t tIndex(-1);
+        while (!sys::isnewline(*zLine)) {
+          SIndex tIndex{-1};
           // position
           tIndex.position = ::atoi(zLine);                               // converts the first index number
           tIndex.position += tIndex.position > 0 ? -1 : psize;           // fix index | zero base | negative = relative
           // move on to the next /
           zLine          += ::strcspn(zLine, "/ \t\r");                  // goto the next /
           // if a `/` get the next char
-          if (*zLine == '/') {                                           // if / => more vertex compoents
+          if (zLine[0] == '/') {                                         // if / => more vertex compoents
             zLine++;
             // if / followed by / => missing texccoord
-            if (*zLine == '/') {                                         // i//k = position + normal
+            if (zLine[0] == '/') {                                         // i//k = position + normal
               zLine++; // jump over /
               // normal
               tIndex.normal = ::atoi(zLine);
@@ -185,20 +324,24 @@ namespace cym {
               }
             }
           }
+          
+          // CYM_LOG_NFO("cym::COBJCodec::decode(CResourceData&)::index:p=" << tIndex.position << ",n=" << tIndex.normal << ",t=" << tIndex.texcoord);
+          
           // face.push_back(index);
           tIndices.push(tIndex);                                         // push to the list of indices
           zLine += ::strspn(zLine, " \t\r");
         }
         continue;
       } else if (sys::strncmp(zLine, "mtllib", 6)) {                    // material > mtllib sphere.mtl
-        // load materials
+        // init materials
         zLine += 7;
         
         char tMatr[1024];                                              // material filename
         ::sscanf(zLine, "%s\n", tMatr);
   
-        bool tDone = false; 
-        COBJCodec::_material(file.folder() + tMatr, tMaterials, tDone);              // path to textures folder
+        bool tDone = false;
+        
+        decodeMaterial(sys::string(rFile.folder()) + tMatr, tMaterialLoaders, tDone);              // path to textures folder
         
         if(!tDone) {
           tIndices.clear();                                           // for safety?
@@ -214,14 +357,46 @@ namespace cym {
         sys::string tMatr(tBuff);
         
         // find and activate material
-        if(tMaterials.find(tMatr) != tMaterials.end()) {
-          tMaterial = tMaterials[tMatr];
+        if(tMaterialLoaders.find(tMatr) != tMaterialLoaders.end()) {
+          tMaterialLoader = tMaterialLoaders[tMatr];
         }
         continue;
       } else if ((zLine[0] == 'g' || zLine[0] == 'o') && zLine[1] == ' ') { // group/object start > o Sphere
         // start building the mesh when u see the start of a new one
         if (!tIndices.empty()) {
-          COBJCodec::_mesh(tMeshes, tPositions, tTexcoords, tNormals, tIndices, tMaterial, tName);
+          auto& rMeshLoader {pModelLoader->getMeshLoader(tName)};
+  
+          rMeshLoader->getName()  = tName;
+          rMeshLoader->getRange().nStart = rLayout.count();
+          
+          sys::map<SIndex, uint> tCache;
+          
+          for (uint i = 0, j = 0; i < tIndices.size(); i++) {
+      // @todo: needs fix for triangle fan // triangle fan = face vertices > 3
+      
+            SIndex                                        tIndex = tIndices[i];
+            const sys::CMap<SIndex, uint>::const_iterator it     = tCache.find(tIndex);
+            
+            if (it == tCache.end()) {
+              rPositions.push(tData.positions[tIndex.position]);   // position
+            
+              if (tIndex.texcoord > -1)
+                rTexcoords.push(tData.texcoords[tIndex.texcoord]); // texcoord
+                
+              if (tIndex.normal > -1)
+                rNormals.push(tData.normals[tIndex.normal]);       // normal
+              
+              tCache[tIndex] = j;                                  // remember this vertex
+              rLayout.push(j);
+              j++;
+            } else {
+              rLayout.push(it->second);
+            }
+          }
+  
+          rMeshLoader->getRange().nEnd = rLayout.count();
+          rMeshLoader->getMaterialLoader() = tMaterialLoader;
+      
           tIndices.clear();
         }
         
@@ -240,159 +415,726 @@ namespace cym {
     }
     
     if (!tIndices.empty()) {
-      // log::nfo << "cym::COBJCodec::decode(CFile&)::" << this << "::last+mesh" << log::end;
-      COBJCodec::_mesh(tMeshes, tPositions, tTexcoords, tNormals, tIndices, tMaterial, tName);
+      auto& rMeshLoader {rMeshLoaders[tName]};
+    
+      rMeshLoader->getName()  = tName;
+      rMeshLoader->getRange().nStart = rGeometry.layout().size();
+      
+      sys::map<SIndex, uint> tCache;
+      
+      for (uint i = 0, j = 0; i < tIndices.size(); i++) {
+  // @todo: needs fix for triangle fan // triangle fan = face vertices > 3
+  
+        SIndex                                        tIndex = tIndices[i];
+        const sys::CMap<SIndex, uint>::const_iterator it     = tCache.find(tIndex);
+        
+        if (it == tCache.end()) {
+          rPositions.push(tData.positions[tIndex.position]);   // position
+        
+          if (tIndex.texcoord > -1)
+            rTexcoords.push(tData.texcoords[tIndex.texcoord]); // texcoord
+            
+          if (tIndex.normal > -1)
+            rNormals.push(tData.normals[tIndex.normal]);       // normal
+          
+          tCache[tIndex] = j;                                  // remember this vertex
+          rLayout.push(j);
+          j++;
+        } else {
+          rLayout.push(it->second);
+        }
+      }
+    
+      rMeshLoader->getRange().nEnd = rGeometry.layout().size();
+      rMeshLoader->getMaterialLoader() = tMaterialLoader;
+    
       tIndices.clear();
     }
     
-    log::nfo << "cym::COBJCodec::decode(CFile&)::" << this << " DONE" << log::end;
+    
+// @todo: MUST compute tangent + binormal
+
+// @todo: MUST joints + weights : only 1 joint (root) if none are defined
+    
+    // CYM_LOG_NFO("cym::COBJCodec::decode(CResourceData&)::" << this <<" DONE");
+    
+    // sys::block<CVertex> vertices {numVertices};
+    // for index in indices
+      // vertices[i].position = position[index];
+      // vertices[i].normal   = normal[index];
+      // vertices[i].texcoord = texcoord[index];
   }
   
-  void COBJCodec::_mesh(sys::block<mesh_t>& tMeshes, const sys::block<vec3_t>& tPositions, const sys::block<vec2_t>& tTexcoords, const sys::block<vec3_t>& tNormals, const sys::block<index_t>& tIndices, const material_t& material, const sys::string& tName) {
-    log::nfo << "cym::COBJCodec::_mesh(...)::indices::" << tIndices.size() << log::end;
+  void TCodec<CModel,ECodec::OBJ>::decodeMaterial(const sys::string& tFile, sys::map<sys::string, sys::sptr<CMaterialLoader>>& tMaterialLoaders, bool& tDone) {
+    CYM_LOG_NFO("cym::COBJCodec::decodeMaterial(...)::" << "FILE:" << tFile);
     
-    mesh_t                   tMesh;
-    sys::CMap<index_t, uint> tCache;
-    
-    for (uint i = 0, j = 0; i < tIndices.size(); i++) {
-      // @TODO: needs fix for triangle fan // triangle fan = face vertices > 3
-      
-      index_t                                        tIndex = tIndices[i];
-      const sys::CMap<index_t, uint>::const_iterator it     = tCache.find(tIndex);
-      
-      if (it == tCache.end()) {
-        tMesh.vertices.push(tPositions[tIndex.position].x);    // position
-        tMesh.vertices.push(tPositions[tIndex.position].y);
-        tMesh.vertices.push(tPositions[tIndex.position].z);
-        
-        if (tIndex.texcoord >= 0) {
-          tMesh.vertices.push(tTexcoords[tIndex.texcoord].s);  // texcoord
-          tMesh.vertices.push(tTexcoords[tIndex.texcoord].t);
-        }
-        
-        if (tIndex.normal >= 0) {
-          tMesh.vertices.push(tNormals[tIndex.normal].x);      // normal
-          tMesh.vertices.push(tNormals[tIndex.normal].y);
-          tMesh.vertices.push(tNormals[tIndex.normal].z);
-        }
-        
-        tCache[tIndex] = j++;                                  // remember this vertex
-      }
-      
-      tMesh.indices.push(tCache[tIndex]);
-    }
-    
-    tMesh.material = material;
-    
-    tMeshes.push(tMesh);
-    
-    // log::nfo << "cym::COBJCodec::_mesh(...)::" << "done" << log::end;
-  }
-  
-  void COBJCodec::_material(const sys::string& tFile, sys::map<sys::string, material_t>& materials, bool& tDone) {
-    log::nfo << "cym::COBJCodec::_material(...)::" << "FILE:" << tFile << log::end;
-    
-    materials.clear();                                                                 // unload prev loaded .mtl files
+    tMaterialLoaders.clear();                                                                 // unload prev loaded .mtl files
     
     // @todo: replace w/ sys::CFile
     std::fstream fs(tFile.c_str(), std::ios::in | std::ios::binary);
     
     if (fs.fail()) {
-      log::err << "cym::COBJCodec::_material(...)" << " failed to load " << tFile << " file" << log::end;
+      log::err << "cym::COBJCodec::decodeMaterial(...)" << " failed to init " << tFile << " file" << log::end;
       return;
     }
     
-    material_t* material;
+    sys::sptr<CMaterialLoader> tMaterialLoader;
     
-    char* line = new char[2048];
+    char* zLine = new char[2048];
     while(fs.peek() != -1) {
-      fs.getline(line, 2048);
-      
-      line += ::strspn(line, " \t");
-      if (line[0] =='\0' || line[0] =='#' || line[0] == '\n') 
+      fs.getline(zLine, 2048);
+  
+      zLine += ::strspn(zLine, " \t");
+      if (zLine[0] == '\0' || zLine[0] == '#' || zLine[0] == '\n') 
         continue;
-      assert(line);
+      assert(zLine);
       
-      // log::nfo << "cym::COBJCodec::_material(...)::" << zLine << log::end;
+      // CYM_LOG_NFO("cym::COBJCodec::decodeMaterial(...)::" << zLine);
       
-      if (sys::strncmp(line, "newmtl", 6)) {
+      if (sys::strncmp(zLine, "newmtl", 6)) {
         // std::cout << line << std::endl;
-        line += 7;
+        zLine += 7;
         char tBuff[1024];
-        ::sscanf(line, "%s", tBuff);
+        ::sscanf(zLine, "%s", tBuff);
         std::string tMatr(tBuff);
+  
+        // tMaterialLoaders.insert(std::pair<sys::string, sys::sptr<CMaterialLoader>>{tMatr, tMatr}});
+        tMaterialLoader = tMaterialLoaders[tMatr] = new CMaterialLoader{tMatr};
         
-        materials.insert(std::pair{tMatr, material_t{}});
-        material = &materials[tMatr];
-        material->name = tMatr;
-        
         continue;
-      } else if (sys::strncmp(line, "Ka", 2)) {
-        line += 3;
-        ::sscanf(line, "%f %f %f\n", &material->ambient.color.r, &material->ambient.color.g, &material->ambient.color.b);
+      } else if (sys::strncmp(zLine, "Ka", 2)) {
+        zLine += 3;
+        auto& tColor {tMaterialLoader->getChannelLoader(cym::CChannel::AMBIENT)->getColor()};
+        ::sscanf(zLine, "%f %f %f\n", &tColor.r, &tColor.g, &tColor.b);
         continue;
-      } else if (sys::strncmp(line, "Kd", 2)) {
-        line += 3;
-        ::sscanf(line, "%f %f %f\n", &material->diffuse.color.r, &material->diffuse.color.g, &material->diffuse.color.b);
         continue;
-      } else if (sys::strncmp(line, "Ks", 2)) {
-        line += 3;
-        ::sscanf(line, "%f %f %f\n", &material->specular.color.r, &material->specular.color.g, &material->specular.color.b);
+      } else if (sys::strncmp(zLine, "Kd", 2)) {
+        zLine += 3;
+        auto& tColor {tMaterialLoader->getChannelLoader(cym::CChannel::DIFFUSE)->getColor()};
+        ::sscanf(zLine, "%f %f %f\n", &tColor.r, &tColor.g, &tColor.b);
         continue;
-      } else if (sys::strncmp(line, "Kt", 2)) {
-        line += 3;
-        ::sscanf(line, "%f %f %f\n", &material->transmission.color.r, &material->transmission.color.g, &material->transmission.color.b);
+      } else if (sys::strncmp(zLine, "Ks", 2)) {
+        zLine += 3;
+        auto& tColor {tMaterialLoader->getChannelLoader(cym::CChannel::SPECULAR)->getColor()};
+        ::sscanf(zLine, "%f %f %f\n", &tColor.r, &tColor.g, &tColor.b);
         continue;
-      } else if (sys::strncmp(line, "Ke", 2)) {
-        line += 3;
-        ::sscanf(line, "%f %f %f\n", &material->emission.color.r, &material->emission.color.g, &material->emission.color.b);
+      } else if (sys::strncmp(zLine, "Kt", 2)) {
+        zLine += 3;
+        auto& tColor {tMaterialLoader->getChannelLoader(cym::CChannel::TRANSPARENCY)->getColor()};
+        ::sscanf(zLine, "%f %f %f\n", &tColor.r, &tColor.g, &tColor.b);
         continue;
-      } else if (sys::strncmp(line, "Ni", 2)) {
-        line += 3;
-        ::sscanf(line, "%f", &material->ior);
+      } else if (sys::strncmp(zLine, "Ke", 2)) {
+        zLine += 3;
+        auto& tColor {tMaterialLoader->getChannelLoader(cym::CChannel::EMISSION)->getColor()};
+        ::sscanf(zLine, "%f %f %f\n", &tColor.r, &tColor.g, &tColor.b);
         continue;
-      } else if (sys::strncmp(line, "Ns", 2)) {
-        line += 3;
-        ::sscanf(line, "%f", &material->shininess);
+      } else if (sys::strncmp(zLine, "Ni", 2)) {
+        zLine += 3;
+        auto& tLevel {tMaterialLoader->getChannelLoader(cym::CChannel::REFRCTION)->getLevel()};
+        ::sscanf(zLine, "%f", &tLevel);
         continue;
-      } else if (sys::strncmp(line, "map_Ka", 6)) {
-        line += 7;
-        material->ambient.texture = line;
+      } else if (sys::strncmp(zLine, "Ns", 2)) {
+        zLine += 3;
+        auto& tLevel {tMaterialLoader->getChannelLoader(cym::CChannel::SPECULAR)->getLevel()};
+        ::sscanf(zLine, "%f", &tLevel);
         continue;
-      } else if (sys::strncmp(line, "map_Kd", 6)) {
-        line += 7;
-        material->diffuse.texture = line;
+      } else if (sys::strncmp(zLine, "map_Ka", 6)) {
+        zLine += 7;
+        tMaterialLoader->getChannelLoader(cym::CChannel::AMBIENT)->setTextureLoader(new cym::TTextureLoader<sys::CFile>{zLine});
         continue;
-      } else if (sys::strncmp(line, "map_Ks", 6)) {
-        line += 7;
-        material->specular.texture = line;
+      } else if (sys::strncmp(zLine, "map_Kd", 6)) {
+        zLine += 7;
+        tMaterialLoader->getChannelLoader(cym::CChannel::DIFFUSE)->setTextureLoader(new cym::TTextureLoader<sys::CFile>{zLine});
         continue;
-      } else if (sys::strncmp(line, "map_Ns", 6)) {
-        line += 7;
-        material->normal.texture = line;
+      } else if (sys::strncmp(zLine, "map_Ks", 6)) {
+        zLine += 7;
+        tMaterialLoader->getChannelLoader(cym::CChannel::SPECULAR)->setTextureLoader(new cym::TTextureLoader<sys::CFile>{zLine});
+        continue;
+      } else if (sys::strncmp(zLine, "map_Ns", 6)) {
+        zLine += 7;
+        tMaterialLoader->getChannelLoader(cym::CChannel::NORMAL)->setTextureLoader(new cym::TTextureLoader<sys::CFile>{zLine});
         continue;
       } else {
         char* ptr;
-        ptr = ::strtok(line, " ");
+        ptr = ::strtok(zLine, " ");
         if (ptr != nullptr) {
           std::string key(ptr);
           std::string value;
           ptr = ::strtok(nullptr, " ");
           if(ptr != nullptr)
-            material->unknown.insert(std::pair{key, ptr});
+            tMaterialLoader->addUnknown(key, ptr);
           else
-            material->unknown.insert(std::pair{key, "true"});
+            tMaterialLoader->addUnknown(key, "true");
         }
       }
     }
   
+    // CYM_LOG_NFO("cym::COBJCodec::decodeMaterial(...)::" << "DONE");
     tDone = true;
   }
   
-  inline bool operator<(const COBJCodec::index_t& lhs, const COBJCodec::index_t& rhs) {      // for map
+  inline bool operator<(const TCodec<CModel,ECodec::OBJ>::SIndex& lhs, const TCodec<CModel,ECodec::OBJ>::SIndex& rhs) {      // for map
     if      (lhs.position != rhs.position) return lhs.position < rhs.position;
     else if (lhs.texcoord != rhs.texcoord) return lhs.texcoord < rhs.texcoord;
     else if (lhs.normal   != rhs.normal)   return lhs.normal   < rhs.normal;
     return false;
   }
+  
+  // model:dae ///////////////////////////////////////////////////////////////////////////////////////////////////////
+ 
+  void TCodec<CModel,ECodec::DAE>::decode(sys::sptr<CResourceLoader>& pResourceLoader) {
+    auto        pModelLoader = sys::static_pointer_cast<cym::TModelLoader<sys::CFile>>(pResourceLoader);
+    sys::CFile& rFile        = pModelLoader->getFile();
+    
+    CYM_LOG_NFO("cym::CDAECodec::decode(sys::sptr<CResourceLoader>)::" << this << " FILE:" << rFile);
+    
+    sys::throw_if(!rFile.open(), "Cannot open file!"); // + rFile.path());
+    
+    auto& rGeometry = pModelLoader->getGeometry(); 
+    auto& rLayout   = rGeometry.layout();
+    auto& rStream   = rGeometry.stream();
+    
+    sys::CXMLParser tParser;
+    
+    sys::CXMLParser::STree* tTree = tParser.parse(rFile);
+    
+    const auto& tGeometries = (*tTree)["library_geometries"];
+    
+    if (pModelLoader->hasOption(EOption::VERTICES)) {
+      // CYM_LOG_NFO("cym::CDAECodec::decode(sys::sptr<CResourceLoader>)::geometry:start" );
+      
+      uint iLastIndex {0};
+      
+      for (const auto& tGeometry : tGeometries->findByName("geometry")) {
+      // <library_geometries>
+        // <geometry> #geometry1
+          // <mesh>
+            // <source>
+              // <float_array count="192">                                // 192 / 3(the, xyz in accessor) = 64
+              // <technique_common>
+                // <accessor count=64>                                    // should MATCH vertex count in geometry
+                  // <param x>
+                  // <param y>
+                  // <param z>
+        
+        // Z and Y should be swapped
+        
+        auto  sMesh       = tGeometry->attribute("name")->toString();
+        auto& pMeshLoader = pModelLoader->getMeshLoader(sMesh);
+  
+        pMeshLoader->getName() = sMesh;
+        pMeshLoader->getRange().nStart = rLayout.count();
+        
+        const auto& tMesh = (*tGeometry)["mesh"];
+        
+        const auto tTriangles = (*tMesh)["triangles"];
+        const auto tPolylist  = (*tMesh)["polylist"];
+        const auto tVertices  = (*tMesh)["vertices"];
+        if (tTriangles != nullptr) {
+          std::map<std::string, std::vector<float>> hSources;
+          std::map<std::string, uint>               hStrides;
+          
+          {
+            for (auto& tInput : tMesh->findByName("input")) {
+              auto tSource = tInput->attribute("source")->ref;
+              if (tSource->name == "source") {
+                auto  tSemantic   = tInput->attribute("semantic");
+                auto  tFloatArray = tSource->child("float_array");
+                auto  tAccessor   = tSource->findOneByName("accessor");
+                auto  nCount      = tAccessor->attribute("count")->toInt();
+                auto  nStride     = tAccessor->attribute("stride")->toInt();
+                auto  tStream     = tFloatArray->text.toStream();
+                float tValue;
+        
+                hStrides[tSemantic->toString()] = nStride;
+        
+                auto& aFloats = hSources[tSemantic->toString()];
+                aFloats.reserve(nCount * nStride);
+                while (tStream >> tValue)
+                  aFloats.push_back(tValue);
+        
+                if ((*tSemantic == "POSITION") && (nullptr == rStream.find("POSITION")))
+                  rStream.create("POSITION", new cym::CPositionInput);
+                else if ((*tSemantic == "NORMAL") && (nullptr == rStream.find("NORMAL")))
+                  rStream.create("NORMAL", new cym::CNormalInput);
+                else if ((*tSemantic == "TEXCOORD") && (nullptr == rStream.find("TEXCOORD")))
+                  rStream.create("TEXCOORD", new cym::CTexcoordInput);
+              }
+            }
+          }
+          
+          const auto&                           tInputs = tTriangles->findByName("input");
+          const uint                            nInputs = tInputs.size();
+          std::unordered_map<std::string, uint> hInputs;
+            
+          {
+            for (auto&& tInput : tInputs) {
+              uint nOffset   = tInput->attribute("offset")->toInt();
+              auto tSemantic = tInput->attribute("semantic");
+              if (*tSemantic == "VERTEX") {
+                for (auto& tTemp : tVertices->findByName("input")) {
+                  hInputs[tTemp->attribute("semantic")->toString()] = nOffset;
+                }
+              } else {
+                hInputs[tSemantic->toString()] = nOffset;
+              }
+            }
+          }
+          
+          const uint nTriangles = tTriangles->attribute("count")->toInt(); // triangle count 
+          const uint nVertices {3};                                        // vertices per poly (triangle)
+          const auto& tP = (*tTriangles)["p"]; // indices
+          std::vector<uint> aP; 
+          aP.reserve(nTriangles * nVertices * tTriangles->countByName("input")); // triangles * vertices * no_of_inputs_inside_triangles
+          
+          {
+            auto tStream = tP->text.toStream();
+            int i;
+            while (tStream >> i)
+              aP.push_back(i);
+          } // count vertex component poly...
+          
+          {
+            std::map<std::string,uint> tCache;
+            uint                       z {iLastIndex};
+            std::string                tToken;
+            float                      fSwap;
+  
+            // for each triangle
+            for (uint iTriangle = 0; iTriangle < nTriangles; iTriangle++) {
+              const uint nOffset = iTriangle * nVertices * nInputs;
+              // for each index in triangle
+              for (uint iVertex = 0; iVertex < nVertices; iVertex++) {
+                // clear token
+                tToken.clear();
+                for (auto&& [sSemantic, iInput] : hInputs) {
+                  // 1 2 3   1 6 4   2 9 0 // 
+                  uint p = nOffset + iVertex * nInputs + iInput; // + offset/iInput
+                  uint c = aP[p]; // which component inside coresponding aFloats 
+                  // add to token
+                  tToken.append(std::to_string(c));
+                }
+                
+                // cache the token + current index(for ibo) 
+                auto it = tCache.find(tToken);
+                if (it == tCache.end()) {
+                  // for each vertex input/component : position/normal/texcoord
+                  for (auto&& [sSemantic, iInput] : hInputs) {
+                    uint p = nOffset + iVertex * nInputs + iInput;
+                    uint c = aP[p]; // which component inside coresponding aFloats 
+                    
+                    const auto& nStride = hStrides[sSemantic];
+                    const auto& fFloats = hSources[sSemantic];
+                    
+                    // extract each component field (xyz,st,uv,rgb)
+                    float fVec[nStride];
+                    for (uint iFloat = 0; iFloat < nStride; iFloat++) {
+                      fVec[iFloat] = fFloats[nStride * c + iFloat];
+                    }
+                    
+                    // swap y & z
+                    if (sSemantic.compare("POSITION") == 0) {
+                      fSwap   = fVec[1];
+                      fVec[1] = fVec[2];
+                      fVec[2] = fSwap;
+                    }
+                    
+                    // add position/normal/texcoord
+                    rStream[sSemantic]->push(&fVec);
+                  }
+                  
+                  // cache
+                  tCache[tToken] = z;
+                  // add to indices
+                  rLayout.push(z);
+                  // next
+                  z++;
+                  // last/biggest index
+                  iLastIndex = glm::max(iLastIndex,z);
+                } else {
+                  rLayout.push(it->second);
+                }
+              }
+            }
+          }
+          
+          // mesh range
+          pMeshLoader->getRange().nEnd = rLayout.count();
+          // done
+        } else if (tPolylist != nullptr) {
+          const auto tInputs    = (*tPolylist).findByName("input");
+          const uint nInputs    = tInputs.size();
+          
+          std::map<std::string, std::vector<float>> hSources;
+          std::map<std::string, uint>               hStrides;
+          
+          {
+            for (auto& tInput : tInputs) {
+              auto tSemantic = tInput->attribute("semantic");
+              
+              bool bVertex   = *tSemantic == "VERTEX";
+              auto tSource   = bVertex ? tInput->attribute("source")->ref->child("input")->attribute("source")->ref 
+                                       : tInput->attribute("source")->ref;
+              
+              auto        tFloatArray = tSource->child("float_array");
+              auto        tAccessor   = tSource->findOneByName("accessor");
+              auto        nCount      = tAccessor->attribute("count")->toInt();
+              auto        nStride     = tAccessor->attribute("stride")->toInt();
+              auto        tStream     = tFloatArray->text.toStream();
+              float       tValue;
+              
+              auto& aFloats = hSources[tSemantic->toString()];
+              hStrides[tSemantic->toString()] = nStride;
+              
+              aFloats.reserve(nCount*nStride);
+              while (tStream >> tValue) 
+                aFloats.push_back(tValue);
+              
+              if ((*tSemantic == "VERTEX") && (nullptr == rStream.find("VERTEX")))
+                rStream.create("VERTEX", new cym::CPositionInput);
+              else if ((*tSemantic == "NORMAL") && (nullptr == rStream.find("NORMAL")))
+                rStream.create("NORMAL", new cym::CNormalInput);
+              else if ((*tSemantic == "TEXCOORD") && (nullptr == rStream.find("TEXCOORD")))
+                rStream.create("TEXCOORD", new cym::CTexcoordInput);
+            //else
+              //throw sys::exception(tSemantic->toString() + " is NOT SUPPORTED!",__FILE__,__LINE__);
+            }
+          }
+          
+          const uint nPolys = tPolylist->attribute("count")->toInt();
+          const auto& tVcount = (*tPolylist)["vcount"]; // read all numbers
+          int         aVcount[nPolys];
+          
+          uint        nP = 0;
+          uint        nIndices {0};
+          
+          std::unordered_map<std::string, std::pair<uint,bool>> hInputs;
+          
+          {
+            for (auto& tInput : tInputs) {
+              auto tSemantic = tInput->attribute("semantic");
+              bool bVertex = *tSemantic == "VERTEX";
+              auto tSource = bVertex ? tInput->attribute("source")->ref->child("input")->attribute("source")->ref : tInput->attribute("source")->ref;
+              hInputs[tSemantic->toString()]/*o*/= {tInput->attribute("offset")->toInt(), bVertex};
+            }
+            
+            auto tStream = tVcount->text.toStream();
+            int  tValue, n {0};
+            while (tStream >> tValue) {
+              aVcount[n++] = tValue;
+              nP += tValue * nInputs;
+              nIndices += (tValue-2)*3;
+            }
+          }
+          
+          const auto& tP = (*tPolylist)["p"]; // p count = sum(vcount) * nInputs
+          int aP[nP];
+          
+          {
+            auto tStream = tP->text.toStream();
+            int i, j {0};
+            while (tStream >> i)
+              aP[j++] = i;
+          } // count vertex component poly...
+          
+          {
+            std::map<std::string,uint> tCache;
+            uint                       z {iLastIndex};
+            std::string                tToken;
+            float                      fSwap;
+            
+            for (uint iPoly = 0; iPoly < nPolys; iPoly++) { // 6x4
+              const auto& nVertices = aVcount[iPoly];
+              // for each triangle
+              for (uint iTriangle = 0, nTriangles = nVertices - 2; iTriangle < nTriangles; iTriangle++) { // 0 1   // t = triangles
+                // for each index in triangle
+                for (uint j = iTriangle; j < 3 + iTriangle; j++) {        // v = vertices per triangles 
+                  // 4 vertices = 2 triangles = 0 1 2 + 0 2 3
+                  uint iVertex = iTriangle == j ? 0 : j;
+                  uint nOffset = iPoly * nVertices * nInputs + 3 * nTriangles * iVertex; // march until offset
+                  
+                  // clear token
+                  tToken.clear();
+                  
+                  // read each polylist index into a token, needed for creating geometry index/ibo
+                  uint h {0};
+                  for (auto&& [sSemantic, tSecond] : hInputs) { // 2
+                    uint p = nOffset + tSecond.first; // offset + input offset
+                    uint c = aP[p]; // which component inside coresponding aFloats 
+                    // add to token
+                    tToken.append(std::to_string(c));
+                    // next digit
+                    h++;
+                  }
+                  
+                  // cache the token + current index(for ibo) 
+                  auto it = tCache.find(tToken);
+                  if (it == tCache.end()) {
+                    // for each vertex input/component : position/normal/texcoord
+                    for (auto&& [sSemantic, tSecond] : hInputs) { // 2
+                      uint p = nOffset + tSecond.first; // offset + input offset
+                      uint c = aP[p]; // which component inside coresponding aFloats 
+                      
+                      const auto& nStride = hStrides[sSemantic];
+                      const auto& fFloats = hSources[sSemantic];
+                      
+                      // extract each component field (xyz,st,uv,rgb)
+                      float fVec[nStride];
+                      for (uint f = 0; f < nStride; f++) {
+                        fVec[f] = fFloats[nStride*c+f];
+                      }
+                      
+                      // swap y & z
+                      auto bVertex = tSecond.second;
+                      if (bVertex) {
+                        fSwap   = fVec[1];
+                        fVec[1] = fVec[2];
+                        fVec[2] = fSwap;
+                      }
+                      
+                      // add position/normal/texcoord
+                      rStream[sSemantic]->push(&fVec);
+                    }
+                    
+                    // cache
+                    tCache[tToken] = z;
+                    // add to indices
+                    rLayout.push(z);
+                    // next
+                    z++;
+                    // last/biggest index
+                    iLastIndex = glm::max(iLastIndex,z);
+                  } else {
+                    rLayout.push(it->second);
+                  }
+                }
+              }
+            }
+          } // compute indices and vertices
+          
+          // mesh range
+          pMeshLoader->getRange().nEnd = rLayout.count();
+          // done
+        } else {
+          throw sys::exception("Triangulation mode not supported",__FILE__,__LINE__);
+        }
+      }
+      
+      // CYM_LOG_NFO("cym::CDAECodec::decode(sys::sptr<CResourceLoader>)::geometry:done" );
+    }
+    
+  //const auto& tMaterials   = (*tTree)["library_materials"];
+  //const auto& tEffects     = (*tTree)["library_effects"];
+  //const auto& tControllers = (*tTree)["library_controllers"];
+    const auto& tScenes      = (*tTree)["library_visual_scenes"];
+    const auto& tImages      = (*tTree)["library_images"];
+
+    if (pModelLoader->hasOption(EOption::MATERIALS)) {
+      // CYM_LOG_NFO("cym::CDAECodec::decode(sys::sptr<CResourceLoader>)::material:start" );
+      
+      for (const auto& tInstance : tScenes->findByName("instance_controller")) {
+        const auto& tController = tInstance->attribute("url")->ref;
+        const auto& tGeometry   = (*tController)["skin"]->attribute("source")->ref;
+        // <library_materials>
+        const auto& tMaterial   = tInstance->findOneByName("instance_material")->attribute("target")->ref;
+        // <library_effects>
+        const auto& tEffect     = (*tMaterial)["instance_effect"]->attribute("url")->ref;
+        
+        // mesh + material
+              auto& pMeshLoader     = pModelLoader->getMeshLoader(tGeometry->attribute("name")->toString());
+              auto& pMaterialLoader = pMeshLoader->useMaterialLoader(tMaterial->attribute("name")->toString());
+  
+        // @todo: there might be more instance_material then materials, like a 2 meshes w/ the same material
+        
+        const auto& tTechnique = tEffect->findOneByName("technique");
+        const auto& tShading   = tEffect->findOneByName("technique")->children[0];
+        for (const auto& tComponent : tShading->children) {
+          const auto& tColor   = (*tComponent)["color"];
+          const auto& tTexture = (*tComponent)["texture"];
+          sys::CXMLParser::SText tFile;
+          if (tTexture) {
+            const auto& tSource = tEffect->findOneByAttributeValue(tTexture->attribute("texture")->value)->findOneByName("source");
+            const auto& tInitFrom = tEffect->findOneByAttributeValue(tSource->text.value)->findOneByName("init_from");
+            const auto& tImage = tImages->findById(tInitFrom->text.value);
+            tFile  = (*tImage)["init_from"]->text;
+          }
+          
+          if (tComponent->name == "emission") {
+            auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::CChannel::EMISSION);
+            if (tColor) {
+              tColor->text.toStream() >> std::pair((float*)pChannelLoader->getColor(), 4);
+            }
+            if (tTexture) {
+              pChannelLoader->setTextureLoader(new TTextureLoader<sys::CFile>{std::string(rFile.folder()) + sys::string(tFile.value.from + 8, tFile.value.size - 8)});
+            }
+          } else if (tComponent->name == "diffuse") {
+            auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::CChannel::DIFFUSE);
+            if (tColor){
+              tColor->text.toStream() >> std::pair((float*)pChannelLoader->getColor(), 4);
+            }
+            if (tTexture) {
+              pChannelLoader->setTextureLoader(new TTextureLoader<sys::CFile>{std::string(rFile.folder()) + sys::string(tFile.value.from + 8, tFile.value.size - 8)});
+            }
+          } else if (tComponent->name == "ambient") {
+            
+          } else if (tComponent->name == "specular") {
+            auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::CChannel::SPECULAR);
+            if (tColor){
+              tColor->text.toStream() >> std::pair((float*)pChannelLoader->getColor(), 4);
+            }
+            if (tTexture) {
+              pChannelLoader->setTextureLoader(new TTextureLoader<sys::CFile>{std::string(rFile.folder()) + sys::string(tFile.value.from + 8, tFile.value.size - 8)});
+            }
+          } else if (tComponent->name == "transparent") { // opacity
+            auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::CChannel::TRANSPARENCY);
+            if (tColor){
+              tColor->text.toStream() >> std::pair((float*)pChannelLoader->getColor(), 4);
+            }
+          } else if (tComponent->name == "index_of_refraction") {
+            auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::CChannel::REFRCTION);
+            pChannelLoader->getLevel() = (*tComponent)["float"]->text.toInt();
+          } else if (tComponent->name == "shininess") {
+            auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::CChannel::SPECULAR);
+            pChannelLoader->getLevel() = (*tComponent)["float"]->text.toInt();
+          }
+        }
+        
+        const auto& tExtra = (*tTechnique)["extra"];
+        
+        if (tExtra) for (auto& tItem : tExtra->child("technique")->children) {
+          if (tItem->name == "spec_level") {
+            auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::CChannel::SPECULAR);
+            pChannelLoader->getLevel() = tItem->text.toFloat();
+          } else if (tItem->name == "bump") {
+            const auto& tTexture = (*tItem)["texture"];
+            sys::CXMLParser::SText tFile;
+            if (tTexture) {
+              const auto& tSource = tEffect->findOneByAttributeValue(tTexture->attribute("texture")->value)->findOneByName("source");
+              const auto& tInitFrom = tEffect->findOneByAttributeValue(tSource->text.value)->findOneByName("init_from");
+              const auto& tImage = tImages->findById(tInitFrom->text.value);
+              tFile  = (*tImage)["init_from"]->text;
+              
+              auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::CChannel::NORMAL);
+              pChannelLoader->setTextureLoader(new TTextureLoader<sys::CFile>{std::string(rFile.folder()) + sys::string(tFile.value.from + 8, tFile.value.size - 8)});
+            }
+          }
+        }
+      }
+      
+      // CYM_LOG_NFO("cym::CDAECodec::decode(sys::sptr<CResourceLoader>)::material:done" );
+    }
+
+    if (pModelLoader->hasOption(EOption::SKELETON)) {
+      // <library_controllers>
+        // <controller>
+          // <skin> #geometry1
+            // <bind_shape_matrix> // = 16 floats // 
+            
+            // <source id="skin-joints"> //:joints > 
+              // <Name_array count="42">... // (here) list of named joints
+              
+            // <source id="bind_poses"> // poses
+              // <float_array id="poses_array" count="672">... // 42 x 16 floats = 672 // pose for each join
+                // <technique_common>
+                  // <accessor source="#poses_array" count="15" stride="16">
+              
+            // <source> // weight
+              // <float_array count="3273">.. // 3273 weights
+            
+            // <joints>
+              // <input semantic="JOINT" source="#skin-joints"/>
+              // <input semantic="INV_BIND_MATRIX" source="#bind_poses"/> // @see <source#bind_poses> => source:42x16
+            // </joints>
+            
+            // <vertex_weights count="1467">                                   // should MATCH vertex count in geometry => vcount.length = 64
+              // <input semantic="JOINT"  offset="0">
+              // <input semantic="WEIGHT" offset="1">
+              // <vcount>3 4</vcount> // 1st vert has 3 bones, 2nd vert has 4 // each vertex has "vcount" weights
+              // <v>-1 0  0 1  1 2</v> // -1 = bind shape // (here) 1st vert uses weight[0] towards bind shape
+                                                          //                      weight[1] towards bone 0
+                                       // <v> has to bave 1467 * 42 joints
+               
+               // float[] weight_values = source#weight.float_array
+               //                        
+               // int joint_offset = vertex_weights.input.offset;   // 0 (here)
+               // int weight_offset = vertex_weights.weight.offset; // 1 (here)
+               //
+               // int nbJoints = source#joints.float_array.count // 42
+               // int nbPoints = vertex_weights.count            // 1467
+               //
+               // float[][] weights = new float[nbJoints][nbPoints];
+               //
+               // int index = 0; 
+               // for (int i = 0; i < vcount.length; i++) {  // for [0,vcount.length) // (here) = [0,64)
+               //   for (int j = 0; j < vcount[i]; ++j) {    // for [0,3) // this vector is influnced by 3 joints
+               //     int joint_index  = v[index + joint_offset];  // index + 0 = 0 2 4
+               //     int weight_index = v[index + weight_offset]; // index + 1 = 1 3 5
+               //     weights[joint_index][i] = weight_values[weight_index]; // weights[v[0]] // weights[-1][0] // weight of joint -1 = bind shape
+               //     index += 2;
+               //   }
+               // }
+               // results in
+               // weights = joint_1 => [vertex_1, vertex_2, vertex_3]
+               //           joint_2 => [vertex_91, vertex_21]
+               //           joint_3 => [vertex_77, vertex_35, vertex_13, vertex_53]
+           
+               
+               // weights for each vertex MUST add up to 1, SO => the 3or4 weights we use MUST be NORMALIZED (0.3+0.2+0.5=1)
+         
+         // ignore everything after the 4th modifier/wieght
+         // Or loop all weights which assigned to a bone and remove all which have less values (like 0.001)
+          // or trim the lowes values first
+           
+        
+        
+      
+      // <library_visual_scenes>
+        // <visual_scene id="VisualSceneNode" name="rdmscene">
+          // <node id="VisualSceneNode1" name="Armature" sid="Armature" type="JOINT">
+            // <matrix>1 0 0 0 0 1 0.000000 0 0 -0.000000 1 0 0 0 0 1</matrix>                          // JOINT's matrix
+    }
+    
+    if (pModelLoader->hasOption(EOption::ANIMATIONS)) {
+      // <library_animations>
+        // <animation id="animation_id_related_to_a_joint">
+          // <source id="...-input">
+            // <float_array count=991>0 0.033 ... 33 (33sec animation)              // at time 0      // at time 0.033
+          // <source id="...-output">
+            // <float_array count=15856>                                            // use 1st matrix // use 2nd matrix
+            // <technique_common>
+              // <accessor count=991 stride=16>                                     // 991*16=15856
+          // <source id="-interpolation">
+            // <Name_array count=991>                                               // how frames will be interpolated
+          // <channel target="joint/transfor">                                                  // which joint
+          
+          
+        // animation
+          // JointAnimation[] jointAnimations
+        // JointAnimation
+          // Frame[] frames
+        // Frame
+          // float time
+          // JointTransform transform 
+    }
+          
+// @todo: outV = sum:j=0->n((v * BindShapeMatrix) * InversBindMatrix:j * JointMatrix:j) * JointWeight:j:v) 
+    
+
+    // BindShapeMatrix = translate each vertex to move to proper correct scene position ('cause multiple objects will get stacked on origin) 
+
+    delete tTree;
+    
+    // CYM_LOG_NFO("cym::CDAECodec::decode(CResourceData&)::" << this << " DONE");
+  }
 }
+
+// Read all the node transforms (rotate, translation, scale, etc.) in the order you receive them.
+// Concatenate them to a joint's local matrix.
+// Take the joint's parent and multiply it with the local matrix.
+// Store that as the bind matrix.
+// Read the skin information.
+// Store the joint's inverse bind pose matrix.
+// Store the joint weights for each vertex.
+// Multiply the bind matrix with the inverse bind pose matrix and transpose it, call it the skinning matrix.
+// Multiply the skinning matrix with the position times the joint weight and add it to the weighted position.
+// Use the weighted position to render.

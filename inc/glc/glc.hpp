@@ -92,6 +92,7 @@ typedef khronos_uint16_t GLushort;
 typedef int GLint;
 typedef unsigned int GLuint;
 typedef khronos_int32_t GLclampx;
+typedef unsigned int GLsize;
 typedef int GLsizei;
 typedef khronos_float_t GLfloat;
 typedef khronos_float_t GLclampf;
@@ -1922,11 +1923,22 @@ struct _cl_event;
 #define GL_TRANSFORM_FEEDBACK_OVERFLOW 0x82EC
 #define GL_TRANSFORM_FEEDBACK_STREAM_OVERFLOW 0x82ED
 
-GLAPI int OGL_VERSION_MAJOR;
-GLAPI int OGL_VERSION_MINOR;
-GLAPI bool OGL_LOADED_CORE;
+// opengl custom ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// opengl extensions ///////////////////////////////////////////////////////////////////////////////////////////////////////
+#define GL_NOT_FOUND -1
+#define GL_SUCCESS    0
+
+#define GL_NULL   nullptr
+
+#define GL_UBYTE  GL_UNSIGNED_BYTE
+#define GL_USHORT GL_UNSIGNED_SHORT
+#define GL_UINT   GL_UNSIGNED_INT
+
+GLAPI GLint OGL_VERSION_MAJOR;
+GLAPI GLint OGL_VERSION_MINOR;
+GLAPI bool  OGL_LOADED_CORE;
+
+// opengl extensions ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef GL_ARB_buffer_storage
   #define GL_ARB_buffer_storage 1
@@ -1953,7 +1965,16 @@ GLAPI bool OGL_LOADED_CORE;
 
 // opengl extern ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-extern GLuint glTypeToSize(GLenum type);
+extern GLsize glEnumToSize(GLenum type);
+
+template<typename T, GLsize S> inline GLenum glTypeToEnum() { return GL_NONE; }
+template<> inline GLenum glTypeToEnum<GLfloat,4>()  { return GL_FLOAT; };
+template<> inline GLenum glTypeToEnum<GLuint,4>()   { return GL_UINT; };
+template<> inline GLenum glTypeToEnum<GLint,4>()    { return GL_INT; };
+template<> inline GLenum glTypeToEnum<GLushort,2>() { return GL_USHORT; };
+template<> inline GLenum glTypeToEnum<GLshort,2>()  { return GL_SHORT; };
+template<> inline GLenum glTypeToEnum<GLubyte,1>()  { return GL_UBYTE; };
+template<> inline GLenum glTypeToEnum<GLbyte,1>()   { return GL_BYTE; };
 
 extern bool glVersion(int&, int&);
 
@@ -1977,8 +1998,10 @@ extern bool glSwapBuffers();
 
 #ifdef GLC_DEBUG
   #define GLCALL(stmt) glClearError(); stmt; if (!::glCheckError(#stmt,__FILE__,__LINE__)) ::glExit(-1)
+  #define GLCALL_IF(cond,stmt) glClearError(); if (cond) { stmt } if (!::glCheckError(#stmt,__FILE__,__LINE__)) ::glExit(-1)
 #else//!GLC_DEBUG
   #define GLCALL(stmt) stmt
+  #define GLCALL_IF(cond,stmt) if (cond) stmt
 #endif//GLC_DEBUG
 
 typedef void (APIENTRY *GLDEBUGPROC)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam);
@@ -2164,6 +2187,7 @@ typedef void (APIENTRYP PFNGLDRAWARRAYSPROC)(GLenum mode, GLint first, GLsizei c
 GLAPI PFNGLDRAWARRAYSPROC glDrawArrays;
 
 typedef void (APIENTRYP PFNGLDRAWELEMENTSPROC)(GLenum mode, GLsizei count, GLenum type, const void *indices);
+/** void glDrawElements(GLenum mode {GL_POINTS|GL_LINES|GL_TRIANGLES}, GLsizei count {no.render.indices}, GLenum getType {GL_UNSIGNED_INT}, const GLvoid* offset {to.the.first.to.be.rendered) */
 GLAPI PFNGLDRAWELEMENTSPROC glDrawElements;
 
 typedef void (APIENTRYP PFNGLPOLYGONOFFSETPROC)(GLfloat factor, GLfloat units);
@@ -2318,9 +2342,11 @@ typedef GLboolean (APIENTRYP PFNGLISBUFFERPROC)(GLuint buffer);
 GLAPI PFNGLISBUFFERPROC glIsBuffer;
 
 typedef void (APIENTRYP PFNGLBUFFERDATAPROC)(GLenum target, GLsizeiptr size, const void *data, GLenum usage);
+/** void glBufferData(GLenum target, GLsizeiptr size, const GLvoid * data, GLenum usage) **/
 GLAPI PFNGLBUFFERDATAPROC glBufferData;
 
 typedef void (APIENTRYP PFNGLBUFFERSUBDATAPROC)(GLenum target, GLintptr offset, GLsizeiptr size, const void *data);
+/** void glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid * data);*/
 GLAPI PFNGLBUFFERSUBDATAPROC glBufferSubData;
 
 typedef void (APIENTRYP PFNGLGETBUFFERSUBDATAPROC)(GLenum target, GLintptr offset, GLsizeiptr size, void *data);
@@ -4189,19 +4215,12 @@ using GLfloat2 = GLfloat[2];
 using GLfloat3 = GLfloat[3];
 using GLfloat4 = GLfloat[4];
 
-#define GL_NOT_FOUND -1
-#define GL_SUCCESS    0
-
-#define GL_NULL   nullptr
-
-#define GL_UBYTE  GL_UNSIGNED_BYTE
-#define GL_USHORT GL_UNSIGNED_SHORT
-#define GL_UINT   GL_UNSIGNED_INT
-
 inline void gxCreateProgram(GLuint* id)             { *id = ::glCreateProgram(); };
 inline void gxCreateShader(GLenum type, GLuint* id) { *id = ::glCreateShader(type); };
 inline void gxGetUniformLocation(GLuint program, const GLchar* name, GLint* location) { *location = ::glGetUniformLocation(program, name); };
 inline void gxVertexAttribPointer(GLuint index, GLint size, GLenum type, GLenum norm, GLsizei stride, GLsize offset) { GLvoid const* pointer = static_cast<char const*>(0) + offset; return ::glVertexAttribPointer(index,size,type,norm,stride,pointer); }
+inline void gxVertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei stride, GLsize offset) { GLvoid const* pointer = static_cast<char const*>(0) + offset; return ::glVertexAttribIPointer(index,size,type,stride,pointer); }
+inline void gxVertexAttribLPointer(GLuint index, GLint size, GLenum type, GLsizei stride, GLsize offset) { GLvoid const* pointer = static_cast<char const*>(0) + offset; return ::glVertexAttribLPointer(index,size,type,stride,pointer); }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

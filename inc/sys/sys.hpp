@@ -24,6 +24,7 @@
 #define CONTINUE(cond)      if(cond)continue
 #undef  DELETE
 #define DELETE(what)        delete what;what=nullptr
+#define UNUSED(x)
 
 namespace sys { 
   class CApplication;
@@ -34,12 +35,14 @@ namespace sys {
   class CMemory;
   class CTimer;
   class CStream;
-  template<typename T> class TPointer;
+  enum EPointer { SHARED = 1, WEAK = 2, UNIQUE = 2 };
+  template<typename T, EPointer E> class TPointer;
   template<typename T> class CEntry;
   template<typename T> class CRegistry;
   template<typename T> class TSingleton;
   template<typename T, typename A> class TBlock;
   template <typename T> class TIterator;
+  class CThreader;
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -73,8 +76,13 @@ namespace sys {
   template<typename V, std::size_t S> using CArray = std::array<V,S>;
   
   template<typename T, typename A = std::allocator<T>> using block = sys::TBlock<T,A>;
-  using file      = sys::CFile;
-  using stream    = sys::CStream;
+  using file        = sys::CFile;
+  using stream      = sys::CStream;
+  using exception   = sys::CException;
+  template<typename T> using ptr     = sys::TPointer<T, EPointer::SHARED>;
+  template<typename T> using sptr    = sys::TPointer<T, EPointer::SHARED>;
+  template<typename T> using wptr    = sys::TPointer<T, EPointer::WEAK>;
+  template<typename T> using uptr    = sys::TPointer<T, EPointer::UNIQUE>;
   
   using string                  = std::string;
   template<typename V> using set                 = std::set<V>;
@@ -114,7 +122,11 @@ namespace sys {
   
   template<typename K, typename V> inline bool find(const K& k, const sys::CMap<K,V>& m, V& b) { auto i{m.find(k)}; if (i != m.end()) { b = i->second; return true;} return false; } 
   
-  template<typename K, typename V, typename E> inline const V& find_or_throw(const K& k, const sys::CMap<K,V>& m, const E& e) { auto i{m.find(k)}; if (i == m.end()) { throw e; } return i->second; }
+  template<typename K, typename V, typename E> inline V& find_or_throw(const K& k, sys::CMap<K,V>& m, const E& e) { auto i{m.find(k)}; if (i == m.end()) { throw e; } return i->second; }
+  
+  inline uint alnumspn(const char* src) { uint i {0}; while(!isalnum(src[i])) i++; return i; }  
+  
+  inline uint charspn(const char* src, char c) { uint i {0}; while(src[i] != c) i++; return i; }
   
   // using namespace std::chrono_literals;
   // auto day = 24h;

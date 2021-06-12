@@ -4,11 +4,21 @@
 #include "sys/sys.hpp"
 #include "sys/CPointer.hpp"
 #include "sys/CLogger.hpp"
+#include "sys/CTimer.hpp"
 #include "ogl/ogl.hpp"
 #include "glm/glm.hpp"
 
 #undef FAR
 #undef NEAR
+
+// @todo: ogl vs d3d vs vlk
+#if defined(USE_DIRECTX_DRIVER) 
+  #define DTEXTURE d3d::CTexture
+#elif defined(USE_VULKAN_DRIVER)
+  #define DTEXTURE vlk::CTexture
+#else // USE_OPENGL_DRIVER
+  #define DTEXTURE ogl::CTexture
+#endif // ifdef
 
 namespace cym {
   class CCore;
@@ -16,13 +26,19 @@ namespace cym {
     class CConsole;    // a system that outputs all posted messages, also sends messages (like commands)
     // cinematics      // a system that sends messages like rotate(object)+move(camera)
     // replay/recorder // a system that records messages to be played back
+  class CScene;
   class CMessage;
   class CMessenger;    // threading: should decide on which thread a CSystem should process a message
   class CRenderer;
   class CCamera;
   class CLight;
   class CColor;
+  class CGeometry;
+  class CGeometryInput;
   class CMesh;
+  class CParticle;
+  class CCluster; // a group of CModel, CParticle...
+  class CInstance;
   class CResource;
     class CModel; // a group of CMesh
     class CTexture;
@@ -30,19 +46,12 @@ namespace cym {
     class CMaterial;
     class CAnimation;
     class CShader;
-  class CData;
-    class CResourceInfo;
-      class CTextureData;
-      class CModelData;
+    class CSkelet; //-on
   class CResourceLoader;
-    template<typename T> class CTextureLoader;
-      class CFileTextureLoader;
-      class CNoiseTextureLoader;
-    template<typename T> class TModelLoader;
-      class CFileModelLoader;
-  class CResourceInfo;
-    class CTextureData;
-      class CModelData;
+    class CModelLoader;
+    class CMeshLoader;
+    class CMaterialLoader;
+    class CTextureLoader;
   class CResourceManager;
     class CTextureManager;
     class CModelManager;
@@ -53,37 +62,27 @@ namespace cym {
       class CDataBuffer;
         class CVertexBuffer;
         class CIndexBuffer;
-    class CLayout;
-      class CVertexLayout;
-    class CVertexArray;
+  class CVertexArray;
+  class CLayout;
+    class CVertexLayout;
   class CUniform;
-  class CVertex; // @todo: this should be a template that describes components
-  class CVertexLayout;
   class CFile;
+  class CCodecManager;
   class CCodec;
-    class CDDSCodec;
-    class CTGACodec;
+    class CTextureCodec;
+      class CDDSCodec;
+      class CTGACodec;
+      class CPNGCodec;
+      class CJPGCodec;
+      class CKTXCodec;
+    class CModelCodec;
+      class CDAECodec;
+      class COBJCodec;
+      class CMD5Codec;
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  typedef sys::TPointer<CResource> PResource;
-  typedef sys::TPointer<CTexture>  PTexture; 
-  typedef sys::TPointer<CChannel>  PChannel;
-  typedef sys::TPointer<CMaterial> PMaterial;
-  typedef sys::TPointer<CShader>   PShader;  
-  typedef sys::TPointer<CModel>    PModel;
-  typedef sys::TPointer<CMesh>     PMesh;
-  
-  typedef sys::TPointer<CTextureManager> PTextureManager;
-  typedef sys::TPointer<CModelManager>   PModelManager;
-  typedef sys::TPointer<CShaderManager>  PShaderManager;
-  
-  typedef sys::TPointer<CCodec> PCodec;   
-  
-  typedef sys::TPointer<CVertexArray>  PVertexArray;
-  typedef sys::TPointer<CDataBuffer>   PDataBuffer;
-  typedef sys::TPointer<CVertexBuffer> PVertexBuffer;
-  typedef sys::TPointer<CIndexBuffer>  PIndexBuffer;
+  using PShaderManager = cym::CShaderManager;
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -102,6 +101,13 @@ namespace cym {
   template<typename K, typename V> using CMap               = sys::CMap<K,V>;
   template<typename V> using CVector              = sys::CVector<V>;
   
+  using rgb   = glm::vec3;
+  using rgba  = glm::vec4;
+  using name  = std::string;
+  using color = glm::vec4;
+  
+  union pixel { union rgb { sys::uint rgba; struct { sys::ubyte r, g, b, a; }; }; union bgr { sys::uint bgra; struct { sys::ubyte b, g, r, a; }; }; };
+  
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   enum class EPolymode {
@@ -118,7 +124,12 @@ namespace cym {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  
+  inline void fps(uint& nFPS) { 
+    static auto tTimer {sys::CTimer::start()};
+    const  auto tElapsed {tTimer.elapsed()};
+    tTimer.reset();
+    nFPS = 1000 / (tElapsed > 0 ? tElapsed : 1);
+  }
 }
 
 #endif //__cym_hpp__

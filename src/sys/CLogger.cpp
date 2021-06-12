@@ -23,7 +23,7 @@ namespace sys {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   const CLogger::ELevel& operator <<(const CLogger::ELevel& eLevel, const CLogger::EManipulator& eManipulator) {
-    auto sLogger = CLogger::instance();
+    static auto sLogger = CLogger::getSingleton();
     // emptyness guard
     if (sLogger->mOutput.empty())
       return eLevel;
@@ -75,7 +75,7 @@ namespace sys {
   }
     
   CLogger* operator <<(CLogger*, const std::string& output) {
-    return CLogger::instance()->push(output);
+    return CLogger::getSingleton()->push(output);
   }
     
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

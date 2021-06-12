@@ -404,7 +404,7 @@ namespace glm {
     };
   }
 
-  // glm::perspective // return perspective matrix using field of view, aspect ratio, near & far planes
+  // glm::perspective // return perspective matrix using attribute of view, aspect ratio, near & far planes
   template<typename T> CMatrix<T,4,4> inline perspective(T fovy, T ratio, T near, T far) {
     assert(far > near);
     assert(glm::abs(ratio - std::numeric_limits<T>::epsilon() > T(0)));
@@ -498,7 +498,7 @@ namespace glm {
   struct SPrism       : TShape<EShape::S3D> { };
   struct SPyramid     : TShape<EShape::S3D> { };
   struct STetrahedron : TShape<EShape::S3D> { };
-  struct SCube        : TShape<EShape::S3D> { union {struct {real l;}; struct {real length;};}; };
+  struct SCube        : TShape<EShape::S3D> { union {struct {real l;}; struct {real length;};}; SCube(real l) : length{l} {} };
   using cube = SCube;
   struct SSphere      : TShape<EShape::S3D> { union {struct{real r;}; struct {real radius;};}; };
   using sphere = SSphere;

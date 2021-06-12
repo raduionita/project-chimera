@@ -1,6 +1,6 @@
 
 <scene>
-  <node:scene>    // scene level node, scene can hold only this type of nodes
+  <node:scene>    // scene level node, scene can hold only this getType of nodes
     <node:model/> // one of the nodes under the scene node
   </node:scene>
   

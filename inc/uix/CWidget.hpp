@@ -5,6 +5,7 @@
 
 namespace uix { 
   class CWidget : public CWindow {
+      friend class CPanel;
     protected:
       using CWindow::CWindow;
       using CWindow::operator=;

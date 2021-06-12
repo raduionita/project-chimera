@@ -9,7 +9,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 1
-map_Kd Ambulance_Body_D.dds
+map_Kd Ambulance_Body_D.tga
 
 newmtl Ambulance_Body_inside
 Ns 96.078431
@@ -19,7 +19,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 1
-map_Kd Ambulance_Body_inside_D.dds
+map_Kd Ambulance_Body_inside_D.tga
 
 newmtl Ambulance_Cabin
 Ns 96.078431
@@ -29,7 +29,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 1
-map_Kd Ambulance_Cabin_D.dds
+map_Kd Ambulance_Cabin_D.tga
 
 newmtl Ambulance_Cabin_inside
 Ns 96.078431
@@ -39,7 +39,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 1
-map_Kd Ambulance_Cabin_inside_D.dds
+map_Kd Ambulance_Cabin_inside_D.tga
 
 newmtl Ambulance_Decals1
 Ns 96.078431
@@ -49,7 +49,7 @@ Ks 0.100000 0.100000 0.100000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd Ambulance_Decals1_D.dds
+map_Kd Ambulance_Decals1_D.tga
 
 newmtl Ambulance_Glass
 Ns 96.078431
@@ -59,4 +59,4 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.000000
 d 0.000000
 illum 2
-map_Kd Ambulance_Glass_D.dds
+map_Kd Ambulance_Glass_D.tga

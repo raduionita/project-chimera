@@ -2,34 +2,42 @@
 #include "uix/CContext.hpp"
 
 namespace uix {
-  CCanvas::CCanvas(int nHints/*=ZERO*/) {
-    log::nfo << "uix::CCanvas::CCanvas(int)::" << this << log::end;
-    init(nullptr, {}, nHints | CCanvas::WINDOW);
+  CCanvas::CCanvas(uint nHints) : mContext{new CContext{this}} {
+    CYM_LOG_NFO("uix::CCanvas::CCanvas(CContext::SConfig&,uint)::" << this);
+    CCanvas::init(nullptr,"",AUTO,nHints|WINDOW);
   }
   
-  CCanvas::CCanvas(const CContext::SConfig& sConfig, int nHints/*=ZERO*/) {
-    log::nfo << "uix::CCanvas::CCanvas(CContext::SConfig&,int)::" << this << log::end;
-    init(nullptr, sConfig, nHints | CCanvas::WINDOW);
+  CCanvas::CCanvas(const CContext::SConfig& sConfig, uint nHints/*=WINDOW*/) : mContext{new CContext{this,sConfig}} {
+    CYM_LOG_NFO("uix::CCanvas::CCanvas(CContext::SConfig&,uint)::" << this);
+    CCanvas::init(nullptr,"",AUTO,nHints|WINDOW);
   }
   
-  CCanvas::CCanvas(CWindow* pParent, const CContext::SConfig& sConfig/*={}*/, int nHints/*=EWindow::FRAME*/) {
-    log::nfo << "uix::CCanvas::CCanvas(CWindow*,CContext::SConfig&,int)::" << this << log::end;
-    init(pParent, sConfig, nHints | CCanvas::WINDOW);
+  CCanvas::CCanvas(CWindow* pParent, const CContext::SConfig& sConfig/*={}*/, uint nHints/*=WINDOW*/) : mContext{new CContext{this,sConfig}} {
+    CYM_LOG_NFO("uix::CCanvas::CCanvas(CWindow*,CContext::SConfig&,uint)::" << this);
+    CCanvas::init(pParent,"",AUTO,nHints|WINDOW);
   }
   
   CCanvas::~CCanvas() {
-    log::nfo << "uix::CCanvas::~CCanvas()::" << this << log::end;
+    CYM_LOG_NFO("uix::CCanvas::~CCanvas()::" << this);
+    // DELETE(mContext);
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  bool CCanvas::init(CWindow* pParent, const CContext::SConfig& sConfig, int nHints) {
-    log::nfo << "uix::CCanvas::init(CWindow*,CContext::SConfig&,int)::" << this << log::end;
-    return mInited = (CFrame::init(pParent, nHints) && CRender::init(this, sConfig));
+  bool CCanvas::init(CWindow* pParent/*=nullptr*/, const CString& tTitle/*=""*/, const SArea& tArea/*=AUTO*/, uint nHints/*=WINDOW*/) {
+    CYM_LOG_NFO("uix::CCanvas::init(CWindow*,CContext::SConfig&,int)::" << this);
+    
+    RETURN((mState & EState::INITED),true);
+    
+    bool bInited = (CFrame::init(pParent,tTitle,tArea,nHints) && mContext->init(this));
+    
+    attach(this, uix::CEvent::EType::RESIZE,  &uix::CCanvas::onResize);
+    
+    return bInited;
   }
   
   bool CCanvas::fullscreen(uint nHints/*=1*/) {
-    log::nfo << "uix::CCanvas::fullscreen(int)::" << this << log::end;
+    CYM_LOG_NFO("uix::CCanvas::fullscreen(int)::" << this);
     // @todo: game-style fullscreen
     
     
@@ -86,5 +94,16 @@ namespace uix {
       // hint: 000b = 0 = windowed    // center of windowed
       
     }
+  }
+  
+  bool        CCanvas::current() const       { return mContext->current(); }
+  bool        CCanvas::clear(int nBit) const { return mContext->clear(nBit); }
+  bool        CCanvas::reset() const         { return mContext->reset(); }
+  const char* CCanvas::version() const       { return mContext->version(); }
+  
+  void CCanvas::onResize(CEvent* pEvent) {
+    CYM_LOG_NFO("uix::CCanvas::onResize(CEvent*)::" << this << " " << *pEvent);
+    // update render viewport
+    GLCALL(::glViewport(pEvent->clientX(),pEvent->clientY(),pEvent->width(),pEvent->height()));
   }
 }

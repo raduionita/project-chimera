@@ -9,10 +9,10 @@ GLint   e[] = {0,1,2, 1,2,0};                                // indices(elements
 cym::CVertexArray  a;                                     // vao + vbo + ibo                              
 cym::CVertexBuffer b(p, 4 * 2, cym::CDataBuffer::VERTEX); // vbo => ::glGenBuffers() + ::glBindBuffer(GL_ARRAY_BUFFER...) + ::glBufferData()
 cym::CIndexBuffer  i(e, 2 * 3, cym::CDataBuffer::INDEX);  // ibo => ::glGenBuffers() + ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER...) + ::glBufferData()
-cym::CVertexLayout l;                                     // layout, stores how many (here) floats are there per vertex component
+cym::CVertexLayout l;                                     // getLayout, stores how many (here) floats are there per vertex component
 
-l.push({GL_FLOAT, 2, GL_FALSE}); // tell layout about the each vertex component (=2 floats) => adds to a list of elelemts
-a.buffer(b,l);                   // add buffer + layout to VAO => does ::glEnableVertexAttribArray() + ::glVertexAttribPointer()
+l.push({GL_FLOAT, 2, GL_FALSE}); // tell getLayout about the each vertex component (=2 floats) => adds to a list of elelemts
+a.buffer(b,l);                   // add buffer + getLayout to VAO => does ::glEnableVertexAttribArray() + ::glVertexAttribPointer()
 
 a.bind();  // bind vao => ::glBindVertexArray()
 i.bind();  // bind ibo => ::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER...)
@@ -28,8 +28,8 @@ s.bind(false);
 ```
 ###### Texture
 ```c++
-cym::CTextureManager* m = cym::CTextureManager::instance();
-cym::CTexture*        t = m->load(sys::CFile("res/textures/paint.dds"));
+cym::CTextureManager* m = cym::CTextureManager::getSingleton();
+cym::CTexture*        t = m->init(sys::CFile("res/textures/paint.dds"));
 
 t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uniform
 ```
@@ -45,7 +45,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 - `https://gamasutra.com/blogs/MichaelKissner/20151027/257369/Writing_a_Game_Engine_from_Scratch__Part_1_Messaging.php`
 
 ### Needed
-- new: sys info object // like getting the number threads/cores 
+
 - new: `CWindowApplication` or `???` // application that is also a (main) window // can extend `CCanvas` (for game)
   - move: `CModule` inside `CApplication`
   - or refactor `uix::CApplication` into a toplevel window | `template<typename T=CWindow> CApplication`
@@ -58,7 +58,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 - use: `CGameLoop` to send update + render + input events to `CCore` and its sub-systems 
 - use: `::glDebugMessageCallback`
 - question: should `GLCALL` + `::glCheckError` trigger a system event to the `uix::CContext`
-- move: opengl code from `uix::CContext` to `glc::CContext : uix::CContext` // `uix` should stay abstract
+- move: opengl code from `uix::CContext` to `ogl::CContext : uix::CContext` // `uix` should stay abstract
 - restructure: move `CSufrface` + `CButton` (and panels) to `CEditWindow`
 - use: get unforms & attributes using `glGetActiveAttrib` && `glGetActiveUniform`
 - .ext to lowercase for `cym::CCodec`s 
@@ -68,8 +68,8 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 - create engine (using context)
   - add viewports (windows + cameras) to engine // new `CViewport` = `CWindow` + `CCamera`
   
-- fix: dds texture flipped
-- fix: texture wrapping + filtering + blending 
+
+ 
 
 - `glx` draw something // start the ogl framework
   - engine picks the context
@@ -78,19 +78,18 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 
 - timer (proper timer object w/ start & elapsed)
 
-- move window create logic from `CWindow` to `CFrame` (first concrete child) and others
+- move window create logic from `CWindow` to `CFrame` (first concrete attach) and others
 - `SConfig`: replace window hints w/ config
 - `SState`: window & application states for persistance
 - fix: leak: all ::GetDC() MUST have a ::ReleaseDC()
 - fix: move free() from base class to superclass // last free doesn't trigger
 
-- namespaces: sys & com(replace fix)
 
 - loop: engine onUpdate & onRender
 
 - object: add custom ids // if try to use same id crash
 
-- enum class: find an alternative or implement hintbag
+
 
 - listener/events: make CListener::mHandlers static (common for all intances)
 
@@ -104,7 +103,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 - sys: os + fs + timer 
 - logger: custom manipulators + multiple strategies (+file) + loggin w/ defines & macros
 - logger: make CLogger::dbg/nfo/wrn/err reference to CLogger not ELevel or ELevel into a class
-- logger: should get instance on app instance / solve the unique_ptr init problemcccccclctidrvbijekchniftkvffbvndtrivvlfjtduv
+- logger: should get instance on app getSingleton / solve the unique_ptr init problem
 - registries should init only on app init | use CSingleton & CPointer
 
 - style (window) switcher
@@ -121,7 +120,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 
 - context: opengl stereo + debug flags
 
-- most pointers should be wrapped by a smart pointer object
+- `uix` most pointers should be wrapped by a smart pointer object
 
 - surface != panel // need something above (or just use widget) // panel for controls // surface for opengl
 - throw exception on windows create failed + loop + try + fatal or warning // where to use them
@@ -131,7 +130,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 - sys.cpp | include all lib .cpp files inside a sys.cpp file to build a single .obj file 
 - `std::array` vs `boost::static_vector` (dynamic fixed array)
 - refactor: find an alternative for `std::function` in `uix::CGameLoop`  
-  - need a `sys::CFunction` = `[args...](){ }` that can take whatever comptures I need
+  - need a `sys::CFunction` = `[args...](){ }` that can take whatever comptures A need
 
 ### Architecture
 ##### `Game` (app)
@@ -147,29 +146,6 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
   - for all objects/drawables
     - add draw call (w/ all necessary info)
   - render scene (draw calls/what camera sees)
-- code
-  - `CMeshBuilder`
-    - `CFileMeshBuilder`
-      - `CMD5MeshBuilder`
-    - `CProceduralMeshBuilder`
-      - `CSphereMeshBuilder::build(CSphereMeshBuilder::EStrategy)` -> `CMesh` 
-        - `EStrategy::ICOSPHERE`                   // uses icosahedron to build a sphere
-        - `EStrategy::CUBESPHERE`                  // uses a cube to build a sphere 
-        - `EStrategy::UVSPHERE`  (this looks hard)
-      - `CCubeMeshBuilder`
-      - `CPyramidMeshBuilder::build(int nSides)`     // now many edges the base has // can be used to build a cone
-
-  - `CTextureBuilder`
-    - `CProceduralTextureBuilder`
-      - `CSimplexTextureBuilder`
-    - `CFileTextureBuilder`
-      - `CDDSTextureBuilder` 
-      - `CTGATextureBuilder` 
-      - `CPNGTextureBuilder` 
-  
-  - `CAnimationBuilder`
-    - `CFileAnimationBuilder`
-      - `CMD5AnimationBuilder`
 ```
                  +-----+
                  |Logic|
@@ -245,7 +221,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 ### App::edit|make
 - structure
     - splash window
-      - build/load shaders
+      - build/init shaders
       - present app
       - preload next (edit) window
     - edit (main) window

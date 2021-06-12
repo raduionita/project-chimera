@@ -1,18 +1,19 @@
 #ifndef __app_capplication_hpp__
 #define __app_capplication_hpp__
 
-#include "app.hpp"
+#include "app/app.hpp"
 #include "uix/CApplication.hpp"
+#include "sys/CLayered.hpp"
 
 namespace app {
   class CApplication : public uix::CApplication {
-    public:
-      int exec() override;
     protected:
+      virtual void exec() override;
+    protected: // app events
       // void onInit()      override;
       // void onFree()      override;
     protected: // loop events
-      // void onRead(); // input load
+      // void onRead(); // input init
       // void onTick(); // update 
       // void onDraw(); // render
     protected:  

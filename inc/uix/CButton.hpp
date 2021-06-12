@@ -1,7 +1,8 @@
 #ifndef __uix_cbutton_hpp__
 #define __uix_cbutton_hpp__
 
-#include "CControl.hpp"
+#include "uix/uix.hpp"
+#include "uix/CControl.hpp"
 
 namespace uix {
   class CButton : public CControl {
@@ -10,13 +11,16 @@ namespace uix {
       using CControl::operator=;
       typedef CControl super;
       static constexpr int WINDOW = CControl::WINDOW;
+    protected:
+      CIcon* mIcon {nullptr};
+    private:
+      CButton() = default;
     public:
-      CButton(CWindow*, const CString&, const SArea&,                     int);
-      CButton(CWindow*, const CString&, const SArea&, CIcon*&& = nullptr, int = ZERO);
+      CButton(CWindow*, const CString&, const SArea&, CIcon*&& = nullptr, uint=WINDOW);
       ~CButton();
     protected:
-      bool init(CWindow*, const CString&, const SArea&, CIcon*&&, int);
-      bool free();
+      virtual bool init(CWindow* = nullptr, const CString& = "", const SArea& = AUTO, uint = WINDOW) override;
+      virtual bool free() override;
     protected:
       static LRESULT CALLBACK proc(HWND, UINT, WPARAM, LPARAM, UINT_PTR, DWORD_PTR);
   };

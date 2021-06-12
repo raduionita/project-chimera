@@ -1,44 +1,48 @@
 #include "uix/CButton.hpp"
+#include "uix/CIcon.hpp"
+#include "uix/CLayout.hpp"
 
 namespace uix {
-  CButton::CButton(CWindow* pParent, const CString& sText, const SArea& sArea, int nHints) {
-    log::nfo << "uix::CButton::CButton(CWindow*,CString&,SArea&,int)::" << this << log::end;
-    init(pParent,sText,sArea,nullptr,nHints);
-  }
-  
-  CButton::CButton(CWindow* pParent, const CString& sText, const SArea& sArea, CIcon*&& pIcon/*=nullptr*/, int nHints/*=0*/) {
-    log::nfo << "uix::CButton::CButton(CWindow*,CString&,SArea&,CIcon*&&,int)::" << this << log::end;
-    init(pParent,sText,sArea,std::move(pIcon),nHints);
+  CButton::CButton(CWindow* pParent, const CString& tText, const SArea& tArea/*={}*/, CIcon*&& pIcon/*=nullptr*/, uint nHints/*=WINDOW*/) : mIcon{std::move(pIcon)} {
+    CYM_LOG_NFO("uix::CButton::CButton(CWindow*,CString&,SArea&,CIcon*&&,int)::" << this);
+    CButton::init(pParent,tText,tArea,nHints|WINDOW|EWindow::VISIBLE);
   }
   
   CButton::~CButton() {
-    log::nfo << "uix::CButton::~CButton()::" << this << log::end;
+    CYM_LOG_NFO("uix::CButton::~CButton()::" << this);
+    CButton::free();
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  bool CButton::init(CWindow* pParent, const CString& sText, const SArea& sArea, CIcon*&&, int/*nHints*/) {
-    log::nfo << "uix::CButton::init(CWindow*,CString&,SArea&,CIcon*&&,int)::" << this << log::end;
+  bool CButton::init(CWindow* pParent/*=nullptr*/, const CString& tTitle/*=""*/, const SArea& tArea/*=AUTO*/, uint nHints/*=WINDOW*/) {
+    CYM_LOG_NFO("uix::CButton::init(uint)::" << this);
   
-    RETURN(mInited,true);
-    
+    RETURN((mState & EState::INITED),true);
+
     if (pParent == nullptr) {
       ::MessageBox(NULL, "[CButton] No parent no button!!", "Error", 0);
       return false;
     }
-  
-    // set parent // add to parent's children list
-    (mParent = pParent) && (mParent->child(this));
-  
+    
+    mHints  = mHints | nHints | (pParent ? EWindow::VISIBLE : 0);
+    mHints  = tArea == AUTO ? (mHints | EWindow::AUTOXY | EWindow::AUTOWH) : ((mHints & ~EWindow::AUTOWH) & ~EWindow::AUTOXY);
+    mParent = pParent;
+    mParent->assign(this);
+    mTitle  = tTitle;
+    mArea   = tArea;
+    
     mHandle = ::CreateWindowEx(
       0,                                   // DWORD  dwExStyle
       WC_BUTTON,                           // LPCSTR lpClassName
-      sText.c_str(),                       // LPCSTR lpWindowName
+      mTitle.c_str(),                      // LPCSTR lpWindowName
       WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_FLAT | BS_NOTIFY, // (parent), // styles: BS_OWNERDRAW
-      sArea.x, sArea.y,                    // int, int x, y
-      sArea.w, sArea.h,                    // int, int w, h
+      mArea.x == AUTO ? 0             : mArea.x, 
+      mArea.y == AUTO ? 0             : mArea.y, 
+      mArea.w == AUTO ? CW_USEDEFAULT : mArea.w, 
+      mArea.h == AUTO ? CW_USEDEFAULT : mArea.h, 
       (HWND)(*mParent),                    // HWND hWndParent // parent handle
-      NULL,                                // HMENU hMenu // or (for non-top-level) child-window id (16bit)
+      NULL,                                // HMENU hMenu // or (for non-top-level) attach-window id (16bit)
       (HINSTANCE)(*mApplication),          // HINSTANCE hInstance // ::GetWindowLong((HWND)(*mParent), GWL_HINSTANCE);
       this                                 // LPVOID lpParam // 
     );
@@ -51,19 +55,39 @@ namespace uix {
     
     ::SetWindowSubclass(mHandle, &CButton::proc, 1, DWORD_PTR(this));
     ::SetWindowLongPtr(mHandle, GWLP_USERDATA, (LONG_PTR)(this));
-    ::SetWindowText(mHandle, sText.c_str());
+    ::SetWindowText(mHandle, mTitle.c_str());
     ::SendMessage(mHandle, CM_INIT, 0, 0);
     ::SetDefaultFont(mHandle);
+    
+    bool bInited = (mState = mState | EState::INITED);
+    
+    (mHints & EWindow::VISIBLE) && show();
   
-    return mInited;
+    return bInited;
   }
   
   bool CButton::free() {
-    log::nfo << "uix::CButton::free()::" << this << log::end;
+    CYM_LOG_NFO("uix::CButton::free()::" << this);
+    
+    mState = (mState & ~EState::INITED) | EState::FREED;
+
+    ::SendMessage(mHandle, CM_FREE, 0, 0);
+    
+    if (mParent != nullptr) {
+      mParent->remove(this);
+    }
+    
     // remove sublass
     ::RemoveWindowSubclass(mHandle, &CButton::proc, 1);
-    // free window
-    return super::free();
+        
+    ::DestroyWindow(mHandle);
+
+    mHandle = NULL;
+    
+    delete mLayout;
+    delete mIcon;
+    
+    return mState & EState::FREED;
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,28 +97,34 @@ namespace uix {
     switch (uMsg) {
       case WM_DESTROY: {
         CButton* pButton = reinterpret_cast<CButton*>(dwRef);
-        log::nfo << "  B::WM_DESTROY::" << pButton << " ID:" << (pButton?pButton->mId:0) << log::end;
+        CYM_LOG_NFO("  B::WM_DESTROY::" << pButton << " ID:" << (pButton?pButton->mId:0));
         break; 
       }
-      //case WM_NCCREATE: // not fired cause ::SetWindowLongPtr is after ::CreateWindowEx
-      //case WM_CREATE:   // not fired cause ::SetWindowLongPtr is after ::CreateWindowEx
-      //case WM_MOUSEHOVER:
-      //case WM_MOUSELEAVE: // requires ::TrackMouseEvent(TRACKMOUSEEVENT)
-      // case WM_MOUSEMOVE: //
-      //case WM_SETCURSOR://
+    //case WM_NCCREATE: // not fired cause ::SetWindowLongPtr is after ::CreateWindowEx
+    //case WM_CREATE:   // not fired cause ::SetWindowLongPtr is after ::CreateWindowEx
+    //case WM_MOUSEHOVER:
+    //case WM_MOUSELEAVE: // requires ::TrackMouseEvent(TRACKMOUSEEVENT)
+    //case WM_MOUSEMOVE: //
+    //case WM_SETCURSOR://
       case WM_LBUTTONDOWN: {
         CButton* pButton = reinterpret_cast<CButton*>(dwRef);
-        log::nfo << "  B::WM_LBUTTONDOWN::" << pButton << " ID:" << pButton->mId <<  " x:" << GET_X_LPARAM(lParam) << " y:" <<GET_Y_LPARAM(lParam) << log::end;
+        CYM_LOG_NFO("  B::WM_LBUTTONDOWN::" << pButton << " ID:" << pButton->mId <<  " x:" << GET_X_LPARAM(lParam) << " y:" <<GET_Y_LPARAM(lParam));
   
         // mousedown event
-        auto pEvent = new CEvent(EEvent::LBUTTONDOWN, pButton);
+        auto pEvent = new CEvent(CEvent::EType::LBUTTONDOWN, pButton);
         pEvent->mClientX  = GET_X_LPARAM(lParam);
         pEvent->mClientY  = GET_Y_LPARAM(lParam);
-        pEvent->mModifier = wParam;
+        pEvent->mModifier = wParam & MK_SHIFT ? EMouse::SHIFT : wParam & MK_CONTROL ? EMouse::CONTROL : EMouse::EMPTY;
         pEvent->mButton   = EMouse::LBUTTON;
         
+#if UIX_EVENT_APPLICATION == UIX_ON
+        bool bHandled = CApplication::instance()->handle(pEvent);
+#else
         bool bHandled = pButton->handle(pEvent);
+#if UIX_EVENT_PROPAGATE == UIX_ON
         bHandled = pEvent->propagate() ? CApplication::instance()->handle(pEvent) || bHandled : bHandled;
+#endif // UIX_EVENT_PROPAGATE
+#endif // UIX_EVENT_APPLICATION
         
         DELETE(pEvent);
         
@@ -110,16 +140,10 @@ namespace uix {
         // GET_Y_LPARAM(lParam): y mouse position
         break; // if handled (return 0) => not clicked animation
       }
-      case WM_LBUTTONUP: {
-        CButton* pButton = reinterpret_cast<CButton*>(dwRef);
-        log::nfo << "  B::WM_LBUTTONUP::" << pButton << " ID:" << pButton->mId <<  " x:" << GET_X_LPARAM(lParam) << " y:" <<GET_Y_LPARAM(lParam) << log::end;
-        
-        
-        break; // if handled (return 0) => NO WM_COMMAND
-      }
-      //case WM_ERASEBKGND://
-      //case WM_NCPAINT://
-      //case WM_PAINT: //
+      case WM_LBUTTONUP: { break; }
+    //case WM_ERASEBKGND://
+    //case WM_NCPAINT://
+    //case WM_PAINT: //
     }
     return ::DefSubclassProc(hWnd,uMsg,wParam,lParam);
   }

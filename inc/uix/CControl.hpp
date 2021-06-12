@@ -5,6 +5,7 @@
 
 namespace uix {
   class CControl : public CWidget {
+      friend class CButton;
     protected:
       using CWidget::CWidget;
       using CWidget::operator=;

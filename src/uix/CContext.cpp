@@ -5,31 +5,39 @@
 #include <GL/wglext.h>
 
 namespace uix {
-  CContext::CContext(CWindow* pWindow, const SConfig& sOptions) : mWindow{pWindow}, mConfig{sOptions}, mHandle{(HWND)(*pWindow)} {
-    log::nfo << "uix::CContext::CContext(CWindow*,SConfig&)::" << this << log::end;
-    init();
+  CContext::CContext(const SConfig& sOptions) : mConfig{sOptions} {
+    CYM_LOG_NFO("uix::CContext::CContext(SConfig&)::" << this);
+  }
+  
+  CContext::CContext(CWindow* pWindow, const SConfig& sOptions) : mConfig{sOptions} {
+    CYM_LOG_NFO("uix::CContext::CContext(CWindow*,SConfig&)::" << this);
+    bind(pWindow);
   }
   
   CContext::~CContext() {
-    log::nfo << "uix::CContext::CContext()::" << this << log::end;
-    free();
+    CYM_LOG_NFO("uix::CContext::CContext()::" << this);
+    CContext::free();
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  bool CContext::init() {
-    log::nfo << "uix::CContext::init()::" << this << " CONFIG: v" << mConfig.nMajorVersion << "." << mConfig.nMinorVersion << log::end;
+  bool CContext::init(CWindow* pWindow) {
+    CYM_LOG_NFO("uix::CContext::init()::" << this << " CONFIG: v" << mConfig.nMajorVersion << "." << mConfig.nMinorVersion);
     
-    // need dummy window for ogl 4.x
+    RETURN((mState & EContext::INITED),true);
     
-    LPCSTR szClsName = "uix::CContext::DUMMY";
+    mCurrent = pWindow;
+    
+    mHandle = (HWND)(*mCurrent);
+    
+    LPCSTR szClsName = "uix::CContext::DUMMY"; // need dummy window for ogl 4.x
   
     WNDCLASSEX tWndCls = {
       sizeof(WNDCLASSEX),                       // UINT      // cbSize        // struct size  
       CS_HREDRAW|CS_VREDRAW|CS_OWNDC,           // UINT      // style
       ::DefWindowProc,                          // WNDPROC   // lpfnWndProc   // uix::CWidget::proc
       0,                                        // int       // cbClsExtra    // no extra bytes after the window class
-      0,                                        // int       // cbWndExtra    // extra bytes to allocate after the win instance 
+      0,                                        // int       // cbWndExtra    // extra bytes to allocate after the win getSingleton 
       (HINSTANCE)(*CApplication::instance()),// HINSTANCE // hInstance     // to identify the dll that loads this module  
       ::LoadIcon(NULL, IDI_APPLICATION),        // HICON     // hIcon
       ::LoadCursor(NULL, IDC_ARROW),            // HCURSOR   // hCursor
@@ -40,7 +48,7 @@ namespace uix {
     };
     
     if (!::RegisterClassEx(&tWndCls)) {
-      log::nfo << "[CContext] ::RegisterClassEx() failed!" << log::end;
+      CYM_LOG_NFO("[CContext] ::RegisterClassEx() failed!");
       ::MessageBox(NULL, "[CContext] ::RegisterClassEx() failed!", "ERROR", MB_OK);
       return false;
     }
@@ -59,7 +67,7 @@ namespace uix {
   
     if (!tWnd) {
       ::MessageBox(NULL, "[CContext] ::CreateWindowEx() failed!", "ERROR", MB_OK);
-      log::nfo << "[CContext] ::CreateWindowEx() failed!" << log::end;
+      CYM_LOG_NFO("[CContext] ::CreateWindowEx() failed!");
       
       ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
       
@@ -81,15 +89,17 @@ namespace uix {
     
     INT tPFID = ::ChoosePixelFormat(tDC, &tPFD);
     if (!tPFID) {
-      log::nfo << "[CContext] ChoosePixelFormat failed!" << log::end;
+      CYM_LOG_NFO("[CContext] ChoosePixelFormat failed!");
       ::MessageBox(NULL, "[CContext] ::ChoosePixelFormat() failed!", "Error", MB_OK);
       
       ::DestroyWindow(tWnd);
       ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
       
       return false;
-    } else if (!::SetPixelFormat(tDC, tPFID, &tPFD)) {
-      log::nfo << "[CContext] ::SetPixelFormat() failed!" << log::end;
+    } 
+    
+    if (!::SetPixelFormat(tDC, tPFID, &tPFD)) {
+      CYM_LOG_NFO("[CContext] ::SetPixelFormat() failed!");
       ::MessageBox(NULL, "[CContext] ::SetPixelFormat() failed!", "Error", MB_OK);
       
       ::DestroyWindow(tWnd);
@@ -100,15 +110,17 @@ namespace uix {
     
     HGLRC tRC = ::wglCreateContext(tDC);
     if (!tRC) {
-      log::nfo << "[CContext] ::wglCreateContext() failed!" << log::end;
+      CYM_LOG_NFO("[CContext] ::wglCreateContext() failed!");
       ::MessageBox(NULL, "[CContext] ::wglCreateContext() failed!", "Error", MB_OK);
       
       ::DestroyWindow(tWnd);
       ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
       
       return false;
-    } else if (!::wglMakeCurrent(tDC, tRC)) {
-      log::nfo << "[CContext] ::wglMakeCurrent() failed!" << log::end;
+    } 
+    
+    if (!::wglMakeCurrent(tDC, tRC)) {
+      CYM_LOG_NFO("[CContext] ::wglMakeCurrent() failed!");
       ::MessageBox(NULL, "[CContext] ::wglMakeCurrent() failed!", "Error", MB_OK);
       
       ::ReleaseDC(tWnd, tDC);
@@ -122,7 +134,7 @@ namespace uix {
     typedef BOOL (WINAPI * PFNWGLCHOOSEPIXELFORMATARBPROC)    (HDC,CONST INT*,CONST FLOAT*,UINT,INT*,UINT*);
     PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = reinterpret_cast<PFNWGLCHOOSEPIXELFORMATARBPROC>(::wglGetProcAddress("wglChoosePixelFormatARB"));
     if (!wglChoosePixelFormatARB) {
-      log::nfo << "[CContext] ::wglChoosePixelFormatARB() failed!" << log::end;
+      CYM_LOG_NFO("[CContext] ::wglChoosePixelFormatARB() failed!");
       ::MessageBox(NULL, "[CContext] ::wglChoosePixelFormatARB() failed!", "Error", MB_OK);
       
       ::ReleaseDC(tWnd, tDC);
@@ -136,8 +148,8 @@ namespace uix {
     typedef HGLRC(WINAPI * PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC,HGLRC,CONST INT*);
     PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(::wglGetProcAddress("wglCreateContextAttribsARB"));
     if (!wglCreateContextAttribsARB) {
-      log::nfo << "[CContext] ::wglCreateContextAttribsARB() failed!" << log::end;
-      ::MessageBox(NULL, "[CContext] ::wglCreateContextAttribsARB() failed!", "Error", MB_OK);
+      CYM_LOG_NFO("[CContext] ::wglCreateContextAttribsARB() not found!");
+      ::MessageBox(NULL, "[CContext] ::wglCreateContextAttribsARB() not found!", "Error", MB_OK);
       
       ::ReleaseDC(tWnd, tDC);
       ::wglDeleteContext(tRC);
@@ -146,8 +158,8 @@ namespace uix {
       
       return false;
     }
-    
-    mDC = ::GetDC(mHandle);
+  
+    mDevice      = ::GetDC(mHandle);
     
     const int aPixelAttrs[] = {
       WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
@@ -161,13 +173,14 @@ namespace uix {
       WGL_STENCIL_BITS_ARB,   mConfig.nStencilBits,
       WGL_SAMPLE_BUFFERS_ARB, GL_TRUE,
       WGL_SAMPLES_ARB,        mConfig.nSamples,
+      // WGL_STEREO_ARB,         mConfig.nFlags & EContext::STEREO ? GL_TRUE : GL_FALSE, 
       GL_NONE,
     };
     
     int nPFID; UINT nFormats;
-    bool bStatus = wglChoosePixelFormatARB(mDC, aPixelAttrs, NULL, 1, &nPFID, &nFormats);
+    bool bStatus = wglChoosePixelFormatARB(mDevice, aPixelAttrs, NULL, 1, &nPFID, &nFormats);
     if (bStatus == false && nFormats == 0) {
-      log::nfo << "[CContext] ::wglChoosePixelFormatARB() failed!" << log::end;
+      CYM_LOG_NFO("[CContext] ::wglChoosePixelFormatARB() failed!");
       ::MessageBox(NULL, "[CContext] ::wglChoosePixelFormatARB() failed!", "Error", MB_OK);
       
       ::ReleaseDC(tWnd, tDC);
@@ -179,12 +192,12 @@ namespace uix {
     }
   
     PIXELFORMATDESCRIPTOR sPFD;
-    ::DescribePixelFormat(mDC, nPFID, sizeof(sPFD), &sPFD);
-    ::SetPixelFormat(mDC, nPFID, &sPFD);
+    ::DescribePixelFormat(mDevice, nPFID, sizeof(sPFD), &sPFD);
+    ::SetPixelFormat(mDevice, nPFID, &sPFD);
     
     int nMajor, nMinor;
     if (!::glVersion(nMajor,nMinor)) {
-        log::nfo << "[CContext] ::glVersion() failed!" << log::end;
+      CYM_LOG_NFO("[CContext] ::glVersion() failed!");
       ::MessageBox(NULL, "[CContext] ::glVersion() failed!", "Error", MB_OK);
       
       ::ReleaseDC(tWnd, tDC);
@@ -192,7 +205,7 @@ namespace uix {
       ::DestroyWindow(tWnd);
       ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
       
-      ::ReleaseDC(mHandle, mDC);
+      ::ReleaseDC(mHandle, mDevice);
     }
     
     if (mConfig.nMajorVersion == AUTO || mConfig.nMinorVersion == AUTO) {
@@ -203,15 +216,15 @@ namespace uix {
     const int aContextAttr[] = {
       WGL_CONTEXT_MAJOR_VERSION_ARB, mConfig.nMajorVersion,
       WGL_CONTEXT_MINOR_VERSION_ARB, mConfig.nMinorVersion,
-      WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB ,
-   // WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_DEBUG_BIT_ARB,
-   // WGL_STEREO_ARB, GL_TRUE,
+      WGL_CONTEXT_PROFILE_MASK_ARB,  mConfig.nFlags & EContext::CORE ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB, 
+      WGL_CONTEXT_FLAGS_ARB, mConfig.nFlags & EContext::DEBUG ? WGL_CONTEXT_DEBUG_BIT_ARB : GL_FALSE,
+   // WGL_STEREO_ARB, mConfig.nFlags & EContext::STEREO ? GL_TRUE : GL_FALSE,
       GL_NONE,
     };
-    
-    mRC = wglCreateContextAttribsARB(mDC, 0, aContextAttr);
-    if (!mRC) {
-      log::nfo << "[CContext] ::wglCreateContextAttribsARB() failed!" << log::end;
+  
+    mRender = wglCreateContextAttribsARB(mDevice, 0, aContextAttr);
+    if (!mRender) {
+      CYM_LOG_NFO("[CContext] ::wglCreateContextAttribsARB() failed!");
       ::MessageBox(NULL, "[CContext] ::wglCreateContextAttribsARB() failed!", "Error", MB_OK);
       
       ::ReleaseDC(tWnd, tDC);
@@ -219,7 +232,7 @@ namespace uix {
       ::DestroyWindow(tWnd);
       ::UnregisterClass(szClsName, HINSTANCE(*CApplication::instance()));
       
-      ::ReleaseDC(mHandle, mDC);
+      ::ReleaseDC(mHandle, mDevice);
   
       return false;
     }
@@ -234,12 +247,12 @@ namespace uix {
     current();
         
     if (!::glLoad(mConfig.nMajorVersion, mConfig.nMinorVersion)) {
-      log::nfo << "[CContext] cym::load() failed!" << log::end;
-      ::MessageBox(NULL, "[CContext] cym::load() failed!", "Error", MB_OK);
+      CYM_LOG_NFO("[CContext] cym::init() failed!");
+      ::MessageBox(NULL, "[CContext] cym::init() failed!", "Error", MB_OK);
       
       ::wglMakeCurrent(NULL,NULL);
-      ::wglDeleteContext(mRC);
-      ::ReleaseDC(mHandle, mDC);
+      ::wglDeleteContext(mRender);
+      ::ReleaseDC(mHandle, mDevice);
       
       return false;
     }
@@ -248,33 +261,37 @@ namespace uix {
     
     interval(mConfig.nSwapInterval);
     
-    return current();
+    return (mState |= EContext::INITED);
   }
   
   bool CContext::free() {
-    log::nfo << "uix::CContext::free()::" << this << log::end;
+    CYM_LOG_NFO("uix::CContext::free()::" << this);
     ::wglMakeCurrent(NULL,NULL);
-    ::wglDeleteContext(mRC);
-    ::ReleaseDC(mHandle, mDC);
+    ::wglDeleteContext(mRender);
+    ::ReleaseDC(mHandle, mDevice);
     return true;
+  }
+  
+  void CContext::bind(CWindow* pCurrent) {
+    if (pCurrent != nullptr && pCurrent != mCurrent) {
+      log::dbg << "uix::CContext::bind(CWindow*)::" << this << log::end;
+      mCurrent = pCurrent;
+      mHandle  = (HWND)(*mCurrent);
+      mDevice  = ::GetDC(mHandle);
+      // ::SetFocus(mHandle);
+      // SetForegroundWindow(mHandle); 
+      // SetActiveWindow(mHandle); 
+      // SetWindowPos(mHandle, HWND_TOP, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOMOVE  | SWP_NOSIZE);
+    }
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  bool CContext::swap() const {
-    log::dbg << "uix::CContext::swap()::" << this << log::end;
-    if (!::SwapBuffers(mDC)) {
-      log::nfo << "[CContext] ::SwapBuffers() failed! " << log::end;
-      ::MessageBox(NULL, "[CContext] ::SwapBuffers() failed!", "Error", MB_OK);
-      return false;
-    }
-    return true;
-  }
-  
-  bool CContext::current() const {
-    log::dbg << "uix::CContext::current()::" << this << log::end;
-    if (!::wglMakeCurrent(mDC, mRC)) {
-      log::nfo << "[CContext] ::wglMakeCurrent() failed! " << log::end;
+  bool CContext::current(CWindow* pCurrent/*=nullptr*/) {
+    log::dbg << "uix::CContext::current(CWindow*)::" << this << log::end;
+    CContext::bind(pCurrent);
+    if (!::wglMakeCurrent(mDevice, mRender)) {
+      CYM_LOG_NFO("[CContext] ::wglMakeCurrent() failed! ");
       ::MessageBox(NULL, "[CContext] ::wglMakeCurrent() failed!", "Error", MB_OK);
       return false;
     }
@@ -288,7 +305,7 @@ namespace uix {
     return true;
   }
   
-  bool CContext::reset() const {
+  bool CContext::reset() {
     return current() && clear() && swap();
   }
   
@@ -302,11 +319,11 @@ namespace uix {
       static PFNWGLSWAPINTERVALEXTPROC    wglSwapIntervalEXT    = reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(::wglGetProcAddress("wglSwapIntervalEXT"));
       static PFNWGLGETSWAPINTERVALEXTPROC wglGetSwapIntervalEXT = reinterpret_cast<PFNWGLGETSWAPINTERVALEXTPROC>(::wglGetProcAddress("wglGetSwapIntervalEXT"));
       if (!wglGetSwapIntervalEXT) {
-        log::nfo << "[CContext] ::wglGetSwapIntervalEXT() failed!" << log::end;
+        CYM_LOG_NFO("[CContext] ::wglGetSwapIntervalEXT() failed!");
         ::MessageBox(NULL, "[CContext] ::wglGetSwapIntervalEXT() failed!", "Error", MB_OK);
       }
       if (!wglSwapIntervalEXT) {
-        log::nfo << "[CContext] ::wglSwapIntervalEXT() failed!" << log::end;
+        CYM_LOG_NFO("[CContext] ::wglSwapIntervalEXT() failed!");
         ::MessageBox(NULL, "[CContext] ::wglSwapIntervalEXT() failed!", "Error", MB_OK);
       } else {
         wglSwapIntervalEXT(intv);
@@ -315,6 +332,10 @@ namespace uix {
       log::wrn << "[CContext] WGL_EXT_swap_control_tear not supported!" << log::end;
     }
   }
+  
+  void CContext::vsync(bool state) {
+    interval(state?1:0);
+  } 
   
   const char* CContext::version() const { return reinterpret_cast<const char*>(::glGetString(GL_VERSION)); }
 }

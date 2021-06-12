@@ -2,7 +2,7 @@
 #define __cym_carray_hpp__
 
 #include "cym/cym.hpp"
-#include "CObject.hpp"
+#include "cym/CObject.hpp"
 
 namespace cym {
   class CVertexArray : public CObject {
@@ -11,7 +11,7 @@ namespace cym {
       virtual ~CVertexArray();
     public:
       void bind(bool = true) const override;
-      void buffer(const CDataBuffer&, const CVertexLayout&);
+      void load(CDataBuffer&, CVertexLayout&);
   };
 }
 

@@ -9,7 +9,10 @@ namespace cym {
       // virtual CTehnique* technique() const = 0; // material()->technique()
       // virtual COperation operation() = 0; // render operation required to send this to the framebuffer
       // 
+    public:
+      virtual void draw() = 0;
   };
 }
 
 #endif //__cym_cdrawable_hpp__
+

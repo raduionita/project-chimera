@@ -4,16 +4,10 @@
 #include "sys/sys.hpp"
 
 namespace sys {
-  class CStream; typedef sys::TPointer<CStream> PStream;
-  
   class CStream {
     public:
-      enum EFlag : sys::bitfield {
-        FREECLOSE = 0b00000001,
-        READONLY  = 0b00000010,
-      };
+      enum EFlag : sys::bitfield { FREECLOSE = 0b00000001, READONLY  = 0b00000010, };
     protected:
-      size_t mSize {0};
       uint   mOpts {0};
       byte*  mData {nullptr};
       byte*  mCurr {nullptr};
@@ -21,11 +15,12 @@ namespace sys {
     public:
       CStream() = default;
       virtual ~CStream();
-      CStream(void* ptr, size_t size, uint flags = 0);
+      CStream(byte* ptr, size_t size, uint flags = 0);
       CStream(size_t size, uint flags = 0);
     public: // inline
       inline byte* ptr() const { return mCurr; }
-      inline bool  empty() const { return mSize == 0; }
+      inline bool  empty() const { return size() == 0; }
+      inline size_t size() const { return (mEnds - mData); }
     public:
       byte* data(byte*, size_t, uint = 0);
       byte* data(size_t, uint = 0);

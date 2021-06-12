@@ -5,6 +5,8 @@
 
 namespace uix {
   class CPopup : public CWindow {
+      friend class CFrame;
+      friend class CDialog;
     protected:
       using CWindow::CWindow;
       using CWindow::operator=;

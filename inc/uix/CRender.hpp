@@ -10,18 +10,21 @@ namespace uix {
     protected:
       friend class CContext;
     protected:
-      CContext* mContext {nullptr};
+      CContext*         mContext {nullptr};
+      CWindow*          mWindow  {nullptr};
+      CContext::SConfig mConfig;
     public:
-      CRender();
+      CRender(CWindow* pWindow, const CContext::SConfig& = {});
       virtual ~CRender();
     protected:
-      bool init(CWindow*, const CContext::SConfig&);
+      bool init(uint=ZERO);
     public:
       bool        swap()    const;
       bool        current() const;
       bool        clear(int = GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT) const;
       bool        reset()   const;
       const char* version() const;
+      virtual inline const CContext* context() const { return mContext; }
     public: // events
       void onResize(CEvent*);
   };

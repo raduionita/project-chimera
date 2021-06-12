@@ -1,58 +1,58 @@
 #ifndef __uix_chandler_hpp__
 #define __uix_chandler_hpp__
 
-#include "uix.hpp"
-#include "CEvent.hpp"
+#include "uix/uix.hpp"
+#include "uix/CEvent.hpp"
 
 #include <functional>
 
 namespace uix {
   class CListener {
-      typedef void(*TCallback)(CEvent*);
-      typedef std::function<void(CEvent*)> THandler;
+      typedef void(*FCallback)(CEvent*);
+      typedef std::function<void(CEvent*)> FHandler;
     private:
-      std::map<EEvent,THandler> mHandlers;
+      std::map<CEvent::EType,FHandler> mHandlers;
     public:
       CListener();
       virtual ~CListener();
     protected:
       // attach: lambda
-      bool attach(CListener*, const EEvent&, TCallback&&);
+      bool attach(CListener*, const CEvent::EType&, FCallback&&);
       // attach: method // eg: T = CApplication
-      template<typename T> bool attach(CListener* pTarget, const EEvent& eEvent, void(T::*fCallback)(CEvent*)) {
-        log::nfo << "uix::CListener::attach(CListener*, EEvent&, void(T::*fCallback)(CEvent*))::" << this << " EVT:" << int(eEvent) << log::end;
+      template<typename T> bool attach(CListener* pTarget, const CEvent::EType& eEvent, void(T::*fCallback)(CEvent*)) {
+        CYM_LOG_NFO("uix::CListener::attach(CListener*, CEvent::EType&, void(T::*fCallback)(CEvent*))::" << this << " EVT:" << int(eEvent));
         // wrap callback to a cast(ed) callback // add to list of calbacks
-        pTarget->mHandlers[eEvent] = [this,fCallback] (CEvent* pEvent) {
-          T* pHandler = dynamic_cast<T*>(this);
-          (pHandler->*fCallback)(pEvent);
+        pTarget->mHandlers[eEvent] = [that = dynamic_cast<T*>(this),fCallback] (CEvent* pEvent) {
+          //T* pHandler = dynamic_cast<T*>(this);
+          (that->*fCallback)(pEvent);
         }; 
         // replaces element
         return true;
       }
       // detach
-      bool detach(CListener*, const EEvent&);
+      bool detach(CListener*, const CEvent::EType&);
     public:
       bool handle(CEvent*);
-      bool listens(const EEvent&) const;
+      bool listens(const CEvent::EType&) const;
   };
   
   class COnKeydownListener : public CListener {
     public:
-      COnKeydownListener() { attach(this, EEvent::KEYDOWN, &COnKeydownListener::onKeydown); }
+      COnKeydownListener() { attach(this, CEvent::EType::KEYDOWN, &COnKeydownListener::onKeydown); }
     public:
       virtual void onKeydown(CEvent*) = 0;
   };
   
   class COnClickListener : public CListener {
     public:
-      COnClickListener() { attach(this, EEvent::CLICK, &COnClickListener::onClick); }
+      COnClickListener() { attach(this, CEvent::EType::CLICK, &COnClickListener::onClick); }
     public:
       virtual void onClick(CEvent*) = 0;
   };
   
   class COnResizeListener : public CListener {
     public:
-      COnResizeListener() { attach(this, EEvent::RESIZE, &COnResizeListener::onResize); }
+      COnResizeListener() { attach(this, CEvent::EType::RESIZE, &COnResizeListener::onResize); }
     public:
       virtual void onResize(CEvent*) = 0;
   };

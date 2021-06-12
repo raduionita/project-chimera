@@ -815,7 +815,7 @@ bool OGL_LOADED_CORE = false;
 
 static bool load_base() {
   if (OGL_LOADED_CORE) return true;
-  // load core functions
+  // init core functions
   glGetString = reinterpret_cast<PFNGLGETSTRINGPROC>(::glGetProcAddress("glGetString"));
   if (!glGetString) return false;
   glGetIntegerv = reinterpret_cast<PFNGLGETINTEGERVPROC>(::glGetProcAddress("glGetIntegerv"));
@@ -1638,7 +1638,7 @@ static int load_exts() {
   for (GLint i = 0; i < nExts; i++) {
     const char* szExtName = (const char*) ::glGetStringi(GL_EXTENSIONS, i);
     
-    // @todo: load ext by name...
+    // @todo: init ext by name...
   }
   
   return nLoaded;
@@ -1680,7 +1680,7 @@ static bool load_version(int major, int minor) {
 static HDC   sDC {NULL};
 static HGLRC sRC {NULL};
 
-GLuint glTypeToSize(GLenum type) {
+GLsize glEnumToSize(GLenum type) {
   switch (type) {
     case GL_FLOAT : return sizeof(GLfloat);
     case GL_UINT  :
@@ -1690,7 +1690,6 @@ GLuint glTypeToSize(GLenum type) {
     case GL_UBYTE :
     case GL_BYTE  : return sizeof(GLbyte);
   }
-  // @todo: static_assert(false);
   return 0;
 }
 
@@ -1727,13 +1726,13 @@ bool glVersion(int& major, int& minor) {
 }
 
 bool glLoad(int major/*=-1*/, int minor/*=-1*/) {
-  // load base
+  // init base
   load_base();
   // check glVersion
   (major == -1 || minor == -1) && glVersion(major,minor);
-  // load version
+  // init version
   load_version(major,minor);
-  // load functions
+  // init functions
   load_v_1_0();
   load_v_1_1();
   load_v_1_2();
@@ -1753,7 +1752,7 @@ bool glLoad(int major/*=-1*/, int minor/*=-1*/) {
   load_v_4_4();
   load_v_4_5();
   load_v_4_6();
-  // load extensions
+  // init extensions
   load_exts();
   // return status
   return true;

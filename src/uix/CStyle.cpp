@@ -7,12 +7,12 @@
 
 namespace uix {
   CStyle::CStyle() {
-    log::nfo << "uix::CStyle::CStyle()::" << this << log::end;
+    CYM_LOG_NFO("uix::CStyle::CStyle()::" << this);
   }
 
   CStyle::~CStyle() {
-    log::nfo << "uix::CStyle::~CStyle()::" << this << log::end;
-    delete mBackground;
+    CYM_LOG_NFO("uix::CStyle::~CStyle()::" << this);
+    DELETE(mBackground);
     DELETE(mBorder);
     DELETE(mColor);
     DELETE(mFont);
@@ -35,6 +35,6 @@ namespace uix {
   }
   
   CBrush* CStyle::background() {
-    return !mBackground ? new CBrush : mBackground;
+    return !mBackground ? mBackground = new CBrush : mBackground;
   }
 }
