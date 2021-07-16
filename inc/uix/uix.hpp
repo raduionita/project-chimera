@@ -229,14 +229,15 @@ inline VOID SetDefaultFont(HWND hWnd) {
 inline WINBOOL HandleMessage(MSG* pMSG, const unsigned int kMax = 5, const unsigned int kTPS = 25) {
   static DWORD              nCurTicks;
   static DWORD              nNxtTicks;
-  static const unsigned int kJumpTime{1000 / kTPS};
+  static const unsigned int kJumpTime{1000 / kTPS}; // 0.04s = 40ms
   static unsigned int       iLoop;
   
   nCurTicks = ::GetTickCount(); // millisecs since system started
-  nNxtTicks = nCurTicks + kJumpTime;
+  nNxtTicks = nCurTicks + kJumpTime; // curTimeinMS + 40ms
   iLoop     = 0;
   
-  while (nCurTicks < nNxtTicks && iLoop < kMax) {
+  // do get as many (max=5) win32 messages as possible in 40ms
+  do {
     if (::PeekMessage(pMSG, NULL, 0, 0, PM_REMOVE)) {
       if (WM_QUIT == pMSG->message) {
         return FALSE;
@@ -244,10 +245,11 @@ inline WINBOOL HandleMessage(MSG* pMSG, const unsigned int kMax = 5, const unsig
         ::TranslateMessage(pMSG);
         ::DispatchMessage(pMSG);
       }
+      // cur ticks grows until it's > than nNxtTicks, then while() will exit
       nCurTicks = ::GetTickCount();
     }
     iLoop++;
-  }
+  } while ((nCurTicks < nNxtTicks) && (iLoop < kMax));
   
   return TRUE;
 }

@@ -5,12 +5,13 @@
 #include "sys/CException.hpp"
 #include "sys/CStream.hpp"
 #include "cym/CModel.hpp"
+#include "cym/CScene.hpp"
 #include "glm/CVector.hpp"
 
 namespace cym {
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  enum class ECodec : uint { EXT = 0, DDS, TGA, BMP, PNG, JPG, KTX, DAE, OBJ, MD5, FBX };
+  enum class ECodec : uint { EXT = 0, DDS, TGA, BMP, PNG, JPG, KTX, DAE, OBJ, MD5, FBX, SCENE };
   
   class CCodec {
     public:
@@ -39,7 +40,17 @@ namespace cym {
       inline CModelCodec(const std::string& tType) : mType{tType} { CYM_LOG_NFO("cym::CModelCodec::CModelCodec(std::string&)::"); }
     public:
       virtual inline const sys::string& getType() const override { return mType; }
-      virtual void decode(sys::sptr<CResourceLoader>&) override { throw sys::exception("CTextureCodec::decode() NOT OVERRIDEN", __FILE__, __LINE__); }
+      virtual void decode(sys::sptr<CResourceLoader>&) override { throw sys::exception("CModelCodec::decode() NOT OVERRIDEN", __FILE__, __LINE__); }
+  };  
+  
+  class CSceneCodec : public CCodec {
+    private:
+      std::string mType;
+    public:
+      inline CSceneCodec(const std::string& tType) : mType{tType} { CYM_LOG_NFO("cym::CSceneCodec::CModelCodec(std::string&)::"); }
+    public:
+      virtual inline const sys::string& getType() const override { return mType; }
+      virtual void decode(sys::sptr<CResourceLoader>&) override { throw sys::exception("CSceneCodec::decode() NOT OVERRIDEN", __FILE__, __LINE__); }
   };
     
   // textures ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -187,7 +198,7 @@ namespace cym {
   };
   
   template<> class TCodec<CModel,ECodec::DAE> : public CModelCodec {
-      using EOption = CModelLoader::EOption;
+      using EOption = CModelLoader::EFlag;
     public:
       inline TCodec() : CModelCodec("dae") { CYM_LOG_NFO("cym::TCodec<CModel,DAE>::~TCodec()::" << this); }
       inline ~TCodec() { CYM_LOG_NFO("cym::TCodec<CModel,DAE>::~TCodec()::" << this); }
@@ -198,7 +209,18 @@ namespace cym {
   template<> class TCodec<CModel,ECodec::MD5> : public CModelCodec { };
   template<> class TCodec<CModel,ECodec::FBX> : public CModelCodec { };
   
+  template<> class TCodec<CScene,ECodec::SCENE> : public CSceneCodec {
+      using EOption = CModelLoader::EFlag;
+    public:
+      inline TCodec() : CSceneCodec("scene") { CYM_LOG_NFO("cym::TCodec<CScene,SCENE>::~TCodec()::" << this); }
+      inline ~TCodec() { CYM_LOG_NFO("cym::TCodec<CScene,SCENE>::~TCodec()::" << this); }
+    public:
+      virtual void decode(sys::sptr<CResourceLoader>&) override;
+  };
+  
   // manager /////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+// @todo: refactor codec manager so it supports same file type on different resources (ex: texture.xml & model.xml) 
   
   class CCodecManager : public CManager, public sys::TSingleton<CCodecManager> {
     protected:
@@ -207,7 +229,7 @@ namespace cym {
       inline CCodecManager() { CYM_LOG_NFO("cym::CCodecManager::CCodecManager()"); }
       inline ~CCodecManager() { CYM_LOG_NFO("cym::CCodecManager::~CCodecManager()"); }
     public:
-      static void             addCodec(const sys::sptr<CCodec> pCodec);
+      static void              addCodec(const sys::sptr<CCodec> pCodec);
       static sys::sptr<CCodec> getCodec(const std::string& ext);
   };
 }

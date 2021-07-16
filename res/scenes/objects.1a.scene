@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    
+  <!--  app > game > level > scene  -->
+  <!--  game > level > scene  -->
+  <!--  game = level + level...  -->
+  <!--  level = scene + scene  -->
+  <!--  scene = model + efect + trigger...  -->
+  
+  <scene version="1">
+    <objects>
+      <object type="md5mesh" id="hellknight0" ref="knight0" bind="otherid0" src="boblampclean/boblampclean.md5mesh" scale="2.0" position="0.0 0.0 0.0">
+        <animations>
+          <animation id="walk" ref="walk_knight" src="boblampclean/boblampclean.md5anim" />
+        </animations>
+        <shapes>
+          <shape>
+            <textures>
+              <texture scope="normals" src="boblampclean/guard1_body_n.tga" />
+            </textures>
+          </shape>
+          <shape>
+            <textures>
+              <texture scope="normals" src="boblampclean/guard1_face_n.tga" />
+            </textures>
+          </shape>
+        </shapes>
+      </object>
+      <object type="plane" id="plane0" width="10.0" height="10.0" subdivisions="10">
+        <shapes>
+          <shape>
+            <textures>
+              <texture scope="diffuse" src="ground/concrete_d.tga" />
+              <texture scope="normals" src="ground/concrete_n.tga" />
+            </textures>
+          </shape>
+        </shapes>
+      </object>
+      <object type="box" id="box0" width="2.0" height="2.0" depth="2.0" subdivisions="1">
+        <shapes>
+          <shape>
+            <textures>
+              <texture scope="diffuse" src="wall/bricks_02_d.tga" />
+              <texture scope="normals" src="wall/bricks_02_n.tga" />
+              <texture scope="height"  src="wall/bricks_02_h.tga" />
+            </textures>
+          </shape>
+        </shapes>
+      </object>
+    </objects>
+    <cameras>
+      <camera id="c0" type="free" projection="perspective" position="0.0 2.0 -6.5" current="true" />
+      <camera id="c1" type="free" projection="perspective" position="10.2 3.2 22.1" />
+    </cameras>
+    <lights>
+      <light id="l0" type="direct" direction="-1.0 -1.0 -1.0" color="1.0 1.0 1.0" diffuse="0.8" ambient="0.2">
+        <tags>
+          <tag name="NOSHADOW"/>
+        </tags>
+      </light>
+      <light id="l1" type="point" position="2.0 1.0 1.0" color="1.0 1.0 200.0" diffuse="0.5" ambient="0.3" attenuation="0.1 0.2 0.0">
+      </light>
+      <light id="l2" type="spot" position="1.0 2.0 1.0" direction="-0.5 -1.0 0.0" color="1.0 1.0 1.0" diffuse="0.5" ambient="0.3" attenuation="0.1 0.2 0.0" cutoff="0.75">
+      </light>
+    </lights>
+  </scene>
+  
+</root>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node name="scene_01" type="scene">
+<node name="root">
+    
+    <node name="sky|skydome" type="scene">
+      <node name="dome" type="model">
+        <model name="dome" shape="hemisphere"/>
+      </node>
+        
+      <node name="clouds" type="model">
+        <model type="procedural" strategy="perlin+some+options"/>
+      </node>
+      
+      <node name="sun" type="model">
+        <model shape="circle" divisions="4=square,6=hexagon..."> 
+          <geometry>
+            <mesh>
+              <material>
+                <channel type="EMISSION" color="white"/>
+              </material>
+            </mesh>
+          </geometry>
+        </model>
+        <node name="root">
+          <node name="light" type="light">
+            <light name="sun" type="direct"/>
+          </node>
+        </node>
+        
+      </node>
+    </node>
+    
+    <node name="lake" type="scene">
+      <node name="lake" type="model">
+        <model shape="volume">
+          <animator type="waves" waves="volumetric"/>
+        </model>
+        <node name="root" type="node|joint">
+        
+          <node name="splash" type="scene">
+            <node name="splash" type="emitter">
+              <emitter name="splash" />
+            </node>
+            <node name="decal" type="model">
+              <model name="decal">
+                <geometry>
+                  <mesh type="polygon"/>
+                </geometry>
+              </model>
+            </node>
+          </node>
+        
+          <node name="boat" type="scene">
+            <node name="boat" scope="model">
+              <model />
+              <node name="root" type="joint">
+                <node name="R_paddle" type="joint" joint="joint_in_model_skeleton">
+                  
+                  <node name="paddle" type="scene">
+                    <node name="paddle" type="model">
+                      <model name="paddle"/>
+                    </node>
+                    <node name="root"/>
+                  </node>
+                        
+                </node>
+                <node name="L_paddle" type="joint">
+                  
+                  <node name="paddle" type="scene">
+                    <node name="paddle" type="model">
+                      <model name="paddle"/>
+                      <node name="root" type="node"/>
+                    </node>
+                  </node>
+                  
+                </node>
+              </node>
+            </node>
+          </node>
+        
+        </node>
+      </node>
+    </node>
+    
+    <node name="burningSoldier" type="scene">
+      <node name="soldier" type="model">
+        <model name="soldier">
+          <geometry/>
+        </model>
+        <node name="root" type="joint">
+          <node name="torso" type="joint">
+            <node name="L_arm" type="joint">
+              
+              <node name="shield" type="scene">
+                <node name="shield" type="model">
+                  <model name="shield"/>
+                </node>
+              
+              <node name="L_hand"/>
+              
+            </node>
+            <node name="R_arm">
+              <node name="R_hand">
+                
+                <node name="sword" type="scene">
+                  <node name="sword" type="model">
+                    <model name="sword"/>
+                  </node>
+                </node>
+                
+              </node>
+            </node>
+          </node>
+        </node>
+      </node>
+      
+      <node name="fire" type="emitter">
+        <emitter/>
+        <node name="root" type="basic">
+          
+          <node name="light" type="light">
+            <light type="omni|direct|spot|area" />
+            <node name="root" type="joint"/>
+          </node>
+          
+        </node>
+      </node>
+    </node>
+    
+      <node name="trigger|event|switch" type="scene" controller="file@./path/to/controller.script">
+      </node>
+  </node>
+</node>
+</node>

@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <unordered_map>
 
+// @todo: rename CGeometry to CData (CModelData, CEmitterData...)
+
 namespace cym {
   class CGeometry;
   
@@ -37,12 +39,13 @@ namespace cym {
     public:
       typedef CGeometryInput::EAttribute EAttribute; 
       typedef T value_type;
+      typedef std::vector<T> input_type;
     protected:
-      std::vector<T> mInput;
+      input_type mInput;
     public: // ctors
       using CGeometryInput::CGeometryInput;
     public: // operators
-      value_type& operator [](count_type i) { return mInput[i]; }
+      value_type& operator [](count_type i) { assert(i < mInput.size() && "out of bounds"); return mInput[i]; }
       void        operator +=(T&& v) { mInput.push_back(std::move(v)); }
     public: // cats
       operator       T*()       { return static_cast<T*>(mInput.data()); }
@@ -62,7 +65,8 @@ namespace cym {
               inline void        push(T&& v)                  { mInput.push_back(std::move(v)); }
               inline void        push(const T& v)             { mInput.push_back(v); }
               inline T&          next()                       { return mInput.emplace_back(T{}); }
-              inline void        grow(count_type n)           { mInput.resize(n); }
+              inline void              grow(count_type n)           { mInput.resize(n); }
+              inline const input_type& input() const { return mInput; }
   };
   
   class CGeometryStream {
@@ -77,11 +81,11 @@ namespace cym {
     public:
       CGeometryInput* operator[](const sys::string& name) { auto it = mInputs.find(name); if (it != mInputs.end()) return it->second; throw sys::exception("Input "+ name + " NOT FOUND!",__FILE__,__LINE__); }
     public:
+      /* stream.find("position") => CGeometryInput*|CPositonInput* */
       const CGeometryInput* const find(const sys::string& name) const { auto it = mInputs.find(name); if (it != mInputs.end()) return it->second; return nullptr; }
-      
-      template<typename T, class = typename std::enable_if<std::is_convertible<T*,CGeometryInput*>::value>::type> T& create(sys::string&& name, T*&& in)  { mInputs.insert({std::move(name), std::move(in)}); return *in; }
-      // inputs
-      
+      /* stream.make("position", CPositionInput) => CPositionInput* */
+      template<typename T, class = typename std::enable_if<std::is_convertible<T*,CGeometryInput*>::value>::type> T& make(sys::string&& name, T*&& in)  { mInputs.insert({std::move(name), std::move(in)}); return *in; }
+      /*  uint32_t // an input's data pices count  */
       inline               count_type count() const    { return mInputs.begin()->second->count(); }
       inline               count_type size()  const    { count_type s = 0; for (auto& in : mInputs) s += in.second->size(); return s; }
       inline               void       pack()           { 
@@ -115,6 +119,7 @@ namespace cym {
       inline void        push(value_type v) { mIndices.push_back(v); }
       inline void push(const std::initializer_list<value_type>& tValues) { mIndices.reserve(mIndices.size() + tValues.size()); std::copy(tValues.begin(), tValues.end(), std::back_inserter(mIndices)); }
       inline const void* data()  const      { return static_cast<const void*>(mIndices.data()); }
+      inline void        grow(count_type n) { mIndices.resize(n); }
   };
   
   class CGeometry {
@@ -124,7 +129,8 @@ namespace cym {
       CGeometryStream mStream;
       CGeometryLayout mLayout;
     public:
-      template<typename T, class = typename std::enable_if<std::is_convertible<T*,CGeometryInput*>::value>::type> T& input(std::string&& name, T*&& in) { return mStream.create(std::move(name), std::move(in)); }
+      template<typename T, class = typename std::enable_if<std::is_convertible<T*,CGeometryInput*>::value>::type> T& input(std::string&& name, T*&& in) { return mStream.make(std::move(name),
+                                                                                                                                                                              std::move(in)); }
       inline CGeometryStream& stream()                    { return mStream; } 
       inline decltype(CGeometryStream::mInputs)& inputs() { return mStream.mInputs; } 
       inline CGeometryLayout& layout()                    { return mLayout; }

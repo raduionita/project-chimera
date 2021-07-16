@@ -9,7 +9,7 @@ namespace cym {
     
   };
   
-  // @todo: there should be an extended version of this for each type of renderer OGL3 OGLES DX12 VLK
+// @todo: there should be an extended version of this for each type of renderer OGL3 OGLES DX12 VLK
   
   class CRenderSystem {
     public:

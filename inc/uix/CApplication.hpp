@@ -42,6 +42,8 @@ namespace uix {
               bool exit(int=0);
               bool runs() const;
               void runs(bool);
+              bool isRunning() const;
+              void isRunning(bool);
     public:
       static CApplication* instance();
     protected:

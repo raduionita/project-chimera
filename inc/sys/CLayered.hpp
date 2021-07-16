@@ -25,6 +25,13 @@ namespace sys {
       void back(CLayer*);
       CLayer* pull();
   };
+  
+// @todo: separete what get's rendered:
+  // stats (fps)
+  // gui (on window menus)
+  // tools (gizmo, )
+  // scene
+  // background (2d games)
 }
 
 #endif //__sys_clayered_hpp__

@@ -35,7 +35,7 @@ namespace cym {
       friend class CInstance;
       friend class CInstanceRegistry;
     public:
-      typedef           T resource_type;
+      typedef           T  resource_type;
       typedef           T* pointer_type;
       typedef sys::sptr<T> instance_type;
     protected:
@@ -70,8 +70,8 @@ namespace cym {
       inline virtual void      load(sys::sptr<T> pInstance) final { mInstance = pInstance; mLoaded = (mInstance == true); } 
     public:
       inline sys::sptr<T> getInstance() const { return mInstance; }
-      inline const T*    getPointer()  const { return mInstance.ptr(); }
-      inline const T&    getResource() const { return mInstance.raw(); }
+      inline const T*     getPointer()  const { return mInstance.ptr(); }
+      inline const T&     getResource() const { return mInstance.raw(); }
   }; 
   
   // template<> class TInstance<int> : public 

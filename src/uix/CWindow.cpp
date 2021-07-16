@@ -4,7 +4,7 @@
 namespace uix {
   CWindow::~CWindow() {
     CYM_LOG_NFO("uix::CWindow::~CWindow()::" << this);
-    // @todo: throw exception if not ::free() NOT called
+    CWindow::free();
   }
   
   // cast ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -113,15 +113,24 @@ namespace uix {
     // add to the message queue // method should exit before this is triggered 
     ::PostMessage(mHandle, CM_INIT, 0, 0);
     
-    // @todo: Make this window 70% alpha
+// @todo: Make this window 70% alpha
     // SetWindowLong(mHandle, GWL_EXSTYLE, GetWindowLong(mHandle, GWL_EXSTYLE) | WS_EX_LAYERED);
     // SetLayeredWindowAttributes(hwnd, 0, (255 * 70) / 100, LWA_ALPHA);
     
     // done initing
     return (mState = (mState | EState::INITED));
+    
+// @todo: HACCEL hAccelTable = 0
+  // hAccelTable = ::LoadeAccelerators(hInstam MAKEINTRESOURCE(ID_ACCEL));
+  // while (::GetMessage(...)
+  //   ...
+  //   if (!::TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+  //     // now handle message, Translate+Dispatch
   }
   
   bool CWindow::free() {
+    RETURN((mState & EState::FREED),true);
+    // free only if not FREED before
     CYM_LOG_NFO("uix::CWindow::free()::" << this);
     // remove inited sate
     mState = (mState & ~EState::INITED) | EState::FREED;
@@ -405,6 +414,10 @@ namespace uix {
         CYM_LOG_NFO("  W::WM_CREATE::" << pWindow << " ID:" << pWindow->mId <<  " wParam:" << wParam << " lParam:" << lParam);
         // @todo: create event
         break; 
+      }
+      case WM_ENABLE: {
+        // called on ::EnableWindow() = enable or disable input(key&mounse) on a window 
+        break;
       }
       case WM_NOTIFY: { break; }
       case WM_INITDIALOG: { break; }

@@ -11,12 +11,15 @@
 #include "cym/CResource.hpp"
 #include "cym/CGeometry.hpp"
 #include "cym/CMaterial.hpp"
-#include "cym/CSkelet.hpp"
+#include "cym/CSkeleton.hpp"
+#include "cym/CCollider.hpp"
 #include "cym/CVertexArray.hpp"
 #include "cym/CDataBuffer.hpp"
 #include "cym/CVertexLayout.hpp"
 #include "cym/CDrawable.hpp"
 #include "cym/CInstance.hpp"
+#include "glm/CAABB.hpp"
+#include "glm/CFrustum.hpp"
 
 namespace cym {
   class CModel; class IModel; 
@@ -58,18 +61,50 @@ namespace cym {
       friend class IModel;
       friend class CMesh;
       friend class CModelManager;
+    public:
+      enum EFlag {
+        FLAG       = 1, // 1 << 0
+        POSITIONS  = FLAG << 1,
+        TEXCOORDS  = FLAG << 2,
+        NORMALS    = FLAG << 3,
+        TANGENTS   = FLAG << 4,
+        BINORMALS  = FLAG << 5,
+        VERTICES   = POSITIONS | TEXCOORDS | NORMALS | TANGENTS | BINORMALS,
+        MATERIALS  = FLAG << 7,
+        TEXTURES   = FLAG << 8,
+        SKELETON   = FLAG << 9,
+        ANIMATIONS = FLAG << 10 | SKELETON,
+        
+        DEFAULT    = FLAG | VERTICES | MATERIALS | TEXTURES | ANIMATIONS,
+        
+        NORMALIZED = FLAG << 11,             // normalize position vectors | must have position
+        INVERTED   = FLAG << 12 | NORMALS ,  // invert normals | must have normals
+        REPEATUV   = FLAG << 13,             
+        FLATFACE   = FLAG << 14,             // flat face - for loaded meshes this will used default normals - otherwise compute face normals
+        
+        FLIPXY     = FLAG << 15,
+        FLIPYZ     = FLAG << 16,
+        FLIPXZ     = FLAG << 17,
+      };
     private:
       sys::sptr<CVertexArray>           mVAO;
       sys::sptr<CVertexBuffer>          mVBO;
       sys::sptr<CIndexBuffer>           mIBO;
       sys::sptr<CVertexLayout>          mVLO;
     protected:
+// @todo: rename CGeometry to CData, & wrap mMeshes + mVAO... inside wapper class CGeometry 
       std::map<CMesh::name_type,sys::sptr<CMesh>> mMeshes;
+      glm::aabb                                   mAABB;
+// @todo: move collider at scene(node) level, as a component/plugin (for physics)?!
+      cym::CCollider                              mCollider;
+      sys::sptr<CSkeleton>                        mSkeleton {new CSkeleton};
+// @todo: mGeometry // wrap meshes + vertex data inside a CGeometry, requires to rename the current CGeometry
+// @todo: mAnimator // animations list wrapper // this should be common among other similar (skeleton) models
     public: // ctors
       using cym::CResource::CResource;
     public: // ctors
       CModel(const cym::name& tName = "");
-      CModel(sys::sptr<CModelLoader>);
+      CModel(sys::spt<CModelLoader>);
       ~CModel();
     public: // operators
       inline sys::sptr<CMesh>& operator [](uint i)             { return getMesh(i); }
@@ -92,7 +127,7 @@ namespace cym {
     public:
       using cym::TInstance<CMesh>::TInstance;
     public:
-      inline const CMesh&          getMesh() const { return mInstance.raw(); }
+      inline CMesh&                getMesh() const { return mInstance.raw(); }
       inline sys::sptr<IMaterial>& getMaterial(const cym::name& tName) { if (!mMaterial) mMaterial = new IMaterial{mInstance->mMaterial}; return mMaterial; }
     public:
       inline void draw() { mInstance->draw(); }  
@@ -106,7 +141,7 @@ namespace cym {
     public:
       using cym::TInstance<CModel>::TInstance;
     public:
-      inline const CModel&    getModel() const { return mInstance.raw(); }
+      inline CModel&           getModel() const { return mInstance.raw(); }
       inline sys::sptr<IMesh>& getMesh(const cym::name& tName) { auto& pMesh = mMeshes[tName]; if (!pMesh) pMesh = new IMesh{mInstance->getMesh(tName)}; return pMesh; }
       inline sys::sptr<IMesh>& getMesh(uint i) { 
         for (auto it = mMeshes.begin(); it != mMeshes.end(); ++it)
@@ -114,6 +149,8 @@ namespace cym {
         auto& pMesh = mInstance->getMesh(i);
         return mMeshes.insert(std::pair(pMesh->getName(), pMesh)).first->second;
       }
+      inline const cym::name&  getName() { return mInstance->getName(); }
+      inline const glm::aabb&  getAABB() { return mInstance->mAABB; }
     public:
       inline void draw() { mInstance->draw(); }  
   };
@@ -148,49 +185,27 @@ namespace cym {
       friend class CModelManager;
       typedef std::map<std::string, sys::sptr<CMeshLoader>> mesh_map;
     public:
-      enum EOption : uint {
-        OPTION     = 1, // 1 << 0
-        POSITIONS  = OPTION <<  1,
-        TEXCOORDS  = OPTION <<  2,
-        NORMALS    = OPTION <<  3,
-        TANGENTS   = OPTION <<  4,
-        BINORMALS  = OPTION <<  5,
-        VERTICES   = POSITIONS | TEXCOORDS | NORMALS | TANGENTS | BINORMALS,
-        MATERIALS  = OPTION <<  7,
-        TEXTURES   = OPTION <<  8,
-        SKELETON   = OPTION <<  9,
-        ANIMATIONS = OPTION << 10 | SKELETON,
-        
-        DEFAULT    = OPTION | VERTICES | MATERIALS | TEXTURES | ANIMATIONS,
-        
-        NORMALIZED = OPTION << 11,             // normalize position vectors | must have position
-        INVERTED   = OPTION << 12 | NORMALS ,  // invert normals | must have normals
-        FLATFACE   = OPTION << 13,             // flat face - for loaded meshes this will used default normals - otherwise compute face normals
-        
-        FLIPXY     = OPTION << 14,
-        FLIPYZ     = OPTION << 15,
-        FLIPXZ     = OPTION << 16,
-      };
+      using EFlag = CModel::EFlag;
     protected:
-      uint                                          mOptions {0};
+      uint                                          mFlags {0};
       cym::CGeometry                                mGeometry;
       std::map<std::string, sys::sptr<CMeshLoader>> mMeshLoaders;
     public:
       using CResourceLoader::CResourceLoader;
-      inline CModelLoader(const cym::name& tName, uint eOptions = EOption::DEFAULT) : CResourceLoader(tName), mOptions{eOptions} { CYM_LOG_NFO("cym::CModelLoader::CModelLoader(cym::name&,ushort)::" << this);  }
+      inline CModelLoader(const cym::name& tName, uint eFlags = EFlag::DEFAULT) : CResourceLoader(tName), mFlags{eFlags} { CYM_LOG_NFO("cym::CModelLoader::CModelLoader(cym::name&,ushort)::" << this);  }
       inline ~CModelLoader() { CYM_LOG_NFO("cym::CModelLoader::~CModelLoader()::" << this); }
     public:
       virtual inline void load(sys::sptr<CResourceLoader>) { throw sys::exception("CModelLoader::load() NOT overriden!",__FILE__,__LINE__);  };
     public:
-      inline uint                    getOptions()                            { return mOptions; }
-      inline bool                    hasOption(EOption e)                    { return mOptions & e; }
-      inline bool                    hasOptions(uint es)                     { return mOptions & es; }
+      inline uint                    getFlags()                              { return mFlags; }
+      inline bool                    hasFlag(EFlag e)                        { return mFlags & e; }
+      inline bool                    hasFlags(uint es)                       { return mFlags & es; }
       inline cym::CGeometry&         getGeometry()                           { return mGeometry; }
       inline mesh_map&               getMeshLoaders()                        { return mMeshLoaders; }
       inline sys::sptr<CMeshLoader>& getMeshLoader(const std::string& tName) { auto& pLoader = mMeshLoaders[tName]; if (!pLoader) pLoader = new CMeshLoader{tName}; return pLoader; }
     public:
       template<typename T> inline static sys::sptr<TModelLoader<T>> from(const T& tSource) { return new TModelLoader<T>{tSource}; }
-      template<typename T> inline static cym::name                  name(const T& tSource) { return TModelLoader<T>::name(tSource); }
+      template<typename T, typename... Args> inline static cym::name name(const T& tSource, Args&&... args) { return TModelLoader<T>::name(tSource, std::forward<Args>(args)...); }
     public:
       inline decltype(cym::CGeometry::mStream)& getStream() { return mGeometry.mStream; }
       inline decltype(cym::CGeometry::mLayout)& getLayout() { return mGeometry.mLayout; }
@@ -203,7 +218,7 @@ namespace cym {
     protected:
       sys::CFile mFile;
     public:
-      inline TModelLoader(const sys::CFile& tFile, uint eOptions = EOption::DEFAULT) : CModelLoader(tFile.path(), eOptions), mFile{tFile} { };
+      inline TModelLoader(const sys::CFile& tFile, uint eFlags = EFlag::DEFAULT) : CModelLoader(tFile.path(), eFlags), mFile{tFile} { };
     public:
       inline static cym::name name(const sys::CFile& tFile) { return tFile.path(); }
       virtual void load(sys::sptr<CResourceLoader>) override;
@@ -214,22 +229,61 @@ namespace cym {
   template<> class TModelLoader<glm::SCube> : public CModelLoader {
     protected:
       glm::SCube mCube;
+      uint       mXDivisions {1u};
+      uint       mYDivisions {1u};
+      uint       mZDivisions {1u};
     public:
-      inline TModelLoader(const glm::SCube& tCube, uint eOptions = EOption::DEFAULT) : CModelLoader(name(tCube), eOptions), mCube(tCube) { }
+      inline TModelLoader(const glm::SCube& tCube, uint eFlags = EFlag::DEFAULT) : CModelLoader(name(tCube, 1u, 1u, 1u), eFlags), mCube(tCube) { }
+      inline TModelLoader(const glm::SCube& tCube, uint nD, uint eFlags = EFlag::DEFAULT) : CModelLoader(name(tCube, nD, nD, nD), eFlags), mCube{tCube}, mXDivisions{nD}, mYDivisions{nD}, mZDivisions{nD} { }
+      inline TModelLoader(const glm::SCube& tCube, uint nXD, uint nYD, uint nZD, uint eFlags = EFlag::DEFAULT) : CModelLoader(name(tCube, nXD, nYD, nZD), eFlags), mCube{tCube}, mXDivisions{nXD}, mYDivisions{nYD}, mZDivisions{nZD} { }
     public:
-      inline static cym::name name(const glm::SCube& tCube) { return std::string("cube")+std::to_string(tCube.length); }
+      inline static cym::name name(const glm::SCube& tCube, uint nXD = 1u, uint nYD = 1u, uint nZD = 1u) { return std::string("cube:")+sys::to_string(tCube.length,3)+"|"+std::to_string(nXD)+"x"+std::to_string(nYD)+"x"+std::to_string(nZD); }
       virtual void load(sys::sptr<CResourceLoader>) override;
     public:
       inline glm::SCube& getCube() { return mCube; }
   };
-    
+  
+  template<> class TModelLoader<glm::rect> : public CModelLoader {
+    protected:
+      glm::rect mRectangle;
+      uint      mDivisions  {1u};
+      glm::vec3 mUp         {glm::Y}; // @todo
+    public:
+      inline TModelLoader(const glm::rect& tRect, uint eFlags = EFlag::DEFAULT) : CModelLoader(name(tRect, 1u, glm::Y), eFlags), mRectangle(tRect) { }
+      inline TModelLoader(const glm::rect& tRect, uint nDivisions, const glm::vec3& vUp, uint eFlags = EFlag::DEFAULT) : CModelLoader(name(tRect, nDivisions, vUp), eFlags), mRectangle{tRect}, mDivisions{nDivisions}, mUp{vUp} { }
+    public:
+      inline static cym::name name(const glm::rect& tRect, uint nDivisions = 1u, const glm::vec3& vAxis = glm::Y) { return std::string("rect:") + sys::to_string(tRect.width, 3) + 'x' + sys::to_string(tRect.height, 3) + '|' + std::to_string(nDivisions) + '|' + sys::to_string(vAxis, 1); }
+      virtual void load(sys::sptr<CResourceLoader>) override;
+    public:
+      inline glm::rect& geRectangle() { return mRectangle; }
+  };
+  
+  template<> class TModelLoader<glm::frustum> : public CModelLoader {
+    protected:
+      glm::frustum mFrustum; // use planes normal as the up vector
+      glm::uint    mDivisions {1u};
+    public:
+      inline TModelLoader(const glm::frustum& tFrustum, cym::uint eFlags = EFlag::DEFAULT) : CModelLoader(name(tFrustum, 1u), eFlags), mFrustum{tFrustum} { }
+      inline TModelLoader(const glm::frustum& tFrustum, const uint nDivisions, const uint eFlags = EFlag::DEFAULT) : CModelLoader(name(tFrustum,nDivisions),eFlags), mFrustum{tFrustum}, mDivisions{nDivisions} { }
+    public:
+      inline static cym::name name(const glm::frustum& f, const glm::uint d) { return std::string("frustum:") +'|'+ sys::to_string(d); }
+      virtual void load(sys::sptr<CResourceLoader>) override;
+    public:
+      inline glm::frustum& getFrustum() { return mFrustum; }
+  };
+  
+// @todo: pModelLoader->load(pModelLoader) there MUST be a better way, init() or exec() or run()  
+  
   // manager /////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+// @todo: CAnimatorManager
+// @todo: CAnimationManager
   
   class CModelManager : public cym::TManager<CModel>, public sys::TSingleton<CModelManager> {
       friend class CModel;
       friend class CModelLoader;
     public:
-      using EOption = CModelLoader::EOption;
+      using EFlag = CModel::EFlag;
     protected:
       std::map<cym::name, sys::sptr<CModel>> mModels;
     public:
@@ -281,6 +335,7 @@ namespace cym {
             
             sys::sptr<CMesh> pMesh {new CMesh{pMeshLoader->getName()}};
             
+            // here u can make materials load ASYNC (decoupled from model loading) // model should render event w/o materials
             pMesh->mMaterial = cym::CMaterialManager::load(pMeshLoader->mMaterialLoader);
             pMesh->mRange    = {pMeshLoader->mRange.nStart, pMeshLoader->mRange.nEnd - pMeshLoader->mRange.nStart};
             pMesh->mModel    = pModel;
@@ -297,21 +352,38 @@ namespace cym {
         return pModel;
       }
       
-      template<typename T> static sys::sptr<IModel> load(const T& tSource, uint eOptions = EOption::DEFAULT) {
+      template<typename T, typename... Args> static sys::sptr<IModel> load(const T& tSource, Args&&... args) {
         static auto pThis {cym::CModelManager::getSingleton()};
-        CYM_LOG_NFO("cym::CModelManager::load(T&)::" << pThis);
-      
+        CYM_LOG_NFO("cym::CModelManager::load(T&,Args&&)::" << pThis);
+        
         sys::sptr<CModel> pModel;
+        
         const cym::name&  tName {CModelLoader::name(tSource)};
         
         if (!sys::find(tName, pThis->mModels, pModel)) {
-          sys::sptr<CModelLoader> tLoader {new TModelLoader<T>(tSource,eOptions)};
-          
+          sys::sptr<CModelLoader> tLoader = new TModelLoader<T>{tSource, std::forward<Args>(args)...};
+        
           pModel = CModelManager::load(tLoader);
         }
         
         return new IModel{pModel};
       }
+      
+      // template<typename T> static sys::sptr<IModel> load(const T& tSource/*, uint eOptions = EOption::DEFAULT*/) {
+      //   static auto pThis {cym::CModelManager::getSingleton()};
+      //   CYM_LOG_NFO("cym::CModelManager::load(T&)::" << pThis);
+      //
+      //   sys::sptr<CModel> pModel;
+      //   const cym::name&  tName {CModelLoader::name(tSource)};
+      //  
+      //   if (!sys::find(tName, pThis->mModels, pModel)) {
+      //     sys::sptr<CModelLoader> tLoader {new TModelLoader<T>(tSource, EOption::DEFAULT)};
+      //    
+      //     pModel = CModelManager::load(tLoader);
+      //   }
+      //  
+      //   return new IModel{pModel};
+      // }
   };
 }
 

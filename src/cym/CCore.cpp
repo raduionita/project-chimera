@@ -19,6 +19,7 @@ namespace cym {
     setTextureManager(new cym::CTextureManager);
     setModelManager(new cym::CModelManager);
     setShaderManager(new cym::CShaderManager);
+    setSceneManager(new cym::CSceneManager);
     
     setCodecManager(new cym::CCodecManager);
       getCodecManager()->addCodec(new TCodec<CTexture,ECodec::DDS>);
@@ -26,7 +27,7 @@ namespace cym {
       getCodecManager()->addCodec(new TCodec<CTexture,ECodec::BMP>);
       getCodecManager()->addCodec(new TCodec<CModel,ECodec::DAE>);
       getCodecManager()->addCodec(new TCodec<CModel,ECodec::OBJ>);
-    
+      getCodecManager()->addCodec(new TCodec<CScene,ECodec::SCENE>);
     
     return mInited = true;
   }

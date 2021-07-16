@@ -8,7 +8,7 @@
 
 #######
 - fix: dds texture flipped
-- fix: texture wrapping + filtering + blending
+- fix: texture setWrapping + filtering + blending
 - use std::string_view instead of allocation a new std::string
 - glMapBufferRange is faster
 - parallel loops std::for_each(std::execution:par_unseq, std::vector::begin(), std::vector::end())
@@ -79,14 +79,17 @@
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <game>
-  <world>
+  <level>
     <scene source="path/scene.xml" />
     <scene>
       <model source=""/>
-      <effect />
+      <effect/>
       <trigger/>
+      <light/>
+      <camera/>
+      <force/>
     </scene>
-  </world>
+  </level>
 </game>
 ```
 
@@ -167,7 +170,7 @@ std::vector<CNode> pNodes = CScene::query(query);
     | | - shadow pass
     | | | - QUERY scene : FIND lights WHERE |light.position - camera.position| < 10 
     | | | - FOR EACH light : lights
-    | | | | - IF light CAN (create) shadow
+    | | | | - IF light CAN (make) shadow
     | | | | | - CREATE (shadow) framebuffer
     | | | | | 
     | | | | | - FOR EACH layer (6 layers for POINT light, 1 layer for the rest)

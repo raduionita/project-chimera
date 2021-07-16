@@ -9,7 +9,7 @@
 namespace cym {
   class CVertexLayout; typedef sys::sptr<CVertexLayout> PVertexLayout;
   
-  enum EVertexAttribute : int { ATTRIBUTE = -1, POSITION = 0, TEXCOORD, NORMAL, COLOR, TANGENT, BINORMAL, JOINTS, WEIGHTS, ATTRIBUTE_8 };
+  enum EVertexAttribute : int { ATTRIBUTE = -1, POSITION = 0, TEXCOORD, NORMAL, COLOR, TANGENT, BINORMAL, JOINTS, WEIGHTS };
   
   class CVertexLayout { // @see [morpheus] CBufferRange
       friend class CVertexArray;

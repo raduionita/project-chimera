@@ -119,7 +119,7 @@ namespace cym {
     throw CException("NOT IMPLEMENTED");
   }
   
-  void CTexture::filtering(enum cym::CTexture::EFiltering eFiltering) {
+  void CTexture::filtering(cym::CTexture::EFiltering eFiltering) {
     GLCALL(::glBindTexture(mTarget, mID));
     switch(eFiltering) {
       case EFiltering::NEAREST:
@@ -144,21 +144,21 @@ namespace cym {
     }
   }
   
-  void CTexture::wrapping(enum cym::CTexture::EWrapping eWrapping) {
+  void CTexture::setWrapping(cym::CTexture::EWrapping eWrapping) const {
     GLCALL(::glBindTexture(mTarget, mID));
       
     GLenum wrapping = GL_NONE;
-    if(eWrapping | EWrapping::CLAMP_TO_EDGE)
+    if (eWrapping & EWrapping::CLAMP_TO_EDGE)
       wrapping = GL_CLAMP_TO_EDGE;
-    else if(eWrapping | EWrapping::CLAMP_TO_BORDER)
+    else if (eWrapping & EWrapping::CLAMP_TO_BORDER)
       wrapping = GL_CLAMP_TO_BORDER;
-    else if(eWrapping | EWrapping::REPEAT)
+    else if (eWrapping & EWrapping::REPEAT)
       wrapping = GL_REPEAT;
       
     GLCALL(::glTexParameteri(mTarget, GL_TEXTURE_WRAP_S, wrapping));
-    if(mHeight > 1 || mTarget == GL_TEXTURE_2D || mTarget == GL_TEXTURE_1D_ARRAY)
+    if (mHeight > 1 || mTarget == GL_TEXTURE_2D || mTarget == GL_TEXTURE_1D_ARRAY)
       GLCALL(::glTexParameteri(mTarget, GL_TEXTURE_WRAP_T, wrapping));
-    if(mDepth > 1 || mTarget == GL_TEXTURE_3D || mTarget == GL_TEXTURE_CUBE_MAP || mTarget == GL_TEXTURE_2D_ARRAY)
+    if (mDepth > 1 || mTarget == GL_TEXTURE_3D || mTarget == GL_TEXTURE_CUBE_MAP || mTarget == GL_TEXTURE_2D_ARRAY)
       GLCALL(::glTexParameteri(mTarget, GL_TEXTURE_WRAP_R, wrapping));
   }
   

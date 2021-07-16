@@ -40,6 +40,9 @@ namespace sys {
       // copy constructor // 2 CPointers will have same mCount
       TPointer(const TPointer<T,EPointer::SHARED>& that) : mPointer{that.mPointer}, mCount{that.mCount} { if (mPointer) { ++(*mCount); } }
       // copy weak
+      
+// @todo: DO NOT ALLOW weak pointer (w/ no info) here
+      
       TPointer(const TPointer<T,EPointer::WEAK>& that)   : mPointer{that.mPointer}, mCount{that.mCount} { if (mPointer) { ++(*mCount); } if (!mCount) { that.mCount = mCount = new uint32_t{1}; } }
       // copy foreign shared
       template <typename Y, class = typename std::enable_if<std::is_convertible<Y*,T*>::value>::type> TPointer(const TPointer<Y,EPointer::SHARED>& that) : mPointer{that.mPointer}, mCount{that.mCount} { if (mPointer) { ++(*mCount); } }
@@ -122,10 +125,13 @@ namespace sys {
       T& operator  *() const noexcept { return *mPointer; }
       T* operator ->() const noexcept { return  mPointer; }
       // bool operators
-      bool operator ==(std::nullptr_t) { return mPointer == nullptr; }
+      bool operator ==(std::nullptr_t)       { return mPointer == nullptr; }
+      bool operator ==(std::nullptr_t) const { return mPointer == nullptr; }
+      bool operator !=(std::nullptr_t)       { return mPointer != nullptr; }
+      bool operator !=(std::nullptr_t) const { return mPointer != nullptr; }
       bool operator ==(const T* pPointer) { return mPointer == pPointer; }
       bool operator ==(const TPointer<T,EPointer::SHARED>& that) { return mPointer == that.mPointer; }
-      bool operator ==(const TPointer<T,EPointer::WEAK>& that) { return mPointer == that.mPointer; }
+      bool operator ==(const TPointer<T,EPointer::WEAK>& that)   { return mPointer == that.mPointer; }
       bool operator ==(bool state) { return state ? mPointer != nullptr : mPointer == nullptr; }
       bool operator  !() { return mPointer == nullptr; }
       // cast operator
@@ -232,9 +238,12 @@ namespace sys {
       T& operator  *() const noexcept { return *mPointer; }
       T* operator ->() const noexcept { return  mPointer; }
       // bool operators
-      bool operator ==(std::nullptr_t) { return mPointer == nullptr; }
+      bool operator ==(std::nullptr_t)       { return mPointer == nullptr; }
+      bool operator ==(std::nullptr_t) const { return mPointer == nullptr; }
+      bool operator !=(std::nullptr_t)       { return mPointer != nullptr; }
+      bool operator !=(std::nullptr_t) const { return mPointer != nullptr; }
       bool operator ==(const T* pPointer) { return mPointer == pPointer; }
-      bool operator ==(const TPointer<T,EPointer::WEAK>& that) { return mPointer == that.mPointer; }
+      bool operator ==(const TPointer<T,EPointer::WEAK>& that)   { return mPointer == that.mPointer; }
       bool operator ==(const TPointer<T,EPointer::SHARED>& that) { return mPointer == that.mPointer; }
       bool operator ==(bool state) { return state ? mPointer != nullptr : mPointer == nullptr; }
       bool operator  !() { return mPointer == nullptr; }

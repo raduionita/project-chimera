@@ -9,7 +9,7 @@
 #include "cym/CShader.hpp"
 #include "cym/CCodec.hpp"
 #include "cym/CScene.hpp"
-#include "cym/CNode.hpp"
+#include "cym/CFont.hpp"
 
 #include "sys/CSingleton.hpp"
 #include "sys/CException.hpp"
@@ -34,6 +34,7 @@ namespace cym {
       sys::sptr<CMaterialManager> mMaterialManager;
       sys::sptr<CTextureManager>  mTextureManager;
       sys::sptr<CModelManager>    mModelManager;
+      sys::sptr<CSceneManager>    mSceneManager;
       
       sys::sptr<CCodecManager>    mCodecManager;
       
@@ -59,8 +60,11 @@ namespace cym {
       static sys::sptr<CTextureManager>& getTextureManager() { return getSingleton()->mTextureManager; }
       virtual inline void                setTextureManager(sys::sptr<CTextureManager> pManager) { mTextureManager = pManager; }
       
-      static sys::sptr<CModelManager>& getModelManager() { return getSingleton()->mModelManager; }
+      static sys::sptr<CModelManager>& getGeometryManager() { return getSingleton()->mModelManager; }
       virtual inline void              setModelManager(sys::sptr<CModelManager> pManager) { mModelManager = pManager; }
+      
+      static sys::sptr<CSceneManager>& getSceneManager() { return getSingleton()->mSceneManager; }
+      virtual inline void              setSceneManager(sys::sptr<CSceneManager> pManager) { mSceneManager = pManager; }
       
       static sys::sptr<CRenderSystem> setRenderSystem(sys::sptr<CRenderSystem> pSystem) { return getSingleton()->mRenderSystem = pSystem; }
       

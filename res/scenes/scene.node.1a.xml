@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root:node xmlns:node="" xmlns:entity="" xmlns:group="" xmlns:item="" xmlns:element="" xmlns:root="" xmlns:model="">
+  
+  <node:scene name="ground">
+    <entity:model scope="terrain" file="../path/to/terrain.ext">
+      <model:terrain  file="../path/to/terrain.ext"/>
+    </entity:model>
+      
+    <node:entity type="model" id="toothless" matrix="tx ty tz rx ry rz rw sx sy sz">
+      <entity:model scope="dynamic" file="../path/to/tootlesh.mdl">
+        <group:detail name="lod">
+          <item:detail level="0">
+            <model:dynamic file="../path/to/tootlesh.HD.mdl" />
+          </item:detail>
+          <item:detail level="1">
+            <model:dynamic file="../path/to/tootlesh.SD.mdl" />
+          </item:detail>
+        </group:detail>
+      </entity:model>
+      <!-- toothless hierarchy -->
+      <node:joint type="root" name="root">
+        <node:joint name="torso">
+          <node:joint name="sadle">
+            <!-- toothless has a saddle -->
+            <node:entity type="model">
+              <entity:model file="../path/to/saddle.mdl" />
+              <node:joint type="root">
+                <!-- the saddle holds hiccup -->
+                <node:entity type="model" id="hiccup">
+                  <entity:model file="../path/to/hiccup.xml" />
+                </node:entity>
+              </node:joint>
+            </node:entity>
+          </node:joint>
+        </node:joint>
+      </node:joint>
+    </node:entity>
+    
+  
+  </node:scene>
+  
+  <node:scene name="room" >
+    <entity:model scope="mesh" file="../path/to/room.ext" />
+  
+  </node:scene>
+  
+</root:node>

@@ -46,7 +46,7 @@ namespace cym {
     class CMaterial;
     class CAnimation;
     class CShader;
-    class CSkelet; //-on
+    class CSkeleton; //-on
   class CResourceLoader;
     class CModelLoader;
     class CMeshLoader;
@@ -110,17 +110,11 @@ namespace cym {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  enum class EPolymode {
-    POINTS    = 0b001,
-    WIREFRAME = 0b010,
-    SOLID     = 0b100,
-  };
+  enum class EPolymode { POINTS = 0b001, WIREFRAME = 0b010, SOLID = 0b100, };
   
-  enum class ECulling {
-    NONE,
-    CLOCKWISE, CW = CLOCKWISE,
-    COUNTERCLOCKWISE, CCW = COUNTERCLOCKWISE,
-  };
+  enum class ECulling { NONE, CLOCKWISE, CW = CLOCKWISE, COUNTERCLOCKWISE, CCW = COUNTERCLOCKWISE, };
+  
+  enum class EAnimation { LINEAR = 0, EASE_IN, EASE_OUT, EASE_IN_OUT, BOUNCE, ELASTIC };
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   

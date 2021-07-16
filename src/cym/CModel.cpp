@@ -32,13 +32,23 @@ namespace cym {
     mVLO = new cym::CVertexLayout{cym::CVertexLayout::SEQUENTIAL};
     mVBO = new cym::CVertexBuffer{rGeometry.stream().size(), rGeometry.stream().count()};
   
-    // @todo merge geometries: CGeometry + CGeometry or rGeometry.concat(CGeometry)
-    
-    // @todo: CModelData could/should have an array of CGeometries
+// @todo merge geometries: CGeometry + CGeometry or rGeometry.concat(CGeometry) 
+
+// @todo: CModelData could/should have an array of CGeometries
+
     // for (auto& rGeometry : rData.geometries) 
     for (auto&& [name,in] : rGeometry.inputs()) {
+      // load vbo & layout
       mVBO->data(in);
       mVLO->read(in);
+      // infer mAABB from geometry
+      if (in->attribute() == EVertexAttribute::POSITION) {
+        auto pi = static_cast<cym::CPositionInput*>(in);
+        for (auto& tVec : pi->input()) {
+          mAABB.min.x = glm::min(mAABB.min.x,tVec.x); mAABB.min.y = glm::min(mAABB.min.y,tVec.y); mAABB.min.z = glm::min(mAABB.min.z,tVec.z);
+          mAABB.max.x = glm::max(mAABB.max.x,tVec.x); mAABB.max.y = glm::max(mAABB.max.y,tVec.y); mAABB.max.z = glm::max(mAABB.max.z,tVec.z);
+        }
+      }
     }
     
     mVAO->load(*mVBO,*mVLO);
@@ -80,9 +90,9 @@ namespace cym {
     
     auto& rGeometry    = pModelLoader->getGeometry();
     
-    auto& rPositions = rGeometry.stream().create("positions", new cym::CPositionInput);
-    auto& rTexcoords = rGeometry.stream().create("texcoords", new cym::CTexcoordInput);
-    auto& rNormals   = rGeometry.stream().create("normals",   new cym::CNormalInput);
+    auto& rPositions = rGeometry.stream().make("positions", new cym::CPositionInput);
+    auto& rTexcoords = rGeometry.stream().make("texcoords", new cym::CTexcoordInput);
+    auto& rNormals   = rGeometry.stream().make("normals", new cym::CNormalInput);
     auto& rLayout    = rGeometry.layout();
     
     static const uint kNumVertices {24};
@@ -91,7 +101,7 @@ namespace cym {
     const glm::real hHeight = rCube.length / 2.f;
     const glm::real hDepth  = rCube.length / 2.f;
     
-    rPositions.grow(24);
+    rPositions.grow(kNumVertices);
     rPositions[ 0] = glm::vec3(-hWidth, -hHeight,  hDepth);
     rPositions[ 1] = glm::vec3(-hWidth, -hHeight,  hDepth);
     rPositions[ 2] = glm::vec3(-hWidth, -hHeight,  hDepth);
@@ -184,8 +194,8 @@ namespace cym {
       23,  8, 11  // triangle 11 // face 7
     });
     
-    auto& rTangents  = rGeometry.stream().create("tangents",  new cym::CTangentInput);  rTangents.grow(kNumVertices);
-    auto& rBinormals = rGeometry.stream().create("binormals", new cym::CBinormalInput); rBinormals.grow(kNumVertices);
+    auto& rTangents  = rGeometry.stream().make("tangents", new cym::CTangentInput);  rTangents.grow(kNumVertices);
+    auto& rBinormals = rGeometry.stream().make("binormals", new cym::CBinormalInput); rBinormals.grow(kNumVertices);
     auto& rIndices   = rLayout.indices();
     
     for(size_t i = 0; i < kNumIndices; i+=3) {
@@ -246,5 +256,144 @@ namespace cym {
     auto& pMeshLoader = pModelLoader->getMeshLoader("cube");
     pMeshLoader->getRange().nStart = 0;
     pMeshLoader->getRange().nEnd   = rLayout.size();
+  }
+  
+  void TModelLoader<glm::rect>::load(sys::sptr<CResourceLoader> pResourceLoader) {
+    CYM_LOG_NFO("cym::TModelLoader<glm::rect>::load(sys::sptr<CResourceLoader>)");
+    
+    auto       pModelLoader = sys::static_pointer_cast<TModelLoader<glm::rect>>(pResourceLoader);
+    glm::rect& rRect        = pModelLoader->geRectangle();
+    
+    auto& rGeometry    = pModelLoader->getGeometry();
+    
+    auto& rPositions = rGeometry.stream().make("positions", new cym::CPositionInput);
+    auto& rTexcoords = rGeometry.stream().make("texcoords", new cym::CTexcoordInput);
+    auto& rNormals   = rGeometry.stream().make("normals", new cym::CNormalInput);
+    auto& rLayout    = rGeometry.layout();
+  
+    const uint  kDivisions {pModelLoader->mDivisions};
+    const uint  kFlags {pModelLoader->mFlags};
+    const bool  bInverted {!!(kFlags & EFlag::INVERTED)};
+    const bool  bTangents {!!(kFlags & EFlag::TANGENTS)};
+    const bool  bNormals  {!!(kFlags & EFlag::NORMALS)};    // @todo
+    const bool  bRepeatUV {!!(kFlags & EFlag::REPEATUV)};
+    const float kTexScale {1.f};                              // @todo: on create
+    const uint  kNumVertices {(kDivisions+1)*(kDivisions+1)}; // 4
+    const uint  kNumIndices  {6 * kDivisions * kDivisions};
+    const glm::real& fWidth  = rRect.width; 
+    const glm::real& fHeight = rRect.height; 
+    const glm::real hWidth  = fWidth  / 2.f;
+    const glm::real hHeight = fHeight / 2.f;
+  //const glm::real hDepth  = 0.f;
+    const float fTexDiv = (bRepeatUV ? 1.f : (float)(kDivisions)) * kTexScale;
+    
+    const glm::vec3& vNormal = bInverted ? pModelLoader->mUp : pModelLoader->mUp *= -1.f;  
+    
+    rPositions.grow(kNumVertices);
+    rTexcoords.grow(kNumVertices);
+    rNormals.grow(kNumVertices);
+    for (uint i = 0; i < kNumVertices; i++) {
+      const uint nX = i % (kDivisions + 1); // 0 1 0 1
+      const uint nZ = i / (kDivisions + 1); // 0 0 1 1
+      
+      rPositions[i] = glm::vec3{((float)(nX) / (float)(kDivisions)) * fWidth - hWidth,    // position.x 
+                                0.f,                                                      // position.y
+                                ((float)(nZ) / (float)(kDivisions)) * fHeight - hHeight}; // position.z
+                                
+      rTexcoords[i] = glm::vec2{(float)(nX) / fTexDiv,  // texcoord.s
+                                (float)(nZ) / fTexDiv}; // texcoord.t
+                                
+      rNormals[i] = vNormal;
+    }
+    
+    rLayout.grow(kNumIndices);
+    for (uint i = 0, j = 0; i < kNumIndices; i+=6) {
+      rLayout[i + 0] = j + kDivisions + 1 + (bInverted ? 0 : 1);
+      rLayout[i + 1] = j + kDivisions + 1 + (bInverted ? 1 : 0);
+      rLayout[i + 2] = j;
+      rLayout[i + 3] = j + 1 + (bInverted ? kDivisions + 1 : 0);
+      rLayout[i + 4] = j + 1 + (bInverted ? 0              : kDivisions + 1);
+      rLayout[i + 5] = j;
+      
+      j = (j + 2) % (kDivisions + 1) ? j + 1 : j + 2;
+    }
+    
+    if (bTangents) {
+      auto& rTangents  = rGeometry.stream().make("tangents", new cym::CTangentInput);
+      auto& rBinormals = rGeometry.stream().make("binormals", new cym::CBinormalInput);
+      
+      rTangents.grow(kNumVertices);
+      rBinormals.grow(kNumVertices);
+      
+      for (ushort i = 0; i < kNumVertices; i++) {
+        rTangents[i]  = glm::vec3{0.f};
+        rBinormals[i] = glm::vec3{0.f};
+      }
+      
+      for (uint i = 0; i < kNumIndices; i+=3) {
+        const uint& i0 {rLayout[i+0]};
+        const uint& i1 {rLayout[i+1]};
+        const uint& i2 {rLayout[i+2]};
+        
+        const glm::vec3& p0 {rPositions[i0]};
+        const glm::vec3& p1 {rPositions[i1]};
+        const glm::vec3& p2 {rPositions[i2]};
+        
+        const glm::vec2& t0 {rTexcoords[i0]};
+        const glm::vec2& t1 {rTexcoords[i1]};
+        const glm::vec2& t2 {rTexcoords[i2]};
+        
+        const glm::vec3 dp1 {p1 - p0}; // edge 1 = 1 -> 0 = local x
+        const glm::vec3 dp2 {p2 - p1}; // edge 2 = 2 -> 0 = local y
+        
+        const glm::vec2 dt1 {t1 - t0};
+        const glm::vec2 dt2 {t2 - t1};
+        
+        const float     r  = 1.0f / (dt1.x * dt2.y - dt1.y * dt2.x);
+        const glm::vec3 ta = (dp1 * dt2.y - dp2 * dt1.y) * r;         // tangent
+        const glm::vec3 bi = (dp2 * dt1.x - dp1 * dt2.x) * r;         // binormal
+        
+        rTangents[i0] = ta;
+        rTangents[i1] = ta;
+        rTangents[i2] = ta;
+        
+        rBinormals[i0] = bi;
+        rBinormals[i1] = bi;
+        rBinormals[i2] = bi;
+      }
+      
+      for (uint i = 0; i < kNumVertices; i++) {
+        const glm::vec3& n = rNormals[i];
+        const glm::vec3& t = rTangents[i];
+        const glm::vec3& b = rBinormals[i];
+        
+        rTangents[i] = glm::normalize(t - n * glm::dot(n,t));            // orthogonalize(Gram-Schmidt)
+        rTangents[i] = glm::dot(glm::cross(n,t),b) < 0.f ? t * -1.f : t; // handedness
+      }
+    }
+    
+    auto& pMeshLoader = pModelLoader->getMeshLoader("rectangle");
+    pMeshLoader->getRange().nStart = 0;
+    pMeshLoader->getRange().nEnd   = rLayout.size();
+  }
+  
+  
+  void TModelLoader<glm::frustum>::load(sys::sptr<CResourceLoader> pResourceLoader) {
+    CYM_LOG_NFO("cym::TModelLoader<glm::frustum>::load(sys::sptr<CResourceLoader>)");
+    
+    auto          pModelLoader = sys::static_pointer_cast<TModelLoader<glm::frustum>>(pResourceLoader);
+    glm::frustum& rFrustum     = pModelLoader->getFrustum();
+    
+    auto& rGeometry    = pModelLoader->getGeometry();
+    
+// get 
+    
+    
+    
+    
+    
+    
+    
+    
   }
 }

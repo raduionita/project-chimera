@@ -65,7 +65,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 - replace(use): custom types (typedef uint) instead of opengl's GLxxx types
 - attach `CContext` to window(s) // by ref?!
 - opening files shouln't crash (through exception) the app, just show an error
-- create engine (using context)
+- make engine (using context)
   - add viewports (windows + cameras) to engine // new `CViewport` = `CWindow` + `CCamera`
   
 
@@ -78,7 +78,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 
 - timer (proper timer object w/ start & elapsed)
 
-- move window create logic from `CWindow` to `CFrame` (first concrete attach) and others
+- move window make logic from `CWindow` to `CFrame` (first concrete attach) and others
 - `SConfig`: replace window hints w/ config
 - `SState`: window & application states for persistance
 - fix: leak: all ::GetDC() MUST have a ::ReleaseDC()
@@ -123,7 +123,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 - `uix` most pointers should be wrapped by a smart pointer object
 
 - surface != panel // need something above (or just use widget) // panel for controls // surface for opengl
-- throw exception on windows create failed + loop + try + fatal or warning // where to use them
+- throw exception on windows make failed + loop + try + fatal or warning // where to use them
 
 - app: 2 panels: 1x canvas +1x buttons (like spawn a sphere)
 
@@ -228,7 +228,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
         - layouts: [4xViewports] | [2xLeft + 1xRight] | [1xRight + 2xLeft] | [1xTop + 1xBottom] | [1xViewport]
         - projection: [perspective] | [orthographic] 
         - init: 
-            - create opengl context
+            - make opengl context
             - open game.xml & scene.xml 
             - setup virtual cameras (views) (not saved w/ the scene)
             - send asses to be loaded in the background 

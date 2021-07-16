@@ -81,8 +81,12 @@ namespace sys {
   using exception   = sys::CException;
   template<typename T> using ptr     = sys::TPointer<T, EPointer::SHARED>;
   template<typename T> using sptr    = sys::TPointer<T, EPointer::SHARED>;
+  template<typename T> using spt     = sys::TPointer<T, EPointer::SHARED>;
   template<typename T> using wptr    = sys::TPointer<T, EPointer::WEAK>;
+  template<typename T> using wpt     = sys::TPointer<T, EPointer::WEAK>;
   template<typename T> using uptr    = sys::TPointer<T, EPointer::UNIQUE>;
+  template<typename T> using upt     = sys::TPointer<T, EPointer::UNIQUE>;
+  
   
   using string                  = std::string;
   template<typename V> using set                 = std::set<V>;
@@ -127,6 +131,14 @@ namespace sys {
   inline uint alnumspn(const char* src) { uint i {0}; while(!isalnum(src[i])) i++; return i; }  
   
   inline uint charspn(const char* src, char c) { uint i {0}; while(src[i] != c) i++; return i; }
+  
+  /* like std::to_string, but w/ precission, so u can control the output length */
+  template <typename T> inline std::string to_string(const T v, const int p = 6) {
+    std::ostringstream out;
+    out.precision(p);
+    out << std::fixed << v;
+    return out.str();
+  }
   
   // using namespace std::chrono_literals;
   // auto day = 24h;

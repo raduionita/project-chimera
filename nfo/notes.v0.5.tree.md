@@ -16,7 +16,7 @@
 # CAMERA : ENTITY:Camera
 # LIGHT  : ENTITY:Light
 # EFFECT : ENTITY:Effect
-# NODE   : ENTITY:Node
+# BASIC   : ENTITY:Node
 
 # JOINT
 ------------------------------------------------------------------------------------------------------------------------
@@ -38,17 +38,17 @@ class CEntity
   std::vector<CComponent> mComponents
   
 class CModel
-  CSkelet*               mSkeleton;
+  CSkeleton*               mSkeleton;
   CAnimator*               mAnimator;
   CGeometry*               mGeometry;
   
 class CAnimator
   std::string              mAID;        // something which identifies it among animations 
-  CSkelet*               mSkeleton;   // same as the one inside model - maybe the one inside mode is redundant
+  CSkeleton*               mSkeleton;   // same as the one inside model - maybe the one inside mode is redundant
   std::vector<CAnimation*> mAnimations; // real owner is CAnimationManager
 
 class CAnimation
-  CSkelet*               mSkeleton;
+  CSkeleton*               mSkeleton;
 
 class CGeometry
   std::vector<CMesh>       mMeshLoaders;     // meshes are imutable - models own their own meshes

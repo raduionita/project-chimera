@@ -25,10 +25,10 @@
         <node:effex><effex /></node:effex>                // particle system (sfx) like fire
       </node:joint>
       
-      <node:animt>
+      <node:anims>
         <animation name="idle" file="/path/to/animation.file" /> // @see Asset/File/ResourceManager
         <animation name="walk" file="/path/to/animation.file" /> 
-      </node:animt>
+      </node:anims>
       
       <node:psyxs />                                             // physics descriptor
     </node:model>

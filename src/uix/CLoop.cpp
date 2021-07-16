@@ -88,11 +88,13 @@ namespace uix {
         break;
       }
   
+      // read inputs
       read();
   
+      // update loop (game state)
       iLoop = 0;
-      // the update loop
-      while (nNxtTicks < ::GetTickCount() && iLoop++ < mMaxLoops) {
+      // if tick logic is very fast => do it again
+      while ((nNxtTicks < ::GetTickCount()) && (iLoop++ < mMaxLoops)) {
         
         tick(::GetTickElapsed()/1000.f);
         
@@ -101,6 +103,7 @@ namespace uix {
       
       // fInterp = float(::GetTickCount() + kJumpTime - nNxtTicks) / float(kJumpTime);
       
+      // draw scene
       draw();
     }
     

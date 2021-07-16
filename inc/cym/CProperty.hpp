@@ -1,10 +1,10 @@
 #ifndef __cym_cproperty_hpp__
 #define __cym_cproperty_hpp__
 
+#include "sys/CException.hpp"
 #include "cym/cym.hpp"
 #include "glm/glm.hpp"
 #include "glm/CVector.hpp"
-#include "sys/CException.hpp"
 
 namespace cym {
   enum class EProperty : uint { LEVEL = 1, COLOR = 2, TEXTURE = 4 };

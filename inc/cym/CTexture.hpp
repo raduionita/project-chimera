@@ -92,7 +92,7 @@ namespace cym {
     public: // get/set-ers
       void          filtering(EFiltering eFiltering);
       EFiltering    filtering() const { throw sys::CException("NOT IMPLEMENTED", __FILE__, __LINE__); }
-      void          wrapping(EWrapping eWrapping);
+      void          setWrapping(EWrapping eWrapping) const;
       inline GLenum target() const { return mTarget; }
       inline void   type(EType eType) { mType = eType; mTarget = (eType == EType::CUBEMAP ? GL_TEXTURE_CUBE_MAP : (eType == EType::VOLUME ? GL_TEXTURE_3D : mTarget)); }
       inline EType  type() const { return mType; }
@@ -109,7 +109,9 @@ namespace cym {
   };
   
   inline GLbitfield operator |(const CTexture::EWrapping& lhs, const CTexture::EWrapping& rhs) { return (GLbitfield)((GLbitfield)(lhs) | (GLbitfield)(rhs)); }
+  inline GLbitfield operator &(const CTexture::EWrapping& lhs, const CTexture::EWrapping& rhs) { return (GLbitfield)((GLbitfield)(lhs) & (GLbitfield)(rhs)); }
   inline GLbitfield operator |(const CTexture::EFiltering& lhs, const CTexture::EWrapping& rhs) { return (GLbitfield)((GLbitfield)(lhs) | (GLbitfield)(rhs)); }
+  inline GLbitfield operator &(const CTexture::EFiltering& lhs, const CTexture::EWrapping& rhs) { return (GLbitfield)((GLbitfield)(lhs) & (GLbitfield)(rhs)); }
   
   // int w, h;
   // int miplevel = 0;
@@ -184,12 +186,13 @@ namespace cym {
       CTextureManager();
       ~CTextureManager();
     public:
+      /* remeber/cache texture  */
       static void save(sys::sptr<CTexture> pTexture) {
         static auto pThis {CTextureManager::getSingleton()};
         CYM_LOG_NFO("cym::CTextureManager::save(sys::sptr<CTexture>)::" << pThis);
         pThis->mTextures.insert(std::pair(pTexture->mName, pTexture));
       }
-      
+      /* load texture from texture loader */
       static sys::sptr<CTexture> load(sys::sptr<CTextureLoader> pTextureLoader) {
         static auto pThis {cym::CTextureManager::getSingleton()};
         CYM_LOG_NFO("cym::CTextureManager::load(sys::sptr<CTextureLoader>)::" << pThis);
@@ -202,6 +205,8 @@ namespace cym {
           
           pTextureLoader->load(pTextureLoader);
           
+// @todo: load tex ASAP using lowes rez/mip, ASYNC the rest of the mips/high-rez
+          
           pTexture->load(pTextureLoader);
           
         }, sys::EAsync::SPAWN);
@@ -210,16 +215,16 @@ namespace cym {
         
         return pTexture;
       }
-      
+      /* = load(sys::CFile{"path/to/texture.tex"}) */
       template<typename T> static sys::sptr<ITexture> load(const T& tSource) {
         static auto pThis {cym::CTextureManager::getSingleton()};
         CYM_LOG_NFO("cym::CTextureManager::load(T&)::" << pThis);
       
         sys::sptr<CTexture> tTexture;
-        const std::string&      tName  = CTextureLoader::name(tSource);
+        const std::string&  tName = CTextureLoader::name(tSource);
         
         if (!sys::find(tName, pThis->mTextures, tTexture)) {
-          sys::sptr<CTextureLoader> tLoader = new TTextureLoader<sys::CFile>(tSource);
+          sys::sptr<CTextureLoader> tLoader {new TTextureLoader<sys::CFile>(tSource)};
           
           tTexture = CTextureManager::load(tLoader);
         }

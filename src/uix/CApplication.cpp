@@ -124,6 +124,10 @@ namespace uix {
   
   void CApplication::runs(bool bRunning) { mRunning = bRunning; }
   
+  bool CApplication::isRunning() const { return mRunning; }
+  
+  void CApplication::isRunning(bool bRunning) { mRunning = bRunning; }
+  
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   CApplication* CApplication::instance() { return (!sInstance) ? sInstance = new CApplication : sInstance; }

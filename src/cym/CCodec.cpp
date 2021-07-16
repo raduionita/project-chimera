@@ -236,7 +236,7 @@ namespace cym {
     auto        pModelLoader = sys::static_pointer_cast<cym::TModelLoader<sys::CFile>>(pResourceLoader);
     sys::CFile& rFile        = pModelLoader->getFile();
     
-    CYM_LOG_NFO("cym::COBJCodec::decode(CResourceData&)::" << this << " FILE:" << rFile);
+    CYM_LOG_NFO("cym::TCodec<CModel,ECodec::OBJ>::decode(CResourceData&)::" << this << " FILE:" << rFile);
     
     sys::throw_if(!rFile.open(), "Cannot open file!"); // + rFile.path());
     
@@ -245,9 +245,9 @@ namespace cym {
     auto& rGeometry    = pModelLoader->getGeometry();
     auto& rMeshLoaders = pModelLoader->getMeshLoaders(); 
     
-    auto  rPositions = rGeometry.stream().create("positions", new cym::CPositionInput);
-    auto  rTexcoords = rGeometry.stream().create("texcoords", new cym::CTexcoordInput);
-    auto  rNormals   = rGeometry.stream().create("normals", new cym::CNormalInput);
+    auto  rPositions = rGeometry.stream().make("positions", new cym::CPositionInput);
+    auto  rTexcoords = rGeometry.stream().make("texcoords", new cym::CTexcoordInput);
+    auto  rNormals   = rGeometry.stream().make("normals", new cym::CNormalInput);
     auto& rLayout    = rGeometry.layout();
     
     sys::block<glm::vec3> tPositions;
@@ -466,7 +466,7 @@ namespace cym {
   }
   
   void TCodec<CModel,ECodec::OBJ>::decodeMaterial(const sys::string& tFile, sys::map<sys::string, sys::sptr<CMaterialLoader>>& tMaterialLoaders, bool& tDone) {
-    CYM_LOG_NFO("cym::COBJCodec::decodeMaterial(...)::" << "FILE:" << tFile);
+    CYM_LOG_NFO("cym::TCodec<CModel,ECodec::OBJ>::decodeMaterial(...)::" << "FILE:" << tFile);
     
     tMaterialLoaders.clear();                                                                 // unload prev loaded .mtl files
     
@@ -580,13 +580,17 @@ namespace cym {
     return false;
   }
   
+  // model:fxb ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// @todo: do a fxb (3dsmax) codec/importer
+  
   // model:dae ///////////////////////////////////////////////////////////////////////////////////////////////////////
  
   void TCodec<CModel,ECodec::DAE>::decode(sys::sptr<CResourceLoader>& pResourceLoader) {
     auto        pModelLoader = sys::static_pointer_cast<cym::TModelLoader<sys::CFile>>(pResourceLoader);
     sys::CFile& rFile        = pModelLoader->getFile();
     
-    CYM_LOG_NFO("cym::CDAECodec::decode(sys::sptr<CResourceLoader>)::" << this << " FILE:" << rFile);
+    CYM_LOG_NFO("cym::TCodec<CModel,ECodec::DAE>::decode(sys::sptr<CResourceLoader>)::" << this << " FILE:" << rFile);
     
     sys::throw_if(!rFile.open(), "Cannot open file!"); // + rFile.path());
     
@@ -600,7 +604,7 @@ namespace cym {
     
     const auto& tGeometries = (*tTree)["library_geometries"];
     
-    if (pModelLoader->hasOption(EOption::VERTICES)) {
+    if (pModelLoader->hasFlag(EOption::VERTICES)) {
       // CYM_LOG_NFO("cym::CDAECodec::decode(sys::sptr<CResourceLoader>)::geometry:start" );
       
       uint iLastIndex {0};
@@ -654,11 +658,11 @@ namespace cym {
                   aFloats.push_back(tValue);
         
                 if ((*tSemantic == "POSITION") && (nullptr == rStream.find("POSITION")))
-                  rStream.create("POSITION", new cym::CPositionInput);
+                  rStream.make("POSITION", new cym::CPositionInput);
                 else if ((*tSemantic == "NORMAL") && (nullptr == rStream.find("NORMAL")))
-                  rStream.create("NORMAL", new cym::CNormalInput);
+                  rStream.make("NORMAL", new cym::CNormalInput);
                 else if ((*tSemantic == "TEXCOORD") && (nullptr == rStream.find("TEXCOORD")))
-                  rStream.create("TEXCOORD", new cym::CTexcoordInput);
+                  rStream.make("TEXCOORD", new cym::CTexcoordInput);
               }
             }
           }
@@ -791,11 +795,11 @@ namespace cym {
                 aFloats.push_back(tValue);
               
               if ((*tSemantic == "VERTEX") && (nullptr == rStream.find("VERTEX")))
-                rStream.create("VERTEX", new cym::CPositionInput);
+                rStream.make("VERTEX", new cym::CPositionInput);
               else if ((*tSemantic == "NORMAL") && (nullptr == rStream.find("NORMAL")))
-                rStream.create("NORMAL", new cym::CNormalInput);
+                rStream.make("NORMAL", new cym::CNormalInput);
               else if ((*tSemantic == "TEXCOORD") && (nullptr == rStream.find("TEXCOORD")))
-                rStream.create("TEXCOORD", new cym::CTexcoordInput);
+                rStream.make("TEXCOORD", new cym::CTexcoordInput);
             //else
               //throw sys::exception(tSemantic->toString() + " is NOT SUPPORTED!",__FILE__,__LINE__);
             }
@@ -929,7 +933,7 @@ namespace cym {
     const auto& tScenes      = (*tTree)["library_visual_scenes"];
     const auto& tImages      = (*tTree)["library_images"];
 
-    if (pModelLoader->hasOption(EOption::MATERIALS)) {
+    if (pModelLoader->hasFlag(EOption::MATERIALS)) {
       // CYM_LOG_NFO("cym::CDAECodec::decode(sys::sptr<CResourceLoader>)::material:start" );
       
       for (const auto& tInstance : tScenes->findByName("instance_controller")) {
@@ -1024,7 +1028,7 @@ namespace cym {
       // CYM_LOG_NFO("cym::CDAECodec::decode(sys::sptr<CResourceLoader>)::material:done" );
     }
 
-    if (pModelLoader->hasOption(EOption::SKELETON)) {
+    if (pModelLoader->hasFlag(EOption::SKELETON)) {
       // <library_controllers>
         // <controller>
           // <skin> #geometry1
@@ -1094,7 +1098,7 @@ namespace cym {
             // <matrix>1 0 0 0 0 1 0.000000 0 0 -0.000000 1 0 0 0 0 1</matrix>                          // JOINT's matrix
     }
     
-    if (pModelLoader->hasOption(EOption::ANIMATIONS)) {
+    if (pModelLoader->hasFlag(EOption::ANIMATIONS)) {
       // <library_animations>
         // <animation id="animation_id_related_to_a_joint">
           // <source id="...-input">
@@ -1125,6 +1129,29 @@ namespace cym {
     delete tTree;
     
     // CYM_LOG_NFO("cym::CDAECodec::decode(CResourceData&)::" << this << " DONE");
+  }
+  
+  // scene:scene (xml) ///////////////////////////////////////////////////////////////////////////////////////////////
+  
+  void TCodec<CScene,ECodec::SCENE>::decode(sys::sptr<CResourceLoader>& pResourceLoader) {
+    auto        pSceneLoader = sys::static_pointer_cast<cym::TSceneLoader<sys::CFile>>(pResourceLoader);
+    sys::CFile& rFile        = pSceneLoader->getFile();
+    
+    CYM_LOG_NFO("cym::TCodec<CScene,ECodec::SCENE>::decode(sys::sptr<CResourceLoader>)::" << this << " FILE:" << rFile);
+    
+    sys::throw_if(!rFile.open(), "Cannot open file!"); // + rFile.path());
+    
+    sys::CXMLParser tParser;
+    
+    sys::CXMLParser::STree* tTree = tParser.parse(rFile);
+    
+    
+    
+// @todo: travel xml into pSceneLoader (gets loaded by CScene::CScene(pSceneLoader) later)
+    
+
+
+    delete tTree;
   }
 }
 

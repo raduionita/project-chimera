@@ -4,6 +4,9 @@
 #include "app/app.hpp"
 #include "uix/CApplication.hpp"
 #include "sys/CLayered.hpp"
+#include "sys/TAssociated.hpp"
+#include "app/CViewport.hpp"
+#include "app/CController.hpp"
 
 namespace app {
   class CApplication : public uix::CApplication {

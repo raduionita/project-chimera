@@ -33,7 +33,7 @@ namespace cym {
       friend class CMaterialLoader;
       friend class CMaterialManager;
     protected:
-      cym::rgba          mColor;
+      cym::rgba           mColor;
       sys::sptr<CTexture> mTexture;
     public:
       virtual inline EType getType() const override { return CChannel::EType::AMBIENT; }
@@ -44,7 +44,7 @@ namespace cym {
       friend class CMaterialLoader;
       friend class CMaterialManager;
     protected:
-      cym::rgba          mColor;
+      cym::rgba           mColor;
       sys::sptr<CTexture> mTexture;
     public:
       virtual inline EType getType() const override { return CChannel::EType::DIFFUSE; }

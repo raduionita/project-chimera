@@ -2,7 +2,7 @@
 #define __cym_canimation_hpp__
 
 #include "cym/cym.hpp"
-#include "cym/CSkelet.hpp"
+#include "cym/CSkeleton.hpp"
 
 namespace cym {
   class CFrame {

@@ -18,7 +18,7 @@ namespace glm {
     public:
       union {
         T data[2];
-        struct { T x, y; };
+        struct { T x, y; }; // x y 
         struct { T s, t; };
         struct { T r, g; };
       };
@@ -74,6 +74,17 @@ namespace glm {
       CVector& operator +=(const CVector& rhs) {
         return (*this = *this + rhs);
       }
+      CVector  operator  +(const T rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
+          result.data[i] = data[i] + rhs;
+        return result;
+      }
+      CVector& operator +=(const T rhs) {
+        for (ushort i = 0; i < size; i++)
+          data[i] = data[i] + rhs;
+        return *this;
+      }
       CVector  operator  -(const CVector& rhs) const {
         CVector     result;
         for (ushort i = 0; i < size; i++)
@@ -82,6 +93,17 @@ namespace glm {
       }
       CVector& operator -=(const CVector& rhs) {
         return (*this = *this - rhs);
+      }
+      CVector  operator  -(const T rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
+          result.data[i] = data[i] - rhs;
+        return result;
+      }
+      CVector& operator -=(const T rhs) {
+        for (ushort i = 0; i < size; i++)
+          data[i] = data[i] - rhs;
+        return *this;
       }
       CVector  operator  -() const {
         CVector     result;
@@ -139,14 +161,12 @@ namespace glm {
             T* operator        *()       noexcept { return data; }
       const T* operator        *() const noexcept { return data; }
     public:
-      T    length() { return (T) ::sqrt(x * x + y * y);}
-      void normalize() {
-        T l = length();
-        if (l != T(1)) {
-          x /= l;
-          y /= l;
-        }
-      }
+      /* length/magnitude */
+      inline T    length() const  { return static_cast<T>(std::sqrt(x*x + y*y));}
+      /* normalize */
+      inline void normalize() { T l {length()}; x /= l; y /= l; }
+      // is zero
+      inline bool isZero() const { return glm::eq(x,T(0)) && glm::eq(y,T(0)); }
   };
   
   template<typename T> class CVector<T,3> {
@@ -157,12 +177,18 @@ namespace glm {
     public:
       union {
         T data[3];
-        struct { T x, y, z; };
+        struct {
+          union { 
+            struct { T x, y; }; 
+            CVector<T,2> xy; 
+          }; // x,y 
+          T z; 
+        }; // x u z
         struct { T s, t, p; };
         struct { T r, g, b; };
       };
     public:
-      CVector() : x(T(0)), y(T(0)), z(T(0)) {}
+      CVector() : x{T(0)}, y{T(0)}, z{T(0)} {}
       CVector(const T s) : x{s}, y{s}, z{s} { }
       CVector(const T x, const T y, const T z) : x{x}, y{y}, z{z} { }
       CVector(const CVector& xyz) : x{xyz.x}, y{xyz.y}, z{xyz.z} { }
@@ -206,6 +232,17 @@ namespace glm {
       CVector& operator +=(const CVector& rhs) {
         return (*this = *this + rhs);
       }
+      CVector  operator  +(const T rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
+          result.data[i] = data[i] + rhs;
+        return result;
+      }
+      CVector& operator +=(const T rhs) {
+        for (ushort i = 0; i < size; i++)
+          data[i] = data[i] + rhs;
+        return *this;
+      }
       CVector  operator  -(const CVector& rhs) const {
         CVector     result;
         for (ushort i = 0; i < size; i++)
@@ -214,6 +251,17 @@ namespace glm {
       }
       CVector& operator -=(const CVector& rhs) {
         return (*this = *this - rhs);
+      }
+      CVector  operator  -(const T rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
+          result.data[i] = data[i] - rhs;
+        return result;
+      }
+      CVector& operator -=(const T rhs) {
+        for (ushort i = 0; i < size; i++)
+          data[i] = data[i] - rhs;
+        return *this;
       }
       CVector  operator  -() const {
         CVector     result;
@@ -269,27 +317,32 @@ namespace glm {
         }
         return false;
       }
+      bool     operator  >=(const CVector& rhs) const {
+        if (x >= rhs.x) {
+          return true;
+        } else if (x == rhs.x) {
+          if (y < rhs.y) {
+            return true;
+          } else if (y == rhs.y) {
+            return z < rhs.z;
+          }
+        }
+        return false;
+      }
     public: // operator: cast
       explicit operator       T*()       { return       (T*) (&data[0]); }
       explicit operator const T*() const { return (const T*) (&data[0]); }
             T* operator        *()       noexcept { return data; }
       const T* operator        *() const noexcept { return data; }
-    public: 
-      T    length() {
-        return (T) sqrt(x * x + y * y + z * z);
-      }
-      void normalize() {
-        T l = length();
-        if (l != T(1)) {
-          x /= l;
-          y /= l;
-          z /= l;
-        }
-      }
-      // rotate vector to quat orientation
-      void rotate(const CQuaterion <T>& Q) {
-        *this = Q * (*this);
-      }
+    public:
+      /* length/magnitude */
+      inline T    length() const { return static_cast<T>(std::sqrt(x*x + y*y + z*z)); }
+      /* normalize */
+      inline void normalize() { T l {length()}; x /= l; y /= l; z /= l; }
+      /* rotate vector to quat orientation */
+      inline void rotate(const glm::tquat<T>& Q) { *this = Q * (*this); }
+      /* is zero */
+      inline bool isZero() const { return glm::eq(x,0.f) && glm::eq(y,0.f) && glm::eq(z,0.f); }
   };
   
   template<typename T> class CVector<T,4> {
@@ -300,12 +353,24 @@ namespace glm {
     public:
       union {
         T data[4];
-        struct { T x, y, z, w; };
+        struct {
+          union { 
+            struct {
+              union {
+                struct { T x,y; }; // xy
+                CVector<T,2> xy;
+              };
+              T z;
+            }; 
+            CVector<T,3> xyz; 
+          }; // x,y,z 
+          T w; 
+        }; // x y z w
         struct { T s, t, p, q; };
         struct { T r, g, b, a; };
       };
     public:
-      CVector() : x(T(0)), y(T(0)), z(T(0)), w(T(0)) {}
+      CVector() : x{T(0)}, y{T(0)}, z{T(0)}, w{T(1)} {}
       CVector(const CVector& that) {
         for (ushort i = 0; i < size; i++)
           data[i] = that.data[i];
@@ -320,13 +385,13 @@ namespace glm {
         data[2] = z;
         data[3] = w;
       }
-      CVector(const CVector<T,2>& xy, const T z, const T w) {
+      CVector(const CVector<T,2>& xy, const T z = 0, const T w = 1) {
         data[0] = xy.data[0];
         data[1] = xy.data[1];
         data[2] = z;
         data[3] = w;
       }
-      CVector(const T x, const CVector<T,2>& yz, const T w) {
+      CVector(const T x, const CVector<T,2>& yz, const T w = 1) {
         data[0] = x;
         data[1] = yz.data[1];
         data[2] = yz.data[2];
@@ -338,7 +403,7 @@ namespace glm {
         data[2] = zw.data[2];
         data[3] = zw.data[3];
       }
-      CVector(const CVector<T,3>& xyz, const T w) {
+      CVector(const CVector<T,3>& xyz, const T w = 1) {
         data[0] = xyz.data[0];
         data[1] = xyz.data[1];
         data[2] = xyz.data[2];
@@ -378,6 +443,17 @@ namespace glm {
       CVector& operator +=(const CVector& rhs) {
         return (*this = *this + rhs);
       }
+      CVector  operator  +(const T rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
+          result.data[i] = data[i] + rhs;
+        return result;
+      }
+      CVector& operator +=(const T rhs) {
+        for (ushort i = 0; i < size; i++)
+          data[i] = data[i] + rhs;
+        return *this;
+      }
       CVector  operator  -(const CVector& rhs) const {
         CVector     result;
         for (ushort i = 0; i < size; i++)
@@ -386,6 +462,17 @@ namespace glm {
       }
       CVector& operator -=(const CVector& rhs) {
         return (*this = *this - rhs);
+      }
+      CVector  operator  -(const T rhs) const {
+        CVector     result;
+        for (ushort i = 0; i < size; i++)
+          result.data[i] = data[i] - rhs;
+        return result;
+      }
+      CVector& operator -=(const T rhs) {
+        for (ushort i = 0; i < size; i++)
+          data[i] = data[i] - rhs;
+        return *this;
       }
       CVector  operator  -() const {
         CVector     result;
@@ -454,53 +541,76 @@ namespace glm {
             T* operator        *()       noexcept { return data; }
       const T* operator        *() const noexcept { return data; }
     public:
-      T    length() {
-        return (T)(std::sqrt(x * x + y * y + z * z + w * w));
-      }
-      void normalize() {
-        T l = length();
-        if (l != T(1)) {
-          x /= l;
-          y /= l;
-          z /= l;
-          w /= l;
-        }
-      }
+      /* length/magnitude */
+      inline T    length() const { return static_cast<T>(std::sqrt(x*x + y*y + z*z + w*w)); }
+      /* normalize */
+      inline void normalize() { T l {length()}; x /= l; y /= l; z /= l; w /= l; }
+      // is zero
+      inline bool isZero() const { return glm::eq(x,T(0)) && glm::eq(y,T(0)) && glm::eq(z,T(0)) && glm::eq(w,T(0)); }
   };
   
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  template<typename T, const ushort s> inline const sys::CLogger::ELevel& operator<<(const sys::CLogger::ELevel& type, const CVector<T,s>& v) {
-    std::ostringstream os;
-    for (ushort        i = 0; i < s; i++)
-      os << v[i] << " ";
-    sys::CLogger::getSingleton()->push(os.str());
-    return type;
-  }
-  
-  template<typename T, const ushort n> const CVector<T, n> operator *(const T s, const CVector<T, n>& v) {
+  template<typename T, const ushort n> inline const CVector<T,n> operator *(const T s, const CVector<T,n>& v) {
     return v * s;
   }
   
-  template<typename T, const ushort n> const CVector<T, n> operator /(const T s, const CVector<T, n>& v) {
+  template<typename T, const ushort n> inline const CVector<T,n> operator /(const T s, const CVector<T,n>& v) {
     CVector<T, n> out(0);
     for(ushort i = 0; i < n; i++)
       out[i] = s / v[i];
     return out;
   }
   
-  template<typename T, const ushort c, const ushort r> CVector<T,c> operator *(const CMatrix<T,c,r>& mat, const CVector<T,r>& vec) {
-    CVector<T,c> out(T(0));
-    for(ushort i = 0; i < r; i++)
-      for(ushort j = 0; j < c; j++)
-        out[j] += vec[i] * mat[j][i];
-    return out;  
+  /* CMatrix::col_t = CMatrix * CMatrix::row_t = */
+  template<typename T, const ushort c, const ushort r> inline CVector<T,r> operator *(const CMatrix<T,c,r>& mat, const CVector<T,c>& vec) {
+    // output vector w/ the same no. or rows as the matrix
+    
+    // mat[3][0] = 10;
+    //                                                              //   c
+    // glm::tmat<T,4,4>{glm::tvec<T,4> {T(1), T(0), T(0), T(0)},    // r 1 0 0 v0
+    //                  glm::tvec<T,4> {T(0), T(1), T(0), T(0)},    //   0 1 0 v1
+    //                  glm::tvec<T,4> {T(0), T(0), T(1), T(0)},    //   0 0 1 v2
+    //                  glm::tvec<T,4> {v[0], v[1], v[2], T(1)}};   //   0 0 0  1
+    
+    CVector<T,r> out{T(0)};           // = CMatrix::col_t
+    for (ushort i = 0; i < r; i++)    // |M11 M12 ... M1c|   |v1|   |M11*v1 + M12*v2 + ... + M1c*vc|
+      for (ushort j = 0; j < c; j++)  // |M21 M22 ... M2c| * |v2| = |M21*v1 ...                    |
+        out[i] += vec[j] * mat[j][i]; // |... ... ... ...|   |..|   |...                           |
+    return out;                       // |Mr1 Mr2 ... Mrc|   |vc|   |Mr1*v1 + ...... + ... + Mrc*vc|
   }
   
-  const vec3 O {0.0f, 0.0f, 0.0f};
-  const vec3 X {1.0f, 0.0f, 0.0f};
-  const vec3 Y {0.0f, 1.0f, 0.0f};
-  const vec3 Z {0.0f, 0.0f, 1.0f};
+  /* CMatrix::row_t-1 = CMatrix * CMatrix::row_t-1 = */
+  template<typename T, const ushort c, const ushort r> inline CVector<T,c-1> operator *(const CMatrix<T,c,r>& mat, const CVector<T,c-1>& vec) {
+    return CVector<T,c-1>{mat * CVector<T,c>{vec}};
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  template<typename T, const ushort s> inline const sys::CLogger::ELevel& operator <<(const sys::CLogger::ELevel& type, const CVector<T,s>& v) {
+    std::ostringstream oss;
+    oss << "v(";
+    for (ushort        i = 0; i < s; i++)
+      oss << v[i] << ',';
+    oss << ')';
+    sys::CLogger::getSingleton()->push(oss.str());
+    return type;
+  }  
+  
+  template<typename T, const ushort s> inline std::ostream& operator <<(std::ostream& out, const CVector<T,s>& v) {
+    out << "v(";
+    for (ushort        i = 0; i < s; i++)
+      out << v[i] << ',';
+    out << ')';
+    return out;
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  const glm::vec3 O {0.0f, 0.0f, 0.0f};
+  const glm::vec3 X {1.0f, 0.0f, 0.0f};
+  const glm::vec3 Y {0.0f, 1.0f, 0.0f};
+  const glm::vec3 Z {0.0f, 0.0f, 1.0f};
 }
 
 #endif //__glm_cvector_hpp__
