@@ -10,8 +10,8 @@ namespace cym {
     // mMipmaps = 1 + glm::floor(glm::log2(glm::max(glm::max(mWidth,mHeight),mDepth)));
   }
   
-  CTexture::CTexture(sys::sptr<CTextureLoader> rLoader) {
-    CYM_LOG_NFO("cym::CTexture::CTexture(sys::sptr<CTextureLoader>)::" << this);
+  CTexture::CTexture(sys::spo<CTextureLoader> rLoader) {
+    CYM_LOG_NFO("cym::CTexture::CTexture(sys::spo<CTextureLoader>)::" << this);
     load(rLoader);
   }
   
@@ -21,8 +21,8 @@ namespace cym {
     GLCALL(::glBindTexture(mTarget, 0));
   }
   
-  void CTexture::load(sys::sptr<CTextureLoader> rLoader) {
-    CYM_LOG_NFO("cym::CTexture::load(sys::sptr<CTextureLoader>)::" << this);
+  void CTexture::load(sys::spo<CTextureLoader> rLoader) {
+    CYM_LOG_NFO("cym::CTexture::load(sys::spo<CTextureLoader>)::" << this);
     
     static GLenum targets[6] = {
       GL_TEXTURE_CUBE_MAP_POSITIVE_X,
@@ -119,7 +119,7 @@ namespace cym {
     throw CException("NOT IMPLEMENTED");
   }
   
-  void CTexture::filtering(cym::CTexture::EFiltering eFiltering) {
+  void CTexture::setFiltering(cym::CTexture::EFiltering eFiltering) {
     GLCALL(::glBindTexture(mTarget, mID));
     switch(eFiltering) {
       case EFiltering::NEAREST:
@@ -175,11 +175,82 @@ namespace cym {
   
   // loaders /////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  void TTextureLoader<sys::CFile>::load(sys::sptr<CResourceLoader> pResourceLoader) {
-    CYM_LOG_NFO("cym::TTextureLoader<sys::CFile>::load(sys::sptr<CResourceLoader>)::" << this);
+  void TTextureLoader<sys::file>::load(sys::spo<CResourceLoader> pResourceLoader) {
+    CYM_LOG_NFO("cym::TTextureLoader<sys::file>::load(sys::spo<CResourceLoader>)::" << this);
     
     auto pCodec = cym::CCodecManager::getCodec(mFile.ext());
     
     pCodec->decode(pResourceLoader);
+  }
+  
+  void TTextureLoader<cym::null>::load(sys::spo<CResourceLoader> pResourceLoader) {
+    CYM_LOG_NFO("cym::TTextureLoader<cym::null>::load(sys::spo<CResourceLoader>)::" << this);
+    
+    auto  pTextureLoader          = sys::static_pointer_cast<TTextureLoader<cym::null>>(pResourceLoader);
+    sys::spo<sys::stream> tStream = pTextureLoader->getStream();
+    
+    const auto&     tLength = pTextureLoader->mLength; // width & height
+    const auto      tLast   = tLength-1;
+    // https://www.ibm.com/docs/en/aix/7.2?topic=adapters-ascii-decimal-hexadecimal-octal-binary-conversion-table
+           const cym::uint tLineMaxSum   = tLength - 1;
+    static const cym::uint kBpp          = 3u;
+    static const cym::byte k255000255[3] {'\377', '\000', '\377'}; // FF 00 FF // 255 000 255 // purple
+    static const cym::byte k128000128[3] {'\200', '\000', '\200'}; // 80 00 80 // 128 000 128 // somewhere in between
+    static const cym::byte k000000000[3] {'\000', '\000', '\000'}; // 00 00 00 // 000 000 000 // black
+    const cym::byte*       tColor;
+    
+    cym::uint r {0u}, ro {0u}, c{0u}, co {0u}, po {0u}, rc {0};
+    
+    const cym::uint tOffset = tLength * kBpp;
+    const cym::uint tSize   = pTextureLoader->size = tLength * tLength * kBpp/* + 1*/;
+    cym::byte* tBytes       = tStream->data(pTextureLoader->size);
+             //tBytes[tSize-1] = '\0';
+    
+    for (r = 0; r < tLength; r++) {
+      ro = r * tLength * kBpp; // * tOffset
+      for (c = 0; c < tLength; c++) {
+        co = c * kBpp;
+        po = ro + co;
+        rc = r + c;
+        
+        tColor = r == 0 || r == tLast || c == 0 || c == tLast || rc == tLineMaxSum ? &k255000255[0] : &k128000128[0];
+        // rc < tLineMaxSum ? &k255000255[0] : (rc == tLineMaxSum ? &k000000000[0] : &k128000128[0]);
+        
+        tBytes[po + 0] = tColor[0];
+        tBytes[po + 1] = tColor[1];
+        tBytes[po + 2] = tColor[2];
+      }
+    }
+    
+    pTextureLoader->flags  |= CTexture::EFlag::PLANEMAP;
+    pTextureLoader->flags  |= CTexture::EFlag::RGB;
+    pTextureLoader->bpp     = kBpp;
+    pTextureLoader->width   = tLength;
+    pTextureLoader->height  = tLength;
+    pTextureLoader->depth   = 1u;
+    pTextureLoader->mipmaps = 1u;
+  
+    // null texture loader...
+    //       ubyte* data = new ubyte[256 * 256 * 3 + 1];
+    //       memcpy(data, notfound.data, 256 * 256 * 3 + 1);
+    //       CTexture* pTexture = new CTexture(CTextureData(data, GL_RGB32F, GL_UNSIGNED_BYTE), notfound.width, notfound.height, GL_RGB, GL_TEXTURE_2D);
+    //       glGenerateMipmap(GL_TEXTURE_2D);
+    //       glExitIfError();
+    //       delete data;
+    //       return pTexture;
+    // 
+    //      static const struct {
+    //        uint  width;
+    //        uint  height;
+    //        uint  bpp; /* 2:RGB16, 3:RGB, 4:RGBA */ 
+    //        ubyte data[2 * 2 * 3 + 1]; // width * height * bpp + 1(null?) = 12+1
+    //      } notfound = {                                          // 00 (purple) 01 (mid)
+    //        2, 2, 3,                                              // 10 (mid)    11 (black)
+    //        "\377\000\377\200\000\200\200\000\200\004\004\004",   //
+    //        // \377\000\377 = [0][0]                              // 00 01 02 03 (l = 4)
+    //        // \200\000\200 = [0][1]                              // 10 11 12 13
+    //        // \200\000\200 = [1][0]                              // 20 21 22 23
+    //        // \004\004\004 = [1][1]                              // 30 31 32 33
+//      };
   }
 }

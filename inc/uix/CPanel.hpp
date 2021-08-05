@@ -14,7 +14,8 @@ namespace uix {
     private:
       CPanel() = default;
     public:
-      CPanel(CWindow*, uint = WINDOW);
+      CPanel(CWindow*,               uint = WINDOW);
+      CPanel(CWindow*, const SArea&, uint = WINDOW);
       ~CPanel();
     protected:
       virtual bool init(CWindow* = nullptr, const CString& = "", const SArea& = AUTO, uint = WINDOW) override;

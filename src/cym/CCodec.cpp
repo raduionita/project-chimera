@@ -4,36 +4,36 @@
 namespace cym {
   // manager //////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  void CCodecManager::addCodec(const sys::sptr<CCodec> pCodec) {
-    CYM_LOG_NFO("cym::CCodecManager::addCodec(sys::sptr<CCodec>)::" << pCodec->getType());
+  void CCodecManager::addCodec(const sys::spo<CCodec> pCodec) {
+    CYM_LOG_NFO("cym::CCodecManager::addCodec(sys::spo<CCodec>)::" << pCodec->getType());
     static auto pThis {cym::CCodecManager::getSingleton()};
     pThis->mCodecs.insert(std::pair(pCodec->getType(), pCodec));
   }
   
-  sys::sptr<CCodec> CCodecManager::getCodec(const std::string& ext) {
+  sys::spo<CCodec> CCodecManager::getCodec(const std::string& ext) {
     CYM_LOG_NFO("cym::CCodecManager::getCodec(std::string&)::" << ext);
     static auto self {cym::CCodecManager::getSingleton()};
     auto it = self->mCodecs.find(ext);
     if (it == self->mCodecs.end())
-      throw sys::exception("CANNOT decode "+ ext +" file type!",__FILE__,__LINE__);
+      throw sys::exception("CANNOT decode "+ ext +" file setType!",__FILE__,__LINE__);
     return it->second;
   }
   
   // texture:dds /////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  void TCodec<CTexture,ECodec::DDS>::decode(sys::sptr<CResourceLoader>& pResourceLoader) {
+  void TCodec<CTexture,ECodec::DDS>::decode(sys::spo<CResourceLoader>& pResourceLoader) {
     auto        pTextureLoader = sys::static_pointer_cast<cym::TTextureLoader<sys::CFile>>(pResourceLoader);
     sys::CFile& rFile          = pTextureLoader->getFile();
     
-    CYM_LOG_NFO("cym::TCodec<CTexture,ECodec::DDS>::decode(sys::sptr<CResourceLoader>)::" << this << " FILE:" << rFile);
+    CYM_LOG_NFO("cym::TCodec<CTexture,ECodec::DDS>::decode(sys::spo<CResourceLoader>)::" << this << " FILE:" << rFile);
     
     sys::throw_if(!rFile.open(), "Cannot open DDS file!"); // + rFile.path());
     
-    sys::sptr<sys::CStream>& pStream = pTextureLoader->mStream = new sys::CStream;
+    sys::spo<sys::stream> pStream = pTextureLoader->getStream();
     
     char ftype[4];
     rFile.read(ftype, 4);
-    sys::throw_if(::strncmp(ftype,"DDS ",4) != 0, "File not of .DDS format!");
+    sys::throw_if(::strncmp(ftype,"DDS ",4) != 0, "File not of .DDS setFormat!");
     
     SHeader oHead;
     rFile.read((byte*)(&oHead), sizeof(oHead));
@@ -65,7 +65,7 @@ namespace cym {
     } else if(oHead.format.bpp == 8) {
       pTextureLoader->flags |= CTexture::EFlag::LUMINANCE;
     } else {
-      throw sys::exception("Pixel format not supported!",__FILE__,__LINE__);
+      throw sys::exception("Pixel setFormat not supported!",__FILE__,__LINE__);
     }
   
     pTextureLoader->bpp     = oHead.format.bpp;
@@ -108,15 +108,15 @@ namespace cym {
     }
   }
   
-  void TCodec<CTexture,ECodec::TGA>::decode(sys::sptr<CResourceLoader>& pResourceLoader) {
+  void TCodec<CTexture,ECodec::TGA>::decode(sys::spo<CResourceLoader>& pResourceLoader) {
     auto pTextureLoader = sys::static_pointer_cast<cym::TTextureLoader<sys::CFile>>(pResourceLoader);
     sys::CFile& rFile = pTextureLoader->getFile();
   
-    CYM_LOG_NFO("cym::TCodec<CTexture,ECodec::TGA>::decode(sys::sptr<CResourceLoader>)::" << this << " FILE:" << rFile);
+    CYM_LOG_NFO("cym::TCodec<CTexture,ECodec::TGA>::decode(sys::spo<CResourceLoader>)::" << this << " FILE:" << rFile);
   
     sys::throw_if(!rFile.open(), "Cannot open TGA file!"); // + rFile.path());
   
-    sys::sptr<sys::CStream>& pStream = pTextureLoader->mStream = new sys::CStream;
+    sys::spo<sys::stream> pStream = pTextureLoader->getStream();
     
     sys::uint & rWidth  = pTextureLoader->width, 
               & rHeight = pTextureLoader->height, 
@@ -132,7 +132,7 @@ namespace cym {
     
     rFile.read((byte*)(&tHeader), sizeof(tHeader));
     
-    rBPP    = tHeader[16]; sys::throw_if((rBPP != 24) && (rBPP != 32), "TGA's Pixel format not supported!");
+    rBPP    = tHeader[16]; sys::throw_if((rBPP != 24) && (rBPP != 32), "TGA's Pixel setFormat not supported!");
     rWidth  = tHeader[13] * 256 + tHeader[12];
     rHeight = tHeader[15] * 256 + tHeader[14];
     rSize   = ((rWidth * rBPP + 31) / 32) * 4 * rHeight;
@@ -185,19 +185,19 @@ namespace cym {
       
       
     } else {
-      throw sys::exception("TGA's Data format not supported!",__FILE__,__LINE__);
+      throw sys::exception("TGA's Data setFormat not supported!",__FILE__,__LINE__);
     }
   }
     
-  void TCodec<CTexture,ECodec::BMP>::decode(sys::sptr<CResourceLoader>& pResourceLoader) {
+  void TCodec<CTexture,ECodec::BMP>::decode(sys::spo<CResourceLoader>& pResourceLoader) {
     auto pTextureLoader = sys::static_pointer_cast<cym::TTextureLoader<sys::CFile>>(pResourceLoader);
     sys::CFile& rFile   = pTextureLoader->getFile();
   
-    CYM_LOG_NFO("cym::TCodec<CTexture,ECodec::BMP>::decode(sys::sptr<CResourceLoader>)::" << this << " FILE:" << rFile);
+    CYM_LOG_NFO("cym::TCodec<CTexture,ECodec::BMP>::decode(sys::spo<CResourceLoader>)::" << this << " FILE:" << rFile);
   
     sys::throw_if(!rFile.open(), "Cannot open BMP file!"); // + rFile.path());
   
-    sys::sptr<sys::CStream>& pStream = pTextureLoader->mStream = new sys::CStream;
+    sys::spo<sys::stream> pStream = pTextureLoader->getStream();
     
     sys::uint  &rWidth  = pTextureLoader->width, 
                &rHeight = pTextureLoader->height, 
@@ -212,9 +212,9 @@ namespace cym {
     
     rFile.read((byte*)tInfo.data(), 54);
     
-    sys::throw_if((tInfo[0] != 'B' && tInfo[1] != 'M'), "Not a BMP file format!");
+    sys::throw_if((tInfo[0] != 'B' && tInfo[1] != 'M'), "Not a BMP file setFormat!");
     
-    rBPP    = tInfo[28]; sys::throw_if((rBPP != 24) && (rBPP != 32), "BMP's Pixel format not supported!");
+    rBPP    = tInfo[28]; sys::throw_if((rBPP != 24) && (rBPP != 32), "BMP's Pixel setFormat not supported!");
     rWidth  = tInfo[18] + (tInfo[19] << 8);
     rHeight = tInfo[22] + (tInfo[23] << 8);
     rSize   = ((rWidth * rBPP + 31) / 32) * 4 * rHeight;
@@ -232,18 +232,18 @@ namespace cym {
   
   // model:obj ///////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  void TCodec<CModel,ECodec::OBJ>::decode(sys::sptr<CResourceLoader>& pResourceLoader) {
-    auto        pModelLoader = sys::static_pointer_cast<cym::TModelLoader<sys::CFile>>(pResourceLoader);
-    sys::CFile& rFile        = pModelLoader->getFile();
+  void TCodec<CGeometry,ECodec::OBJ>::decode(sys::spo<CResourceLoader>& pResourceLoader) {
+    auto        pGeometryLoader = sys::static_pointer_cast<cym::TGeometryLoader<sys::CFile>>(pResourceLoader);
+    sys::CFile& rFile        = pGeometryLoader->getFile();
     
-    CYM_LOG_NFO("cym::TCodec<CModel,ECodec::OBJ>::decode(CResourceData&)::" << this << " FILE:" << rFile);
+    CYM_LOG_NFO("cym::TCodec<CGeometry,ECodec::OBJ>::decode(CResourceData&)::" << this << " FILE:" << rFile);
     
     sys::throw_if(!rFile.open(), "Cannot open file!"); // + rFile.path());
     
     SData tData;
     
-    auto& rGeometry    = pModelLoader->getGeometry();
-    auto& rMeshLoaders = pModelLoader->getMeshLoaders(); 
+    auto& rGeometry    = pGeometryLoader->getGeometryBuffer();
+    auto& rMeshLoaders = pGeometryLoader->getMeshLoaders(); 
     
     auto  rPositions = rGeometry.stream().make("positions", new cym::CPositionInput);
     auto  rTexcoords = rGeometry.stream().make("texcoords", new cym::CTexcoordInput);
@@ -256,8 +256,8 @@ namespace cym {
     
     sys::block<SIndex> tIndices;
     
-    sys::map<sys::string, sys::sptr<CMaterialLoader>> tMaterialLoaders;
-    sys::sptr<CMaterialLoader>                        tMaterialLoader;
+    sys::map<sys::string, sys::spo<CMaterialLoader>> tMaterialLoaders;
+    sys::spo<CMaterialLoader>                        tMaterialLoader;
     sys::string                                       tName;
     
     while (!rFile.eof()) {
@@ -364,7 +364,7 @@ namespace cym {
       } else if ((zLine[0] == 'g' || zLine[0] == 'o') && zLine[1] == ' ') { // group/object start > o Sphere
         // start building the mesh when u see the start of a new one
         if (!tIndices.empty()) {
-          auto& rMeshLoader {pModelLoader->getMeshLoader(tName)};
+          auto& rMeshLoader {pGeometryLoader->getMeshLoader(tName)};
   
           rMeshLoader->getName()  = tName;
           rMeshLoader->getRange().nStart = rLayout.count();
@@ -465,8 +465,8 @@ namespace cym {
       // vertices[i].texcoord = texcoord[index];
   }
   
-  void TCodec<CModel,ECodec::OBJ>::decodeMaterial(const sys::string& tFile, sys::map<sys::string, sys::sptr<CMaterialLoader>>& tMaterialLoaders, bool& tDone) {
-    CYM_LOG_NFO("cym::TCodec<CModel,ECodec::OBJ>::decodeMaterial(...)::" << "FILE:" << tFile);
+  void TCodec<CGeometry,ECodec::OBJ>::decodeMaterial(const sys::string& tFile, sys::map<sys::string, sys::spo<CMaterialLoader>>& tMaterialLoaders, bool& tDone) {
+    CYM_LOG_NFO("cym::TCodec<CGeometry,ECodec::OBJ>::decodeMaterial(...)::" << "FILE:" << tFile);
     
     tMaterialLoaders.clear();                                                                 // unload prev loaded .mtl files
     
@@ -478,7 +478,7 @@ namespace cym {
       return;
     }
     
-    sys::sptr<CMaterialLoader> tMaterialLoader;
+    sys::spo<CMaterialLoader> tMaterialLoader;
     
     char* zLine = new char[2048];
     while(fs.peek() != -1) {
@@ -498,7 +498,7 @@ namespace cym {
         ::sscanf(zLine, "%s", tBuff);
         std::string tMatr(tBuff);
   
-        // tMaterialLoaders.insert(std::pair<sys::string, sys::sptr<CMaterialLoader>>{tMatr, tMatr}});
+        // tMaterialLoaders.insert(std::pair<sys::string, sys::spo<CMaterialLoader>>{tMatr, tMatr}});
         tMaterialLoader = tMaterialLoaders[tMatr] = new CMaterialLoader{tMatr};
         
         continue;
@@ -573,7 +573,7 @@ namespace cym {
     tDone = true;
   }
   
-  inline bool operator<(const TCodec<CModel,ECodec::OBJ>::SIndex& lhs, const TCodec<CModel,ECodec::OBJ>::SIndex& rhs) {      // for map
+  inline bool operator<(const TCodec<CGeometry,ECodec::OBJ>::SIndex& lhs, const TCodec<CGeometry,ECodec::OBJ>::SIndex& rhs) {      // for map
     if      (lhs.position != rhs.position) return lhs.position < rhs.position;
     else if (lhs.texcoord != rhs.texcoord) return lhs.texcoord < rhs.texcoord;
     else if (lhs.normal   != rhs.normal)   return lhs.normal   < rhs.normal;
@@ -586,15 +586,15 @@ namespace cym {
   
   // model:dae ///////////////////////////////////////////////////////////////////////////////////////////////////////
  
-  void TCodec<CModel,ECodec::DAE>::decode(sys::sptr<CResourceLoader>& pResourceLoader) {
-    auto        pModelLoader = sys::static_pointer_cast<cym::TModelLoader<sys::CFile>>(pResourceLoader);
-    sys::CFile& rFile        = pModelLoader->getFile();
+  void TCodec<CGeometry,ECodec::DAE>::decode(sys::spo<CResourceLoader>& pResourceLoader) {
+    auto        pGeometryLoader = sys::static_pointer_cast<cym::TGeometryLoader<sys::CFile>>(pResourceLoader);
+    sys::CFile& rFile        = pGeometryLoader->getFile();
     
-    CYM_LOG_NFO("cym::TCodec<CModel,ECodec::DAE>::decode(sys::sptr<CResourceLoader>)::" << this << " FILE:" << rFile);
+    CYM_LOG_NFO("cym::TCodec<CGeometry,ECodec::DAE>::decode(sys::spo<CResourceLoader>)::" << this << " FILE:" << rFile);
     
     sys::throw_if(!rFile.open(), "Cannot open file!"); // + rFile.path());
     
-    auto& rGeometry = pModelLoader->getGeometry(); 
+    auto& rGeometry = pGeometryLoader->getGeometryBuffer(); 
     auto& rLayout   = rGeometry.layout();
     auto& rStream   = rGeometry.stream();
     
@@ -604,8 +604,8 @@ namespace cym {
     
     const auto& tGeometries = (*tTree)["library_geometries"];
     
-    if (pModelLoader->hasFlag(EOption::VERTICES)) {
-      // CYM_LOG_NFO("cym::CDAECodec::decode(sys::sptr<CResourceLoader>)::geometry:start" );
+    if (pGeometryLoader->hasFlag(EOption::VERTICES)) {
+      // CYM_LOG_NFO("cym::CDAECodec::decode(sys::spo<CResourceLoader>)::geometry:start" );
       
       uint iLastIndex {0};
       
@@ -624,7 +624,7 @@ namespace cym {
         // Z and Y should be swapped
         
         auto  sMesh       = tGeometry->attribute("name")->toString();
-        auto& pMeshLoader = pModelLoader->getMeshLoader(sMesh);
+        auto& pMeshLoader = pGeometryLoader->getMeshLoader(sMesh);
   
         pMeshLoader->getName() = sMesh;
         pMeshLoader->getRange().nStart = rLayout.count();
@@ -924,7 +924,7 @@ namespace cym {
         }
       }
       
-      // CYM_LOG_NFO("cym::CDAECodec::decode(sys::sptr<CResourceLoader>)::geometry:done" );
+      // CYM_LOG_NFO("cym::CDAECodec::decode(sys::spo<CResourceLoader>)::geometry:done" );
     }
     
   //const auto& tMaterials   = (*tTree)["library_materials"];
@@ -933,19 +933,19 @@ namespace cym {
     const auto& tScenes      = (*tTree)["library_visual_scenes"];
     const auto& tImages      = (*tTree)["library_images"];
 
-    if (pModelLoader->hasFlag(EOption::MATERIALS)) {
-      // CYM_LOG_NFO("cym::CDAECodec::decode(sys::sptr<CResourceLoader>)::material:start" );
+    if (pGeometryLoader->hasFlag(EOption::MATERIALS)) {
+      // CYM_LOG_NFO("cym::CDAECodec::decode(sys::spo<CResourceLoader>)::material:start" );
       
       for (const auto& tInstance : tScenes->findByName("instance_controller")) {
         const auto& tController = tInstance->attribute("url")->ref;
         const auto& tGeometry   = (*tController)["skin"]->attribute("source")->ref;
         // <library_materials>
-        const auto& tMaterial   = tInstance->findOneByName("instance_material")->attribute("target")->ref;
+        const auto& tMaterial   = tInstance->findOneByName("instance_material")->attribute("getTarget")->ref;
         // <library_effects>
         const auto& tEffect     = (*tMaterial)["instance_effect"]->attribute("url")->ref;
         
         // mesh + material
-              auto& pMeshLoader     = pModelLoader->getMeshLoader(tGeometry->attribute("name")->toString());
+              auto& pMeshLoader     = pGeometryLoader->getMeshLoader(tGeometry->attribute("name")->toString());
               auto& pMaterialLoader = pMeshLoader->useMaterialLoader(tMaterial->attribute("name")->toString());
   
         // @todo: there might be more instance_material then materials, like a 2 meshes w/ the same material
@@ -1025,10 +1025,10 @@ namespace cym {
         }
       }
       
-      // CYM_LOG_NFO("cym::CDAECodec::decode(sys::sptr<CResourceLoader>)::material:done" );
+      // CYM_LOG_NFO("cym::CDAECodec::decode(sys::spo<CResourceLoader>)::material:done" );
     }
 
-    if (pModelLoader->hasFlag(EOption::SKELETON)) {
+    if (pGeometryLoader->hasFlag(EOption::SKELETON)) {
       // <library_controllers>
         // <controller>
           // <skin> #geometry1
@@ -1098,7 +1098,7 @@ namespace cym {
             // <matrix>1 0 0 0 0 1 0.000000 0 0 -0.000000 1 0 0 0 0 1</matrix>                          // JOINT's matrix
     }
     
-    if (pModelLoader->hasFlag(EOption::ANIMATIONS)) {
+    if (pGeometryLoader->hasFlag(EOption::ANIMATIONS)) {
       // <library_animations>
         // <animation id="animation_id_related_to_a_joint">
           // <source id="...-input">
@@ -1133,11 +1133,11 @@ namespace cym {
   
   // scene:scene (xml) ///////////////////////////////////////////////////////////////////////////////////////////////
   
-  void TCodec<CScene,ECodec::SCENE>::decode(sys::sptr<CResourceLoader>& pResourceLoader) {
+  void TCodec<CScene,ECodec::SCENE>::decode(sys::spo<CResourceLoader>& pResourceLoader) {
     auto        pSceneLoader = sys::static_pointer_cast<cym::TSceneLoader<sys::CFile>>(pResourceLoader);
     sys::CFile& rFile        = pSceneLoader->getFile();
     
-    CYM_LOG_NFO("cym::TCodec<CScene,ECodec::SCENE>::decode(sys::sptr<CResourceLoader>)::" << this << " FILE:" << rFile);
+    CYM_LOG_NFO("cym::TCodec<CScene,ECodec::SCENE>::decode(sys::spo<CResourceLoader>)::" << this << " FILE:" << rFile);
     
     sys::throw_if(!rFile.open(), "Cannot open file!"); // + rFile.path());
     

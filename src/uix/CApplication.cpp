@@ -41,8 +41,8 @@ namespace uix {
     CYM_LOG_NFO("uix::CApplication::init()::" << this);
   
     if (!CModule::init()) {
-      CYM_LOG_NFO("[CApplication] CModel::init() failed!");
-      ::MessageBox(NULL, "[CApplication] CModel::init() failed!", "Error", MB_OK);
+      CYM_LOG_NFO("[CApplication] CApplication::init() failed!");
+      ::MessageBox(NULL, "[CApplication] CApplication::init() failed!", "Error", MB_OK);
       return false;
     }
   

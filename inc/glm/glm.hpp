@@ -6,6 +6,8 @@
 
 #include <cmath>
 
+#undef NEAR
+#undef FAR
 #undef near
 #undef far
 
@@ -26,7 +28,7 @@ namespace glm {
   
   using log = sys::CLogger;
   
-  // OGL is RightHanded + Negative Z (at horizon/distance) ///////////////////////////////////////////////////////////
+  // OGL (here) is RightHanded + Negative Z (at horizon/distance) ////////////////////////////////////////////////////
   // OGL defaults to RH & [0,1] //////////////////////////////////////////////////////////////////////////////////////
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,6 +39,10 @@ namespace glm {
   enum class EInterpolate : uint { LINEAR = 0, EASE_IN, EASE_IN_CIRCLE, EASE_OUT, EASE_OUT_CURCLE, EASE_IN_OUT, EASE_IN_OUT_CIRCLE, BOUNCE, ELASTIC, };
   
   enum class EDot : int { BEHIND = -1, INSIDE = 0, FRONT = 1 };
+  
+  enum EPlane { LEFT=0, L = LEFT, RIGHT=1, R = RIGHT, BOTTOM=2, B = BOTTOM, TOP=3, T = TOP, FAR=4, F = FAR, NEAR=5, N = NEAR };
+  
+  enum ECorner { LBN = 0, RBN, LTN, RTN, LBF, RBF, LTF, RTF/*=7*/ };
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -55,23 +61,24 @@ namespace glm {
   class CFrustum;
   
   template<typename T, ushort c, ushort r> using tmat = CMatrix<T,c,r>;
+  template<typename T> using tmat4 = CMatrix<T,4,4>;
   // concrete
-  typedef tmat<real,  4, 4>   mat4;
-  typedef tmat<real,  4, 3>   mat4x3;
-  typedef tmat<real,  3, 3>   mat3;
-  typedef tmat<real,  2, 2>   mat2;
-  typedef tmat<float,  4, 4> fmat4;
-  typedef tmat<float,  4, 3> fmat4x3;
-  typedef tmat<float,  3, 3> fmat3;
+  typedef tmat<real,   2, 2>  mat2;
+  typedef tmat<real,   4, 3>  mat4x3;
+  typedef tmat<real,   3, 3>  mat3;
+  typedef tmat<real,   4, 4>  mat4;
   typedef tmat<float,  2, 2> fmat2;
-  typedef tmat<double, 4, 4> dmat4;
-  typedef tmat<double, 4, 3> dmat4x3;
-  typedef tmat<double, 3, 3> dmat3;
+  typedef tmat<float,  3, 3> fmat3;
+  typedef tmat<float,  4, 3> fmat4x3;
+  typedef tmat<float,  4, 4> fmat4;
   typedef tmat<double, 2, 2> dmat2;
-  typedef tmat<double, 4, 4> imat4;
-  typedef tmat<double, 4, 3> imat4x3;
-  typedef tmat<double, 3, 3> imat3;
-  typedef tmat<double, 2, 2> imat2;
+  typedef tmat<double, 3, 3> dmat3;
+  typedef tmat<double, 4, 3> dmat4x3;
+  typedef tmat<double, 4, 4> dmat4;
+  typedef tmat<int,    2, 2> imat2;
+  typedef tmat<int,    3, 3> imat3;
+  typedef tmat<int,    4, 3> imat4x3;
+  typedef tmat<int,    4, 4> imat4;
   
   template<typename T, ushort s> using tvec = CVector<T,s>;
   template<typename T> using tvec2 = CVector<T,2>;
@@ -119,16 +126,16 @@ namespace glm {
   typedef TPlane<real> CPlane;
   typedef CPlane plane;
   
-  
   typedef CAABB    aabb;
   typedef CFrustum frustum;
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  template<typename T> struct TRange { T min; T max; };
+  template<typename T> struct TRange { union { struct { T min, max; }; struct { T start, end; }; }; };
   
   typedef TRange<real> SRange; 
-  typedef TRange<real> range; 
+  typedef TRange<real>  range; 
+  typedef TRange<uint> irange; 
   
   enum class EShape : ushort { S0D = 0, S1D = 1, S2D = 2, S3D = 3, S4D = 4, };
   
@@ -149,7 +156,7 @@ namespace glm {
   
   struct CRectangle : TShape<EShape::S2D> { union {struct{real w, h;}; struct {real width, height;};}; CRectangle(real w, real h) : width{w}, height{h} {} }; 
   
-  struct STriangle  : SPolygon { };
+  struct STriangle  : SPolygon {  };
   
   struct SPrism       : TShape<EShape::S3D> { };
   struct SPyramid     : TShape<EShape::S3D> { };
@@ -176,26 +183,30 @@ namespace glm {
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  constexpr real E        = real(2.71828182845904);
-  constexpr real PI       = real(3.14159265358979);
-  constexpr real RAD      = PI / real(180.0);
+  constexpr real E        = static_cast<real>(2.71828182845904);
+  constexpr real PI       = static_cast<real>(3.14159265358979);
+  constexpr real HPI      = static_cast<real>(3.14159265358979) / static_cast<real>(2);
+  
+  constexpr real MONE     = static_cast<real>(-1);
+  constexpr real ZERO     = static_cast<real>(0);
+  constexpr real HALF     = static_cast<real>(0.5f);
+  constexpr real ONE      = static_cast<real>(1);
+  constexpr real TWO      = static_cast<real>(2);
+  constexpr real ONE80    = static_cast<real>(180);
+  
+  constexpr real RAD      = PI / static_cast<real>(180);
   constexpr real DEG2RAD  = RAD;
-  constexpr real DEG      = real(180.0) / PI;
+  constexpr real DEG      = static_cast<real>(180) / PI;
   constexpr real RAD2DEG  = DEG;
   
-  constexpr real SQRT_2   = real(1.41421356237309);
-  constexpr real SQRT_3   = real(1.73205080756887);
+  constexpr real SQRT_2   = static_cast<real>(1.41421356237309);
+  constexpr real SQRT_3   = static_cast<real>(1.73205080756887);
   
   // glm::epsilon<float>()
-  template<typename T> using epsilon  = decltype(&std::numeric_limits<T>::epsilon);
-  using epsilonf                      = decltype(&std::numeric_limits<float>::epsilon);
-  using epsilond                      = decltype(&std::numeric_limits<double>::epsilon);
-  using epsilonl                      = decltype(&std::numeric_limits<long>::epsilon);
-  using epsilonul                     = decltype(&std::numeric_limits<unsigned long>::epsilon);
-  using epsiloni                      = decltype(&std::numeric_limits<int>::epsilon);
-  using epsiloni32                    = epsiloni;
-  using epsilonui                     = decltype(&std::numeric_limits<unsigned int>::epsilon);
-  using epsilonui32                   = decltype(&std::numeric_limits<uint32_t>::epsilon);
+  template <typename T> inline const T      EPSILON()                   { return static_cast<T>(0); }     // until variable templates
+  template <>           inline const float  EPSILON<float>()            { return 0.0000001f; }            // 10^-7  // or FLT_EPSILON      = 1.19209e-07
+  template <>           inline const double EPSILON<double>()           { return 0.000000000000001; }     // 10^-15  // or DBL_EPSILON      = 2.22045e-16
+  template <>           inline const long double EPSILON<long double>() { return 0.000000000000000001l; } // 10^-18 // or LDBL_EPSILON     = 1.0842e-19
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -497,12 +508,11 @@ namespace glm {
       sum += v[i] * v[i];
     return (T)std::sqrt(sum);
   }
-  
+  /* l = glm::length(glm::plane) */
   template<typename T> inline T length(const glm::tplane<T>& p) { return static_cast<T>(std::sqrt(p.x*p.x + p.y*p.y + p.z*p.z)); } 
   
   /* float = glm::distance(vec3,vec3) // distance between 2 vectors | length(v1 - v0) */
   template<typename T, const ushort n> inline T distance(const glm::tvec<T,n>& v1, const glm::tvec<T,n>& v2) { return length(v2 - v1); }
-  
   /* glm::real = glm::distance(glm::plane, glm::vec3) // distance from plane to point // < 0 (behinf) // = 0 (inside) // > 0 (front) */
   template<typename T> inline T distance(const glm::tplane<T>& p, const glm::tvec3<T>& v) {
     return p.x*v.x + p.y*v.y + p.z*v.z + p.d; // dot(p,v) + p.d
@@ -515,13 +525,10 @@ namespace glm {
   template<typename T, const ushort n> glm::tvec<T,n> inline normalize(const glm::tvec<T,n>& v) {
     return v / glm::length(v);
   }
-  
   /* glm::quat = glm::normalize(glm::quat) */
   template<typename T> glm::tquat<T> inline normalize(const glm::tquat<T>& q) { return q / glm::length(glm::tvec<T,4>(q)); }
-  
   /* glm::aabb = glm::normalize(glm::aabb) // ensures min/max are correct(min < max) */
   extern inline glm::aabb normalize(const glm::aabb& a);
-  
   /* glm::plane = glm::normalize(glm::plane) // normalize plane */
   template<typename T> inline glm::tplane<T> normalize(const glm::tplane<T>& p) { return p / glm::length(p); }
   
@@ -535,21 +542,66 @@ namespace glm {
   }
   
   /* glm::identity(glm::mat4) // return identity matrix from src matrix */
-  template<typename T, const ushort c, const ushort r> void identity(glm::tmat<T,c,r>& M) {
-    M = static_cast<T>(0);
+  template<typename T, const ushort c, const ushort r> glm::tmat<T,c,r>& identity(glm::tmat<T,c,r>& M) {
+    M = glm::ZERO;
     for (ushort j = 0; j < r; j++)
-      M[j][j] = static_cast<T>(1);
-  }
-  
-  /* glm::mat4 = glm::indentity() // return identity matrix using T type and n row&col number */
-  template<typename T, const ushort n> glm::tmat<T,n,n> identity() {
-    glm::tmat<T,n,n> M;
-    for(ushort j = 0; j < n; j++)
-      M[j][j] = static_cast<T>(1);
+      M[j][j] = glm::ONE;
     return M;
   }
+  /* glm::identity(glm::quat) */
+  template<typename T> glm::tquat<T>& identity(glm::tquat<T>& Q) { Q.w = glm::ONE; Q.x = Q.y = Q.z = glm::ZERO; return Q; }
   
-// @todo glm::det
+  /* glm::mat3 = glm::shrink(glm::mat4,1,0) // shring matrix by elimination row & column */
+  template<typename T, const ushort c, const ushort r> glm::tmat<T,c-1,r-1> shrink(const glm::tmat<T,c,r>& M, const ushort y = c-1, const ushort x = r-1) {
+    assert((x < r) && (y < c) && r > 2 && c > 2);
+    glm::tmat<T,c-1,r-1> R;
+    for (ushort j1 = 0, j2 = 0; j1 < c; j1++) {
+      if (y == j1) continue;
+      for (ushort i1 = 0, i2 = 0; i1 < r; i1++) {
+        if (x == i1) continue;
+        R[j2][i2] = M[j1][i1];
+        i2++;
+      }
+      j2++;
+    }
+    return R;
+  }
+  
+  /* float = glm::det(glm::mat2) // determinant */
+  template <typename T> inline T det(const glm::tmat<T,2,2>& M) { return (M[0][0] * M[1][1]) - (M[1][0] * M[0][1]); }
+  /* float = glm::det(glm::mat4) // determinant */
+  template<typename T, const ushort c, const ushort r> T det(const glm::tmat<T,c,r>& M) {
+    static_assert((r > 1) && (c > 1), "1x1 Matrix not allowed!");
+    T d {0};
+    for(ushort j = 0; j < c; j++)
+      d += (j % 2 == 0 ? 1 : -1) * M[j][0] * glm::det(glm::shrink(M, j, 0)); // glm::tmat<T,c-1,r-1>
+    return d;
+  }
+  
+  /* glm::vec4 = glm::row(glm::mat4,0) // extract row from matrix as a vector */
+  template<typename T, const ushort c, const ushort r> inline glm::tvec<T,c> row(const glm::tmat<T,c,r>& m, ushort row) {
+    assert(row < c);
+    glm::tvec<T,c> v;
+    for (ushort i = 0; i < c; i++)
+      v[i] = m[i][row];
+    return v;
+  }
+  /* glm::vec4 = glm::col(glm::mat4,3) // extract column from matrix as a vector */
+  template<typename T, const ushort c, const ushort r> inline glm::tvec<T,r> col(const glm::tmat<T,c,r>& m, ushort col) {
+    assert(col < r);
+    return m[col];
+  } 
+
+  /* bool = glm::isIdentity(glm::mat4) */
+  template<typename T, const ushort c, ushort r> inline bool isIdentity(const glm::tmat<T,c,r>& M) {
+    for (ushort j = 0; j < c; j++)
+      for (ushort i = 0; i < r; i++)
+        if ((j == i && M[j][i] != glm::ONE) || (j != i && M[j][i] != glm::ZERO))
+          return false;
+    return true;
+  }
+  /* bool = glm::isIdentity(glm::quat) */
+  template<typename T> inline bool isIdentity(const glm::tquat<T>& Q) { return (Q.w == glm::ONE && Q.x == glm::ZERO && Q.y == glm::ZERO && Q.z == glm::ZERO); }
 
   /* glm::mat4 = glm::asMatrix(glm::quat) */
   template<typename T> glm::tmat<T,4,4> asMatrix(const glm::tquat<T>& q) {
@@ -594,17 +646,49 @@ namespace glm {
   /* glm::frustum = glm::asFrustum(glm::mat4) // convert matrix to a frustum (6 planes) */
   template<typename T> extern inline glm::frustum asFrustum(const glm::tmat<T,4,4>& M);
   
+  template<typename T> sys::array<glm::tplane<T>,6> asPlanes(const glm::tmat<T,4,4>& PV) {
+    sys::array<glm::tplane<T>,6> tPlanes;
+    // extract rows
+    const glm::tvec4<T> row0 {glm::row(PV, 0)};
+    const glm::tvec4<T> row1 {glm::row(PV, 1)};
+    const glm::tvec4<T> row2 {glm::row(PV, 2)};
+    const glm::tvec4<T> row3 {glm::row(PV, 3)};
+    // left
+    tPlanes[EPlane::LEFT] = row3 + row0;
+    tPlanes[EPlane::LEFT].normalize();
+    // right
+    tPlanes[EPlane::RIGHT] = row3 - row0;
+    tPlanes[EPlane::RIGHT].normalize();
+    // bottom 
+    tPlanes[EPlane::BOTTOM] = row3 + row1;
+    tPlanes[EPlane::BOTTOM].normalize();
+    // top
+    tPlanes[EPlane::TOP] = row3 - row1;
+    tPlanes[EPlane::TOP].normalize();
+    // near
+    tPlanes[EPlane::NEAR] = row3 + row2;
+    tPlanes[EPlane::NEAR].normalize();
+    // far
+    tPlanes[EPlane::FAR] = row3 - row2;
+    tPlanes[EPlane::FAR].normalize();
+    // return array
+    return tPlanes;
+  }
+  
   /* populate a matrix with quaterion values */
   template<typename T> inline void quat2mat(const glm::tquat<T>& q, glm::tmat<T, 4, 4>& m) { m = q.asMatrix(); }
-  
   /* extract matrix4x4 from a quaterion */
   template <typename T> glm::tmat<T,4,4> quat2mat(const glm::tquat<T>& q) { return q.asMatrix(); }
   
   /* glm::quat = glm::conjugate(glm::quat) // return the quaterion conjugate */
   template<typename T> glm::tquat<T> inline conjugate(const glm::tquat<T>& q) { return glm::tquat<T>(q.w, -q.x, -q.y, -q.z); }
   
+// @todo inverse matrix
+  template<typename T, const ushort c, const ushort r> glm::tmat<T,c,r> inverse(const glm::tmat<T,c,r>& M) {
+    return glm::tmat<T,c,r>{};
+  }
   /* glm::quat = glm::inverse(glm::quat) // return inversed quaternion */
-  template<typename T> glm::tquat<T> inverse(const glm::tquat<T>& q) { glm::tquat<T> r(q); r.inverse(); return r; }
+  template<typename T> glm::tquat<T> inverse(const glm::tquat<T>& q) { glm::tquat<T> r{q}; r.inverse(); return r; }
   
   /* glm::mat4 = glm::matCompMult(mat4,mat4) // matrix x matrix component multiplication */
   template <typename T, const ushort c, const ushort r> inline glm::tmat<T,c,r> matCompMult(const glm::tmat<T,c,r>& m1, const glm::tmat<T,c,r>& m2) {
@@ -614,21 +698,6 @@ namespace glm {
         result[i][j] = m1[i][j] * m2[i][j];
     return result;
   }
-  
-  /* glm::vec4 = glm::row(glm::mat4,0) // extract row from matrix as a vector */
-  template<typename T, const ushort c, const ushort r> inline glm::tvec<T,c> row(const glm::tmat<T,c,r>& m, ushort row) {
-    assert(row < c);
-    glm::tvec<T,c> v;
-    for (ushort i = 0; i < c; i++)
-      v[i] = m[i][row];
-    return v;
-  } 
-  
-  /* glm::vec4 = glm::col(glm::mat4,3) // extract column from matrix as a vector */
-  template<typename T, const ushort c, const ushort r> inline glm::tvec<T,r> col(const glm::tmat<T,c,r>& m, ushort col) {
-    assert(col < r);
-    return m[col];
-  } 
   
   /* glm::real = glm::halfSpace(glm::plane,glm::vec3) // < 0 (behind) // = 0 (on plane) // > 0 (front) */
   template<typename T> inline T halfSpace(const glm::tplane<T>& p, const glm::tvec3<T>& v) {
@@ -655,7 +724,7 @@ namespace glm {
 // @todo glm::roll  // z axis // tilt head left-right // roll = do a barrale roll = spin
   
   /* glm::mat4 = glm::rotate(a,x,y,z) // rotation matrix from axis and angle | R = cos*I + sin*[u]x + (1-cos)uXu | tensor product */
-  template<typename T> inline tmat<T,4,4> rotate(const T& a, const T& x, const T& y, const T& z) {
+  template<typename T> inline tmat<T,4,4> rotate(const T& deg, const T& x, const T& y, const T& z) {
     // return glm::rotate(a, glm::tvec<T,3>{x,y,z});
     const T xx {x * x};
     const T yy {y * y};
@@ -664,22 +733,22 @@ namespace glm {
     const T xz {x * z};
     const T yz {y * z};
 
-    const T zero{static_cast<T>(0)};
-    const T one {static_cast<T>(1)};
-    const T rad {glm::radians(a)};               // float
+    static const T ZERO {static_cast<T>(0)};
+    static const T ONE  {static_cast<T>(1)};
+    
+    const T rad {glm::radians(deg)};               // float, (PI angle)
     const T c   {static_cast<T>(std::cos(rad))}; // float
     const T s   {static_cast<T>(std::sin(rad))}; // float
-    const T omc {one - c};                       // one minus cos
+    const T omc {ONE - c};                       // one minus cos
 
-    return glm::tmat<T,4,4>{glm::tvec<T,4>(T(xx * omc + c),     T(xy * omc + z * s), T(xz * omc - y * s), zero),
-                            glm::tvec<T,4>(T(xy * omc - z * s), T(yy * omc + c),     T(yz * omc + x * s), zero),
-                            glm::tvec<T,4>(T(xz * omc + y * s), T(yz * omc - x * s), T(zz * omc + c),     zero),
-                            glm::tvec<T,4>(zero,                zero,                zero,                 one)};
+    return glm::tmat<T,4,4>{glm::tvec<T,4>{xx * omc + c,     xy * omc + z * s, xz * omc - y * s, ZERO},
+                            glm::tvec<T,4>{xy * omc - z * s, yy * omc + c,     yz * omc + x * s, ZERO},
+                            glm::tvec<T,4>{xz * omc + y * s, yz * omc - x * s, zz * omc + c,     ZERO},
+                            glm::tvec<T,4>{ZERO,             ZERO,             ZERO,              ONE}};
   }
-  
-  // glm::rotate // rotation matrix - vector
-  template<typename T> inline glm::tmat<T,4,4> rotate(const T& a, const glm::tvec<T,3>& vec) {
-    return glm::rotate(a, vec.x, vec.y, vec.z);
+  /* glm::mat4 = glm::rotate(deg, glm::vec3) // rotation matrix - vector */
+  template<typename T> inline glm::tmat<T,4,4> rotate(const T& deg, const glm::tvec<T,3>& v) {
+    return glm::rotate(deg, v.x, v.y, v.z);
     // const T c = ::cos(a);
     // const T s = ::sin(a);
     //
@@ -691,10 +760,41 @@ namespace glm {
     //  
     // );
   }
-  
   // glm::rotate // matrix rotation using angles
   template<typename T> inline glm::tmat<T,4,4> rotate(const T& ax, const T& ay, const T& az) {
     return glm::rotate(ax, T(1), T(0), T(0)) * glm::rotate(ay, T(0), T(1), T(0)) * glm::rotate(az, T(0), T(0), T(1));
+  }
+  /* rotate vector around axis by angle theta */
+  template<typename T> inline void rotate(glm::tvec<T,3>& v, const T& theta, const glm::tvec<T,3>& a) {
+    //const T s = std::sin(radians(theta / T(2)));
+    //const T c = std::cos(radians(theta / T(2)));
+    
+    glm::tquat<T> V {static_cast<T>(0), v.x, v.y, v.z};
+    //quat R(a.x * s, a.y * s, a.z * s, c);
+    glm::tquat<T> R {theta, a};
+    glm::tquat<T> C {glm::conjugate(R)};
+    glm::tquat<T> W {(R * V) * C};
+    
+    //sys::info << R << sys::endl;
+    //sys::info << V << sys::endl;
+    //sys::info << C << sys::endl;
+    
+    v.x = W.x;
+    v.y = W.y;
+    v.z = W.z;
+  }
+  /* return oritantion matrix from quaternion */
+  template<typename T> inline glm::tmat<T,4,4> rotate(const glm::tquat<T>& Q) { return Q.asMatrix(); }
+  /* rotate/orientate vector by quaternion */
+  template<typename T,ushort n> inline glm::tvec<T,n>& rotate(glm::tvec<T,n>& v, const glm::tquat<T>& Q) { v = Q.asMatrix() * v; return v; }
+  /* rotate/orientate vector by quaternion */
+  template<typename T,ushort n> inline glm::tvec<T,n> rotate(const glm::tvec<T,n>& v, const glm::tquat<T>& Q) { return Q.asMatrix() * v; }
+  /* rotate vector by quaternion */
+  template<typename T> inline glm::tvec<T,3> rotate(const glm::tquat<T>& R, const glm::tvec<T, 3>& v) {
+    glm::tquat<T> V {static_cast<T>(0), v.x, v.y, v.z};
+    glm::tquat<T> C {glm::conjugate(R)};
+    glm::tquat<T> W {(R * V) * C};
+    return {W.x, W.y, W.z};
   }
   
   /* rotate vector around the X axis by a */
@@ -709,7 +809,6 @@ namespace glm {
     
     return res;
   }
-  
   /* rotate vector around the Y axis by a */
   template<typename T, const ushort n> inline glm::tvec<T,n> rotateY(const T& a, const glm::tvec<T,n>& vec) {
     glm::tvec<T,n> res(vec);
@@ -723,34 +822,6 @@ namespace glm {
     return res;
   }
   
-  /* rotate vector around axis by angle theta */
-  template<typename T> inline void rotate(glm::tvec<T,3>& v, const T& theta, const glm::tvec<T,3>& a) {
-    //const T s = std::sin(radians(theta / T(2)));
-    //const T c = std::cos(radians(theta / T(2)));
-    
-    glm::tquat<T> V(T(0), v.x, v.y, v.z);
-    //quat R(a.x * s, a.y * s, a.z * s, c);
-    glm::tquat<T> R(theta, a);
-    glm::tquat<T> C = glm::conjugate(R);
-    glm::tquat<T> W = (R * V) * C;
-    
-    //sys::info << R << sys::endl;
-    //sys::info << V << sys::endl;
-    //sys::info << C << sys::endl;
-    
-    v.x = W.x;
-    v.y = W.y;
-    v.z = W.z;
-  }
-  
-  /* return oritantion matrix from quaternion */
-  template<typename T> inline glm::tmat<T,4,4> rotate(const glm::tquat<T>& Q) { return Q.asMatrix(); }
-  
-  /* rotate/orientate vector by quaternion */
-  template<typename T,ushort n> inline glm::tvec<T,n>& rotate(glm::tvec<T,n>& v, const glm::tquat<T>& Q) { v = Q.asMatrix() * v; return v; }
-  /* rotate/orientate vector by quaternion */
-  template<typename T,ushort n> inline glm::tvec<T,n> rotate(const glm::tvec<T,n>& v, const glm::tquat<T>& Q) { return Q.asMatrix() * v; }
-  
   /* matrix-vector scaling - scalars */
   template<typename T> inline glm::tmat<T, 4, 4> scale(const T& x, const T& y, const T& z) {
     return glm::tmat<T,4,4>(glm::tvec<T,4>(   x, T(0), T(0), T(0)),
@@ -759,28 +830,22 @@ namespace glm {
                             glm::tvec<T,4>(T(0), T(0), T(0), T(1))
     );
   }
-  
   /* matrix-vector scaling - vector */
   template<typename T> inline glm::tmat<T, 4, 4> scale(const glm::tvec<T,3>& v) { return scale(v[0],v[1],v[2]); }
-  
   /* matrix-vector scaling - vector */
   template<typename T> inline glm::tmat<T, 4, 4> scale(T s) { return scale(s, s, s); }
   
   /* glm::translate // create translation matrix from a direction vector */
   template<typename T> inline glm::tmat<T,4,4> translate(const glm::tvec<T,3>& v) {
-    return glm::tmat<T,4,4>{glm::tvec<T,4> {T(1), T(0), T(0), T(0)},    // 1 0 0 v0
-                            glm::tvec<T,4> {T(0), T(1), T(0), T(0)},    // 0 1 0 v1
-                            glm::tvec<T,4> {T(0), T(0), T(1), T(0)},    // 0 0 0 v2
-                            glm::tvec<T,4> {v[0], v[1], v[2], T(1)}};   // 0 0 1 v3
+    static const T ZERO {static_cast<T>(0)};
+    static const T  ONE {static_cast<T>(1)};
+    return glm::tmat<T,4,4>{glm::tvec<T,4>{ ONE, ZERO, ZERO, ZERO},    // 1 0 0 v0
+                            glm::tvec<T,4>{ZERO,  ONE, ZERO, ZERO},    // 0 1 0 v1
+                            glm::tvec<T,4>{ZERO, ZERO,  ONE, ZERO},    // 0 0 0 v2
+                            glm::tvec<T,4>{v[0], v[1], v[2],  ONE}};   // 0 0 1 v3
   }
-  
-  /* vec3 = glm::reflect(vec3,vec3) // reflect vector relative to surface normal */
-  template<typename T, const ushort n> inline glm::tvec<T,n> reflect(const glm::tvec<T,n>& I, const glm::tvec<T,n>& N) {
-    // dot(N, I) - angle between vector & normal    //       /|2 * dot(I,N) * N 
-    // 2 * dot(N, I) * N - resize normal            //    -I/ |
-    return T(2) * glm::dot(I, N) * N - I;           //     R\ |N/I
-    // return I - T(2) * dot(N, I) * N;             //       \|/    
-  }
+  /* glm::mat4& = glm::traslate(glm::mat4, glm::ved3) */
+  template<typename T> glm::tmat<T,4,4>& translate(glm::tmat<T,4,4>& M, const glm::tvec3<T>& v) { M[3] = M[0]*v[0] + M[1]*v[1] + M[2]*v[2] + M[3]; return M; }
   
   /* @see CVector.hpp operator *(mat,vec) */
   template<typename T, ushort c, ushort r> inline glm::tvec<T,r>& transform(glm::tvec<T,r>& v, const glm::tmat<T,c,r>& M) { v = M * v; return v; }
@@ -791,8 +856,16 @@ namespace glm {
   template<typename T, ushort n> inline glm::tvec<T,n>& transform(glm::tvec<T,n>& v, const glm::txform<T>& X) { v = X.asMatrix() * v; return v; }
   /* apply transform to vector */
   template<typename T, ushort n> inline glm::tvec<T,n> transform(const glm::tvec<T,n>& v, const glm::txform<T>& X) { return X.asMatrix() * v; }
+  /* extern */
+  template<typename T> extern glm::aabb transform(const glm::aabb& tAABB, const glm::txform<T>& tXform);
   
-  template<typename T> extern glm::aabb transform(const glm::aabb& tAABB, const glm::txform<T>& tXform);  
+  /* vec3 = glm::reflect(vec3,vec3) // reflect vector relative to surface normal */
+  template<typename T, const ushort n> inline glm::tvec<T,n> reflect(const glm::tvec<T,n>& I, const glm::tvec<T,n>& N) {
+    // dot(N, I) - angle between vector & normal       //       /|2 * dot(I,N) * N 
+    // 2 * dot(N, I) * N - resize normal               //    -I/ |
+    return static_cast<T>(2) * glm::dot(I, N) * N - I; //     R\ |N/I
+    // return I - T(2) * dot(N, I) * N;                //       \|/    
+  }
   
 // @todo glm::refract
   
@@ -800,12 +873,10 @@ namespace glm {
   
   // @todo: glm::ortho(T left, T right = screen.width, T bottom = screen.height, T top, T near, T far) //
   template<typename T> glm::tmat<T,4,4> inline ortho(T left, T right, T bottom, T top, T near, T far) {
-    return CMatrix<T,4,4> {
-      T(2)/(right-left),          T(0),                        T(0),            T(0),
-      T(0),                       T(2)/(top-bottom),           T(0),            T(0),
-      T(0),                       T(0),                       -T(1)/(far-near), T(0),
-      -(right+left)/(right-left), -(top+bottom)/(top-bottom), -near/(far-near), T(1),
-    };
+    return { T(2)/(right-left),          T(0),                        T(0),            T(0),
+             T(0),                       T(2)/(top-bottom),           T(0),            T(0),
+             T(0),                       T(0),                       -T(1)/(far-near), T(0),
+             -(right+left)/(right-left), -(top+bottom)/(top-bottom), -near/(far-near), T(1) };
   } 
     
 // @todo glm::frustum(T left, T right, T bottom, T top, T near, T far) // return mat4 // frustumRH_NO // right-hand negative z
@@ -818,41 +889,33 @@ namespace glm {
   //   tvec<T, 4>(T(0),                           T(0),                           -T(1),                           T(0))
   // );
     
-  /* glm::mat4 P = glm::perspective(T fov, T width, T hight, T near, T far) // perspectiveFovRH_NO */
+  /* glm::mat4 P = glm::perspective(T fov, T width, T hight, T near, T far) // perspectiveFovRH_NO = right-hand & negative z */
   template<typename T> glm::tmat<T,4,4> inline perspective(T fov, T width, T height, T near, T far) {
-    const T zero  {static_cast<T>(0)};
-    const T one   {static_cast<T>(1)};
-    const T two   {static_cast<T>(2)};
-// @todo: allow radians or degrees
-    assert(width  > zero);
-    assert(height > zero);
-    assert(fov    > zero);
+    assert(width  > glm::ZERO);
+    assert(height > glm::ZERO);
+    assert(fov    > glm::ZERO);
     assert(far    > near);
-    const T hrad = glm::radians(fov)/two; // half radians
+    const T hrad  {glm::radians(fov) / glm::TWO}; // half radians
     const T m_h   {std::cos(hrad) / std::sin(hrad)}; // h // m11
     const T ratio {height / width};
     const T m_w   {m_h * ratio};                     // w // m00
-    return glm::tmat<T,4,4>{ m_w, zero,  zero,                      zero,
-                            zero,  m_h,  zero,                      zero,
-                            zero, zero, -(far)/(far-near),          -one,
-                            zero, zero, -(two*far*near)/(far-near), zero};
+    return { m_w,       glm::ZERO,  glm::ZERO,                      glm::ZERO,
+             glm::ZERO, m_h,        glm::ZERO,                      glm::ZERO,
+             glm::ZERO, glm::ZERO, -(far+near)/(far-near),          -glm::ONE,
+             glm::ZERO, glm::ZERO, -(glm::TWO*far*near)/(far-near), glm::ZERO };
   }
-
-  /* glm::mat4 P = glm::perspective() // P using fov, aspect ratio, near & far planes // perspectiveRH_NO */
+  /* glm::mat4 P = glm::perspective() // P using fov, aspect ratio, near & far planes // perspectiveRH_NO = right-hand & negative z */
   template<typename T> glm::tmat<T,4,4> inline perspective(T fovy, T ratio, T near, T far) {
-    const T zero {static_cast<T>(0)};
-    const T one  {static_cast<T>(1)};
-    const T two  {static_cast<T>(2)};
     assert(far > near);
-    assert(std::abs(ratio - std::numeric_limits<T>::epsilon() > zero));
-    const T thf {std::tan(glm::radians(fovy/two))}; // tan half fov
+    assert(ratio > glm::ZERO);
+    const T thf {std::tan(glm::radians(fovy/glm::TWO))}; // tan half fov
 // @todo: allow radians AND degrees
-    const T m_h {one / thf};
-    const T m_w {one / (ratio * thf)};
-    return glm::tmat<T,4,4> {m_w, zero,  zero,                      zero,
-                            zero,  one,  zero,                      zero,
-                            zero, zero, -(far+near)/(far-near),     -one,
-                            zero, zero, -(two*far*near)/(far-near), zero,};
+    const T m_h {glm::ONE / thf};
+    const T m_w {glm::ONE / (ratio * thf)};
+    return { m_w,       glm::ZERO, glm::ZERO,                       glm::ZERO,
+             glm::ZERO, m_h,       glm::ZERO,                       glm::ZERO,
+             glm::ZERO, glm::ZERO, -(far+near)/(far-near),          -glm::ONE,
+             glm::ZERO, glm::ZERO, -(glm::TWO*far*near)/(far-near), glm::ZERO };
   }
 
 // @todo glm::perspective(T fovy, T ratio, T near) = infinite perspective
@@ -870,14 +933,13 @@ namespace glm {
   
   /* glm::mat4 V = glm::lookat(vec3 pos/eye, vec3 target/center, vec3 up) // view(space) matrix // lookAtRH */
   template<typename T> inline glm::tmat<T,4,4> lookat(glm::tvec<T,3> p/*position,eye*/, glm::tvec<T,3> t/*target,center*/, glm::tvec<T,3> a/*up*/) {
-    const T zero {0};
-    const glm::tvec<T,3> f(glm::normalize(t - p));            // direction = position -> target 
-    const glm::tvec<T,3> s(glm::normalize(glm::cross(f,a)));  // side = forward x up
-    const glm::tvec<T,3> u(glm::cross(s,f));                  // up - recomputed                    //      c0   c1   c2   c3
-    return glm::tmat<T,4,4>{glm::tvec<T,4>(/* m.0   */s.x,/* m.1  */ u.x,/* m.2  */-f.x, T(0)), // r0 |  sx   sy   sz -(s*p) |
-                            glm::tvec<T,4>(/* m.4   */s.y,/* m.5  */ u.y,/* m.6  */-f.y, T(0)), // r1 |  ux   uy   uz -(u*p) |
-                            glm::tvec<T,4>(/* m.8   */s.z,/* m.9  */ u.z,/* m.10 */-f.z, T(0)), // r2 | -fx  -fy  -fz  (f*p) |
-                            glm::tvec<T,4>(-glm::dot(s,p),-glm::dot(u,p), glm::dot(f,p), T(1))};// r3 |   0    0    0      1 |
+    const glm::tvec<T,3> f{glm::normalize(t - p)};            // direction = position -> target 
+    const glm::tvec<T,3> s{glm::normalize(glm::cross(f,a))};  // side = forward x up
+    const glm::tvec<T,3> u{glm::cross(s,f)};                  // up - recomputed       //      c0   c1   c2   c3
+    return { glm::tvec<T,4>{/* m.0   */s.x,/* m.1  */ u.x,/* m.2  */-f.x, glm::ZERO},  // r0 |  sx   sy   sz -(s*p) |
+             glm::tvec<T,4>{/* m.4   */s.y,/* m.5  */ u.y,/* m.6  */-f.y, glm::ZERO},  // r1 |  ux   uy   uz -(u*p) |
+             glm::tvec<T,4>{/* m.8   */s.z,/* m.9  */ u.z,/* m.10 */-f.z, glm::ZERO},  // r2 | -fx  -fy  -fz  (f*p) |
+             glm::tvec<T,4>{-glm::dot(s,p),-glm::dot(u,p), glm::dot(f,p),  glm::ONE} };// r3 |   0    0    0      1 |
     //return M * glm::translate(-p);
   }
   
@@ -907,12 +969,14 @@ namespace glm {
   /* glm::ECompare = glm::compare(glm::frustum, glm::aabb) // is aabb inside/outside/intersect the frustum */
   extern inline ECompare compare(const glm::frustum& lhs, const glm::aabb& rhs);
   
+// @todo: compare vs classify
+  
   /* glm::ECompare = glm::compare(glm::plane, glm::vec3) // find position of vector v relative to plane p */
   template<typename T> ECompare compare(const glm::tplane<T>& p, const glm::tvec3<T>& v) {
     glm::real d {glm::distance(p,v)};
-    if (glm::lt(d,T(0)))    return ECompare::BEHIND; // < 0
-    if (glm::eq(d,T(0)))    return ECompare::INSIDE; // = 0
-    /*if (glm::gt(d,T(0)))*/return ECompare::FRONT;  // > 0
+    if (glm::lt(d,glm::ZERO))/*<0*/ return ECompare::BEHIND; // < 0 // NEGATIVE
+    if (glm::eq(d,glm::ZERO))/*=0*/ return ECompare::INSIDE; // = 0 // ONPLANE
+    /*if (glm::gt(d,T(0)))*/ /*>0*/ return ECompare::FRONT;  // > 0 // POSITIVE
   }
 }
 

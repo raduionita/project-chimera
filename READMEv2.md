@@ -8,7 +8,7 @@
 
 #######
 - fix: dds texture flipped
-- fix: texture setWrapping + filtering + blending
+- fix: texture setWrapping + setFiltering + blending
 - use std::string_view instead of allocation a new std::string
 - glMapBufferRange is faster
 - parallel loops std::for_each(std::execution:par_unseq, std::vector::begin(), std::vector::end())
@@ -99,8 +99,8 @@
 - loop
 ```c++
 for (CViewport* pViewport : get_viewports())
-  for (CModel* pModel : get_models())
-    pModel->draw();
+  for (CGeometry* pGeometry : get_models())
+    pGeometry->draw();
 ```
 
 - cameras:
@@ -148,7 +148,7 @@ std::vector<CNode> pNodes = CScene::query(query);
     | | - INIT preset pass (fbo)
     | | | - CREATE color GL_RGBA32F + GL_RGBA + GL_FLOAT + BILINEAR + CLAMP_TO_EDGE
     | | - INIT geometry pass (fbo)
-    | | | - CREATE depth   GL_DEPTH_COMPONENT + GL_FLOAT + BILINEAR
+    | | | - CREATE setDepth   GL_DEPTH_COMPONENT + GL_FLOAT + BILINEAR
     | | | - CREATE color   GL_RGB + GL_FLOAT + BILINEAR
     | | | - CREATE normals GL_RGB32F + GL_RGB + GL_FLOAT + BILINEAR
     | | | - CREATE glow    GL_R32I + GL_RED + GL_INT + BILINEAR
@@ -176,7 +176,7 @@ std::vector<CNode> pNodes = CScene::query(query);
     | | | | | - FOR EACH layer (6 layers for POINT light, 1 layer for the rest)
     | | | | | | - BIND (shadow) framebuffer (layer) (cubemap=6 for omni/point lights)
     | | | | | | - DISABLE read/write color
-    | | | | | | - CLEAR  color & depth
+    | | | | | | - CLEAR  color & setDepth
     | | | | | |  
     | | | | | | - frustum = CREATE from light
     | | | | | | - QUERY scene : FIND drawables WHERE drawable IN frustum
@@ -201,8 +201,8 @@ std::vector<CNode> pNodes = CScene::query(query);
     | | 
     | | 
     | | - geometry pass
-    | | | - SET flags (cull face back, depth)
-    | | | - BIND (geometry) framebuffer (depth + color + normals + motion)
+    | | | - SET flags (cull face back, setDepth)
+    | | | - BIND (geometry) framebuffer (setDepth + color + normals + motion)
     | | | 
     | | | - frustum = CREATE from camera
     | | | - QUERY scene : FIND drawables WHERE drawable IN frustum ORDER front2back(opaque) GROUP BY shader, model
@@ -246,7 +246,7 @@ std::vector<CNode> pNodes = CScene::query(query);
     | | | - UNIFORM kernel (=vec3 (vector) array = )
     | | | - UNIFORM noise texture
     | | | 
-    | | | - BIND/UNIFORM geometry.depth   framebuffer AS depth texture  
+    | | | - BIND/UNIFORM geometry.depth   framebuffer AS setDepth texture  
     | | | - BIND/UNIFORM geometry.normals framebuffer AS normals texture  
     | | | 
     | | | - DRAW fullscreen QUAD
@@ -260,13 +260,13 @@ std::vector<CNode> pNodes = CScene::query(query);
     | | 
     | | 
     | | - lighting pass
-    | | | - (UN)SET flags (depth, stencil, blend, cull_face, back)
+    | | | - (UN)SET flags (setDepth, stencil, blend, cull_face, back)
     | | | 
     | | | - BIND (output=0) framebuffer 
     | | | 
     | | | - BIND (lighting) shader
     | | | 
-    | | | - BIND (framebuffer) geometry.depth   AS depth texture
+    | | | - BIND (framebuffer) geometry.depth   AS setDepth texture
     | | | - BIND (framebuffer) geometry.normals AS normals texture
     | | | - BIND (framebuffer) geometry.diffuse AS diffuse texture
     | | | 
@@ -318,10 +318,10 @@ std::vector<CNode> pNodes = CScene::query(query);
     | | 
     | | 
     | | - final pass
-    | | | - DISABLE depth & stencil
+    | | | - DISABLE setDepth & stencil
     | | | - SET final opengl flags
     | | | - BIND (output=0) framebuffer
-    | | | - SET viewport (width,height of output)
+    | | | - SET viewport (setRatio,setHeight of output)
     | | | - UNIFORM (framebuffer) output.color AS texture GL_TEXTURE1
     | | | - DRAW fullscreen quad
       
@@ -336,7 +336,7 @@ std::vector<CNode> pNodes = CScene::query(query);
     | - RENDER:forward
     | | - final pass
     | | | - BIND framebuffer 0
-    | | | | - CLEAR color & depth 
+    | | | | - CLEAR color & setDepth 
     | | | - FOR EACH drawable
     | | | | - BIND (render) shader
     | | | | 

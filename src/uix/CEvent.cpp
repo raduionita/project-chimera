@@ -1,7 +1,9 @@
 #include "uix/CEvent.hpp"
 
 namespace uix {
-  CEvent::CEvent(const EType& type, CWindow* target) : mType{type}, mTarget{target} { }
+  CEvent::CEvent(const EType& type, CWindow* target) : mType{type}, mTarget{target} { 
+    
+  }
   
   CEvent::~CEvent() { }
   

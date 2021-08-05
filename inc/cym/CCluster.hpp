@@ -2,20 +2,20 @@
 #define __cym_ccluster_hpp__
 
 #include "cym/cym.hpp"
-#include "cym/CModel.hpp"
+#include "cym/CGeometry.hpp"
 #include "cym/CDrawable.hpp"
 
 namespace cym {
   class CCluster { };
   
 // @todo: these are things that can be bundled/clustered tougheter
-// @todo: like CModel, CParticle or whatever...for batch rendering
+// @todo: like CGeometry, CParticle or whatever...for batch rendering
   
-  template<typename T> class TCluster : public cym::CCluster { // CModelCluster, CParticleCluster
+  template<typename T> class TCluster : public cym::CCluster { // CGeometryCluster, CParticleCluster
       
   }; 
   
-  class CModelCluster : public cym::TCluster<cym::CModel>, public cym::CDrawable {
+  class CGeometryCluster : public cym::TCluster<cym::CGeometry>, public cym::CDrawable {
       
   };
   

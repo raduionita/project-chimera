@@ -156,7 +156,7 @@ namespace cym {
     // @todo: there should be a warn here if not found
   }
   
-  void CShader::uniform(const cym::CString& name, const sys::sptr<CTexture>& tex) {
+  void CShader::uniform(const cym::CString& name, const sys::spo<CTexture>& tex) {
     GLint loc = uniform(name);
     if (loc != GL_NOT_FOUND) {
       tex->bind();
@@ -182,7 +182,7 @@ namespace cym {
     // @todo: there should be a warn here if not found
   }
   
-  void CShader::sampler(const CString& name, const sys::sptr<CTexture>& tex) {
+  void CShader::sampler(const CString& name, const sys::spo<CTexture>& tex) {
     GLint loc = uniform(name);
     if (loc != GL_NOT_FOUND) {
       tex->bind();

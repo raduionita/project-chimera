@@ -80,12 +80,9 @@ namespace sys {
   using stream      = sys::CStream;
   using exception   = sys::CException;
   template<typename T> using ptr     = sys::TPointer<T, EPointer::SHARED>;
-  template<typename T> using sptr    = sys::TPointer<T, EPointer::SHARED>;
-  template<typename T> using spt     = sys::TPointer<T, EPointer::SHARED>;
-  template<typename T> using wptr    = sys::TPointer<T, EPointer::WEAK>;
-  template<typename T> using wpt     = sys::TPointer<T, EPointer::WEAK>;
-  template<typename T> using uptr    = sys::TPointer<T, EPointer::UNIQUE>;
-  template<typename T> using upt     = sys::TPointer<T, EPointer::UNIQUE>;
+  template<typename T> using spo     = sys::TPointer<T, EPointer::SHARED>;
+  template<typename T> using wpo     = sys::TPointer<T, EPointer::WEAK>;
+  template<typename T> using upo     = sys::TPointer<T, EPointer::UNIQUE>;
   
   
   using string                  = std::string;
@@ -139,6 +136,8 @@ namespace sys {
     out << std::fixed << v;
     return out.str();
   }
+  
+  inline std::string to_hex(const uint64_t d) { std::stringstream sss; sss << "0x" << std::hex << d; return sss.str(); }
   
   // using namespace std::chrono_literals;
   // auto day = 24h;

@@ -9,7 +9,7 @@ namespace uix {
       friend class CWindow;
       friend class CButton;
     public:
-      enum class EType : uint {
+      enum EType {
         // 0b00000000'00000000'00000000'00000000
         EVENT       = 0,
           WINDOW    = 1, // << 0

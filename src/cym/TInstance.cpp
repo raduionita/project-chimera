@@ -1,4 +1,4 @@
-#include "cym/CInstance.hpp"
+#include "cym/TInstance.hpp"
 
 namespace cym {
   CInstance::CInstance() {

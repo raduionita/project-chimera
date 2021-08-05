@@ -30,12 +30,16 @@ namespace glm {
       }
     public:
       /* xform = xform + xform */
-      inline CTransform  operator  +(const CTransform& that) { return CTransform{}; }
+      inline CTransform  operator  *(const CTransform& that) {
+        return CTransform{that.position + position,
+                          that.orientation * orientation,
+                          that.scale * scale}; 
+      }
       /* xform += xform */
-      inline CTransform& operator +=(const CTransform& that) {
-        
-// @todo: add transforms, make sure resulting pos/orientation/scale is CORRECT
-        
+      inline CTransform& operator *=(const CTransform& that) {
+        position    += that.position;
+        orientation *= that.orientation;
+        scale       *= that.scale;
         return *this; 
       }
     public:

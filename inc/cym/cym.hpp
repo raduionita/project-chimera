@@ -2,7 +2,7 @@
 #define __cym_hpp__
 
 #include "sys/sys.hpp"
-#include "sys/CPointer.hpp"
+#include "sys/TPointer.hpp"
 #include "sys/CLogger.hpp"
 #include "sys/CTimer.hpp"
 #include "ogl/ogl.hpp"
@@ -33,14 +33,14 @@ namespace cym {
   class CCamera;
   class CLight;
   class CColor;
-  class CGeometry;
+  class CGeometryBuffer;
   class CGeometryInput;
   class CMesh;
   class CParticle;
-  class CCluster; // a group of CModel, CParticle...
+  class CCluster; // a group of CGeometry, CParticle...
   class CInstance;
   class CResource;
-    class CModel; // a group of CMesh
+    class CGeometry; // a group of CMesh
     class CTexture;
     class CChannel;
     class CMaterial;
@@ -48,13 +48,13 @@ namespace cym {
     class CShader;
     class CSkeleton; //-on
   class CResourceLoader;
-    class CModelLoader;
+    class CGeometryLoader;
     class CMeshLoader;
     class CMaterialLoader;
     class CTextureLoader;
   class CResourceManager;
     class CTextureManager;
-    class CModelManager;
+    class CGeometryManager;
     class CShaderManager;
   class CObject;
     class CTexture;
@@ -75,7 +75,7 @@ namespace cym {
       class CPNGCodec;
       class CJPGCodec;
       class CKTXCodec;
-    class CModelCodec;
+    class CGeometryCodec;
       class CDAECodec;
       class COBJCodec;
       class CMD5Codec;
@@ -115,7 +115,15 @@ namespace cym {
   enum class ECulling { NONE, CLOCKWISE, CW = CLOCKWISE, COUNTERCLOCKWISE, CCW = COUNTERCLOCKWISE, };
   
   enum class EAnimation { LINEAR = 0, EASE_IN, EASE_OUT, EASE_IN_OUT, BOUNCE, ELASTIC };
+  
+  enum class EPrimitive { TRIANGLES = GL_TRIANGLES, TRIANGLE_STRIP, TRIANGLE_FAN, TRIANGLE_ADJACENCY, LINES = GL_LINES, LINE_STRIP, LINE_LOOP, LINE_ADJACENCY, POINTS = GL_POINTS };
+  
+  enum class EType { };
 
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  struct null { };
+  
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   inline void fps(uint& nFPS) { 
@@ -123,6 +131,25 @@ namespace cym {
     const  auto tElapsed {tTimer.elapsed()};
     tTimer.reset();
     nFPS = 1000 / (tElapsed > 0 ? tElapsed : 1);
+  }
+  
+  inline std::size_t sizeOf(GLenum type) {
+    switch(type) {
+      case GL_DOUBLE:
+        return sizeof(double);
+      case GL_UNSIGNED_INT:
+      case GL_INT:
+      case GL_FLOAT:
+        return sizeof(int);
+      case GL_UNSIGNED_SHORT:
+      case GL_SHORT:
+        return sizeof(short);
+      case GL_UNSIGNED_BYTE:  
+      case GL_BYTE:
+        return sizeof(char);
+      default:
+        return 0;
+    }
   }
 }
 

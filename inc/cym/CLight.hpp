@@ -4,7 +4,12 @@
 #include "sys/CException.hpp"
 #include "cym/cym.hpp"
 #include "cym/CResource.hpp"
-#include "cym/CInstance.hpp"
+#include "cym/TInstance.hpp"
+
+// @todo: move this as a part of CScene -> TNode<ENode::LIGHT>
+
+// @todo: sun baked light map/shadow map transition 
+  // use 2 shadow maps, fade from one to another to try to get smooth transition, when transition is complete, create the next shadow map, and start another smooth transition
 
 namespace cym {
   class CLight; class ILight; 

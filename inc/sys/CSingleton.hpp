@@ -2,7 +2,7 @@
 #define __sys_csingleton_hpp__
 
 #include "sys.hpp"
-#include "sys/CPointer.hpp"
+#include "sys/TPointer.hpp"
 
 #include <cassert>
 
@@ -33,7 +33,7 @@ namespace sys {
         sSingleton.mDeletable = nullptr;
       }
     public:
-      inline static sys::wptr<T> getSingleton() { if (!sSingleton.mDeletable) new T; return sSingleton.mDeletable; }
+      inline static sys::wpo<T> getSingleton() { if (!sSingleton.mDeletable) new T; return sSingleton.mDeletable; }
   };
   template<typename T> typename TSingleton<T>::template TDeletable<T> TSingleton<T>::sSingleton;
 }

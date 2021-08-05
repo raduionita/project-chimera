@@ -113,13 +113,15 @@ namespace cym {
   
   class CBufferRange {
     protected:
-      GLuint mStart;
+      GLuint mStart {0};
       GLuint mCount;
+      GLenum mType {GL_UNSIGNED_INT};
     public:
       CBufferRange() : mStart(0), mCount(0) { }
       CBufferRange(GLuint start, GLuint count) : mStart(start), mCount(count) { }
       ~CBufferRange() = default;
     public:
+      inline GLenum getType()  const { return mType; }
       inline GLuint getStart() const { return mStart; }
       inline GLuint getCount() const { return mCount; }
   };

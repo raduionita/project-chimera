@@ -11,6 +11,18 @@ namespace uix {
     protected:
       using CObject::CObject;
       using CObject::operator=;
+    public:
+      class CGap : public CObject {
+        public:
+          SArea mArea {};
+          int   mHints;
+        public:
+          CGap(int w = 1, int h = 1) : mArea{0,0,w,h} { }
+        public:
+          virtual bool        area(const SArea& tArea) { mArea = tArea; return true; };
+          inline const SArea& area()  const { return mArea; } 
+          inline const int&   hints() const { return mHints; } 
+      };
     protected:
       class CItem {
         protected:
@@ -45,14 +57,10 @@ namespace uix {
                                                                                                                       : ((mHints & ELayout::CENTER) ? ((tArea.h - sArea.h)/2)
                                                                                                                                                     : (mArea.y)))); // mArea set on item add
             // win.area.wh = itm.area.wh OR same
-            sArea.w = (mHints & ELayout::ADJUST) || (sArea.w == AUTO) 
-              ? tArea.w 
-              : sArea.w;
-            sArea.h = (mHints & ELayout::ADJUST) || (sArea.h == AUTO) 
-              ? tArea.h 
-              : sArea.h;
+            sArea.w = (mHints & ELayout::ADJUST) || (sArea.w == AUTO || sArea.w == ZERO) ? tArea.w : sArea.w;
+            sArea.h = (mHints & ELayout::ADJUST) || (sArea.h == AUTO || sArea.h == ZERO) ? tArea.h : sArea.h;
             // debug
-            CYM_LOG_NFO("uix::CLayout::TItem::area(SArea&)" << " " << sArea);
+            CYM_LOG_NFO("uix::CLayout::TItem::area(SArea{"<< tArea <<"})" << " sArea:" << sArea);
             // return calculated area 
             return mObject->area(sArea); // CWindow or CLayout
           }
@@ -78,12 +86,12 @@ namespace uix {
       friend class CItem;
     public:
       using ELayout = uix::ELayout;
+      static constexpr int GAP {1};
     protected:
       std::vector<CItem*> mItems;
     public:
-      CBoxLayout() = default;
-      inline ~CBoxLayout() { CYM_LOG_NFO("uix::CBoxLayout::~CBoxLayout()::" << this); for (auto pItem : mItems) delete pItem; }
       using CLayout::CLayout;
+      ~CBoxLayout() { CYM_LOG_NFO("uix::CBoxLayout::~CBoxLayout()::" << this); for (auto& pItem : mItems) { if (pItem) { delete pItem; pItem = nullptr; } }; }
       using CLayout::operator=;
     public:
       inline CItem* operator [](typename decltype(mItems)::size_type i) { return mItems[i]; }
@@ -92,8 +100,9 @@ namespace uix {
     public:
       using CLayout::area;
       CItem*   item(typename decltype(mItems)::size_type i);
-      CWindow* add(CWindow* pWindow, const ELayout& eLayout = ELayout::LAYOUT);
-      CLayout* add(CLayout* pLayout, const ELayout& eLayout = ELayout::LAYOUT);
+      CWindow* add(CWindow* pWindow,    const ELayout& eLayout = ELayout::LAYOUT);
+      CLayout* add(CLayout* pLayout,    const ELayout& eLayout = ELayout::LAYOUT);
+      void     add(CLayout::CGap* tGap, const ELayout& eLayout = ELayout::LAYOUT);
   };
 }
 

@@ -27,13 +27,10 @@ namespace cym {
     GLuint      offset = 0;
     const auto  stride = layout.stride(); // FOR EACH layout.push() DO += sizeof(GLfloat)
     
-    CYM_LOG_NFO("cym::CVertexArray::load(CDataBuffer&, CVertexLayout&)::" << this << "::for each element");
-    
-    
     for (const auto& element : elements) {
       GLCALL(::glEnableVertexAttribArray(element.attribute));
       
-      CYM_LOG_NFO("cym::CVertexArray::load(CDataBuffer&, CVertexLayout&)::" << this << "::.getType=" << element.type << "|.offset=" << offset);
+      CYM_LOG_NFO("cym::CVertexArray::load(CDataBuffer&, CVertexLayout&)::" << this << " type=" << element.type << "|offset=" << offset);
       
       switch (element.type) {
         default:
@@ -51,7 +48,7 @@ namespace cym {
       // offset += element.offset(); // += count * components * sizeof(GLfloat)
     }
     
-    CYM_LOG_NFO("cym::CVertexArray::load(CDataBuffer&, CVertexLayout&)::" << this << "::DONE");
+    // CYM_LOG_NFO("cym::CVertexArray::load(CDataBuffer&, CVertexLayout&)::" << this << "::DONE");
   }
 }
 

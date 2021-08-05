@@ -15,12 +15,16 @@ namespace glm {
       typedef CVector<T,c>   row_t;
       typedef CVector<T,r>   col_t;
     private:
+      static constexpr const T ZERO {static_cast<T>(0)}; 
+      static constexpr const T  ONE {static_cast<T>(1)}; 
+      static constexpr const T  TWO {static_cast<T>(2)}; 
+      static constexpr const T  EPS {std::numeric_limits<T>::epsilon()}; 
       CVector<T,r> data[c];
     public:
       CMatrix() {
         for (ushort j = 0; j < c; j++)
           for (ushort i = 0; i < r; i++)
-            data[j][i] = i == j ? T(1) : T(0);
+            data[j][i] = i == j ? ONE : ZERO;
       }
       CMatrix(const CMatrix& that) {
         for (ushort j = 0; j < c; j++)
@@ -30,7 +34,7 @@ namespace glm {
       explicit CMatrix(const T s) {
         for (ushort j = 0; j < c; j++)
           for (ushort i = 0; i < r; i++)
-            data[j][i] = i == j ? s : T(0);
+            data[j][i] = i == j ? s : ZERO;
       }
       CMatrix(const glm::tvec<T,r>& vec) {
         for (ushort j = 0; j < c; j++)
@@ -56,9 +60,9 @@ namespace glm {
               const T& c2r0, const T& c2r1, const T& c2r2, const T& c2r3,
               const T& c3r0, const T& c3r1, const T& c3r2, const T& c3r3) {
         data[0][0] = c0r0; data[0][1] = c0r1; data[0][2] = c0r2; data[0][3] = c0r3;
-        data[1][0] = c1r0; data[1][1] = c1r1; data[1][2] = c1r2; data[1][3] = m1r3;
-        data[2][0] = c2r0; data[2][1] = c2r1; data[2][2] = c2r2; data[2][3] = m2r3;
-        data[3][0] = c3r0; data[3][1] = c3r1; data[3][2] = c3r2; data[3][3] = m3r3;
+        data[1][0] = c1r0; data[1][1] = c1r1; data[1][2] = c1r2; data[1][3] = c1r3;
+        data[2][0] = c2r0; data[2][1] = c2r1; data[2][2] = c2r2; data[2][3] = c2r3;
+        data[3][0] = c3r0; data[3][1] = c3r1; data[3][2] = c3r2; data[3][3] = c3r3;
       }
     public: // operator: assign
       CMatrix& operator  =(const CMatrix& that) {
@@ -108,7 +112,7 @@ namespace glm {
         return *this;
       }
       CMatrix  operator  *(const CMatrix& that) const {
-        CMatrix out {0};
+        CMatrix out {ZERO};
         T       sum;
         for (ushort ci = 0; ci < c; ci++) {
           // O[ci] = A[0]*B[ci][0] + A[1]*B[ci][1] + A[2]*B[ci][2] + A[3]*B[ci][3];
@@ -119,7 +123,7 @@ namespace glm {
           //   // }
           // }
           for (ushort ri = 0; ri < r; ri++) {
-            sum = static_cast<T>(0);
+            sum = ZERO;
             // m[0][0] = A[0][0] * B[0][0] +
             for (ushort ii = 0; ii < c; ii++)
               sum += data[ii][ri] * that.data[ci][ii];
@@ -128,7 +132,7 @@ namespace glm {
         }
         return out;
       }
-      inline CMatrix& operator *=(const CMatrix& that) { return (*this = *this * that); }
+      CMatrix& operator *=(const CMatrix& that) { return (*this = *this * that); }
       CMatrix  operator  /(const T s) const {
         CMatrix     result;
         for (ushort j = 0; j < c; j++)
@@ -153,8 +157,7 @@ namespace glm {
         }
         return out;
       }
-      inline CMatrix& operator /=(const CMatrix& that) { return (*this = *this / that); }
-      
+      CMatrix& operator /=(const CMatrix& that) { return (*this = *this / that); }
     // @see CVector.hpp (operator *)
     //CVector<T,r>   operator *(const CVector<T,r>&   vec) const { return vec * *this; } 
     //CVector<T,r-1> operator *(const CVector<T,r-1>& vec) const { return vec * *this; } 
@@ -171,6 +174,12 @@ namespace glm {
       }
       explicit operator const T*() const {
         return (const T*) (&data[0]);
+      }
+    public:
+      glm::tmat<T,c,r>& identity() {
+        *this = glm::ZERO;
+        for (ushort j = 0; j < r; j++)
+          data[j][j] = glm::ONE;
       }
     public:
       /* glm::quat = glm::mat4::asQuaternion() // to Quaternion */
@@ -335,7 +344,7 @@ namespace glm {
   
   template<typename T, const ushort c, const ushort r> inline const sys::CLogger::ELevel& operator <<(const sys::CLogger::ELevel& type, const CMatrix<T,c,r>& m) {
     std::ostringstream oss;
-    oss << "m(" << '\n';
+    oss << "m:" << '\n';
     for (ushort   j = 0; j < c; j++) {
       oss << "c(";
       for (ushort i = 0; i < r; i++) {
@@ -348,7 +357,7 @@ namespace glm {
   }  
   
   template<typename T, const ushort c, const ushort r> inline std::ostream& operator <<(std::ostream& out, const CMatrix<T,c,r>& m) {
-    out << "m(" << '\n';
+    out << "m:" << '\n';
     for (ushort   j = 0; j < c; j++) {
       out << "c(";
       for (ushort i = 0; i < r; i++) {

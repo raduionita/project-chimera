@@ -7,12 +7,13 @@
 #include "glm/CTransform.hpp"
 
 namespace glm {
+  /* axis aligned bounding box // extent // range //  */
   class CAABB {
       using ECompare = glm::ECompare;
     public:
       glm::vec3 min, max;
     public:
-      CAABB(glm::real v = 0.f) : min{v}, max{v} { }
+      CAABB(glm::real v = static_cast<glm::real>(0)) : min{v}, max{v} { }
       CAABB(glm::real tMin, glm::real tMax) : min{tMin}, max{tMax} { }
       CAABB(const glm::vec3& c, glm::real r) : min{c}, max{c} { glm::real t = r/glm::SQRT_3; min -= t; max += t; }
       CAABB(const glm::vec3 tMin, const glm::vec3 tMax) : min{glm::min(tMin,tMax)}, max{glm::max(tMin,tMax)} { }
@@ -26,10 +27,10 @@ namespace glm {
       inline CAABB&  operator +=(const CAABB& rhs) { min = glm::min(min,rhs.min); max = glm::max(max,rhs.max); return *this; }
       inline CAABB   operator  +(const CAABB& rhs) { return {glm::min(min,rhs.min), glm::max(max,rhs.max)}; }
     public:
-      inline CAABB&  operator *=(const glm::mat4& M) { min = M * min; max = M * max; return *this; };
-      inline CAABB   operator  *(const glm::mat4& M) { return  {M * min, M * max}; };
-      inline CAABB&  operator *=(const glm::xform& X) { auto M {X.toMatrix()}; min = M * min; max = M * max; return *this; };
-      inline CAABB   operator  *(const glm::xform& X) { auto M {X.toMatrix()}; return {M * min, M * max}; };
+      inline CAABB&  operator *=(const glm::mat4& M) { min = M * min; max = M * max; normalize(); return *this; };
+      inline CAABB   operator  *(const glm::mat4& M) { glm::CAABB b{M * min, M * max}; b.normalize(); return b; };
+      inline CAABB&  operator *=(const glm::xform& t) { auto M {t.toMatrix()}; min = M * min; max = M * max; normalize(); return *this; };
+      inline CAABB   operator  *(const glm::xform& t) { auto M {t.toMatrix()}; glm::aabb b{M * min, M * max}; b.normalize(); return b; };
     public:
       inline bool operator ==(const CAABB& rhs) const { return glm::eq(min.x,rhs.min.x)  && glm::eq(min.y,rhs.min.y)  && glm::eq(min.z,rhs.min.z)  && glm::eq(max.x,rhs.max.x)  && glm::eq(max.y,rhs.max.y)  && glm::eq(max.z,rhs.max.z); }
       inline bool operator !=(const CAABB& rhs) const { return !(*this == rhs); }
@@ -42,6 +43,8 @@ namespace glm {
       inline bool isZero() const { return min.isZero() && max.isZero(); }
       /* when min > max */
       inline bool isNull() const { return min.x > max.y || min.y > max.y || min.z > max.z; }
+      /* min = max */
+      inline bool isPoint() const { return glm::eq(min,max); }
       /* diagonal as vector */
       inline glm::vec3 getDiagonal() const { return !isNull() ? (max - min) : glm::vec3(0.f); }
       /* center-position point-vector */
@@ -94,7 +97,7 @@ namespace glm {
       /* apply glm::xform to glm::aabb */
       inline void transform(const glm::xform& tXForm) { auto M {tXForm.toMatrix()}; min = M * min; max = M * max; /* normalize */ normalize(); }
       /* reset min & max // *this = *this */
-      inline CAABB& normalize() { *this = *this; return *this; }
+      inline void normalize() { min = glm::min(min,max); max = glm::max(min,max); }
   };
   
   inline const sys::CLogger::ELevel& operator<<(const sys::CLogger::ELevel& type, const CAABB& aabb) {
@@ -108,8 +111,7 @@ namespace glm {
   }
   
   /* glm::aabb = glm::xform * glm::aabb */
-  inline glm::aabb operator *(const glm::xform& t, const glm::aabb& a) { const auto M {t.toMatrix()}; glm::aabb b{M * a.min, M * a.max}; return b.normalize(); };
-  
+  inline glm::aabb operator *(const glm::xform& t, const glm::aabb& a) { const glm::mat4 M{t.toMatrix()}; glm::aabb b{M * a.min, M * a.max}; b.normalize(); return b; };
   
   inline ECompare compare(const glm::aabb& lhs, const glm::aabb& rhs) {
     if (lhs.isNull() || rhs.isNull())
@@ -131,9 +133,9 @@ namespace glm {
     return ECompare::INTERSECT;
   }
   
-  template<typename T> glm::aabb transform(const glm::aabb& a, const glm::txform<T>& t) { const auto M {t.toMatrix()}; glm::aabb b{M * a.min, M * a.max}; return b.normalize(); }
+  template<typename T> glm::aabb transform(const glm::aabb& a, const glm::txform<T>& t) { const glm::mat4 M{t.toMatrix()}; glm::aabb b{M * a.min, M * a.max}; b.normalize(); return b; }
   
-  inline extern glm::aabb normalize(const glm::aabb& a) { glm::aabb b{a}; return b.normalize(); }
+  inline extern glm::aabb normalize(const glm::aabb& a) { glm::aabb b{a}; b.normalize(); return b; }
 }
 
 #endif //__glm_caabb_hpp__

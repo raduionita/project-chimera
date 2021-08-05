@@ -2,19 +2,19 @@
 #define __cym_cvertexlayout_hpp__
 
 #include "cym/cym.hpp"
-#include "sys/CPointer.hpp"
+#include "sys/TPointer.hpp"
 
 #include <vector>
 
 namespace cym {
-  class CVertexLayout; typedef sys::sptr<CVertexLayout> PVertexLayout;
+  class CVertexLayout; typedef sys::spo<CVertexLayout> PVertexLayout;
   
   enum EVertexAttribute : int { ATTRIBUTE = -1, POSITION = 0, TEXCOORD, NORMAL, COLOR, TANGENT, BINORMAL, JOINTS, WEIGHTS };
   
   class CVertexLayout { // @see [morpheus] CBufferRange
       friend class CVertexArray;
-      friend class CModel;
       friend class CGeometry;
+      friend class CGeometryBuffer;
     public:
       typedef EVertexAttribute EAttribute; 
       enum EType { NONE, SEQUENTIAL, INTERLEAVED, };

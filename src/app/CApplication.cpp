@@ -13,13 +13,14 @@
 #include "cym/CCore.hpp"
 #include "cym/CShader.hpp"
 #include "cym/CTexture.hpp"
-#include "cym/CModel.hpp"
-#include "cym/CCamera.hpp"
+#include "cym/CGeometry.hpp"
+#include "cym/CScene.hpp"
 
 #include "glm/glm.hpp"
 #include "glm/CMatrix.hpp"
 #include "glm/CVector.hpp"
 #include "glm/CTransform.hpp"
+#include "glm/CFrustum.hpp"
 
 namespace app {
   void CApplication::exec() {
@@ -29,27 +30,34 @@ namespace app {
     app::CEditWindow* pMain    {new app::CEditWindow};
     
     uix::CContext*    pContext {new uix::CContext{}};
+
+    /*uix::CButton* */mCamS = new uix::CButton{pMain,"CAMS",uix::SSize{120,40}};
+    uix::CButton*     pExit  {new uix::CButton{pMain,"EXIT",uix::SSize{40,40}}};
     
-    uix::CButton*     pPush  {new uix::CButton{pMain,"PUSH",uix::SSize{120,40}}};
-    uix::CButton*     pSave  {new uix::CButton{pMain,"SAVE",uix::SSize{120,40}}};
-    uix::CPanel*      pLeft  {new uix::CPanel{pMain}};
     uix::CSurface*    pRight {new uix::CSurface{pMain, pContext}};
     
     uix::CBoxLayout*  pTopMenu {new uix::CBoxLayout{uix::ELayout::HORIZONTAL,uix::SSize{uix::AUTO,50}}};
-    pTopMenu->add(pPush);
-    pTopMenu->add(pSave); // @todo: on resize the second button (or TItem) runs to the right
+    pTopMenu->add(mCamS); // @todo: on resize the second button (or TItem) runs to the right
     
+    uix::CBoxLayout*  pLeftMenu {new uix::CBoxLayout{uix::ELayout::VERTICAL,uix::SSize{50,uix::AUTO}}};
+    pLeftMenu->add(pExit);
+     
     uix::CBoxLayout*  pContent {new uix::CBoxLayout{uix::ELayout::HORIZONTAL}};
-    pContent->add(pLeft);
+    pContent->add(pLeftMenu);
     pContent->add(pRight);
+    
+// @todo: multiple surfaces
+  //pContent->add(new uix::CLayout::CGap{ });
+  //pContent->add(pLeft); // left surface
     
     uix::CBoxLayout*  pLayout  {new uix::CBoxLayout{uix::ELayout::VERTICAL}};
     pLayout->add(pTopMenu);
     pLayout->add(pContent);
-    
+// @todo: fix getting & setting area/rect, use mArea to return getArea(), and set mArea on setArea(), @see CWindow::area() & CLayout::area()
     pMain->layout(pLayout); // pLayout->apply(pMain);
     
-    attach(this,     uix::CEvent::EType::KEYDOWN, &app::CApplication::onKeydown);
+    attach(this,  uix::CEvent::KEYDOWN, &app::CApplication::onKeydown);
+    attach(this,  uix::CEvent::COMMAND, &app::CApplication::onCommand);
     
     pMain->show();
     pContext->vsync(true);
@@ -61,7 +69,7 @@ namespace app {
     GLCALL(::glEnable(GL_BLEND));
     GLCALL(::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     // backface culling
-    GLCALL(::glDisable(GL_CULL_FACE));
+    GLCALL(::glEnable(GL_CULL_FACE));
     GLCALL(::glCullFace(GL_BACK));
     GLCALL(::glFrontFace(GL_CCW));
     // depth test
@@ -69,11 +77,15 @@ namespace app {
     GLCALL(::glDepthFunc(GL_LEQUAL));
     GLCALL(::glDepthMask(GL_TRUE));
     
-    auto    area {pRight->area()};
+    // GLCALL(::glEnable(GL_POLYGON_OFFSET_LINE));
+    // GLCALL(::glPolygonOffset(-1.0f, -1.0f));
+    // GLCALL(::glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
+    // GLCALL(::glLineWidth(1.0f));
+    
+    auto tArea {pRight->area()};
   
     CYM_LOG_NFO("app::CApplication::exec()::" << this << " pTopMenu.area " << pTopMenu->area());
     CYM_LOG_NFO("app::CApplication::exec()::" << this << " pContent.area " << pContent->area());
-    CYM_LOG_NFO("app::CApplication::exec()::" << this << " pLeft.area " << pLeft->area());
     CYM_LOG_NFO("app::CApplication::exec()::" << this << " pRight.area " << pRight->area());
     CYM_LOG_NFO("app::CApplication::exec()::" << this << " pMain.area " << pMain->area());
   
@@ -86,81 +98,81 @@ namespace app {
     
 // @todo: find a way to have instances w/o TInstance,
   // resources dont hold pointers to other resources, just ids // model::meshes, material::channels[n]::texture
-    
-  //auto mdl {cym::CCore::getModelManager()->load(sys::CFile{"../../res/models/ambulance/Ambulance.dae"}, cym::CModelManager::EOption::VERTICES)};
-    auto g01 {cym::CCore::getGeometryManager()->load(glm::rect{8.f, 8.f}, 2u, glm::Y, cym::CModel::EFlag::DEFAULT)};
-    auto g02 {cym::CCore::getGeometryManager()->load(glm::cube{2.f}, 2u, cym::CModel::EFlag::DEFAULT)};
-    auto t01 {cym::CCore::getTextureManager()->load(sys::CFile{"../../res/textures/notfound.bmp"})};
-         t01->getTexture().setWrapping(cym::CTexture::EWrapping::REPEAT);
-         
-    auto scn {cym::CCore::getSceneManager()->load(sys::CFile{"../res/scenes/default.scene"})};
-    scn->push(g01/*,pos=0*/);
-    scn->push(g02, glm::xform{glm::vec3{5.f}, glm::quat{0.f, 0.f, 60.f}}); // w/ transform structure
-    
-    
-    
-    
-    
-// @todo: push node to scene
-// @todo: camera is a node in a scene
-// @todo: camera types: scene, editor(virtual,cannot be accessed outside editor), debug(can see what other cameras have in their view frustum, cannot be accessed outside editor)
-// 
 
+// @todo: create/init/load NULL texture on engine init/load // all geo w/o textures use the NULL texture
+    auto t01 {cym::CCore::getTextureManager()->load(cym::null{}, 32u)};
+         t01->getTexture().setWrapping(cym::CTexture::EWrapping::CLAMP_TO_EDGE);
+  
+// @todo: NULL geometry (when geo failed loading or doesnt exist) + wrapped inside IGeometry + reason why it failed 
+// @todo: NULL material
+// @todo: NULL shader
+// @todo: NULL (all) resource types
+         
+  //auto mdl {cym::CCore::getGeometryManager()->load(sys::file{"../../res/models/ambulance/Ambulance.dae"}, cym::CGeometryManager::EOption::VERTICES)};
+    
+    auto scn {cym::CCore::getSceneManager()->load(sys::file{"../res/scenes/default.scene"})->getScene()};
+  
+    auto n00 {new cym::NModel{cym::CCore::getGeometryManager()->load(glm::rect{20.f,20.f}, 5u, glm::Y, cym::CGeometry::EFlag::DEFAULT)}};
+    auto n0x {new cym::NModel{cym::CCore::getGeometryManager()->load(glm::cube{2.f}, 2u, cym::CGeometry::EFlag::DEFAULT)}};
+    auto n0y {new cym::NModel{cym::CCore::getGeometryManager()->find(n0x->getGeometry()->getName())}};
+    auto n0z {new cym::NModel{cym::CCore::getGeometryManager()->find(n0x->getGeometry()->getName())}};
+    auto c00 {new cym::NCamera{glm::vec3{0.f, 0.f,-1.f}, 90.f, (glm::real(tArea.w)/glm::real(tArea.h)), 0.1f,  10.f}};
+    auto c01 {new cym::NCamera{glm::vec3{0.f}          ,100.f, (glm::real(tArea.w)/glm::real(tArea.h)), 0.1f, 100.f}};
+    auto cxx = c00;
+    
+    
+// @todo: 2 cameras 2 viewports
+
+    
+    scn.push(n00, glm::xform{glm::vec3{ 0.0f,-1.0f, 0.0f}});
+    scn.push(n0x, glm::xform{glm::vec3{-1.0f, 0.0f, 0.0f}}); // w/ transform structure
+    scn.push(n0y, glm::xform{glm::vec3{ 0.0f,-1.0f, 0.0f}});
+    scn.push(n0z, glm::xform{glm::vec3{ 0.0f, 0.0f,-1.0f}});
+    
+    auto s04 = scn.push(c00, glm::xform{glm::vec3{ 0.0f, 5.0f, 5.0f}});
+    auto s05 = scn.push(c01, glm::xform{glm::vec3{10.0f,15.0f,15.0f}});
+    
+    auto n0f {new cym::NModel{cym::CCore::getGeometryManager()->load(c00->getFrustum())}};
+    auto s0f = scn.push(n0f);
+    
+// @todo: camera target/forward from orientation and vice-versa
+    
 
 // @todo: (edit mode): when loading nodes/models/lights/etc. create their debug geometry & separate them (so they're toggable)
 // @todo: (game mode): when loading entities don't load debug stuff
-
-
-
-
-
-
-
-
-
-
-
     
 // @todo: matrix/transform w/ controller: update on loop, when u get the matrix it's already up to date
     
-    CYM_LOG_NFO("scene:" << (scn->getScene()));
+    CYM_LOG_NFO("scene:" << (scn));
     
 // @todo: add (debug) elements (grid,gizmo)
       
 // @todo: onTick
     glm::uint nFPS{0u};
-    glm::real r {0.0f};
-    glm::mat4 M {1.0f};
-    
-// @todo: camera
-  //auto cam {sys::spt<CCamera>{new CCamera{ 60.f... }}};
-    glm::mat4 V {glm::lookat({0.f,10.f,20.f}, {0.f,0.f,0.f}, glm::Y)};
-    glm::mat4 P {glm::perspective(60.f, float(area.w), float(area.h), 1.f, 11.f)};
-    glm::mat4 PV {P*V};
-    
-    glm::frustum f{PV};
-  
-    CYM_LOG_NFO("P:" << P);
-    CYM_LOG_NFO("V:" << V);
-    CYM_LOG_NFO("PV:" << PV);
-    CYM_LOG_NFO("frustum:" << f);
-    
+    glm::mat4 M  {1.0f};
+    glm::mat4 V;
+    glm::mat4 P;
     
     while (runs()) {
-      CYM_LOG_NFO("loop");
+      //CYM_LOG_NFO("loop");
       
 // @todo: [INPUT] process input & events
       
       poll();
+      
+      cxx = mCamA == 0 ? c00 : c01;
+      
+      s05->orbit({0.f},1.f,glm::Y);
       
 // @todo: [UPDATE] update the scene
   // process ASYNC what ai/resorce loading...
       
       cym::fps(nFPS);
       pMain->title("VERSION:" + std::string(pContext->version()) + " | FPS:" + std::to_string(nFPS));
-  
-      glm::loop(r, 1.f, 0.f, 360.f); // w/ every call 0 will get closer to 360, then loop-back
       
+      V = cxx->getV();
+      P = cxx->getP();
+  
 // @todo: [RENDER] scene
 
 // @todo: managers should (have a say in) enable/disable OGL stuff, like:
@@ -195,27 +207,32 @@ namespace app {
   // tDrawable.ibo.bind(true);
   // GLCALL(::glDrawElements(GL_TRIANGLES, tDrawable.ibo.count(), GL_UNSIGNED_INT, GL_NULL));
       
-      auto tResult = scn->find({/* @todo: proper scene CQuery here */});
+// @todo: proper scene CQuery here
+      auto tResult = scn.find({});
       for (auto& tNode : tResult->getModelNodes()) {
-        auto tModel = tNode->getModel();
+        auto tGeometry = tNode->getGeometry();
         
-        CYM_LOG_NFO("draw:" << tModel->getName());
+        //CYM_LOG_NFO("draw:" << tGeometry->getName());
         
         // M compiles reading all getMatix() 'till root OR node:scene
         M = tNode->getMatrix();
   
         shd.bind(true);
         shd.uniform("u_sTexture", t01);
-        shd.uniform("u_mMVP", P*V*M/* *glm::rotate(r,glm::Y)*/);
-        shd.uniform("u_mM", M);
-        shd.uniform("u_mV", V);
-        shd.uniform("u_mP", P);
+        shd.uniform("u_mPVM", P*V*M/* * vertex */);
         
-        tModel->draw();
+        GLSWITCH((tGeometry->getResource().getFlags() & cym::CGeometry::EFlag::CCW), ::glFrontFace(GL_CCW), ::glFrontFace(GL_CW));
+        
+        tGeometry->draw();
       }
       
 // @todo: CWindow::update()
       pContext->swap();
+      
+// @todo: cache (and reuse) las fbo if no chanes/updates to the scene (or visible objects) 
+
+// @todo: lower resolution on camera (fast) move/spin // if camera orbit keep object at that point at full rez.
+      
   
       // quit();
     }
@@ -316,7 +333,12 @@ namespace app {
   }
   
   void CApplication::onCommand(uix::CEvent* pEvent) {
-    CYM_LOG_NFO("app::CApplication::onCommand(CEvent*)::" << this << " S:" << int(pEvent->state()));
+    CYM_LOG_NFO("app::CApplication::onCommand(CEvent*)::" << this << " T:" << pEvent->target());
+    
+    if (pEvent->control() == mCamS)
+      mCamA = (mCamA + 1) % 2;
+    else 
+      quit(0);
   }
 }
 

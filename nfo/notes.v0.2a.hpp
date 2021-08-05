@@ -29,7 +29,7 @@ namespace gfx
   
   
   
-  class CModel
+  class CGeometry
     # mPosition         // view space 
     # mMeshes : std::map<string, CMesh>
 

@@ -3,21 +3,21 @@
   <node name="root">
     
 <!-- node: should always be rendered from the position of the player (like it's moving w/ the player) -->
-    <node name="sky|skydome" type="scene">
+    <node name="sky|skydome" type="entity">
 <!-- note: sky = (dome + clouds + sun (model + light)) -->
       <node name="dome" type="model">
-        <model name="dome" shape="hemisphere"/>
+        <geometry name="dome" shape="hemisphere"/>
       </node>
         
 <!-- note: coulds do not exist independently of the sky -->
       <node name="clouds" type="model">
-        <model type="procedural" strategy="perlin+some+options"/>
+        <geometry type="procedural" strategy="perlin+some+options"/>
       </node>
       
 <!-- note: the sun does not exist independently of the sky -->
       <node name="sun" type="model">
 <!-- node: create on CPU (vbo...) or on GPU (using a vertex shader & some math) + should ALWAYS be orientated to camera -->
-        <model shape="circle" divisions="4=square,6=hexagon..."> 
+        <geometry shape="circle" divisions="4=square,6=hexagon..."> 
           <geometry>
             <mesh>
               <material>
@@ -25,18 +25,17 @@
               </material>
             </mesh>
           </geometry>
-        </model>
+        </geometry>
         <node name="root">
           <node name="light" type="light">
             <light name="sun" type="direct"/>
           </node>
         </node>
-        
       </node>
     </node> <!-- /node:skydome -->
     
 <!-- note: nodes: node*joint=linked to skeleton node*node=simple(default,no skeleton)   -->
-    <node name="lake" type="scene">
+    <node name="lake" type="entity">
       <node name="lake" type="model">
         <model shape="volume">
 <!-- note: this animator should affect the *_paddle nodes -->
@@ -45,7 +44,7 @@
         <node name="root" type="node|joint">
         
 <!-- node: when a paddle collides w/ the water/lake a splash is created, then destroyed -->
-          <node name="splash" type="scene">
+          <node name="splash" type="entity">
             <node name="splash" type="emitter">
               <emitter name="splash" />
 <!-- note: decal on the surface of the water, dynamically created using water's polygons, w/ a transparent material -->
@@ -60,13 +59,13 @@
           </node> <!-- /node:splash -->
         
 <!-- note: linke paddles to boat -->
-          <node name="boat" type="scene">
+          <node name="boat" type="entity">
             <node name="boat" scope="model">
               <model />
               <node name="root" type="joint">
                 <node name="R_paddle" type="joint" joint="joint_in_model_skeleton">
                   
-                  <node name="paddle" type="scene">
+                  <node name="paddle" type="entity">
                     <node name="paddle" type="model">
                       <model name="paddle"/>
                     </node>
@@ -76,7 +75,7 @@
                 </node>
                 <node name="L_paddle" type="joint">
                   
-                  <node name="paddle" type="scene">
+                  <node name="paddle" type="entity">
                     <node name="paddle" type="model">
                       <model name="paddle"/>
                       <node name="root" type="node"/>
@@ -93,7 +92,7 @@
     </node> <!-- /node:lake -->
     
 <!-- note: burningSoldier = (model + emitter (+light)) -->
-    <node name="burningSoldier" type="scene">
+    <node name="burningSoldier" type="entity">
       <node name="soldier" type="model">
         <model name="soldier">
           <geometry/>
@@ -104,7 +103,7 @@
             <node name="L_arm" type="joint">
               
 <!-- node: type=scene => added on an octree leaf -->
-              <node name="shield" type="scene">
+              <node name="shield" type="entity">
 <!-- note: (entity) type=model => bound to the parent node:scene -->
                 <node name="shield" type="model">
                   <model name="shield"/>
@@ -117,7 +116,7 @@
             <node name="R_arm">
               <node name="R_hand">
                 
-                <node name="sword" type="scene">
+                <node name="sword" type="entity">
                   <node name="sword" type="model">
                     <model name="sword"/>
                   </node>
@@ -146,7 +145,7 @@
     </node> <!-- /node:scene (test) -->
     
 <!-- note: an empty node w/ a controller - (ex: will fire controller on enter) -->
-    <node name="trigger|event|switch" type="scene" controller="file@./path/to/controller.script">
+    <node name="trigger|event|switch" type="entity" controller="file@./path/to/controller.script">
 <!-- node: CMyNewController : COnEnterController { onEnter() } -->
 <!-- note: this should be done by an external script (like lua/js) -->
     </node>

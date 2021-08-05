@@ -31,7 +31,7 @@ namespace app
   class CPlanet
   
   class CObject :
-    # mLods       std::map<int, CModel>         // or mModel (start simple)
+    # mLods       std::map<int, CGeometry>         // or mGeometry (start simple)
       // lod 0 : full meshs
       // lod n : (last) (no.anim) 8-sided cylinder w/ different faces (pre-rendered) of the mesh // ray-intersect decides which faces to draw
     # mBbox       CBBox
@@ -44,7 +44,7 @@ namespace app
 
 namespace ogl // graphic engine related classes
 {
-  class CModel                                   // CTerrainModel, CGeometryModel, CIntstancedModel
+  class CGeometry                                   // CTerrainModel, CGeometryModel, CIntstancedModel
     # mMeshes std::map<string, CMesh>            // string (name of the part)
     # // + vao info                              // vbo (buffer range)
     
@@ -165,7 +165,7 @@ namespace ogl // graphic engine related classes
     // position, rotation, scale (for view matrix)
     // model
       // skeleton
-      // mesh(s)          // <- + CMeshManager | CModelManager
+      // mesh(s)          // <- + CMeshManager | CGeometryManager
         // material(s)    // <- + CMaterialManager
     // animations         // <- + CAnimationManager
     // light(s)           // bound to one of the meshes or the skeleton

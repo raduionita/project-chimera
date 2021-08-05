@@ -15,6 +15,7 @@ namespace app {
   // left (ortho), right (ortho), top (ortho), main (perspective), custom (perspective|ortho)
 // @todo: viewport has custom rendering options
 // @todo: viewport has it's own scene that renders
+// @todo: viewport has multiple app::CLayer(s)
 
 // @todo: in CApplication
   // for each viewport

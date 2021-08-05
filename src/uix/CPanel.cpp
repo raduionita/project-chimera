@@ -6,6 +6,11 @@ namespace uix {
     CPanel::init(pParent,"",AUTO,nHints|WINDOW|EWindow::VISIBLE);
   }
   
+  CPanel::CPanel(CWindow* pParent, const SArea& tArea, uint nHints/*=WINDOW*/) {
+    CYM_LOG_NFO("uix::CPanel::CPanel(CWindow*,SArea&,uint)::" << this);
+    CPanel::init(pParent,"",tArea,nHints|WINDOW|EWindow::VISIBLE);
+  }
+  
   CPanel::~CPanel() {
     CYM_LOG_NFO("uix::CPanel::~CPanel()::" << this);
     CPanel::free();

@@ -43,7 +43,7 @@ namespace cym {
   
   template<> class TProperty<EProperty::TEXTURE> : public CProperty {
     protected:
-      sys::sptr<CTexture> mValue;
+      sys::spo<CTexture> mValue;
     public:
       TProperty(const decltype(mValue)& tValue) : mValue{tValue} { }
     public:
@@ -53,10 +53,10 @@ namespace cym {
   
   class CGroup {
     protected:
-      std::map<cym::name, sys::sptr<CProperty>> mProperties;
+      std::map<cym::name, sys::spo<CProperty>> mProperties;
     public:
-      sys::sptr<CProperty>& getProperty(const cym::name& tName) { return sys::find_or_throw(tName, mProperties, sys::exception("Property"+ tName +" NOT found!",__FILE__,__LINE__)); }
-      template<EProperty E> void setProperty(const cym::name& tName, const sys::sptr<TProperty<E>>& pProperty) { mProperties.insert(std::pair(tName, pProperty)); }
+      sys::spo<CProperty>& getProperty(const cym::name& tName) { return sys::find_or_throw(tName, mProperties, sys::exception("Property"+ tName +" NOT found!",__FILE__,__LINE__)); }
+      template<EProperty E> void setProperty(const cym::name& tName, const sys::spo<TProperty<E>>& pProperty) { mProperties.insert(std::pair(tName, pProperty)); }
       
   };
   

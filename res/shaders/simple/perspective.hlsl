@@ -13,14 +13,15 @@ layout (location = 2) in vec3 a_vNormal;
 uniform mat4 u_mM;
 uniform mat4 u_mV;
 uniform mat4 u_mP;
-uniform mat4 u_mMVP;
+uniform mat4 u_mPVM;
+
 
 out vec2 v_vTexcoord;
 out vec3 v_vNormal;
 
 // entry point
 void main() {
-  gl_Position = u_mMVP * a_vPosition;
+  gl_Position = u_mPVM * a_vPosition;
   v_vTexcoord = a_vTexcoord;
   v_vNormal   = a_vNormal;
 }

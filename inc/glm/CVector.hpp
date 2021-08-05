@@ -57,6 +57,11 @@ namespace glm {
           data[i]     = rhs.data[i];
         return *this;
       }
+      CVector& operator =(const T rhs[2]) {
+        data[0] = rhs[0];
+        data[1] = rhs[1];
+        return *this;
+      }
     public: // operator: data  
             T& operator [](const ushort i) {
         return data[i];
@@ -166,7 +171,7 @@ namespace glm {
       /* normalize */
       inline void normalize() { T l {length()}; x /= l; y /= l; }
       // is zero
-      inline bool isZero() const { return glm::eq(x,T(0)) && glm::eq(y,T(0)); }
+      inline bool isZero() const { return glm::eq(x,static_cast<T>(0)) && glm::eq(y,static_cast<T>(0)); }
   };
   
   template<typename T> class CVector<T,3> {
@@ -217,6 +222,12 @@ namespace glm {
       CVector& operator  =(const T rhs) {
         for (ushort i = 0; i < size; i++)
           data[i]     = rhs;
+        return *this;
+      }
+      CVector& operator =(const T rhs[3]) {
+        data[0] = rhs[0];
+        data[1] = rhs[1];
+        data[2] = rhs[2];
         return *this;
       }
     public: // operator: data  
@@ -342,7 +353,7 @@ namespace glm {
       /* rotate vector to quat orientation */
       inline void rotate(const glm::tquat<T>& Q) { *this = Q * (*this); }
       /* is zero */
-      inline bool isZero() const { return glm::eq(x,0.f) && glm::eq(y,0.f) && glm::eq(z,0.f); }
+      inline bool isZero() const { return glm::eq(x,static_cast<T>(0)) && glm::eq(y,static_cast<T>(0)) && glm::eq(z,static_cast<T>(0)); }
   };
   
   template<typename T> class CVector<T,4> {
@@ -424,6 +435,13 @@ namespace glm {
       CVector& operator  =(const T rhs) {
         for (ushort i = 0; i < size; i++)
           data[i]     = rhs;
+        return *this;
+      }
+      CVector& operator =(const T rhs[4]) {
+        data[0] = rhs[0];
+        data[1] = rhs[1];
+        data[2] = rhs[2];
+        data[4] = rhs[4];
         return *this;
       }
     public: // operator: data
@@ -546,7 +564,7 @@ namespace glm {
       /* normalize */
       inline void normalize() { T l {length()}; x /= l; y /= l; z /= l; w /= l; }
       // is zero
-      inline bool isZero() const { return glm::eq(x,T(0)) && glm::eq(y,T(0)) && glm::eq(z,T(0)) && glm::eq(w,T(0)); }
+      inline bool isZero() const { return glm::eq(x,static_cast<T>(0)) && glm::eq(y,static_cast<T>(0)) && glm::eq(z,static_cast<T>(0)) && glm::eq(w,static_cast<T>(0)); }
   };
   
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////

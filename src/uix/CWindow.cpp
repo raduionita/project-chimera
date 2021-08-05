@@ -129,21 +129,21 @@ namespace uix {
   }
   
   bool CWindow::free() {
-    RETURN((mState & EState::FREED),true);
     // free only if not FREED before
-    CYM_LOG_NFO("uix::CWindow::free()::" << this);
-    // remove inited sate
+    RETURN((mState & EState::FREED),true);
+    // debug
+    CYM_LOG_NFO("uix::CWindow::free()::" << this << ' ' << mChildren.size());
+    // remove inited state + add freed
     mState = (mState & ~EState::INITED) | EState::FREED;
     // fire free event
     ::SendMessage(mHandle, CM_FREE, 0, 0);
     // delete children
-    for (CWindow* pChild : mChildren) {
+    for (auto& pChild : mChildren) {
       DELETE(pChild);
     }
+    mChildren.clear();
     // remove from parent
-    if (mParent != nullptr) {
-      mParent->remove(this);
-    }
+    (mParent) && mParent->remove(this);
     // remove proc
     ::SetWindowLongPtr(mHandle, GWLP_WNDPROC, (LONG_PTR)(&::DefWindowProc));
     // release 
@@ -155,6 +155,7 @@ namespace uix {
     // clear
     mHandle = NULL;
     delete mLayout;
+    // just in case, return succesfuly freed
     return mState & EState::FREED;
   }
   
@@ -335,22 +336,28 @@ namespace uix {
   };
   
   bool CWindow::assign(CWindow* pChild) {
-    mChildren.push_back(pChild);
-    return true;
+    // can't add children if not already inited
+    if (mState & EState::INITED) {
+      mChildren.push_back(pChild);
+      return true;
+    }
+    return false;
   }
   
   bool CWindow::remove(CWindow* pChild) {
-    mChildren.erase(std::remove(mChildren.begin(), mChildren.end(), pChild), mChildren.end());
-    return true;
+    // can't remove children if not inited (or if delete started)
+    if (mState & EState::INITED) {
+      mChildren.erase(std::remove(mChildren.begin(), mChildren.end(), pChild), mChildren.end());
+      return true;
+    } 
+    return false;
   }
   
   auto CWindow::parent() const -> decltype(mParent) {
     return mParent;
   }
   
-  auto CWindow::children() const -> decltype(mChildren) {
-    return mChildren;
-  }
+  std::vector<CWindow*>& CWindow::children() { return mChildren; }
   
   auto CWindow::siblings() const -> decltype(mChildren) {
     decltype(mParent->mChildren) aSiblings;
@@ -511,7 +518,17 @@ namespace uix {
           case BN_KILLFOCUS: pEvent->mState = EState::BLURRED;
         }
         
+#if UIX_EVENT_APPLICATION == UIX_ON
+        bool bHandled = CApplication::instance()->handle(pEvent);
+#else
         bool bHandled = pWindow->handle(pEvent);
+#if UIX_EVENT_PROPAGATE == UIX_ON
+        while (pEvent->propagate() && (pWindow = pWindow->parent())) {
+          bHandled = pWindow->handle(pEvent) && bHandled;
+        }
+        bHandled = pEvent->propagate() ? CApplication::instance()->handle(pEvent) || bHandled : bHandled;
+#endif // UIX_EVENT_PROPAGATE
+#endif // UIX_EVENT_APPLICATION
         
         DELETE(pEvent);
         

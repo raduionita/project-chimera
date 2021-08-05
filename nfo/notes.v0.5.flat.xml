@@ -4,24 +4,24 @@
     <!-- references - for clonning -->
   </data>
   <game>
-    <node type="model" uid="m02">
+    <node setType="model" uid="m02">
       <!-- holds lod + meshes + materials + rigging/skeleton/joints + animations + physical properties -->
       <!-- -->
     </node> <!-- node:model -->
     
-    <node type="force" uid="f01" />
+    <node setType="force" uid="f01" />
     
-    <node type="light" />
+    <node setType="light" />
     
-    <node type="camera" uid="c05" />
+    <node setType="camera" uid="c05" />
     
-    <node type="effect"  />
+    <node setType="effect"  />
     
-    <node type="trigger"  />
+    <node setType="trigger"  />
     
-    <node type="entity">
+    <node setType="entity">
       <!-- controller - not renderable abstract node - used to link/group other nodes -->
-      <node type="hierarchy">
+      <node setType="hierarchy">
         <node name="root">
           <item uid="#m02"/>
           <item uid="#f01"/>

@@ -25,19 +25,22 @@
 #include <bitset>
 #include <tuple>
 
-#define RETURNCN(cond)      if(cond)return
-#define RETURNCV(cond,val)  if(cond)return val
+#define RETURN_IF(cond)      if(cond)return
+#define RETURNCN(cond)       if(cond)return
+#define RETURNCV(cond,val)   if(cond)return val
 #define GET3RDARG(arg0,arg1,arg2,...) arg2
-#define CHOOSERETURN(...)   GET3RDARG(__VA_ARGS__, RETURNCV, RETURNCN,)
-#define RETURN(...)         CHOOSERETURN(__VA_ARGS__)(__VA_ARGS__)
-#define IF(cond,action)     if(cond)action
-#define WHILE(cond,action)  while(cond)action
-#define BREAK(cond)         if(cond)break
-#define CONTINUE(cond)      if(cond)continue
+#define CHOOSERETURN(...)    GET3RDARG(__VA_ARGS__, RETURNCV, RETURNCN,)
+#define RETURN(...)          CHOOSERETURN(__VA_ARGS__)(__VA_ARGS__)
+#define IF(cond,action)      if(cond)action
+#define WHILE(cond,action)   while(cond)action
+#define BREAK(cond)          if(cond)break
+#define CONTINUE(cond)       if(cond)continue
 #undef  DELETE
-#define DELETE(what)        delete what;what=nullptr
-#define NEW(what)           new (_NORMAL_BLOCK,__FILE__,__LINE__)
-#define ASSERT(cond)        assert(cond)
+#define DELETE(what)         delete what;what=nullptr
+#define DELETE_IF(what,cond) if (cond) {delete what;what=nullptr; }
+#define DELETE_FOR(data)     for (auto& d : data) { DELETE_IF(d,d!=nullptr); } 
+#define NEW(what)            new (_NORMAL_BLOCK,__FILE__,__LINE__)
+#define ASSERT(cond)         assert(cond)
 
 #define CM_INIT       (WM_USER       + 0x0001) // custom message
 #define CM_FREE       (CM_INIT       + 0x0001) // custom message
@@ -429,9 +432,9 @@ namespace uix {
   typedef SRect  R;
   typedef SColor C;
   
-  inline std::ostream& operator <<(std::ostream& o, const RECT& r)  { return o << "l:" << r.left << " t:" << r.top << " r:" << r.right << " b:" << r.bottom; }
+  inline std::ostream& operator <<(std::ostream& o, const RECT& r)  { return o << "(l:" << r.left << ",t:" << r.top << ",r:" << r.right << ",b:" << r.bottom << ')'; }
   
-  inline std::ostream& operator <<(std::ostream& o, const SArea& a) { return o << "x:" << a.x << " y:" << a.y << " w:" << a.w << " h:" << a.h; }
+  inline std::ostream& operator <<(std::ostream& o, const SArea& a) { return o << "(x:" << a.x << ",y:" << a.y << ",w:" << a.w << ",h:" << a.h << ')'; }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   

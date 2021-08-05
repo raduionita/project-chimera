@@ -1999,9 +1999,11 @@ extern bool glSwapBuffers();
 #ifdef GLC_DEBUG
   #define GLCALL(stmt) glClearError(); stmt; if (!::glCheckError(#stmt,__FILE__,__LINE__)) ::glExit(-1)
   #define GLCALL_IF(cond,stmt) glClearError(); if (cond) { stmt } if (!::glCheckError(#stmt,__FILE__,__LINE__)) ::glExit(-1)
+  #define GLSWITCH(cond,cTRUE,cFALSE) glClearError(); if(cond) cTRUE;else cFALSE; if (!::glCheckError(#stmt,__FILE__,__LINE__)) ::glExit(-1)
 #else//!GLC_DEBUG
   #define GLCALL(stmt) stmt
-  #define GLCALL_IF(cond,stmt) if (cond) stmt
+  #define GLCALL_IF(cond,stmt) if(cond) stmt
+  #define GLSWITCH(cond,cTRUE,cFALSE) if(cond) cTRUE; else cFALSE
 #endif//GLC_DEBUG
 
 typedef void (APIENTRY *GLDEBUGPROC)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam);
@@ -2342,11 +2344,11 @@ typedef GLboolean (APIENTRYP PFNGLISBUFFERPROC)(GLuint buffer);
 GLAPI PFNGLISBUFFERPROC glIsBuffer;
 
 typedef void (APIENTRYP PFNGLBUFFERDATAPROC)(GLenum target, GLsizeiptr size, const void *data, GLenum usage);
-/** void glBufferData(GLenum target, GLsizeiptr size, const GLvoid * data, GLenum usage) **/
+/** void glBufferData(GLenum getTarget, GLsizeiptr size, const GLvoid * data, GLenum usage) **/
 GLAPI PFNGLBUFFERDATAPROC glBufferData;
 
 typedef void (APIENTRYP PFNGLBUFFERSUBDATAPROC)(GLenum target, GLintptr offset, GLsizeiptr size, const void *data);
-/** void glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid * data);*/
+/** void glBufferSubData(GLenum getTarget, GLintptr offset, GLsizeiptr size, const GLvoid * data);*/
 GLAPI PFNGLBUFFERSUBDATAPROC glBufferSubData;
 
 typedef void (APIENTRYP PFNGLGETBUFFERSUBDATAPROC)(GLenum target, GLintptr offset, GLsizeiptr size, void *data);
@@ -4221,6 +4223,29 @@ inline void gxGetUniformLocation(GLuint program, const GLchar* name, GLint* loca
 inline void gxVertexAttribPointer(GLuint index, GLint size, GLenum type, GLenum norm, GLsizei stride, GLsize offset) { GLvoid const* pointer = static_cast<char const*>(0) + offset; return ::glVertexAttribPointer(index,size,type,norm,stride,pointer); }
 inline void gxVertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei stride, GLsize offset) { GLvoid const* pointer = static_cast<char const*>(0) + offset; return ::glVertexAttribIPointer(index,size,type,stride,pointer); }
 inline void gxVertexAttribLPointer(GLuint index, GLint size, GLenum type, GLsizei stride, GLsize offset) { GLvoid const* pointer = static_cast<char const*>(0) + offset; return ::glVertexAttribLPointer(index,size,type,stride,pointer); }
+
+inline void gxClearColorv(GLfloat v[4])  { ::glClearColor(v[0],v[1],v[2],v[3]); }
+inline void gxClearColorfv(GLfloat v[4]) { ::glClearColor(v[0],v[1],v[2],v[3]); }
+
+inline GLuint gxSizeOf(GLenum type) {
+  switch(type) {
+    case GL_DOUBLE:
+      return 8;
+    case GL_UNSIGNED_INT:
+    case GL_INT:
+    case GL_FLOAT:
+      return 4;
+    case GL_UNSIGNED_SHORT:
+    case GL_SHORT:
+      return 2;
+    case GL_UNSIGNED_BYTE:  
+    case GL_BYTE:
+      return 1;
+    default:
+      return 0;
+  }
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

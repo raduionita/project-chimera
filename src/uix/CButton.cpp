@@ -4,8 +4,13 @@
 
 namespace uix {
   CButton::CButton(CWindow* pParent, const CString& tText, const SArea& tArea/*={}*/, CIcon*&& pIcon/*=nullptr*/, uint nHints/*=WINDOW*/) : mIcon{std::move(pIcon)} {
-    CYM_LOG_NFO("uix::CButton::CButton(CWindow*,CString&,SArea&,CIcon*&&,int)::" << this);
+    CYM_LOG_NFO("uix::CButton::CButton(CWindow*,CString{"<<tText<<"},SArea&,CIcon*&&,int)::" << this);
     CButton::init(pParent,tText,tArea,nHints|WINDOW|EWindow::VISIBLE);
+  }
+  
+  CButton::CButton(CWindow* pParent, const CString& tText, const SSize& tSize/*={}*/, CIcon*&& pIcon/*=nullptr*/, uint nHints/*=WINDOW*/) : mIcon{std::move(pIcon)} {
+    CYM_LOG_NFO("uix::CButton::CButton(CWindow*,CString{"<<tText<<"},SSize&,CIcon*&&,int)::" << this);
+    CButton::init(pParent,tText,SArea{tSize},nHints|WINDOW|EWindow::VISIBLE);
   }
   
   CButton::~CButton() {
@@ -21,7 +26,7 @@ namespace uix {
     RETURN((mState & EState::INITED),true);
 
     if (pParent == nullptr) {
-      ::MessageBox(NULL, "[CButton] No parent no button!!", "Error", 0);
+      ::MessageBox(NULL, "[CButton] No parent no button!", "Error", 0);
       return false;
     }
     
@@ -67,26 +72,26 @@ namespace uix {
   }
   
   bool CButton::free() {
-    CYM_LOG_NFO("uix::CButton::free()::" << this);
-    
+    // free only if not FREED before
+    RETURN((mState & EState::FREED),true);
+    // remove flag + add freed
     mState = (mState & ~EState::INITED) | EState::FREED;
-
+    // debug after flag
+    CYM_LOG_NFO("uix::CButton::free()::" << this);
+    // send message to proc
     ::SendMessage(mHandle, CM_FREE, 0, 0);
-    
-    if (mParent != nullptr) {
-      mParent->remove(this);
-    }
-    
+    // detach from parent
+    (mParent) && mParent->remove(this);
     // remove sublass
     ::RemoveWindowSubclass(mHandle, &CButton::proc, 1);
-        
+    // destroy handle
     ::DestroyWindow(mHandle);
-
+    // just in case
     mHandle = NULL;
-    
+    // del layout
     delete mLayout;
     delete mIcon;
-    
+    // return successfuly freed 
     return mState & EState::FREED;
   }
   

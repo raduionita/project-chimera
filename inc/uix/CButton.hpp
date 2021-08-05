@@ -17,6 +17,7 @@ namespace uix {
       CButton() = default;
     public:
       CButton(CWindow*, const CString&, const SArea&, CIcon*&& = nullptr, uint=WINDOW);
+      CButton(CWindow*, const CString&, const SSize&, CIcon*&& = nullptr, uint=WINDOW);
       ~CButton();
     protected:
       virtual bool init(CWindow* = nullptr, const CString& = "", const SArea& = AUTO, uint = WINDOW) override;

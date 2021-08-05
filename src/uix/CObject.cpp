@@ -20,16 +20,16 @@ namespace uix {
   
   void* CObject::operator new(std::size_t sz) {
     void* ptr = ::operator new(sz);
-    CYM_LOG_NFO("uix::CObject::operator new("<< reinterpret_cast<std::uintptr_t>(ptr) <<")");
+    CYM_LOG_NFO("uix::CObject::operator new("<< sys::to_hex(reinterpret_cast<std::uintptr_t>(ptr)) <<")");
     sRegistry.insert(static_cast<CObject*>(ptr));
     return ptr;
   }
   
   void CObject::operator delete(void* ptr) {
     // this won't trigger unless the CObject is created w/ new
-    CYM_LOG_NFO("uix::CObject::operator delete("<< reinterpret_cast<std::uintptr_t>(ptr) <<")");
     if (sRegistry.remove(static_cast<CObject*>(ptr))) {
       ::operator delete(ptr);
+      CYM_LOG_NFO("uix::CObject::operator delete("<< sys::to_hex(reinterpret_cast<std::uintptr_t>(ptr)) <<")");
     }
   }
   
@@ -56,7 +56,7 @@ namespace uix {
   
   // only on delete CObject
   bool CObject::CRegistry::remove(CObject* pObject) {
-    CYM_LOG_NFO("uix::CObject::CRegistry::remove("<< reinterpret_cast<std::uintptr_t>(pObject) <<") ");
+    CYM_LOG_NFO("uix::CObject::CRegistry::remove("<< sys::to_hex(reinterpret_cast<std::uintptr_t>(pObject)) <<") ");
     auto size = mObjects.size();
     mObjects.remove(pObject);
     return mObjects.size() < size;

@@ -16,8 +16,8 @@ namespace cym {
   class CCollider {
     protected:
       glm::CAABB           mAABB;
-      sys::wptr<CModel>    mModel;
-      sys::wptr<CSkeleton> mSkeleton;
+      sys::wpo<CGeometry>    mGeometry;
+      sys::wpo<CSkeleton> mSkeleton;
   };
 }
 

@@ -19,10 +19,10 @@ namespace uix {
       using CModule::operator=;
     protected:
       static CApplication* sInstance;
-      sys::sptr<CConsole>  mConsole  {nullptr};
+      sys::spo<CConsole>  mConsole  {nullptr};
       bool                 mRunning  {false};
       CStyle*              mStyle    {nullptr};
-      sys::sptr<CLoop>     mLoop     {nullptr};
+      sys::spo<CLoop>     mLoop     {nullptr};
     public: // ctor
       CApplication(int=0);
       ~CApplication();

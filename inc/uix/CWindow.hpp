@@ -25,16 +25,17 @@ namespace uix {  // acme { gui { win, unx, osx } }
       typedef CObject super;
       static constexpr int WINDOW = EWindow::AUTOXY|EWindow::AUTOWH; // @todo: rename this to HINTS or WINDOW or CONFIG
     protected:
-      CApplication*         mApplication {CApplication::instance()};
-      HWND                  mHandle      {NULL};
-      CLayout*              mLayout      {nullptr};
-      CWindow*              mParent      {nullptr};
-      uint                  mState       {ZERO};
-      CStyle*               mStyle       {nullptr};
-      uint                  mHints       {ZERO};
-      sys::CString          mTitle;
-      SArea                 mArea;
-      sys::vector<CWindow*> mChildren;
+      CApplication*               mApplication {CApplication::instance()};
+      HWND                        mHandle      {NULL};
+      CLayout*                    mLayout      {nullptr};
+      CWindow*                    mParent      {nullptr};
+      uint                        mState       {ZERO};
+      CStyle*                     mStyle       {nullptr};
+      uint                        mHints       {ZERO};
+      sys::CString                mTitle;
+      SArea                       mArea;
+      sys::vector<CWindow*>       mChildren;
+      sys::map<sys::string,sys::string> mData;
     private: // ctor
       CWindow() = default;
     public: // ctor
@@ -76,7 +77,7 @@ namespace uix {  // acme { gui { win, unx, osx } }
       auto            parent() const -> decltype(mParent);
       bool            assign(CWindow*);
       bool            remove(CWindow*);
-      auto            children() const -> decltype(mChildren);
+      std::vector<CWindow*>& children();
       auto            siblings() const -> decltype(mChildren);
       bool            title(const CString&);
       CString         title() const;
@@ -84,6 +85,7 @@ namespace uix {  // acme { gui { win, unx, osx } }
       virtual CStyle* style();
       CLayout*        layout() const;
       CLayout*        layout(CLayout*);
+      inline void addData(const sys::string& tName, const sys::string& tData) { mData.insert(std::pair{tName, tData}); }
     protected:
       static CWindow*         find(const CString&);
       static CWindow*         find(HWND);

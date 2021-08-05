@@ -2,7 +2,7 @@
 #define __sys_cfile_hpp__
 
 #include "sys/sys.hpp"
-#include "CLogger.hpp"
+#include "sys/CLogger.hpp"
 
 #include <fstream>
 

@@ -3,7 +3,7 @@
 
 namespace uix {
   bool CLayout::apply(CWindow* pWindow) {
-    CYM_LOG_NFO("uix::CLayout::getLayout(CWindow*)::" << this);
+    CYM_LOG_NFO("uix::CLayout::apply(CWindow*)::" << this);
     
     RETURN(!(pWindow->mState & EState::INITED), false);
     
@@ -43,21 +43,28 @@ namespace uix {
   }
     
   CWindow* CBoxLayout::add(CWindow* pWindow, const ELayout& eLayout/*=ELayout::LAYOUT*/) {
-    CYM_LOG_NFO("uix::CBoxLayout::add(CWindow*,int)::" << this);
+    CYM_LOG_NFO("uix::CBoxLayout::add(CWindow*,int)::" << this << " add:" << pWindow);
     auto tLayout = eLayout | (pWindow->hint(EWindow::AUTOWH) ? ELayout::ADJUST : ELayout::LAYOUT);
     mItems.push_back(std::move(new TItem<CWindow>{pWindow, tLayout, pWindow->area()}));
     return pWindow;
   }
   
   CLayout* CBoxLayout::add(CLayout* pLayout, const ELayout& eLayout/*=ELayout::LAYOUT*/) {
-    CYM_LOG_NFO("uix::CBoxLayout::add(CLayout*,int)::" << this);
+    CYM_LOG_NFO("uix::CBoxLayout::add(CLayout*,int)::" << this << " add:" << pLayout);
     auto tLayout = pLayout->hints() | eLayout | (pLayout->area() == AUTO ? ELayout::ADJUST : ELayout::LAYOUT);
     mItems.push_back(std::move(new TItem<CLayout>{pLayout, tLayout, pLayout->area()}));
     return pLayout;
   }
   
+  /* CBoxLayout::add(CLayout::CGap&) */
+  void CBoxLayout::add(CLayout::CGap* pGap, const ELayout& eLayout/*=ELayout::LAYOUT*/) {
+    CYM_LOG_NFO("uix::CBoxLayout::add(CLayout::CGap*)::" << this << " add: gap" );
+    auto tLayout = pGap->hints() | eLayout | (pGap->area() == AUTO ? ELayout::ADJUST : ELayout::LAYOUT);
+    mItems.push_back(std::move(new TItem<CLayout::CGap>{pGap, tLayout, pGap->area()}));
+  }
+  
   bool CBoxLayout::area(const SArea& sArea) {
-    CYM_LOG_NFO("uix::CBoxLayout::area(SArea&)::" << this << " DIR:0b" << std::bitset<32>(int(mHints)) << " COUNT:" << mItems.size());
+    CYM_LOG_NFO("uix::CBoxLayout::area(SArea{"<<sArea<<"})::" << this << " h:" << std::bitset<16>(int(mHints)) << " c:" << mItems.size());
   
     RETURN(!mItems.size(),false);
     
@@ -76,7 +83,7 @@ namespace uix {
       int iItem  = 0;
       // for each item
       for (iItem = 0; iItem < nItems; iItem++) {
-        CItem*& pItem = mItems[iItem];
+        CItem* pItem = mItems[iItem];
         if (~(pItem->hints()) & ELayout::ADJUST) { // fixed value
           nFixW += pItem->area().w;
           nCntF++;
@@ -86,13 +93,13 @@ namespace uix {
       int nAdjW = mArea.w - nFixW;
       int nAvgW = nCntA != 0 ? (nAdjW / nCntA) : 0;
       int nModW = nCntA != 0 ? (nAdjW % nCntA) : 0; // remaining pixels h
-      int nOffX = 0;
+      int nOffX = mArea.x;
       int nOffY = mArea.y == AUTO ? 0 : mArea.y;
       int nNewW = 0;
       int nNewH = mArea.h;
       // for each item
       for (iItem = 0; iItem < nItems; iItem++) {
-        CItem*& pItem = mItems[iItem];
+        CItem* pItem = mItems[iItem];
         // y: move item starting w/ current 
         if (pItem->hints() & ELayout::ADJUST) {
           // add remaining px to width, 1 by 1 to each item 
@@ -112,7 +119,7 @@ namespace uix {
       int iItem  = 0;
       // for each item
       for (iItem = 0; iItem < nItems; iItem++) {
-        CItem*& pItem = mItems[iItem];
+        CItem* pItem = mItems[iItem];
         if (~(pItem->hints()) & ELayout::ADJUST) { // fixed value
           nFixH += pItem->area().h;
           nCntF++;
@@ -122,13 +129,13 @@ namespace uix {
       int nAdjH = mArea.h - nFixH;
       int nAvgH = nCntA != 0 ? (nAdjH / nCntA) : 0;
       int nModH = nCntA != 0 ? (nAdjH % nCntA) : 0; // remaining pixels h
-      int nOffY = 0;
+      int nOffY = mArea.y + 1;
       int nOffX = mArea.x == AUTO ? 0 : mArea.x;
       int nNewH = 0;
       int nNewW = mArea.w;
       // for each item
       for (iItem = 0; iItem < nItems; iItem++) {
-        CItem*& pItem = mItems[iItem];
+        CItem* pItem = mItems[iItem];
         // x: move item starting w/ current 
         if (pItem->hints() & ELayout::ADJUST) {
           // add remaining px to height, 1 by 1 to each item

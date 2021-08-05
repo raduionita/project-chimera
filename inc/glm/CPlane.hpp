@@ -27,9 +27,9 @@ namespace glm {
       /* construct from vec4 */
       TPlane(const glm::tvec4<T>& v) : x{v.x}, y{v.y}, z{v.z}, d{v.w} { }
       /* construct from point & normal */
-      TPlane(const glm::tvec3<T>& v, const glm::tvec3<T>& n) : n{glm::normalize(n)} { d = -glm::dot(v, n); }
+      TPlane(const glm::tvec3<T>& v, const glm::tvec3<T>& n) : n{glm::normalize(n)} { d = /*-*/glm::dot(v,n); }
       /* construct from 3 points */
-      TPlane(const glm::tvec3<T>& v0, const glm::tvec3<T>& v1, const glm::tvec3<T>& v2) : n{glm::normalize(glm::cross(v1 - v0), glm::cross(v2 - v0))} { d = -glm::dot(v0, n); }
+      TPlane(const glm::tvec3<T>& v0, const glm::tvec3<T>& v1, const glm::tvec3<T>& v2) : n{glm::normalize(glm::cross(v1-v0,v2-v0))}, d{/*-*/glm::dot(v0,n)} { }
       /* copy ctor */
       TPlane(const TPlane& that) : n{that.n}, d{that.d} { }
       /* default destructor */
@@ -44,13 +44,15 @@ namespace glm {
       TPlane   operator  /(T s) const { return TPlane{x / s, y / s, z /= s, d /= s}; }
       TPlane&  operator /=(T s)       { x /= s; y /= s; z /= s; d /= s; return *this;} 
     public:
+      /* re-init this plane from 3 vertices/vectors */
+      inline TPlane& from(const glm::tvec3<T>& v0, const glm::tvec3<T>& v1, const glm::tvec3<T>& v2) { n = glm::normalize(glm::cross(v1-v0,v2-v0)); d = /*-*/glm::dot(v0,n); return *this; }
       /* length of the plane's normal, should be 1 if it's normalized */
       inline T length() const { return std::sqrt(x*x + y*y + z*z); }
       /* normalize this plane */
-      inline void normalize() { T l {length()}; x /= l; y /= l; z /= l; d /= l; }
+      inline TPlane& normalize() { T l {length()}; x /= l; y /= l; z /= l; d /= l; return *this; }
     public:
       /* shortest distance form plane to point // glm::dot(p.n, v) + p.d */
-      inline T getSignedDistance(const glm::tvec3<T>& v) const { return ((n.x*v.x) + (n.y*v.y) + (n.z*v.z) + d); }
+      inline T getSignedDistance(const glm::tvec3<T>& v) const { return ((a*v.x) + (b*v.y) + (c*v.z) + d); }
       /* =abs(.getSignedDistance()) */
       inline T getUnsignedDistance(const glm::tvec3<T>& v) const { return std::abs(getSignedDistance(v)); }
       /* glm::vec3 = plane.closestPoint(glm::vec3) // get closes point to v on plane  */

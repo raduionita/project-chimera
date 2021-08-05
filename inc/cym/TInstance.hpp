@@ -2,7 +2,7 @@
 #define __cym_cinstance_hpp__
 
 #include "cym/cym.hpp"
-#include "sys/CPointer.hpp"
+#include "sys/TPointer.hpp"
 #include "sys/CSingleton.hpp"
 
 namespace cym {
@@ -37,22 +37,22 @@ namespace cym {
     public:
       typedef           T  resource_type;
       typedef           T* pointer_type;
-      typedef sys::sptr<T> instance_type;
+      typedef sys::spo<T>  instance_type;
     protected:
-      sys::sptr<T> mInstance {nullptr};
+      sys::spo<T> mInstance {nullptr};
     public:
       using CInstance::CInstance;
     public:
-      TInstance(sys::sptr<T> pInstance) : mInstance{pInstance} { mLoaded = (mInstance == true); }
+      TInstance(sys::spo<T> pInstance) : mInstance{pInstance} { mLoaded = (mInstance == true); }
       TInstance(const TInstance& that) : mInstance{that.mInstance} { mLoaded = (mInstance == true); }
-      inline ~TInstance() { CYM_LOG_NFO("cym::TInstance<"<< typeid(T).name() <<">::~TInstance()::" << this); }
+      ~TInstance() { CYM_LOG_NFO("cym::TInstance<"<< typeid(T).name() <<">::~TInstance()::" << this); }
     public:
       // access operators
-      T& operator  *() const noexcept { return mInstance.raw(); }
-      T* operator ->() const noexcept { return mInstance.ptr(); }
+      inline T& operator  *() const noexcept { return mInstance.raw(); }
+      inline T* operator ->() const noexcept { return mInstance.ptr(); }
       // assignment operators
       TInstance& operator  =(const TInstance& that) { if (this != &that) { mInstance = that.mInstance; mLoaded = (mInstance == true); } return *this; }
-      TInstance& operator  =(sys::sptr<T> pInstance) { mInstance = pInstance; mLoaded = (mInstance == true); }
+      TInstance& operator  =(sys::spo<T> pInstance) { mInstance = pInstance; mLoaded = (mInstance == true); }
       // bool operators
       bool       operator ==(std::nullptr_t) { return mInstance == nullptr; }
       bool       operator ==(bool state)     { return state ? mInstance != nullptr : mInstance == nullptr; }
@@ -66,15 +66,17 @@ namespace cym {
     protected:
       virtual void             init() { }
     public:
-      static inline TInstance* from(sys::sptr<T> tSource) { auto pInstance {new TInstance<T>(tSource)}; return pInstance; }
-      inline virtual void      load(sys::sptr<T> pInstance) final { mInstance = pInstance; mLoaded = (mInstance == true); } 
+      static inline TInstance* from(sys::spo<T> tSource) { auto pInstance {new TInstance<T>(tSource)}; return pInstance; }
+      inline virtual void      load(sys::spo<T> pInstance) final { mInstance = pInstance; mLoaded = (mInstance == true); } 
     public:
-      inline sys::sptr<T> getInstance() const { return mInstance; }
-      inline const T*     getPointer()  const { return mInstance.ptr(); }
-      inline const T&     getResource() const { return mInstance.raw(); }
+      inline sys::spo<T> getInstance() const { return mInstance; }
+      inline const T*    getPointer()  const { return mInstance.ptr(); }
+      inline const T&    getResource() const { return mInstance.raw(); }
   }; 
   
   // template<> class TInstance<int> : public 
+  
+  template<typename T> using ins = cym::TInstance<T>;
 }
 
 #endif //__cym_cinstance_hpp__

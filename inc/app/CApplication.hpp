@@ -10,6 +10,9 @@
 
 namespace app {
   class CApplication : public uix::CApplication {
+    private:
+      uix::CButton* mCamS;
+      int           mCamA {0};
     protected:
       virtual void exec() override;
     protected: // app events

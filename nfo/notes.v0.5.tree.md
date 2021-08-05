@@ -31,16 +31,16 @@ class CComponent
 
 class TComponent<EComponent::MODEL> : CComponent
   EComponent mType  = {EComponent::MODEL}
-  CModel*    mModel;
+  CGeometry*    mGeometry;
   
 class CEntity
   CEntity::EScope         mScope;
   std::vector<CComponent> mComponents
   
-class CModel
+class CGeometry
   CSkeleton*               mSkeleton;
   CAnimator*               mAnimator;
-  CGeometry*               mGeometry;
+  CGeometryBuffer*               mGeometryBuffer;
   
 class CAnimator
   std::string              mAID;        // something which identifies it among animations 
@@ -50,7 +50,7 @@ class CAnimator
 class CAnimation
   CSkeleton*               mSkeleton;
 
-class CGeometry
+class CGeometryBuffer
   std::vector<CMesh>       mMeshLoaders;     // meshes are imutable - models own their own meshes
 ```
 ------------------------------------------------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ class CGeometry
     <entity getType="light" uid="unique id" />
     <!-- when saving most entities go here - the ones in scene are just references -->
     <animation name="" file="" info="for what skeleton?!" />
-    <group getType="animation" gid="gid" info="based on skeleton type">
+    <group getType="animation" gid="gid" info="based on skeleton setType">
       <animation aid="#aid" name="" file="" info="for what skeleton?!" />
     </group>
   </data>

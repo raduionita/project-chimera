@@ -6,31 +6,30 @@
 #include "glm/CMatrix.hpp"
 
 namespace glm {
+  /**
+   * @see: https://github.com/jMonkeyEngine/jmonkeyengine/blob/e2d8fe829359dd6028d6810efddbf671d9980231/jme3-core/src/main/java/com/jme3/math/Quaternion.java 
+   * @see: https://github.com/ehsan/ogre/blob/master/OgreMain/src/OgreQuaternion.cpp
+   */
   template<typename T> class CQuaternion {
       typedef CQuaternion<T> type;
       typedef T              data_type;
       // consts
+      static constexpr const T HALF {static_cast<T>(.5f)}; 
       static constexpr const T ZERO {static_cast<T>(0)}; 
       static constexpr const T  ONE {static_cast<T>(1)}; 
       static constexpr const T  TWO {static_cast<T>(2)}; 
+      static constexpr const T  EPS {std::numeric_limits<T>::epsilon()}; 
     public:
       union { T data[4]; struct { T w; T x; T y; T z; }; };
     public:
       CQuaternion() : w{ONE}, x{ZERO}, y{ZERO}, z{ZERO} { }
       CQuaternion(const T s) : w(s), x{ZERO}, y{ZERO}, z{ZERO} { }
       CQuaternion(const T w, const T x, const T y, const T z) : w(w), x(x), y(y), z(z) { }
-      /* unit quaterion from a 3D vector */
-      CQuaternion(const glm::tvec<T,3>& v) : x{v.x}, y{v.y}, z{v.z} {
-        // this is a unit quat - compute w // w*w + x*x + y*y + z*z = 1
-        T t = ONE - (v.x*v.x) - (v.y*v.y) - (v.z*v.z);
-        w = t < ZERO ? ZERO : -(T)std::sqrt(t);
-      }
       /* quaterion from pitch, yaw, roll */
       CQuaternion(const T pitch, const T yaw, const T roll) {
-        T half {static_cast<T>(0.5)};
-        T p {glm::radians(pitch * half)};
-        T y {glm::radians(yaw   * half)};
-        T r {glm::radians(roll  * half)};
+        T p {glm::radians(pitch * HALF)};
+        T y {glm::radians(yaw   * HALF)};
+        T r {glm::radians(roll  * HALF)};
         
         T sinp {static_cast<T>(std::sin(p))};
         T siny {static_cast<T>(std::sin(y))};
@@ -46,6 +45,28 @@ namespace glm {
         
         normalize();
       }
+      /* unit quaterion from a 3D vector */
+      CQuaternion(const glm::tvec<T,3>& v) : x{v.x}, y{v.y}, z{v.z} {
+        // this is a unit quat - compute w // w*w + x*x + y*y + z*z = 1
+        T t = ONE - (v.x*v.x) - (v.y*v.y) - (v.z*v.z);
+        w = t < ZERO ? ZERO : -(T)std::sqrt(t);
+      }
+      /* quat from angle & axis */
+      CQuaternion(const T deg, const glm::tvec<T,3>& a) {
+        const T rad = glm::radians(deg);
+        const T halfrad = rad / TWO;
+        const T s = std::sin(halfrad);
+        const T c = std::cos(halfrad); // angle
+        // normal
+        const glm::tvec<T,3> vn {glm::normalize(a)};
+        // output
+        w = c;
+        x = vn.x * s;
+        y = vn.y * s;
+        z = vn.z * s;
+      }
+      /* from 3 axis */
+      CQuaternion(const glm::tvec3<T>& p, const glm::tvec3<T>& y, const glm::tvec3<T>& r) { from(p,y,r); }
     public:
       /* quat = quat */
       CQuaternion& operator =(const CQuaternion& that) {
@@ -138,20 +159,59 @@ namespace glm {
       bool operator != (const CQuaternion& rhs) const { return (w != rhs.w) || (x != rhs.x) || (y != rhs.y) || (z != rhs.z); }
     public:
       /* length (pythagora's) */
-      T length() const { return std::sqrt(w*w + x*x + y*y + z*z); }
+      inline T length() const { return std::sqrt(w*w + x*x + y*y + z*z); }
       /* normalize (like a vector), lenght should be 1 after this */
-      void normalize() {
-        T ll {w*w + x*x + y*y + z*z};
-        
-        if (std::fabs(ll) > std::numeric_limits<T>::epsilon() && std::fabs(ll - ONE) > std::numeric_limits<T>::epsilon()) {
-          T l {std::sqrt(ll)};
-          w /= l; x /= l; y /= l; z /= l;
-        }
-      }
+      inline glm::tquat<T>& normalize() { T l {std::sqrt(w*w + x*x + y*y + z*z)}; w /= l; x /= l; y /= l; z /= l; return *this; }
       /* make this quat a conjugate of itself quat(w,-x,-y,-z) */
-      void conjugate() { x = -x; y = -y; z = -z; }
+      inline glm::tquat<T>& conjugate() { x = -x; y = -y; z = -z; return *this; }
       /* inverse = conjugate & normalize */
-      void inverse() { conjugate(); normalize(); }
+      inline glm::tquat<T>& inverse() { conjugate(); normalize(); return *this; }
+      /* from 3 axis */
+      inline glm::tquat<T>& from(const glm::tvec3<T>& p, const glm::tvec3<T>& y, const glm::tvec3<T>& r) {
+        glm::tmat<T,3,3> M;
+        
+        M[0] = p;
+        M[1] = y;
+        M[2] = r;
+        
+        return from(M);
+      }
+      /* from rotation matrix */
+      glm::tquat<T>& from(const glm::tmat<T,3,3>& R) {
+        T t {R[0][0] + R[1][1] + R[2][2]};
+        T r;
+        // Ken Shoemake's article in 1987 SIGGRAPH course notes
+        if (glm::gt(t,ZERO)) {
+          r = std::sqrt(t + ONE);
+          w = 0.5f * r;
+          x = (R[2][1] - R[1][2]) * r;
+          y = (R[0][2] - R[2][0]) * r;
+          z = (R[1][0] - R[0][1]) * r;
+        } else {
+          static size_t sNext[3] {1, 2, 0};
+          size_t        i        {0};
+          if (R[1][1] > R[0][0])
+            i = 1;
+          if (R[2][2] > R[i][i])
+            i = 2;
+          size_t        j {sNext[i]};
+          size_t        k {sNext[j]};
+          
+          r = std::sqrt(R[i][i] - R[j][j] - R[k][k] + 1.f);
+          T* pQ[3] { &x, &y, &z };
+          
+          *pQ[i] = 0.5f * r;
+          r = 0.5f / r;
+          w      = (R[k][j] - R[j][k]) * r; 
+          *pQ[j] = (R[j][i] + R[i][j]) * r;
+          *pQ[k] = (R[k][i] + R[i][k]) * r;
+          
+        }
+        return *this;
+      }
+      /* unit this quat */
+      inline glm::tquat<T>& identity() { w = glm::ONE, x = y = z = glm::ZERO; return *this; }
+    public:
       /* as matrix */
       glm::tmat<T,4,4> toMatrix() const {
         // temps
@@ -187,12 +247,25 @@ namespace glm {
         /*m[3][2] = */      ZERO,
         /*m[3][3] = */       ONE};
       }
-      /* @todo: return angle to axis */
-      T getAxisAngle() const {
-        const T scale = std::sqrt(x * x + y * y + z * z);
-        const glm::tvec3<T>& axis(x / scale, y / scale, z / scale);
-        const T angle = std::acos(w) * static_cast<T>(2);
-        return angle;
+      /* glm::vec3 = quat.getAxis() // get axis of rotation */
+      glm::tvec3<T> getAxis() const {
+        // const T scale {std::sqrt(x*x + y*y + z*z)};
+        const T scale {std::sqrt(ONE - w*w)};
+        return scale < EPS ? glm::tvec3<T>{x,y,z} : glm::tvec3<T>{x/scale, y/scale, z/scale};
+      }
+      /* return angle to axis */
+      inline T getAngle() const {
+        // q = cos(angle/2) + i ( x * sin(angle/2)) + j (y * sin(angle/2)) + k ( z * sin(angle/2))
+        // const T scale = std::sqrt(x * x + y * y + z * z);
+        // const glm::tvec3<T>& axis{x / scale, y / scale, z / scale};
+        // const T angle {TWO * std::acos(w)};
+        return {TWO * std::acos(w)};
+      }
+      /* return both axis and angle inside a vec4 */
+      glm::tvec4<T> getAxisAndAngle() const {
+        const T angle {TWO * std::acos(w)};
+        const T scale {std::sqrt(ONE - w*w)};
+        return scale < EPS ? glm::tvec4<T>{x,y,z,angle} : glm::tvec4<T>{x/scale, y/scale, z/scale, angle};
       }
       /* to rotation */
       inline glm::tvec3<T> toRotation() const {

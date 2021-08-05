@@ -121,11 +121,11 @@ class CNode
   # mUID   : std::atomic<int>     // auto-generated
   # mRID   : std::string
   
-class TNode<EType::SCENE> : CNode
+class TNode<EType::ENTITY> : CNode
 class TNode<EType::FORCE> : CNode
 class TNode<EType::PSYXS> : CNode
 class TNode<EType::MODEL> : CNode
-  # mModel : CModel*
+  # mGeometry : CGeometry*
 class TNode<EType::JOINT> : CNode
   # mJID : std::string
 class TNode<EType::ANIMA> : CNode
@@ -135,7 +135,7 @@ class TNode<EType::LIGHT> : CNode
 
 /** **************************************************************************************************************** **/
 
-class CModel
+class CGeometry
 
 class CJoint
   # mChildren : std::array<CJoint*>
