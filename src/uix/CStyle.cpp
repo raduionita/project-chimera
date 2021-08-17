@@ -7,11 +7,11 @@
 
 namespace uix {
   CStyle::CStyle() {
-    CYM_LOG_NFO("uix::CStyle::CStyle()::" << this);
+    SYS_LOG_NFO("uix::CStyle::CStyle()::" << this);
   }
 
   CStyle::~CStyle() {
-    CYM_LOG_NFO("uix::CStyle::~CStyle()::" << this);
+    SYS_LOG_NFO("uix::CStyle::~CStyle()::" << this);
     DELETE(mBackground);
     DELETE(mBorder);
     DELETE(mColor);

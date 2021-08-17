@@ -2,18 +2,17 @@
 
 namespace cym {
   CCore::CCore() {
-    CYM_LOG_NFO("cym::CCore::CCore()::" << this);
-    
+    SYS_LOG_NFO("cym::CCore::CCore()::" << this);
     (!mInited) && init();
   }
   
   CCore::~CCore() {
-    CYM_LOG_NFO("cym::CCore::~CCore::" << this);
+    SYS_LOG_NFO("cym::CCore::~CCore::" << this);
     free();
   }
   
   bool CCore::init() {
-    CYM_LOG_NFO("cym::CCore::init()::" << this);
+    SYS_LOG_NFO("cym::CCore::init()::" << this);
     
     setMaterialManager(new cym::CMaterialManager);
     setTextureManager(new cym::CTextureManager);
@@ -28,11 +27,13 @@ namespace cym {
       getCodecManager()->addCodec(new TCodec<CGeometry,ECodec::DAE>);
       getCodecManager()->addCodec(new TCodec<CGeometry,ECodec::OBJ>);
       getCodecManager()->addCodec(new TCodec<CScene,ECodec::SCENE>);
+  
+    setRenderSystem(new cym::CRenderSystem);
     
     return mInited = true;
   }
   
   void CCore::free() {
-    CYM_LOG_NFO("cym::CCore::free()::" << this);
+    SYS_LOG_NFO("cym::CCore::free()::" << this);
   }
 }

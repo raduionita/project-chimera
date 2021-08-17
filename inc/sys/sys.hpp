@@ -7,6 +7,7 @@
 #include <chrono>
 #include <vector>
 #include <map>      // for (const auto& [k,v] : map)
+#include <unordered_map>
 #include <set>
 #include <array>
 #include <algorithm>
@@ -88,7 +89,8 @@ namespace sys {
   using string                  = std::string;
   template<typename V> using set                 = std::set<V>;
   template<typename K, typename V> using map               = std::map<K,V>;
-  template<typename K, typename V> using table             = std::map<K,V>;
+  template<typename K, typename V> using hash_map          = std::unordered_map<K,V>;
+  template<typename K, typename V> using table             = std::unordered_map<K,V>;
   template<typename L, typename R> using pair              = std::pair<L,R>;
   template<typename V> using vector              = std::vector<V>;
   template<typename V, std::size_t S> using array = std::array<V,S>;

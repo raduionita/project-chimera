@@ -4,24 +4,24 @@
 
 namespace uix {
   CButton::CButton(CWindow* pParent, const CString& tText, const SArea& tArea/*={}*/, CIcon*&& pIcon/*=nullptr*/, uint nHints/*=WINDOW*/) : mIcon{std::move(pIcon)} {
-    CYM_LOG_NFO("uix::CButton::CButton(CWindow*,CString{"<<tText<<"},SArea&,CIcon*&&,int)::" << this);
+    SYS_LOG_NFO("uix::CButton::CButton(CWindow*,CString{"<<tText<<"},SArea&,CIcon*&&,int)::" << this);
     CButton::init(pParent,tText,tArea,nHints|WINDOW|EWindow::VISIBLE);
   }
   
   CButton::CButton(CWindow* pParent, const CString& tText, const SSize& tSize/*={}*/, CIcon*&& pIcon/*=nullptr*/, uint nHints/*=WINDOW*/) : mIcon{std::move(pIcon)} {
-    CYM_LOG_NFO("uix::CButton::CButton(CWindow*,CString{"<<tText<<"},SSize&,CIcon*&&,int)::" << this);
+    SYS_LOG_NFO("uix::CButton::CButton(CWindow*,CString{"<<tText<<"},SSize&,CIcon*&&,int)::" << this);
     CButton::init(pParent,tText,SArea{tSize},nHints|WINDOW|EWindow::VISIBLE);
   }
   
   CButton::~CButton() {
-    CYM_LOG_NFO("uix::CButton::~CButton()::" << this);
+    SYS_LOG_NFO("uix::CButton::~CButton()::" << this);
     CButton::free();
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   bool CButton::init(CWindow* pParent/*=nullptr*/, const CString& tTitle/*=""*/, const SArea& tArea/*=AUTO*/, uint nHints/*=WINDOW*/) {
-    CYM_LOG_NFO("uix::CButton::init(uint)::" << this);
+    SYS_LOG_NFO("uix::CButton::init(uint)::" << this);
   
     RETURN((mState & EState::INITED),true);
 
@@ -77,7 +77,7 @@ namespace uix {
     // remove flag + add freed
     mState = (mState & ~EState::INITED) | EState::FREED;
     // debug after flag
-    CYM_LOG_NFO("uix::CButton::free()::" << this);
+    SYS_LOG_NFO("uix::CButton::free()::" << this);
     // send message to proc
     ::SendMessage(mHandle, CM_FREE, 0, 0);
     // detach from parent
@@ -102,7 +102,7 @@ namespace uix {
     switch (uMsg) {
       case WM_DESTROY: {
         CButton* pButton = reinterpret_cast<CButton*>(dwRef);
-        CYM_LOG_NFO("  B::WM_DESTROY::" << pButton << " ID:" << (pButton?pButton->mId:0));
+        SYS_LOG_NFO("  B::WM_DESTROY::" << pButton << " ID:" << (pButton?pButton->mId:0));
         break; 
       }
     //case WM_NCCREATE: // not fired cause ::SetWindowLongPtr is after ::CreateWindowEx
@@ -113,7 +113,7 @@ namespace uix {
     //case WM_SETCURSOR://
       case WM_LBUTTONDOWN: {
         CButton* pButton = reinterpret_cast<CButton*>(dwRef);
-        CYM_LOG_NFO("  B::WM_LBUTTONDOWN::" << pButton << " ID:" << pButton->mId <<  " x:" << GET_X_LPARAM(lParam) << " y:" <<GET_Y_LPARAM(lParam));
+        SYS_LOG_NFO("  B::WM_LBUTTONDOWN::" << pButton << " ID:" << pButton->mId <<  " x:" << GET_X_LPARAM(lParam) << " y:" <<GET_Y_LPARAM(lParam));
   
         // mousedown event
         auto pEvent = new CEvent(CEvent::EType::LBUTTONDOWN, pButton);

@@ -9,8 +9,7 @@ namespace sys {
   const CLogger::ELevel       CLogger::err{ELevel::ERROR};
   const CLogger::EManipulator CLogger::end{EManipulator::END};
   
-  CLogger::CLogger() { 
-  }
+  CLogger::CLogger() { }
   
   CLogger::~CLogger() {
     delete mProvider; 
@@ -33,15 +32,17 @@ namespace sys {
       time_t nTime  = std::time(nullptr);
       auto   oLocal = std::localtime(&nTime);
       //->[2019-12-02 17:19:34] [NFO] <-
-      char zPrefix[29]; zPrefix[28] = '\0';
-      std::strftime(zPrefix, 29, "[%Y-%m-%d %H:%M:%S] [XXX]", oLocal);
+      //->[12:08:17] [NFO] <-
+// @TODO use sLogger->mTimeFormat.size();
+      char zPrefix[18]; zPrefix[17] = '\0';
+      std::strftime(zPrefix, 18, "[%H:%M:%S] [XXX] ", oLocal); // 
       // level
       switch(eLevel) {
         default:
-        case CLogger::ELevel::DEBUG: ::strncpy(&zPrefix[22],"[DBG] ",6); break;
-        case CLogger::ELevel::INFO : ::strncpy(&zPrefix[22],"[NFO] ",6); break;
-        case CLogger::ELevel::WARN : ::strncpy(&zPrefix[22],"[WRN] ",6); break;
-        case CLogger::ELevel::FATAL: ::strncpy(&zPrefix[22],"[ERR] ",6); break;
+        case CLogger::ELevel::DEBUG: ::strncpy(&zPrefix[11],"[DBG] ",6); break;
+        case CLogger::ELevel::INFO : ::strncpy(&zPrefix[11],"[NFO] ",6); break;
+        case CLogger::ELevel::WARN : ::strncpy(&zPrefix[11],"[WRN] ",6); break;
+        case CLogger::ELevel::FATAL: ::strncpy(&zPrefix[11],"[ERR] ",6); break;
       }
       // end the stream
       switch (eManipulator) {

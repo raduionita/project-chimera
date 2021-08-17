@@ -16,7 +16,7 @@ namespace cym {
   
   class CCodec {
     public:
-      virtual ~CCodec() { CYM_LOG_NFO("cym::CCodec::~CCodec()::" << this); }
+      virtual ~CCodec() { SYS_LOG_NFO("cym::CCodec::~CCodec()::" << this); }
     public:
       virtual const std::string& getType() const { throw sys::exception("CCodec::getType() NOT OVERRIDEN", __FILE__, __LINE__); }
       virtual void decode(sys::spo<CResourceLoader>&) { throw sys::exception("CCodec::decode() NOT OVERRIDEN", __FILE__, __LINE__); }
@@ -28,7 +28,7 @@ namespace cym {
     private:
       std::string mType;
     public:
-      inline CTextureCodec(const std::string& tType) : mType{tType} { CYM_LOG_NFO("cym::CTextureCodec::CTextureCodec(std::string&)::"); }
+      inline CTextureCodec(const std::string& tType) : mType{tType} { SYS_LOG_NFO("cym::CTextureCodec::CTextureCodec(std::string&)::"); }
     public:
       virtual inline const sys::string& getType() const override { return mType; }
       virtual void decode(sys::spo<CResourceLoader>&) override { throw sys::exception("CTextureCodec::decode() NOT OVERRIDEN", __FILE__, __LINE__); }
@@ -38,7 +38,7 @@ namespace cym {
     private:
       std::string mType;
     public:
-      inline CGeometryCodec(const std::string& tType) : mType{tType} { CYM_LOG_NFO("cym::CGeometryCodec::CGeometryCodec(std::string&)::"); }
+      inline CGeometryCodec(const std::string& tType) : mType{tType} { SYS_LOG_NFO("cym::CGeometryCodec::CGeometryCodec(std::string&)::"); }
     public:
       virtual inline const sys::string& getType() const override { return mType; }
       virtual void decode(sys::spo<CResourceLoader>&) override { throw sys::exception("CGeometryCodec::decode() NOT OVERRIDEN", __FILE__, __LINE__); }
@@ -48,7 +48,7 @@ namespace cym {
     private:
       std::string mType;
     public:
-      inline CSceneCodec(const std::string& tType) : mType{tType} { CYM_LOG_NFO("cym::CSceneCodec::CSceneCodec(std::string&)::"); }
+      inline CSceneCodec(const std::string& tType) : mType{tType} { SYS_LOG_NFO("cym::CSceneCodec::CSceneCodec(std::string&)::"); }
     public:
       virtual inline const sys::string& getType() const override { return mType; }
       virtual void decode(sys::spo<CResourceLoader>&) override { throw sys::exception("CSceneCodec::decode() NOT OVERRIDEN", __FILE__, __LINE__); }
@@ -129,8 +129,8 @@ namespace cym {
         utiny row[6];
       };
     public:
-      inline TCodec() : CTextureCodec("dds") { CYM_LOG_NFO("cym::TCodec<CTexture,DDS>::TCodec()::" << this); }
-      inline ~TCodec() { CYM_LOG_NFO("cym::TCodec<CTexture,DDS>::~TCodec()::" << this); }
+      inline TCodec() : CTextureCodec("dds") { SYS_LOG_NFO("cym::TCodec<CTexture,DDS>::TCodec()::" << this); }
+      inline ~TCodec() { SYS_LOG_NFO("cym::TCodec<CTexture,DDS>::~TCodec()::" << this); }
     public:
       virtual void decode(sys::spo<CResourceLoader>&) override;
   };
@@ -138,8 +138,8 @@ namespace cym {
   template<> class TCodec<CTexture,ECodec::TGA> : public CTextureCodec {
       union pixel { sys::uint rgba; struct { sys::ubyte r, g, b, a; }; };
     public:
-      inline TCodec() : CTextureCodec("tga") { CYM_LOG_NFO("cym::TCodec<CTexture,TGA>::TCodec()::" << this); }
-      inline ~TCodec() { CYM_LOG_NFO("cym::TCodec<CTexture,TGA>::~TCodec()::" << this); }
+      inline TCodec() : CTextureCodec("tga") { SYS_LOG_NFO("cym::TCodec<CTexture,TGA>::TCodec()::" << this); }
+      inline ~TCodec() { SYS_LOG_NFO("cym::TCodec<CTexture,TGA>::~TCodec()::" << this); }
     public:
       virtual void decode(sys::spo<CResourceLoader>&) override;
   };
@@ -154,8 +154,8 @@ namespace cym {
         INFO_BBP   = 28,
       };
     public:
-      inline TCodec() : CTextureCodec("bmp") { CYM_LOG_NFO("cym::TCodec<CTexture,BMP>::TCodec()::" << this); }
-      inline ~TCodec() { CYM_LOG_NFO("cym::TCodec<CTexture,BMP>::~TCodec()::" << this); }
+      inline TCodec() : CTextureCodec("bmp") { SYS_LOG_NFO("cym::TCodec<CTexture,BMP>::TCodec()::" << this); }
+      inline ~TCodec() { SYS_LOG_NFO("cym::TCodec<CTexture,BMP>::~TCodec()::" << this); }
     public:
       virtual void decode(sys::spo<CResourceLoader>&) override;
   };
@@ -190,8 +190,8 @@ namespace cym {
     // fiends
       friend inline bool operator <(const SIndex& lhs, const SIndex& rhs);
     public:
-      inline TCodec() : CGeometryCodec("obj") { CYM_LOG_NFO("cym::TCodec<CGeometry,OBJ>::~TCodec()::" << this); }
-      inline ~TCodec() { CYM_LOG_NFO("cym::TCodec<CGeometry,OBJ>::~TCodec()::" << this); }
+      inline TCodec() : CGeometryCodec("obj") { SYS_LOG_NFO("cym::TCodec<CGeometry,OBJ>::~TCodec()::" << this); }
+      inline ~TCodec() { SYS_LOG_NFO("cym::TCodec<CGeometry,OBJ>::~TCodec()::" << this); }
     public:
       virtual void decode(sys::spo<CResourceLoader>&) override;
     protected:
@@ -201,8 +201,8 @@ namespace cym {
   template<> class TCodec<CGeometry,ECodec::DAE> : public CGeometryCodec {
       using EOption = CGeometryLoader::EFlag;
     public:
-      inline TCodec() : CGeometryCodec("dae") { CYM_LOG_NFO("cym::TCodec<CGeometry,DAE>::~TCodec()::" << this); }
-      inline ~TCodec() { CYM_LOG_NFO("cym::TCodec<CGeometry,DAE>::~TCodec()::" << this); }
+      inline TCodec() : CGeometryCodec("dae") { SYS_LOG_NFO("cym::TCodec<CGeometry,DAE>::~TCodec()::" << this); }
+      inline ~TCodec() { SYS_LOG_NFO("cym::TCodec<CGeometry,DAE>::~TCodec()::" << this); }
     public:
       virtual void decode(sys::spo<CResourceLoader>&) override;
   };
@@ -213,8 +213,8 @@ namespace cym {
   template<> class TCodec<CScene,ECodec::SCENE> : public CSceneCodec {
       using EOption = CGeometryLoader::EFlag;
     public:
-      inline TCodec() : CSceneCodec("scene") { CYM_LOG_NFO("cym::TCodec<CScene,SCENE>::~TCodec()::" << this); }
-      inline ~TCodec() { CYM_LOG_NFO("cym::TCodec<CScene,SCENE>::~TCodec()::" << this); }
+      inline TCodec() : CSceneCodec("scene") { SYS_LOG_NFO("cym::TCodec<CScene,SCENE>::~TCodec()::" << this); }
+      inline ~TCodec() { SYS_LOG_NFO("cym::TCodec<CScene,SCENE>::~TCodec()::" << this); }
     public:
       virtual void decode(sys::spo<CResourceLoader>&) override;
   };
@@ -227,8 +227,8 @@ namespace cym {
     protected:
       std::map<std::string,sys::spo<CCodec>> mCodecs;
     public:
-      inline CCodecManager() { CYM_LOG_NFO("cym::CCodecManager::CCodecManager()"); }
-      inline ~CCodecManager() { CYM_LOG_NFO("cym::CCodecManager::~CCodecManager()"); }
+      inline CCodecManager() { SYS_LOG_NFO("cym::CCodecManager::CCodecManager()"); }
+      inline ~CCodecManager() { SYS_LOG_NFO("cym::CCodecManager::~CCodecManager()"); }
     public:
       static void              addCodec(const sys::spo<CCodec> pCodec);
       static sys::spo<CCodec> getCodec(const std::string& ext);

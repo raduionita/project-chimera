@@ -34,7 +34,7 @@ namespace cym {
       sys::vector<SElement> mElements;
     public:
       CVertexLayout(EType eType = EType::NONE) : mType{eType} { };
-      ~CVertexLayout() { CYM_LOG_NFO("cym::CVertexLayout::~CVertexLayout()::" << this); }
+      ~CVertexLayout() { SYS_LOG_NFO("cym::CVertexLayout::~CVertexLayout()::" << this); }
     public:
       inline void push(SElement&& element);
       inline void push(EAttribute eAttrib, GLenum type, GLcount components, GLcount count=1, GLubyte norm=GL_FALSE);

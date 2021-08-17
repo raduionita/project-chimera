@@ -2,34 +2,34 @@
 
 namespace uix {
   CFrame::CFrame(uint nHints) {
-    CYM_LOG_NFO("uix::CFrame::CFrame(int)::" << this);
+    SYS_LOG_NFO("uix::CFrame::CFrame(int)::" << this);
     CFrame::init(nullptr,"",AUTO,nHints|WINDOW);
   }
   
   CFrame::CFrame(CWindow* pParent/*=nullptr*/, uint nHints/*=WINDOW*/) {
-    CYM_LOG_NFO("uix::CFrame::CFrame(CWindow*,int)::" << this);
+    SYS_LOG_NFO("uix::CFrame::CFrame(CWindow*,int)::" << this);
     CFrame::init(pParent,"",AUTO,nHints|WINDOW);
   }
   
   CFrame::CFrame(CWindow* pParent/*=nullptr*/, const CString& tTitle, uint nHints/*=WINDOW*/) {
-    CYM_LOG_NFO("uix::CFrame::CFrame(CWindow*,CString&,int)::" << this);
+    SYS_LOG_NFO("uix::CFrame::CFrame(CWindow*,CString&,int)::" << this);
     CFrame::init(pParent,tTitle,AUTO,nHints|WINDOW);
   }
   
   CFrame::~CFrame() {
-    CYM_LOG_NFO("uix::CFrame::~CFrame()::" << this);
+    SYS_LOG_NFO("uix::CFrame::~CFrame()::" << this);
     CFrame::free();
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   bool CFrame::init(CWindow* pParent/*=nullptr*/, const CString& tTitle/*=""*/, const SArea& tArea/*=AUTO*/, uint nHints/*=WINDOW*/) {
-    CYM_LOG_NFO("uix::CFrame::init(CWindow*,CString&,SArea&,uint)::" << this);
+    SYS_LOG_NFO("uix::CFrame::init(CWindow*,CString&,SArea&,uint)::" << this);
     
     RETURN((mState & EState::INITED),true);
     
     if (!super::init(pParent,tTitle,tArea,nHints)) {
-      CYM_LOG_NFO("[CFrame] super::init() failed!");
+      SYS_LOG_NFO("[CFrame] super::init() failed!");
       ::MessageBox(NULL, "[CFrame] super::init() failed!", "Error", MB_OK);
       return false;
     }

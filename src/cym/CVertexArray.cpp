@@ -4,12 +4,12 @@
 
 namespace cym {
   CVertexArray::CVertexArray() {
-    CYM_LOG_NFO("cym::CVertexArray::CVertexArray()::" << this);
+    SYS_LOG_NFO("cym::CVertexArray::CVertexArray()::" << this);
     GLCALL(::glGenVertexArrays(1, &mID));
   }
   
   CVertexArray::~CVertexArray() {
-    CYM_LOG_NFO("cym::CVertexArray::~CVertexArray()::" << this);
+    SYS_LOG_NFO("cym::CVertexArray::~CVertexArray()::" << this);
     GLCALL(::glDeleteVertexArrays(1, &mID));
   }
   
@@ -19,7 +19,7 @@ namespace cym {
   }
   
   void CVertexArray::load(CDataBuffer& buffer, CVertexLayout& layout) {
-    CYM_LOG_NFO("cym::CVertexArray::load(CDataBuffer&, CVertexLayout&)::" << this);
+    SYS_LOG_NFO("cym::CVertexArray::load(CDataBuffer&, CVertexLayout&)::" << this);
     bind();
     buffer.bind();
     
@@ -30,7 +30,7 @@ namespace cym {
     for (const auto& element : elements) {
       GLCALL(::glEnableVertexAttribArray(element.attribute));
       
-      CYM_LOG_NFO("cym::CVertexArray::load(CDataBuffer&, CVertexLayout&)::" << this << " type=" << element.type << "|offset=" << offset);
+      SYS_LOG_NFO("cym::CVertexArray::load(CDataBuffer&, CVertexLayout&)::" << this << " type=" << element.type << "|offset=" << offset);
       
       switch (element.type) {
         default:
@@ -48,7 +48,7 @@ namespace cym {
       // offset += element.offset(); // += count * components * sizeof(GLfloat)
     }
     
-    // CYM_LOG_NFO("cym::CVertexArray::load(CDataBuffer&, CVertexLayout&)::" << this << "::DONE");
+    // SYS_LOG_NFO("cym::CVertexArray::load(CDataBuffer&, CVertexLayout&)::" << this << "::DONE");
   }
 }
 

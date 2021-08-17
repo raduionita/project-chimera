@@ -3,41 +3,41 @@
 
 namespace cym {
   CMesh::~CMesh() {
-    CYM_LOG_NFO("cym::CMesh::~CMesh()::" << this);
+    SYS_LOG_NFO("cym::CMesh::~CMesh()::" << this);
   }
   
-  CGeometry::CGeometry(const cym::name& tName) : cym::CResource(tName) {
-    CYM_LOG_NFO("cym::CGeometry::CGeometry(const cym::name&)::" << this);
+  CGeometry::CGeometry(const sys::string& tName) : cym::CResource(tName) {
+    SYS_LOG_NFO("cym::CGeometry::CGeometry(const sys::string&)::" << this);
   }
   
   CGeometry::CGeometry(sys::spo<CGeometryLoader> pLoader) {
-    CYM_LOG_NFO("cym::CGeometry::CGeometry(sys::spo<CGeometryLoader>)::" << this);
+    SYS_LOG_NFO("cym::CGeometry::CGeometry(sys::spo<CGeometryLoader>)::" << this);
     load(pLoader);
   }
   
   CGeometry::~CGeometry() {
-     CYM_LOG_NFO("cym::CGeometry::~CGeometry()::" << this << " NAME:" << mName);
+     SYS_LOG_NFO("cym::CGeometry::~CGeometry()::" << this << " NAME:" << mName);
      //CGeometryManager::kill(this->mName);
   }
   
   void CGeometry::load(sys::spo<CGeometryLoader> pLoader) {
-    CYM_LOG_NFO("cym::CGeometry::load(sys::spo<CGeometryLoader>)::" << this);
+    SYS_LOG_NFO("cym::CGeometry::load(sys::spo<CGeometryLoader>)::" << this);
     
     cym::CGeometryBuffer& rBuffer = pLoader->mGeometryBuffer;
     
     rBuffer.pack();
     
     mVAO = new cym::CVertexArray;
-    mIBO = new cym::CIndexBuffer{rBuffer.layout().data(), rBuffer.layout().size(), rBuffer.layout().count()};
+    mIBO = new cym::CIndexBuffer{rBuffer.getLayout().data(), rBuffer.getLayout().size(), rBuffer.getLayout().count()};
     mVLO = new cym::CVertexLayout{cym::CVertexLayout::SEQUENTIAL};
-    mVBO = new cym::CVertexBuffer{rBuffer.stream().size(), rBuffer.stream().count()};
+    mVBO = new cym::CVertexBuffer{rBuffer.getStream().size(), rBuffer.getStream().count()};
   
 // @todo merge geometries: CGeometryBuffer + CGeometryBuffer or rBuffer.concat(CGeometry) 
 
 // @todo: CGeometryBuffer could/should have an array of CGeometries
 
     // for (auto& rBuffer : rData.geometries) 
-    for (auto&& [name,in] : rBuffer.inputs()) {
+    for (auto&& [name,in] : rBuffer.getInputs()) {
       // load vbo & layout
       mVBO->data(in);
       mVLO->read(in);
@@ -57,8 +57,9 @@ namespace cym {
   void CGeometry::draw() {
     mVAO->bind(); 
     mIBO->bind(); 
-    for (auto& [tName,pMesh] : mMeshes)
-      GLCALL(::glDrawElements((GLenum)(pMesh->mPrimitive), pMesh->mRange.getCount(), pMesh->mRange.getType(), (void*)(pMesh->mRange.getStart() * cym::sizeOf(pMesh->mRange.getType())))); 
+    for (auto& [tName,pMesh] : mMeshes) {
+      GLCALL(::glDrawElements((GLenum)(pMesh->mPrimitive), pMesh->mRange.getCount(), pMesh->mRange.getType(), (void*)(pMesh->mRange.getStart() * cym::sizeOf(pMesh->mRange.getType()))));
+    }
   }
   
   void CMesh::draw() { mGeometry->mVAO->bind(); mGeometry->mIBO->bind(); GLCALL(::glDrawElements((GLenum)(mPrimitive), mRange.getCount(), mRange.getType(), (void*)(mRange.getStart() * cym::sizeOf(mRange.getType())))); }
@@ -66,19 +67,19 @@ namespace cym {
   // managers ////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   CGeometryManager::CGeometryManager()  { 
-    CYM_LOG_NFO("cym::CGeometryManager::CGeometryManager()::" << this); 
+    SYS_LOG_NFO("cym::CGeometryManager::CGeometryManager()::" << this); 
   }
   
   CGeometryManager::~CGeometryManager() { 
-    CYM_LOG_NFO("cym::CGeometryManager::~CGeometryManager()::" << this);
+    SYS_LOG_NFO("cym::CGeometryManager::~CGeometryManager()::" << this);
     //for (auto it = mGeometrys.begin(); it != mGeometrys.end(); )
       //CGeometryManager::kill(it->second);
   }
   
   // loaders /////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  void TGeometryLoader<sys::CFile>::load(sys::spo<CResourceLoader> pResourceLoader) {
-    CYM_LOG_NFO("cym::TGeometryLoader<sys::CFile>::load(sys::spo<CResourceLoader>)::" << this);
+  void TGeometryLoader<sys::file>::load(sys::spo<CResourceLoader> pResourceLoader) {
+    SYS_LOG_NFO("cym::TGeometryLoader<sys::file>::load(sys::spo<CResourceLoader>)::" << this);
     
     auto pCodec = cym::CCodecManager::getCodec(mFile.ext());
     
@@ -87,8 +88,8 @@ namespace cym {
     pCodec->decode(pResourceLoader);
   }
   
-  void TGeometryLoader<glm::SCube>::load(sys::spo<CResourceLoader> pResourceLoader) {
-    CYM_LOG_NFO("cym::TGeometryLoader<glm::SCube>::load(sys::spo<CResourceLoader>)");
+  void TGeometryLoader<glm::cube>::load(sys::spo<CResourceLoader> pResourceLoader) {
+    SYS_LOG_NFO("cym::TGeometryLoader<glm::SCube>::load(sys::spo<CResourceLoader>)");
     
 // @todo: implement mDivisions
     
@@ -97,10 +98,10 @@ namespace cym {
     // geo buffer
     auto& rGeometryBuffer   = pGeometryLoader->getGeometryBuffer();
     // create positions, texcoords, normals
-    auto& rPositions = rGeometryBuffer.stream().make("positions", new cym::CPositionInput);
-    auto& rTexcoords = rGeometryBuffer.stream().make("texcoords", new cym::CTexcoordInput);
-    auto& rNormals   = rGeometryBuffer.stream().make("normals",   new cym::CNormalInput);
-    auto& rLayout    = rGeometryBuffer.layout();
+    auto& rPositions = rGeometryBuffer.getStream().make("positions", new cym::CPositionInput);
+    auto& rTexcoords = rGeometryBuffer.getStream().make("texcoords", new cym::CTexcoordInput);
+    auto& rNormals   = rGeometryBuffer.getStream().make("normals", new cym::CNormalInput);
+    auto& rLayout    = rGeometryBuffer.getLayout();
     
     auto& rFlags {pGeometryLoader->mFlags};
           rFlags &= ~CGeometry::EFlag::CCW;
@@ -204,8 +205,8 @@ namespace cym {
       23,  8, 11  // triangle 11 // face 7
     });
     
-    auto& rTangents  = rGeometryBuffer.stream().make("tangents", new cym::CTangentInput);  rTangents.grow(kNumVertices);
-    auto& rBinormals = rGeometryBuffer.stream().make("binormals", new cym::CBinormalInput); rBinormals.grow(kNumVertices);
+    auto& rTangents  = rGeometryBuffer.getStream().make("tangents", new cym::CTangentInput);  rTangents.grow(kNumVertices);
+    auto& rBinormals = rGeometryBuffer.getStream().make("binormals", new cym::CBinormalInput); rBinormals.grow(kNumVertices);
     auto& rIndices   = rLayout.indices();
     
     for(size_t i = 0; i < kNumIndices; i+=3) {
@@ -269,17 +270,17 @@ namespace cym {
   }
   
   void TGeometryLoader<glm::rect>::load(sys::spo<CResourceLoader> pResourceLoader) {
-    CYM_LOG_NFO("cym::TGeometryLoader<glm::rect>::load(sys::spo<CResourceLoader>)");
+    SYS_LOG_NFO("cym::TGeometryLoader<glm::rect>::load(sys::spo<CResourceLoader>)");
     
     auto       pGeometryLoader = sys::static_pointer_cast<TGeometryLoader<glm::rect>>(pResourceLoader);
     glm::rect& rRect           = pGeometryLoader->geRectangle();
     
     auto& rGeometryBuffer = pGeometryLoader->getGeometryBuffer();
     
-    auto& rPositions = rGeometryBuffer.stream().make("positions", new cym::CPositionInput);
-    auto& rTexcoords = rGeometryBuffer.stream().make("texcoords", new cym::CTexcoordInput);
-    auto& rNormals   = rGeometryBuffer.stream().make("normals",   new cym::CNormalInput);
-    auto& rLayout    = rGeometryBuffer.layout();
+    auto& rPositions = rGeometryBuffer.getStream().make("positions", new cym::CPositionInput);
+    auto& rTexcoords = rGeometryBuffer.getStream().make("texcoords", new cym::CTexcoordInput);
+    auto& rNormals   = rGeometryBuffer.getStream().make("normals", new cym::CNormalInput);
+    auto& rLayout    = rGeometryBuffer.getLayout();
   
     const uint  kDivisions {pGeometryLoader->mDivisions};
     auto&       rFlags {pGeometryLoader->mFlags};
@@ -330,8 +331,8 @@ namespace cym {
     }
     
     if (bTangents) {
-      auto& rTangents  = rGeometryBuffer.stream().make("tangents", new cym::CTangentInput);
-      auto& rBinormals = rGeometryBuffer.stream().make("binormals", new cym::CBinormalInput);
+      auto& rTangents  = rGeometryBuffer.getStream().make("tangents", new cym::CTangentInput);
+      auto& rBinormals = rGeometryBuffer.getStream().make("binormals", new cym::CBinormalInput);
       
       rTangents.grow(kNumVertices);
       rBinormals.grow(kNumVertices);
@@ -389,7 +390,7 @@ namespace cym {
   }
   
   void TGeometryLoader<glm::frustum>::load(sys::spo<CResourceLoader> pResourceLoader) {
-    CYM_LOG_NFO("cym::TGeometryLoader<glm::frustum>::load(sys::spo<CResourceLoader>)");
+    SYS_LOG_NFO("cym::TGeometryLoader<glm::frustum>::load(sys::spo<CResourceLoader>)");
     
     auto       pGeometryLoader = sys::static_pointer_cast<TGeometryLoader<glm::frustum>>(pResourceLoader);
     glm::frustum& rFrustum     = pGeometryLoader->getFrustum();
@@ -399,12 +400,12 @@ namespace cym {
     auto  tCorners {rFrustum.getCorners()};
     auto& tPlanes  {rFrustum.getPlanes()};
     
-    // CYM_LOG_NFO("corners:" << tCorners);
+    // SYS_LOG_NFO("corners:" << tCorners);
     
-    auto& rPositions = rGeometryBuffer.stream().make("positions", new cym::CPositionInput);
-    auto& rTexcoords = rGeometryBuffer.stream().make("texcoords", new cym::CTexcoordInput);
-    auto& rNormals   = rGeometryBuffer.stream().make("normals",   new cym::CNormalInput);
-    auto& rLayout    = rGeometryBuffer.layout();
+    auto& rPositions = rGeometryBuffer.getStream().make("positions", new cym::CPositionInput);
+    auto& rTexcoords = rGeometryBuffer.getStream().make("texcoords", new cym::CTexcoordInput);
+    auto& rNormals   = rGeometryBuffer.getStream().make("normals", new cym::CNormalInput);
+    auto& rLayout    = rGeometryBuffer.getLayout();
     
     const uint  kDivisions {pGeometryLoader->mDivisions};    // @todo: divisions
           uint& rFlags     {pGeometryLoader->mFlags};
@@ -476,8 +477,8 @@ namespace cym {
       rLayout[ii + 5] = ji + 3;
     }
     
-    auto& rTangents  = rGeometryBuffer.stream().make("tangents", new cym::CTangentInput);  rTangents.grow(kNumVertices);
-    auto& rBinormals = rGeometryBuffer.stream().make("binormals", new cym::CBinormalInput); rBinormals.grow(kNumVertices);
+    auto& rTangents  = rGeometryBuffer.getStream().make("tangents", new cym::CTangentInput);  rTangents.grow(kNumVertices);
+    auto& rBinormals = rGeometryBuffer.getStream().make("binormals", new cym::CBinormalInput); rBinormals.grow(kNumVertices);
     auto& rIndices   = rLayout.indices();
     // basically: for each triangle
     for(uint i = 0; i < kNumIndices; i+=3) {

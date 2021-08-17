@@ -5,24 +5,26 @@
 
 namespace cym {
   CTexture::CTexture(const std::string& tName) : cym::CResource(tName) {
-    CYM_LOG_NFO("cym::CTexture::CTexture()::" << this);
+    SYS_LOG_NFO("cym::CTexture::CTexture()::" << this);
     // after creation mMipmaps = request || generated || or 0 of option = no_mipmaps
     // mMipmaps = 1 + glm::floor(glm::log2(glm::max(glm::max(mWidth,mHeight),mDepth)));
   }
   
   CTexture::CTexture(sys::spo<CTextureLoader> rLoader) {
-    CYM_LOG_NFO("cym::CTexture::CTexture(sys::spo<CTextureLoader>)::" << this);
+    SYS_LOG_NFO("cym::CTexture::CTexture(sys::spo<CTextureLoader>)::" << this);
     load(rLoader);
   }
   
   CTexture::~CTexture() {
-    CYM_LOG_NFO("cym::CTexture::~CTexture()::" << this << " NAME:" << mName);
-    GLCALL(::glDeleteTextures(1, &mID));
-    GLCALL(::glBindTexture(mTarget, 0));
+    SYS_LOG_NFO("cym::CTexture::~CTexture()::" << this << " NAME:" << mName);
+    if (!isInstance()) {
+      GLCALL(::glDeleteTextures(1, &mID));
+      GLCALL(::glBindTexture(mTarget, 0));
+    }
   }
   
   void CTexture::load(sys::spo<CTextureLoader> rLoader) {
-    CYM_LOG_NFO("cym::CTexture::load(sys::spo<CTextureLoader>)::" << this);
+    SYS_LOG_NFO("cym::CTexture::load(sys::spo<CTextureLoader>)::" << this);
     
     static GLenum targets[6] = {
       GL_TEXTURE_CUBE_MAP_POSITIVE_X,
@@ -165,18 +167,18 @@ namespace cym {
   // manager /////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   CTextureManager::CTextureManager() { 
-    CYM_LOG_NFO("cym::CTextureManager::CTextureManager()::" << this); 
+    SYS_LOG_NFO("cym::CTextureManager::CTextureManager()::" << this); 
   }
   
   CTextureManager::~CTextureManager() { 
-    CYM_LOG_NFO("cym::CTextureManager::~CTextureManager()::" << this); 
+    SYS_LOG_NFO("cym::CTextureManager::~CTextureManager()::" << this); 
     //mTextures.clear(); 
   }
   
   // loaders /////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   void TTextureLoader<sys::file>::load(sys::spo<CResourceLoader> pResourceLoader) {
-    CYM_LOG_NFO("cym::TTextureLoader<sys::file>::load(sys::spo<CResourceLoader>)::" << this);
+    SYS_LOG_NFO("cym::TTextureLoader<sys::file>::load(sys::spo<CResourceLoader>)::" << this);
     
     auto pCodec = cym::CCodecManager::getCodec(mFile.ext());
     
@@ -184,7 +186,7 @@ namespace cym {
   }
   
   void TTextureLoader<cym::null>::load(sys::spo<CResourceLoader> pResourceLoader) {
-    CYM_LOG_NFO("cym::TTextureLoader<cym::null>::load(sys::spo<CResourceLoader>)::" << this);
+    SYS_LOG_NFO("cym::TTextureLoader<cym::null>::load(sys::spo<CResourceLoader>)::" << this);
     
     auto  pTextureLoader          = sys::static_pointer_cast<TTextureLoader<cym::null>>(pResourceLoader);
     sys::spo<sys::stream> tStream = pTextureLoader->getStream();

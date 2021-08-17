@@ -34,13 +34,19 @@ namespace cym {
         COMPUTE   = 0b01000000,
       };
     protected:
-      GLint                                  mType {0};
-      std::string                            mFilepath;
+      GLint                                   mType {0};
+      std::string                             mFilepath;
       std::unordered_map<sys::CString, GLint> mUniforms;
+      bool                                    mTessalated {false};
     public:
       CShader(const std::string&);
       ~CShader();
     public:
+      inline bool isTessellated() const { return mTessalated; }
+    public:
+      // virtual void bind(CRenderer, CDrawable or CDrawcall);
+      // bind(CLight) ?!
+      
       void bind(bool state = true) const override;
       // uniforms
       GLint uniform(const CString& name);
@@ -52,16 +58,6 @@ namespace cym {
       void  sampler(const CString& name, const sys::spo<CTexture>&);
   };
   
-  // instances ///////////////////////////////////////////////////////////////////////////////////////////////////////
-  
-  class IShader : public cym::TInstance<CShader> {
-      friend class CShader;
-    public:
-      using cym::TInstance<CShader>::TInstance;
-    public:
-      inline const CShader& getShader() const { return mInstance.raw(); }
-  };
-  
   // loaders /////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   class CShaderLoader : public CResourceLoader {
@@ -71,9 +67,9 @@ namespace cym {
   
   template<typename T> class TShaderLoader : public CShaderLoader { };
   
-  template<> class TShaderLoader<sys::CFile> : public CShaderLoader {
+  template<> class TShaderLoader<sys::file> : public CShaderLoader {
     protected:
-      std::vector<sys::CFile> mFile;
+      std::vector<sys::file> mFile;
     public:
       virtual void load(sys::spo<CResourceLoader>) override;
   };
@@ -82,10 +78,10 @@ namespace cym {
       
   class CShaderManager : public cym::TResourceManager<CShader>, public sys::TSingleton<CShaderManager> {
     public:
-      inline CShaderManager()  { CYM_LOG_NFO("cym::CShaderManager::CShaderManager()::" << this); }
-      inline ~CShaderManager() { CYM_LOG_NFO("cym::CShaderManager::~CShaderManager()::" << this); }
+      inline CShaderManager()  { SYS_LOG_NFO("cym::CShaderManager::CShaderManager()::" << this); }
+      inline ~CShaderManager() { SYS_LOG_NFO("cym::CShaderManager::~CShaderManager()::" << this); }
     public:
-      template<typename T> static sys::spo<IShader> load(const std::string& tName, const T& tSource) {
+      template<typename T> static sys::spo<CShader> load(const std::string& tName, const T& tSource) {
         
         return nullptr;
       }

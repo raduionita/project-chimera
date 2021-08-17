@@ -11,11 +11,11 @@ namespace cym {
   
   class CJoint {
     protected:
-      cym::name                              mName; // @todo: maybe this should be as a NJoint{} property
+      sys::string                              mName; // @todo: maybe this should be as a NJoint{} property
       sys::spo<CJoint>                      mParent;
-      std::map<cym::name, sys::spo<CJoint>> mChildren;
+      std::map<sys::string, sys::spo<CJoint>> mChildren;
     public:
-      CJoint(const cym::name& tName) : mName{tName}, mParent{nullptr} { }
+      CJoint(const sys::string& tName) : mName{tName}, mParent{nullptr} { }
   };
   
   class CBone {

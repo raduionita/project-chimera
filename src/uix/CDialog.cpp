@@ -2,22 +2,22 @@
 
 namespace uix {
   CFileDialog::CFileDialog(const std::vector<std::string>& aTypes/*={*.*}*/, const CString& tTitle/*=""*/, uint nHints/*=0*/) : mTypes{aTypes}, mHints{nHints} {
-    CYM_LOG_NFO("uix::CFileDialog::CFileDialog(std::vector&,CString&,int)::" << this);
+    SYS_LOG_NFO("uix::CFileDialog::CFileDialog(std::vector&,CString&,int)::" << this);
     CFileDialog::init(nullptr,tTitle,AUTO,nHints);
   }
   
   CFileDialog::CFileDialog(CWindow* pParent, const std::vector<std::string>& aTypes/*={*.*}*/, const CString& tTitle/*=""*/, uint nHints/*=0*/) : mTypes{aTypes}, mHints{nHints} {
-    CYM_LOG_NFO("uix::CFileDialog::CFileDialog(CWindow*,std::vector&,CString&,int)::" << this);
+    SYS_LOG_NFO("uix::CFileDialog::CFileDialog(CWindow*,std::vector&,CString&,int)::" << this);
     CFileDialog::init(pParent,tTitle,AUTO,nHints);
   }
 
   CFileDialog::~CFileDialog() {
-    CYM_LOG_NFO("uix::CFileDialog::~CFileDialog()::" << this);
+    SYS_LOG_NFO("uix::CFileDialog::~CFileDialog()::" << this);
     CFileDialog::free();
   }
   
   bool CFileDialog::init(CWindow* pParent/*=nullptr*/, const CString& tTitle/*=""*/, const SArea& tArea/*=AUTO*/, uint nHints/*=EDialog::DIALOG|EDialog::MUSTEXIST*/) {
-    CYM_LOG_NFO("uix::CFileDialog::init(CWindow*,CString&,SArea&,uint)::" << this);
+    SYS_LOG_NFO("uix::CFileDialog::init(CWindow*,CString&,SArea&,uint)::" << this);
     
     RETURN((mState & EState::INITED),true);
     
@@ -62,7 +62,7 @@ namespace uix {
   }
   
   bool CFileDialog::free() {
-    CYM_LOG_NFO("uix::CFileDialog::free()::" << this);
+    SYS_LOG_NFO("uix::CFileDialog::free()::" << this);
     
     return true;
   }
@@ -80,7 +80,7 @@ namespace uix {
       mFile = mOFN.lpstrFile;
       return true;
     } else {
-      CYM_LOG_NFO("[CFileDialog] ::Get[Open/Save]FileName() CANCELED!");
+      SYS_LOG_NFO("[CFileDialog] ::Get[Open/Save]FileName() CANCELED!");
       return false;
     }
   }
@@ -92,7 +92,7 @@ namespace uix {
         OPENFILENAME* oOFN   = reinterpret_cast<OPENFILENAME *>(lParam);
         CFileDialog* pDialog = reinterpret_cast<CFileDialog*>(oOFN->lCustData);
         
-        CYM_LOG_NFO("  D::WM_INITDIALOG::" << pDialog << " ID:" << pDialog->mId);
+        SYS_LOG_NFO("  D::WM_INITDIALOG::" << pDialog << " ID:" << pDialog->mId);
         
         // on init dialog
         
@@ -103,7 +103,7 @@ namespace uix {
           const OFNOTIFY* pNotify = reinterpret_cast<OFNOTIFY*>(lParam);
           CFileDialog* pDialog = reinterpret_cast<CFileDialog*>(pNotify->lpOFN->lCustData);
           
-          CYM_LOG_NFO("  D::WM_NOTIFY::" << pDialog << " ID:" << pDialog->mId << " CODE:" << pNotify->hdr.code);
+          SYS_LOG_NFO("  D::WM_NOTIFY::" << pDialog << " ID:" << pDialog->mId << " CODE:" << pNotify->hdr.code);
           
           switch (pNotify->hdr.code) {
             case CDN_INITDONE: {
@@ -122,7 +122,7 @@ namespace uix {
         OPENFILENAME* oOFN   = reinterpret_cast<OPENFILENAME *>(lParam);
         CFileDialog* pDialog = reinterpret_cast<CFileDialog*>(oOFN->lCustData);
         
-        CYM_LOG_NFO("  D::WM_DESTROY::" << pDialog << " ID:" << pDialog->mId);
+        SYS_LOG_NFO("  D::WM_DESTROY::" << pDialog << " ID:" << pDialog->mId);
       } break;
     }
     

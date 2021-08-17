@@ -2,62 +2,62 @@
 #define __sys_clogger_hpp__
 
 #include "sys/sys.hpp"
-#include "sys/CSingleton.hpp"
+#include "sys/TSingleton.hpp"
 
 #include <memory>
 
-#ifndef CYM_LOGGER
+#ifndef SYS_LOGGER
   // no logging
-#endif//CYM_LOGGER
+#endif//SYS_LOGGER
 
-#ifdef CYM_LOGGER_DEBUG
-#  define CYM_LOGGER_LEVEL CLogger::ELevel::DEBUG
-#endif//CYM_LOGGER_DEBUG
-#ifdef CYM_LOGGER_INFO
-#  define CYM_LOGGER_LEVEL CLogger::ELevel::INFO
-#endif//CYM_LOGGER_INFO
-#ifdef CYM_LOGGER_WARN
-#  define CYM_LOGGER_LEVEL CLogger::ELevel::WARN
-#endif//CYM_LOGGER_WARN
-#ifdef CYM_LOGGER_ERROR
-#  define CYM_LOGGER_LEVEL CLogger::ELevel::ERROR
-#endif//CYM_LOGGER_ERROR
-#ifdef CYM_LOGGER_FATAL
-#  define CYM_LOGGER_LEVEL CLogger::ELevel::ERROR
-#endif//CYM_LOGGER_FATAL
-#ifdef CYM_LOGGER_NONE
-#  define CYM_LOGGER_LEVEL CLogger::ELevel::NONE
-#endif//CYM_LOGGER_NONE
+#ifdef SYS_LOGGER_DEBUG
+#  define SYS_LOGGER_LEVEL CLogger::ELevel::DEBUG
+#endif//SYS_LOGGER_DEBUG
+#ifdef SYS_LOGGER_INFO
+#  define SYS_LOGGER_LEVEL CLogger::ELevel::INFO
+#endif//SYS_LOGGER_INFO
+#ifdef SYS_LOGGER_WARN
+#  define SYS_LOGGER_LEVEL CLogger::ELevel::WARN
+#endif//SYS_LOGGER_WARN
+#ifdef SYS_LOGGER_ERROR
+#  define SYS_LOGGER_LEVEL CLogger::ELevel::ERROR
+#endif//SYS_LOGGER_ERROR
+#ifdef SYS_LOGGER_FATAL
+#  define SYS_LOGGER_LEVEL CLogger::ELevel::ERROR
+#endif//SYS_LOGGER_FATAL
+#ifdef SYS_LOGGER_NONE
+#  define SYS_LOGGER_LEVEL CLogger::ELevel::NONE
+#endif//SYS_LOGGER_NONE
 
-#ifdef CYM_LOGGER_COUT
-#  define CYM_LOGGER_PROVIDER CCoutLoggerProvider
-#endif//CYM_LOGGER_COUT
+#ifdef SYS_LOGGER_COUT
+#  define SYS_LOGGER_PROVIDER CCoutLoggerProvider
+#endif//SYS_LOGGER_COUT
 
-#ifndef CYM_LOGGER_LEVEL
-#  define CYM_LOGGER_LEVEL CLogger::ELevel::DEBUG
-#endif//CYM_LOGGER_LEVEL
-#ifndef CYM_LOGGER_PROVIDER
-#  define CYM_LOGGER_PROVIDER CCoutLoggerProvider
-#endif//CYM_LOGGER_PROVIDER
+#ifndef SYS_LOGGER_LEVEL
+#  define SYS_LOGGER_LEVEL CLogger::ELevel::DEBUG
+#endif//SYS_LOGGER_LEVEL
+#ifndef SYS_LOGGER_PROVIDER
+#  define SYS_LOGGER_PROVIDER CCoutLoggerProvider
+#endif//SYS_LOGGER_PROVIDER
 
-#ifndef CYM_LOGGER
-  #define CYM_LOG_NFO(data)
-  #define CYM_LOG_DBG(data)
-  #define CYM_LOG_WRN(data)
-  #define CYM_LOG_ERR(data)
+#ifndef SYS_LOGGER
+  #define SYS_LOG_NFO(data)
+  #define SYS_LOG_DBG(data)
+  #define SYS_LOG_WRN(data)
+  #define SYS_LOG_ERR(data)
 #else
-  #define CYM_LOG_NFO(data) sys::log::nfo << data << sys::log::end;
-  #define CYM_LOG_DBG(data) sys::log::dbg << data << sys::log::end;
-  #define CYM_LOG_WRN(data) sys::log::wrn << data << sys::log::end;
-  #define CYM_LOG_ERR(data) sys::log::err << data << sys::log::end;
-#endif // CYM_LOGGER 
+  #define SYS_LOG_NFO(data) sys::log::nfo << data << sys::log::end;
+  #define SYS_LOG_DBG(data) sys::log::dbg << data << sys::log::end;
+  #define SYS_LOG_WRN(data) sys::log::wrn << data << sys::log::end;
+  #define SYS_LOG_ERR(data) sys::log::err << data << sys::log::end;
+#endif // SYS_LOGGER 
 
 namespace sys {
-#ifdef CYM_LOGGER
+#ifdef SYS_LOGGER
   constexpr bool LOGGER {true};
-#else // CYM_LOGGER
+#else // SYS_LOGGER
   constexpr bool LOGGER {false};
-#endif//CYM_LOGGER
+#endif//SYS_LOGGER
   
   class CLogger;
   
@@ -105,8 +105,9 @@ namespace sys {
       static const EManipulator end;
     protected:
       std::string      mOutput;
-      ELevel           mLevel    {CYM_LOGGER_LEVEL};
-      CLoggerProvider* mProvider {nullptr};
+      ELevel           mLevel      {SYS_LOGGER_LEVEL};
+      CLoggerProvider* mProvider   {nullptr};
+      sys::string      mTimeFormat {"%Y-%m-%d %H:%M:%S"};
     public:
       CLogger();
       virtual ~CLogger();
@@ -118,19 +119,19 @@ namespace sys {
       friend CLogger* operator <<(CLogger*, const std::string&);
     public:
       template<typename T> CLogger* push(const T& output) {
-#if   defined(CYM_LOGGER_DEBUG)
+#if   defined(SYS_LOGGER_DEBUG)
       mLevel = ELevel::DEBUG;
-#elif defined(CYM_LOGGER_INFO)
+#elif defined(SYS_LOGGER_INFO)
       mLevel = ELevel::INFO;
-#elif defined(CYM_LOGGER_WARN)
+#elif defined(SYS_LOGGER_WARN)
       mLevel = ELevel::WARN;
-#elif defined(CYM_LOGGER_ERROR)
+#elif defined(SYS_LOGGER_ERROR)
       mLevel = ELevel::ERROR;
-#elif defined(CYM_LOGGER_FATAL)
+#elif defined(SYS_LOGGER_FATAL)
       mLevel = ELevel::ERROR;
-#elif defined(CYM_LOGGER_NONE)
+#elif defined(SYS_LOGGER_NONE)
       mLevel = ELevel::NONE;
-#endif//CYM_LOGGER_NONE
+#endif//SYS_LOGGER_NONE
       std::stringstream ss;
       ss << output;
       mOutput.append(ss.str());
@@ -140,7 +141,7 @@ namespace sys {
       void   level(ELevel&& eLevel) { mLevel = std::move(eLevel); }
       ELevel level()                { return mLevel; }
       void             provider(CLoggerProvider*&& pProvider) { delete mProvider; mProvider = std::move(pProvider); }
-      CLoggerProvider* provider() { if (!mProvider) mProvider = new CYM_LOGGER_PROVIDER; return mProvider; }
+      CLoggerProvider* provider() { if (!mProvider) mProvider = new SYS_LOGGER_PROVIDER; return mProvider; }
   };
   
   template<typename T> const CLogger::ELevel& operator <<(const CLogger::ELevel& type, const T& output) {

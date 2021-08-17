@@ -3,29 +3,29 @@
 
 namespace uix {
   CCanvas::CCanvas(uint nHints) : mContext{new CContext{this}} {
-    CYM_LOG_NFO("uix::CCanvas::CCanvas(CContext::SConfig&,uint)::" << this);
+    SYS_LOG_NFO("uix::CCanvas::CCanvas(CContext::SConfig&,uint)::" << this);
     CCanvas::init(nullptr,"",AUTO,nHints|WINDOW);
   }
   
   CCanvas::CCanvas(const CContext::SConfig& sConfig, uint nHints/*=WINDOW*/) : mContext{new CContext{this,sConfig}} {
-    CYM_LOG_NFO("uix::CCanvas::CCanvas(CContext::SConfig&,uint)::" << this);
+    SYS_LOG_NFO("uix::CCanvas::CCanvas(CContext::SConfig&,uint)::" << this);
     CCanvas::init(nullptr,"",AUTO,nHints|WINDOW);
   }
   
   CCanvas::CCanvas(CWindow* pParent, const CContext::SConfig& sConfig/*={}*/, uint nHints/*=WINDOW*/) : mContext{new CContext{this,sConfig}} {
-    CYM_LOG_NFO("uix::CCanvas::CCanvas(CWindow*,CContext::SConfig&,uint)::" << this);
+    SYS_LOG_NFO("uix::CCanvas::CCanvas(CWindow*,CContext::SConfig&,uint)::" << this);
     CCanvas::init(pParent,"",AUTO,nHints|WINDOW);
   }
   
   CCanvas::~CCanvas() {
-    CYM_LOG_NFO("uix::CCanvas::~CCanvas()::" << this);
+    SYS_LOG_NFO("uix::CCanvas::~CCanvas()::" << this);
     // DELETE(mContext);
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   bool CCanvas::init(CWindow* pParent/*=nullptr*/, const CString& tTitle/*=""*/, const SArea& tArea/*=AUTO*/, uint nHints/*=WINDOW*/) {
-    CYM_LOG_NFO("uix::CCanvas::init(CWindow*,CContext::SConfig&,int)::" << this);
+    SYS_LOG_NFO("uix::CCanvas::init(CWindow*,CContext::SConfig&,int)::" << this);
     
     RETURN((mState & EState::INITED),true);
     
@@ -37,7 +37,7 @@ namespace uix {
   }
   
   bool CCanvas::fullscreen(uint nHints/*=1*/) {
-    CYM_LOG_NFO("uix::CCanvas::fullscreen(int)::" << this);
+    SYS_LOG_NFO("uix::CCanvas::fullscreen(int)::" << this);
     // @todo: game-style fullscreen
     
     
@@ -102,7 +102,7 @@ namespace uix {
   const char* CCanvas::version() const       { return mContext->version(); }
   
   void CCanvas::onResize(CEvent* pEvent) {
-    CYM_LOG_NFO("uix::CCanvas::onResize(CEvent*)::" << this << " " << *pEvent);
+    SYS_LOG_NFO("uix::CCanvas::onResize(CEvent*)::" << this << " " << *pEvent);
     // update render viewport
     GLCALL(::glViewport(pEvent->clientX(),pEvent->clientY(),pEvent->width(),pEvent->height()));
   }

@@ -20,7 +20,7 @@ namespace uix {
       bool attach(CListener*, const CEvent::EType&, FCallback&&);
       // attach: method // eg: T = CApplication
       template<typename T> bool attach(CListener* pTarget, const CEvent::EType& eEvent, void(T::*fCallback)(CEvent*)) {
-        CYM_LOG_NFO("uix::CListener::attach(CListener*,EType&,void(T::*fCallback)(CEvent*))::" << this << " E:" << int(eEvent));
+        SYS_LOG_NFO("uix::CListener::attach(CListener*,EType&,void(T::*fCallback)(CEvent*))::" << this << " E:" << int(eEvent));
         // wrap callback to a cast(ed) callback // add to list of calbacks
         pTarget->mHandlers[eEvent] = [that = dynamic_cast<T*>(this),fCallback] (CEvent* pEvent) {
           //T* pHandler = dynamic_cast<T*>(this);

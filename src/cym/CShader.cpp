@@ -9,7 +9,7 @@
 
 namespace cym {
   CShader::CShader(const std::string& filepath) : mFilepath{filepath} {
-    CYM_LOG_NFO("cym::CShader::CShader(std::string&)::" << this << " FILE:" << filepath);
+    SYS_LOG_NFO("cym::CShader::CShader(std::string&)::" << this << " FILE:" << filepath);
     // open file
     std::ifstream ifs(filepath);
     
@@ -123,7 +123,7 @@ namespace cym {
   // @todo: need better shader loading mechanisms
   
   CShader::~CShader() {
-    CYM_LOG_NFO("cym::CShader::~CShader()::" << this);
+    SYS_LOG_NFO("cym::CShader::~CShader()::" << this);
     GLCALL(::glDeleteProgram(mID));
   }
   
@@ -160,7 +160,7 @@ namespace cym {
     GLint loc = uniform(name);
     if (loc != GL_NOT_FOUND) {
       tex->bind();
-      GLCALL(::glUniform1i(loc, tex->slot()));
+      GLCALL(::glUniform1i(loc, tex->getSlot()));
     } else {
       log::wrn << "cym::CShader::uniform(CString&,PTexture&)::" << this << " Uniform NOT found!" << log::end;
     }
@@ -186,7 +186,7 @@ namespace cym {
     GLint loc = uniform(name);
     if (loc != GL_NOT_FOUND) {
       tex->bind();
-      GLCALL(::glUniform1i(loc, tex->slot()));
+      GLCALL(::glUniform1i(loc, tex->getSlot()));
     } else {
       log::wrn << "cym::CShader::sampler(CString&,PTexture&)::" << this << " Uniform NOT found!" << log::end;
     }

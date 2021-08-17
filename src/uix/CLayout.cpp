@@ -3,7 +3,7 @@
 
 namespace uix {
   bool CLayout::apply(CWindow* pWindow) {
-    CYM_LOG_NFO("uix::CLayout::apply(CWindow*)::" << this);
+    SYS_LOG_NFO("uix::CLayout::apply(CWindow*)::" << this);
     
     RETURN(!(pWindow->mState & EState::INITED), false);
     
@@ -15,7 +15,7 @@ namespace uix {
   }
   
   bool CLayout::area(const SArea& sArea) {
-    CYM_LOG_NFO("uix::CLayout::area(SArea&)::" << this);
+    SYS_LOG_NFO("uix::CLayout::area(SArea&)::" << this);
     mArea = sArea;
     
     for (auto pChild : mWindow->children()) {
@@ -43,14 +43,14 @@ namespace uix {
   }
     
   CWindow* CBoxLayout::add(CWindow* pWindow, const ELayout& eLayout/*=ELayout::LAYOUT*/) {
-    CYM_LOG_NFO("uix::CBoxLayout::add(CWindow*,int)::" << this << " add:" << pWindow);
+    SYS_LOG_NFO("uix::CBoxLayout::add(CWindow*,int)::" << this << " add:" << pWindow);
     auto tLayout = eLayout | (pWindow->hint(EWindow::AUTOWH) ? ELayout::ADJUST : ELayout::LAYOUT);
     mItems.push_back(std::move(new TItem<CWindow>{pWindow, tLayout, pWindow->area()}));
     return pWindow;
   }
   
   CLayout* CBoxLayout::add(CLayout* pLayout, const ELayout& eLayout/*=ELayout::LAYOUT*/) {
-    CYM_LOG_NFO("uix::CBoxLayout::add(CLayout*,int)::" << this << " add:" << pLayout);
+    SYS_LOG_NFO("uix::CBoxLayout::add(CLayout*,int)::" << this << " add:" << pLayout);
     auto tLayout = pLayout->hints() | eLayout | (pLayout->area() == AUTO ? ELayout::ADJUST : ELayout::LAYOUT);
     mItems.push_back(std::move(new TItem<CLayout>{pLayout, tLayout, pLayout->area()}));
     return pLayout;
@@ -58,13 +58,13 @@ namespace uix {
   
   /* CBoxLayout::add(CLayout::CGap&) */
   void CBoxLayout::add(CLayout::CGap* pGap, const ELayout& eLayout/*=ELayout::LAYOUT*/) {
-    CYM_LOG_NFO("uix::CBoxLayout::add(CLayout::CGap*)::" << this << " add: gap" );
+    SYS_LOG_NFO("uix::CBoxLayout::add(CLayout::CGap*)::" << this << " add: gap" );
     auto tLayout = pGap->hints() | eLayout | (pGap->area() == AUTO ? ELayout::ADJUST : ELayout::LAYOUT);
     mItems.push_back(std::move(new TItem<CLayout::CGap>{pGap, tLayout, pGap->area()}));
   }
   
   bool CBoxLayout::area(const SArea& sArea) {
-    CYM_LOG_NFO("uix::CBoxLayout::area(SArea{"<<sArea<<"})::" << this << " h:" << std::bitset<16>(int(mHints)) << " c:" << mItems.size());
+    SYS_LOG_NFO("uix::CBoxLayout::area(SArea{"<<sArea<<"})::" << this << " h:" << std::bitset<16>(int(mHints)) << " c:" << mItems.size());
   
     RETURN(!mItems.size(),false);
     

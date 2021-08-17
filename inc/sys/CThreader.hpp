@@ -2,7 +2,7 @@
 #define __sys_cthreader_hpp__
 
 #include "sys/sys.hpp"
-#include "sys/CSingleton.hpp"
+#include "sys/TSingleton.hpp"
 #include "sys/CException.hpp"
 
 #include <thread>
@@ -23,15 +23,17 @@ namespace sys {
       }
   };
   
-  inline bool async(std::function<void()>&& task, int hints = EAsync::SPAWN) {
+  inline bool async(std::function<void()>&& task, int hints = EAsync::SPAWN /*, TODO: notify call here*/) {
     static const auto pThreader = CThreader::getSingleton();
-    // @todo: forward task to threader
+// @todo: forward task to threader
     task();
+    
+// @TODO: notify();
     
     return true; // true|false did it execute now? true = yes (main thread) 
   }
   
-  inline bool spawn(std::function<void()>&& task) { return async(std::move(task), EAsync::SPAWN); }
+  inline bool spawn(std::function<void()>&& task /*, @TODO: notify call here*/) { return async(std::move(task), EAsync::SPAWN); }
 }
 
 #endif //__sys_cthreader_hpp__

@@ -14,18 +14,18 @@
 
 namespace app {
   CEditWindow::CEditWindow() : uix::CFrame(uix::CFrame::WINDOW) {
-    CYM_LOG_NFO("app::CEditWindow::CEditWindow()::" << this);
+    SYS_LOG_NFO("app::CEditWindow::CEditWindow()::" << this);
   }
   
   CEditWindow::~CEditWindow() {
-    CYM_LOG_NFO("app::CEditWindow::~CEditWindow()::" << this);
+    SYS_LOG_NFO("app::CEditWindow::~CEditWindow()::" << this);
   }
   
   void CEditWindow::onInit() {
-    CYM_LOG_NFO("app::CEditWindow::onInit()::" << this);
+    SYS_LOG_NFO("app::CEditWindow::onInit()::" << this);
   }
   
   void CEditWindow::onFree() {
-    CYM_LOG_NFO("app::CEditWindow::onFree()::" << this);
+    SYS_LOG_NFO("app::CEditWindow::onFree()::" << this);
   }
 }

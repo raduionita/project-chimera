@@ -2,13 +2,19 @@
 #define __app_cviewport_hpp__
 
 #include "app/app.hpp"
+#include "uix/CFrame.hpp"
+#include "uix/CSurface.hpp"
+#include "uix/CContext.hpp"
 
 namespace app {
   class CViewport {
     public:
-      // mScene
-      // mWindow
-      // mCamera
+    // sys::spo<cym::CCamera> mCamera
+    public:
+      CViewport(/*uix::CWindow* pParent, uix::CContext* pContext*/);
+      virtual ~CViewport() = default;
+    public:
+      void setCamera(/*CCamera*/);
   };
   
 // @todo: CApplication can have multiple viewports
@@ -23,8 +29,26 @@ namespace app {
     // use window
     // draw scene
     
-// CSelectViewport // preview selected node/entity
-// CPlayViewport   // test app
+// Edit app
+  // CShowViewport // preview selected node/entity
+    // debug layer
+    // main/draw layer
+  // CPlayViewport // new window uses app scene + context + fullscreen & un-paused, doesn't render on the other viewports
+    // debug layer
+    // info/error layer
+    // console layer
+    // play/main layer
+  // CEditViewport // editor
+    // debug layer
+    // gui layer (only if active) (on top gizmo & other menu (like camera type)
+    // edit/main layer
+
+// Play/Game app
+  // CPlayViewport or CGameViewport
+    // console layer
+    // menu/pause layer
+    // gui layer
+    // game/main layer
 }
 
 #endif //__app_cviewport_hpp__

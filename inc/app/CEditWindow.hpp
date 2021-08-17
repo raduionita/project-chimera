@@ -9,8 +9,6 @@ namespace app {
   class CEditWindow : public uix::CFrame {
       friend class CApplication;
       using uix::CFrame::CFrame;
-    private:
-      uix::CSurface*    mSurface {nullptr};
     public:
       CEditWindow() /*=default*/;
       ~CEditWindow() /*=default*/;

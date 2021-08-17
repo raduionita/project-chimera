@@ -92,7 +92,7 @@ namespace glm {
         mPlanes[EPlane::T].from(tCorners[RTN], tCorners[RTF], tCorners[LTF]);
         mPlanes[EPlane::F].from(tCorners[RTF], tCorners[RBF], tCorners[LBF]);
         mPlanes[EPlane::N].from(tCorners[LTN], tCorners[LBN], tCorners[RBN]);
-        // CYM_LOG_NFO("glm::CFrustum::CFrustum(sys::array<glm::vec3,8>&)" << " corners:" << tCorners << "\nplanes:" << mPlanes);
+        // SYS_LOG_NFO("glm::CFrustum::CFrustum(sys::array<glm::vec3,8>&)" << " corners:" << tCorners << "\nplanes:" << mPlanes);
       }
       ~CFrustum() = default;
     public:

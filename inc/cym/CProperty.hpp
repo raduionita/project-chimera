@@ -53,10 +53,10 @@ namespace cym {
   
   class CGroup {
     protected:
-      std::map<cym::name, sys::spo<CProperty>> mProperties;
+      std::map<sys::string, sys::spo<CProperty>> mProperties;
     public:
-      sys::spo<CProperty>& getProperty(const cym::name& tName) { return sys::find_or_throw(tName, mProperties, sys::exception("Property"+ tName +" NOT found!",__FILE__,__LINE__)); }
-      template<EProperty E> void setProperty(const cym::name& tName, const sys::spo<TProperty<E>>& pProperty) { mProperties.insert(std::pair(tName, pProperty)); }
+      sys::spo<CProperty>& getProperty(const sys::string& tName) { return sys::find_or_throw(tName, mProperties, sys::exception("Property"+ tName +" NOT found!",__FILE__,__LINE__)); }
+      template<EProperty E> void setProperty(const sys::string& tName, const sys::spo<TProperty<E>>& pProperty) { mProperties.insert(std::pair(tName, pProperty)); }
       
   };
   

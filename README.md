@@ -1,10 +1,615 @@
 ## C++ OpenGL API Game Engine
 
-### API
+
+
+### 2021-08-07 #########################################################################################################
+
+#### EDIT
+```text
+INIT
+| EXEC load windows/layout
+| | LOAD main window
+|   | LOAD layout
+|     | LOAD toolbar (top)   (buttons)
+|     | LOAD toolbar (left)  (buttons)
+|     | LOAD sidebar (right) (scene tree)
+| 
+| EXEC load context (to be shared w/ all surfaces)
+| | ?
+| 
+| EXEC load viewports & layers
+| | LOAD edit viewport
+| | LOAD show viewport (inactive)
+|   | LOAD debug layer
+|   | LOAD draw layer
+| | LOAD test/play viewport
+|   | EXEC onInit (=pause all other viewports)
+|   | LOAD debug layer
+|   | LOAD gui layer
+|   | LOAD info/error/message layer
+|   | LOAD console layer
+|   | LOAD draw layer
+|   | EXEC onExit (=un-pause everything else) 
+|
+| LOAD (all) shaders // all shader combinations (animation,wireframe,lighting model,light/flat)
+| | ?
+|
+| LOAD (all built-in) shapes (cube,frustum,sphere?), axor (3 perpedicular axis + 3 cones/pyramids)
+| | ?
+|  
+| LOAD fonts/text manager // fonts and their textures and sizes
+|  
+| LOAD grid, gizmo, normal-axor (3axis=3lines+3cones)
+| | ?
+|
+```
+```text
+LOOP while true // forward render
+| // here: make/poll, update...
+| 
+| FOREACH viewport
+| | EXEC render main layer
+| | | EXEC shadow pass
+| | |     ...
+| | EXEC render gui layer
+| | | ? 
+| | EXEC render debug layer
+| | | ?
+|   
+| EXEC render main/edit/game viewport
+| | MAKE viewport + context active
+| | 
+| | EXEC render main layer
+| | | QUERY (drawables = FIND drawble IN scene WHERE aabb in camera.frustum)  
+| | |
+| | | EXEC shadow pass
+| | | | FOREACH:light in lights
+| | | |  
+| | | |   IF light.isShadowCaster != true
+| | | |     skip!
+| | | |  
+| | | |   FOREACH layer (light layer) 
+| | | |     
+| | | |     BIND shader (spot,point,direct light OR 1 for all) 
+| | | |     
+| | | |     BIND fbo shadow
+| | | |     
+| | | |     BIND light 
+| | | |       UNIFORM V = glm::lookat(light.position, light.direction, glm::Y) // for omni use GL_TEXTURE_CUBE_MAP_POSITIVE_? 
+| | | |       UNIFORM M = light.M
+| | | |      
+| | | |     FOREACH model/drawable in models
+| | | |       
+| | | |       IF model.isShadowCaster != true
+| | | |         skip!
+| | | |      
+| | | |       BIND: model/drawable
+| | | |         UNIFORM M = mode.matrix
+| | | |         
+| | | |       DRAW model // output color = depth
+| | | 
+| | | EXEC draw pass
+| | | | BIND fbo 0
+| | | |   clear color & depth
+| | | | 
+| | | | BIND render state // viewport, depth, culling
+| | | |
+| | | | FOREACH model/drawable in models
+| | | |   BIND shader // don't rebind (if already bond)
+| | | | 
+| | | |   IF model.drawmode != FULLMODE or WIREFULL
+| | | |     skip!
+| | | |   
+| | | |   BIND shadow // GL_TEXTURE1
+| | | |   
+| | | |   FOREACH light in lights
+| | | |     BIND light (to shader)
+| | | |       UNIFORM light.position
+| | | |       UNIFORM light.color
+| | | |       UNIFORM light.direction
+| | | |       UNIFORM light.intesity
+| | | |     
+| | | |   BIND:camera (to shader)
+| | | |     UNIFORM camera.position
+| | | |     UNIFORM camera.V = V
+| | | |     UNIFORM camera.P = V
+| | | |     
+| | | |   BIND model/drawable
+| | | |     UNIFORM model.matrix = M
+| | | |     
+| | | |   FOREACH mesh in model->meshes
+| | | |     FOREACH joint in joints
+| | | |       BIND joint (matrix, u_mB[x]) 
+| | | |   
+| | | |     FOREACH material
+| | | |       BIND material (to shader)
+| | | |         UNIFORM material.options
+| | | |         FOREACH channel
+| | | |           UNIFORM color // if needed
+| | | |           UNIFORM texture SAMPLER/SLOT (to shader) // activate texture slot (get info from shader object)
+| | | |         
+| | | |     BIND:mesh (to shader)
+| | | |       UNIFORM:mesh.variables (to shader) // like variable positions (for on a cube, if u'r using only 1 cube ibo)
+| | | |        
+| | | |     BIND vao
+| | | |     BIND vbo/ibo
+| | | |     DRAW call // draw mesh
+| | |
+| | | EXEC debug pass: wireframe
+| | | | FOREACH model/drawable
+| | | |   BIND shader
+| | | |   
+| | | |   IF editor.settings != WIREMODE or WIREFULL
+| | | |   OR model.drawmode != WIREMODE or WIREFULL
+| | | |     skip!
+| | | |   
+| | | |   FOREACH joint in joints // needs to follow animation (or use transform feedback?!)
+| | | |     BIND joint (matrix, u_mB[x])
+| | | |       UNIFORM B (joint ...)
+| | | |   
+| | | |   BIND camera (to shader)
+| | | |     UNIFORM V (camera.V)
+| | | |     UNIFORM pos (camera.position)
+| | | |     UNIFORM P (camera.P)
+| | | |     
+| | | |   draw model
+| | | |     FOREACH mesh in model->meshes
+| | | |       
+| | | |       FOREACH joint in joints
+| | | |         BIND joint (matrix, u_mB[x])
+| | | |         
+| | | |       BIND vao
+| | | |       BIND ibo
+| | | |       DRAW call // draw mesh's vbo/ibo
+| | | 
+| | | EXEC:debug pass: normals 
+| | | | FOREACH model/drawable
+| | | |   bind shader
+| | | |   
+| | | |   IF editor.settings != SHOWNORMALS
+| | | |   OR model.drawmode != SHOWNORMALS
+| | | |     skip;
+| | | | 
+| | | |   bind camera (to shader)
+| | | |     
+| | | |   draw axor
+| | | |     bind vao
+| | | |     bind vbo/ibo
+| | | |     draw call
+| | | 
+| | | EXEC:debug pass: bbox
+| | | | FOREACH drawable
+| | | |   bind shader
+| | | |   
+| | | |   if model.selected != true
+| | | |     skip!
+| | | |   
+| | | |   draw (line) cuboid // only lines
+| | | |     bind mesh (to shader)
+| | | |       bind mesh uniforms (to shader) // cuboid
+| | | |   draw (point) cuboid // only points
+| | | |     ...
+| | 
+| | 
+| | EXEC:draw gui layer
+| | |  draw gui elements // items, hit marks, screen-space effects(rain,blood...)?!
+| | |  
+| | | // for editor, draw gui version of gizmo/axor, that matches orientation on screen
+| | 
+| | 
+| | EXEC:draw menu/pause layer
+| |   // pause the game + keep the last (draw layer) fbo  
+| |   IF app.isPaused == true
+| |     draw menu // 3d (model-space) OR 2d(screen-space) 
+| |     
+| |     FOREACH message
+| |       draw msg box // in screen space 
+| | \EXEC
+| | 
+| | 
+| | EXEC:draw console
+| |   IF app.showConsole == true
+| |     draw console // in screen-space
+| | \EXEC
+| | 
+| | 
+| | EXEC:draw debug layer
+| |   draw debug info (fps,gpu,cpu,temp) box // in screen space 
+| | \EXEC
+|  
+| 
+| SWAP:fbo
+```  
+  
+
+
+
+------------------------------------------------------------------------------------------------------------------------
+### PAST ###############################################################################################################
+
+#### TODO
+- layers
+- viewports | `CViewport` = `CCamera` + ???
+
+#### Notes
+
+#######
+- fix: dds texture flipped
+- fix: texture setWrapping + setFiltering + blending
+- use std::string_view instead of allocation a new std::string
+- glMapBufferRange is faster
+- parallel loops std::for_each(std::execution:par_unseq, std::vector::begin(), std::vector::end())
+- new: sys info object // like getting the number threads/cores 
+- enum class: find an alternative or implement HintBag
+#######
+- material techniques: lambert(emission+ambient+diffuse+mIOR), phong(emission+ambient+diffuse+specular+transparency+shininess+mIOR), blinn...
+#######
+- instancing: MaterialInstance = wrapper of around the material, that overrides materials
+
+
+
+#### WINDOWS
+
+                                                +-------------------------------------+
+                                                |                                     |
+                                                |                                     |
+                                                |                                     |
+                                                |                                     |
+                                                |                splash               |
+                                                |                                     |
+                                                |                                     |
+                                                |                                     |
+                                                |                                   o |
+                                                +-------------------------------------+
+
+    +----------------------------------------------------+                  +-------------------------------------------------------+
+    | [O] | File Edit View | project name        | _ # X |                  |                                                       |
+    |-----+--------------------------------------+-------|                  |                                                       |
+    | [a] : [b] : [c] : [d] : [e]         [Tools] [Play] |                  |                                                       |
+    |-----+------------------------+---------------------|                  |                                                       |
+    | [1] | view 1: 3d |           | world |             |                  |                                                       |
+    |     +------------+           +-------+             |                  |                                                       |
+    | [2] |                        | + root              |                  |                                                       |
+    |     |                        |   + scene:node 01   |                  |                                                       |
+    |     |                        |   + scene:node 02   |                  |                        game window                    |
+    |     |                        | [ - SELECTED node ] |                  |                                                       |
+    |     |                        |     + sub-element   |                  |                                                       |
+    |     |                        |   [ - sub-element ] |                  |                                                       |
+    |     |                        |                     |                  |                                                       |
+    |     |            +--------------------------------------------+       |                                                       |
+    |-----+------------| [] title bar: PlayWindow             _ # X |       |                                                       |
+    | (status bar)     |--------------------------------------------|       |                                                       |
+    +------------------|                                            |       +-------------------------------------------------------+
+                       |                                            |
+         +----------------------+                                   |
+         | [] Load          _ X |                                   |
+         |----------------------|                                   |
+         |+--------------------+|                                   |
+         || dasdasd.dae        ||                                   |
+         || dasdasd.fxb        ||                                   |
+         |+--------------------+|                                   |
+         |             [ Load ] |                                   |
+         +----------------------+                                   |
+                       |                                            |
+                       +--------------------------------------------+
+
+- EditWindow : Window/Toplevel
+  - TitleBar : ?
+  - Menu : Menu
+  - LeftSidebar : Window/?
+  - Navigator   : Window/Tree
+  - Workspace : Window + Layout (4 grid) or (2 horizontal box) or (default: 1 windwo)
+    - Viewport : Window + Camera
+  
+#### GAME: game.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<game>
+  <level>
+    <scene source="path/scene.xml" />
+    <scene>
+      <model source=""/>
+      <effect/>
+      <trigger/>
+      <light/>
+      <camera/>
+      <force/>
+    </scene>
+  </level>
+</game>
+```
+
+
+#### STRUCTURE
+
+- loop
+```c++
+for (CViewport* pViewport : get_viewports())
+  for (CGeometry* pGeometry : get_models())
+    pGeometry->draw();
+```
+
+- cameras:
+```c++
+class CCamera;
+class CVirtualCamera : CCamera; // not a node in the scene
+class CSceneCamera   : CCamera; // camera node in the scene
+```
+
+- rendering
+```c++
+CQuery query = CQuery::from(CFrustum);
+std::vector<CNode> pNodes = CScene::query(query);
+
+```
+
+
+    // model  <- entity <- drawable
+    // effect <- entity <- drawable
+
+    // loop
+      // update
+      // render visual    | ngn::CRenderer
+      // render sound     | snd::CRenderer
+      // render feedback  | ffb::CRenderer
+
+
+##### Layers
+
+    - DEBUG layer (debug info, fps, cpu...)
+    - PANIC layer (error, message boxes)
+    - CONSOLE layer (console terminal)
+    - MENU (main) layer 
+    
+    - PAUSE (menu) layer
+    - GUI (/hud) layer
+    - GAME layer 
+
+
+##### INIT
+
+    - INIT
+    |
+    | - INIT (deferred) renderer
+    | | - INIT preset pass (fbo)
+    | | | - CREATE color GL_RGBA32F + GL_RGBA + GL_FLOAT + BILINEAR + CLAMP_TO_EDGE
+    | | - INIT geometry pass (fbo)
+    | | | - CREATE setDepth   GL_DEPTH_COMPONENT + GL_FLOAT + BILINEAR
+    | | | - CREATE color   GL_RGB + GL_FLOAT + BILINEAR
+    | | | - CREATE normals GL_RGB32F + GL_RGB + GL_FLOAT + BILINEAR
+    | | | - CREATE glow    GL_R32I + GL_RED + GL_INT + BILINEAR
+    | | | - CREATE motion  GL_RG32F + GL_RG + GL_FLOAT + BILINEAR
+    | | - INIT occlussion pass (fbo)
+    | | | - CREATE color   GL_R32F + GL_RED + GL_FLOAT + NEAREST + CLAMP_TO_EDGE
+    
+    
+##### LOOP
+
+    - LOOP
+    |  
+    | - UPDATE
+    | | - FOR EACH entity
+    | | | - UPDATE entity
+    |   
+    |   
+    | - RENDER:deferred
+    | | - shadow pass
+    | | | - QUERY scene : FIND lights WHERE |light.position - camera.position| < 10 
+    | | | - FOR EACH light : lights
+    | | | | - IF light CAN (make) shadow
+    | | | | | - CREATE (shadow) framebuffer
+    | | | | | 
+    | | | | | - FOR EACH layer (6 layers for POINT light, 1 layer for the rest)
+    | | | | | | - BIND (shadow) framebuffer (layer) (cubemap=6 for omni/point lights)
+    | | | | | | - DISABLE read/write color
+    | | | | | | - CLEAR  color & setDepth
+    | | | | | |  
+    | | | | | | - frustum = CREATE from light
+    | | | | | | - QUERY scene : FIND drawables WHERE drawable IN frustum
+    | | | | | | - FOR EACH drawable
+    | | | | | | | - IF drawable CAN (cast) shadow
+    | | | | | | | | - BIND (shadow) shader
+    | | | | | | | | 
+    | | | | | | | | - IF drawable|shader IS tessellated
+    | | | | | | | | | - GL_PATCHES 
+    | | | | | | | | 
+    | | | | | | | | - UNIFORM M = drawable.matrix
+    | | | | | | | | - UNIFORM V = light.matrix 
+    | | | | | | | | - UNIFORM P = perspective_matrix (60fov)
+    | | | | | | | | 
+    | | | | | | | | - FOR EACH joint
+    | | | | | | | | | - UNIFORM joint.matrix
+    | | | | | | | | 
+    | | | | | | | | - DRAW drawable
+    | | | | | | | | | - BIND vao
+    | | | | | | | | | - BIND ibo
+    | | | | | - LINK shadow TO light (=shadow cast by that light)
+    | | 
+    | | 
+    | | - geometry pass
+    | | | - SET flags (cull face back, setDepth)
+    | | | - BIND (geometry) framebuffer (setDepth + color + normals + motion)
+    | | | 
+    | | | - frustum = CREATE from camera
+    | | | - QUERY scene : FIND drawables WHERE drawable IN frustum ORDER front2back(opaque) GROUP BY shader, model
+    | | | # render opaque first, then transparent
+    | | | - QUERY scene : FIND drawables WHERE drawable IN frustum ORDER back2front(transparent)
+    | | | - FOR EACH drawable : drawables
+    | | | | - BIND (geometry) shader: DEFERRED + GEOMETRY + SINGLE + MOTION(blur) + PARALLAX
+    | | | |
+    | | | | - IF drawable IS tessellated
+    | | | | | - GL_PATCHES
+    | | | |
+    | | | | - UNIFORM (current)  M drawable.matrix
+    | | | | - UNIFORM (previous) M drawable.matrix // for motion blur
+    | | | | 
+    | | | | - UNIFORM V = camera.view
+    | | | | - UNIFORM camera.position 
+    | | | | - UNIFORM P camera.projection
+    | | | |  
+    | | | | - FOR EACH joint
+    | | | | | - UNIFORM B = joint.matrix
+    | | | | 
+    | | | | - FOR EACH material (=bind material)
+    | | | | | - UNIFORM material.options
+    | | | | | - FOR EACH channel
+    | | | | | | - UNIFORM texture
+    | | | | | | - UNIFORM color
+    | | | | | | - UNIFORM level
+    | | | | 
+    | | | | - DRAW drawable
+    | | | | | - BIND vao
+    | | | | | - BIND ibo
+    | | 
+    | | 
+    | | - occlussion pass
+    | | | - BIND (occlusion) framebuffer FOR write
+    | | | - BIND (occlusion) shader
+    | | | 
+    | | | - UNIFORM V = camera.vew 
+    | | | - UNIFORM P = camera.projection 
+    | | |  
+    | | | - UNIFORM kernel (=vec3 (vector) array = )
+    | | | - UNIFORM noise texture
+    | | | 
+    | | | - BIND/UNIFORM geometry.depth   framebuffer AS setDepth texture  
+    | | | - BIND/UNIFORM geometry.normals framebuffer AS normals texture  
+    | | | 
+    | | | - DRAW fullscreen QUAD
+    | | | 
+    | | | - BIND (occlusion) framebuffer FOR write & read
+    | | | - BIND (blur) shader
+    | | | - COPY/CLONE (occlussion) FRAMEBUFFER color attachement
+    | | | - UNIFORM clone
+    | | | 
+    | | | - DRAW fullscreen QUAD
+    | | 
+    | | 
+    | | - lighting pass
+    | | | - (UN)SET flags (setDepth, stencil, blend, cull_face, back)
+    | | | 
+    | | | - BIND (output=0) framebuffer 
+    | | | 
+    | | | - BIND (lighting) shader
+    | | | 
+    | | | - BIND (framebuffer) geometry.depth   AS setDepth texture
+    | | | - BIND (framebuffer) geometry.normals AS normals texture
+    | | | - BIND (framebuffer) geometry.diffuse AS diffuse texture
+    | | | 
+    | | | - BIND (framebuffer) occlussion.color AS occlussion texture 
+    | | | 
+    | | | - FOR EACH light : lights
+    | | | | - FOR EACH layer : light.shadow.layers
+    | | | | | - UNIFORM light.color
+    | | | | | - UNIFORM light.position
+    | | | | | - UNIFORM light.ambient
+    | | | | | - UNIFORM light.diffuse
+    | | | | | - UNIFORM light.coefficients (k0, k1, k2)  
+    | | |  
+    | | | - DRAW fullscreen quad
+    | | 
+    | | 
+    | | - motion pass
+    | | | - BIND (output=0) framebuffer FOR read & write
+    | | | - BIND (motion) shader : MOTION
+    | | | - UNIFORM (framebuffer) output.color AS color (GL_TEXTURE0)
+    | | | - UNIFORM (framebuffer) geometry.motion AS motion (GL_TEXTURE1)
+    | | | - DRAW fullscreen quad 
+    | | 
+    | | 
+    | | - debug pass
+    | | | - BIND (output) framebuffer 
+    | | | 
+    | | | - FOR EACH mode ["normals", "icons", "wireframe"]
+    | | | | - SWITCH mode
+    | | | | | - CASE normals
+    | | | | | | - BIND (debug.normals) shader
+    | | | | | |
+    | | | | | | - UNIFORM V = camera.view
+    | | | | | | - UNIFORM P = camera.projection
+    | | | | | |
+    | | | | | | - FOR EACH entity
+    | | | | | | | - UNIFORM M = entity.matrix
+    | | | | | | | - DRAW normals
+    | | | | | | 
+    | | | | | - CASE icons
+    | | | | | | - BIND shader
+    | | | | | | - FOR EACH entity
+    | | | | | | | - DRAW icon
+    | | | | | | 
+    | | | | | - CASE wireframe
+    | | | | | | - BIND (debug) shader
+    | | | | | | - FOR EACH entity
+    | | | | | | | - DRAW icon
+    | | 
+    | | 
+    | | - final pass
+    | | | - DISABLE setDepth & stencil
+    | | | - SET final opengl flags
+    | | | - BIND (output=0) framebuffer
+    | | | - SET viewport (setRatio,setHeight of output)
+    | | | - UNIFORM (framebuffer) output.color AS texture GL_TEXTURE1
+    | | | - DRAW fullscreen quad
+      
+    
+    
+
+---    
+    
+    
+    
+    
+    | - RENDER:forward
+    | | - final pass
+    | | | - BIND framebuffer 0
+    | | | | - CLEAR color & setDepth 
+    | | | - FOR EACH drawable
+    | | | | - BIND (render) shader
+    | | | | 
+    | | | | - BIND shadow (GL_TEXTURE1)
+    | | | | 
+    | | | | - FOR EACH material
+    | | | | | - UNIFORM material.options
+    | | | | | - FOR EACH channel
+    | | | | | | - UNIFORM texture
+    | | | | | | - UNIFORM color
+    | | | | 
+    | | | | - UNIFORM drawable.matrix (M)
+    | | | | - UNIFORM camera
+    | | | | | - UNIFORM camera.matrix (V)
+    | | | | | - UNIFORM camera.position 
+    | | | | | - UNIFORM camera.projection (P)
+    | | | | 
+    | | | | - FOR EACH joint
+    | | | | | - UNIFORM joint.matrix
+    | | | | 
+    | | | | - FOR EACH light
+    | | | | | - UNIFORM light 
+    | | | | | | - UNIFORM light.direction
+    | | | | | | - UNIFORM light.color
+    | | | | | | - UNIFORM light.ambient_intensity
+    | | | | | | - UNIFORM light.diffuse_intensity
+    | | | | 
+    | | | | - IF bWireframe
+    | | | | | - UNIFORM bWireframe
+    | | | | 
+    | | | | - BIND vao
+    | | | | - BIND ibo
+    | | | | - DRAW drawable
+    | | | 
+    | | | - IF bShowLights
+    | | | | - FOR EACH light
+    | | | | | - DRAW light icon
+    
+    
+------------------------------------------------------------------------------------------------------------------------
+### OLDER #############################################################################################################
+
 ###### VBO + IBO + VAO
 ```c++
 GLfloat p[] = {-0.5,-0.5, +0.5,-0.5, +0.5,+0.5, -0.5,+0.5};  // vertex.positions
-GLint   e[] = {0,1,2, 1,2,0};                                // indices(elements)
+GLint   e[] = {0,1,2, 1,2,0};                                // getIndices(elements)
 
 cym::CVertexArray  a;                                     // vao + vbo + ibo                              
 cym::CVertexBuffer b(p, 4 * 2, cym::CDataBuffer::VERTEX); // vbo => ::glGenBuffers() + ::glBindBuffer(GL_ARRAY_BUFFER...) + ::glBufferData()
@@ -55,7 +660,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
   - refactor: find a replacement `::init()` and `::free()`
 - refactor: consider moving `glc`+`ogl` into `ogl` and putting everything inside a namespace 
 - update: move macros from `uix` to `sys` (sys should be everywhere)
-- use: `CGameLoop` to send update + render + input events to `CCore` and its sub-systems 
+- use: `CGameLoop` to send update + render + make events to `CCore` and its sub-systems 
 - use: `::glDebugMessageCallback`
 - question: should `GLCALL` + `::glCheckError` trigger a system event to the `uix::CContext`
 - move: opengl code from `uix::CContext` to `ogl::CContext : uix::CContext` // `uix` should stay abstract

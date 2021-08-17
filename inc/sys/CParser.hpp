@@ -194,7 +194,7 @@ namespace sys {
           return nullptr;
         }
         SElement* child(const char tName[]) {
-          // CYM_LOG_NFO("sys::SElement::attach(const char["<< strlen(tName) <<"]{"<< tName << "})::" << name);
+          // SYS_LOG_NFO("sys::SElement::attach(const char["<< strlen(tName) <<"]{"<< tName << "})::" << name);
           for (auto& child : children) 
             if ((strlen(tName) == child->name.size) && strncmp(child->name.from, tName, strlen(tName))) 
               return child; 
@@ -216,7 +216,7 @@ namespace sys {
           return all;
         }
         SElement* findOneByName(const char tName[]) {
-          // CYM_LOG_NFO("sys::SElement::findOneByName(const char["<< strlen(tName) <<"]{"<< tName << "})::" << name);
+          // SYS_LOG_NFO("sys::SElement::findOneByName(const char["<< strlen(tName) <<"]{"<< tName << "})::" << name);
           for (const auto& child : children)
             if ((strlen(tName) == child->name.size) && strncmp(child->name.from, tName, strlen(tName)))
               return child;

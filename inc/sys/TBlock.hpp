@@ -26,24 +26,24 @@ namespace sys {
       TBlock(uint c)             : mCount{c}, mLast{0}, mData{traits_type::allocate(sAlloc,c)} { }
       TBlock(T* d, uint c)       : mCount{c}, mLast{0}, mData{d}                  { }
       TBlock(TBlock&& that)      : mCount{std::move(that.mCount)}, mLast{std::move(that.mLast)}, mData{traits_type::allocate(sAlloc,mCount)} { 
-        // CYM_LOG_NFO("sys::TBlock<>::TBlock(TBlock&&)::"<< this << "::c=" << mCount << "::n=" << mNext);
+        // SYS_LOG_NFO("sys::TBlock<>::TBlock(TBlock&&)::"<< this << "::c=" << mCount << "::n=" << mNext);
         for (uint i = 0; i < mLast; i++) 
           sAlloc.construct(mData + mLast, std::forward<T>(std::move(that.mData[i])));
       }
       TBlock(const TBlock& that) : mCount{that.mCount}, mLast{that.mLast}, mData{traits_type::allocate(sAlloc,mCount)} { 
-        // CYM_LOG_NFO("sys::TBlock<>::~TBlock(TBlock&)::"<< this << "::c=" << mCount << "::n=" << mNext);
+        // SYS_LOG_NFO("sys::TBlock<>::~TBlock(TBlock&)::"<< this << "::c=" << mCount << "::n=" << mNext);
         for (uint i = 0; i < mLast; i++) 
           traits_type::construct(sAlloc, mData+i,that.mData[i]);
           // sAlloc.construct(mData+i,that.mData[i]);
       }
       virtual ~TBlock() { 
-        // CYM_LOG_NFO("sys::TBlock<>::~TBlock()::" << this << "::c=" << mCount << "::n=" << mNext);
+        // SYS_LOG_NFO("sys::TBlock<>::~TBlock()::" << this << "::c=" << mCount << "::n=" << mNext);
         free(); 
       }
     public:
       // assign operator
       TBlock& operator =(const TBlock& that) {
-        // CYM_LOG_NFO("sys::TBlock<>::operator=(TBlock&)::"<< this << "::c=" << mCount << "::n=" << mNext);
+        // SYS_LOG_NFO("sys::TBlock<>::operator=(TBlock&)::"<< this << "::c=" << mCount << "::n=" << mNext);
         if (&that == this)
           return *this;
         // @todo: for (uint i = 0; i < mNext; i++)
@@ -56,7 +56,7 @@ namespace sys {
         return *this;
       };
       TBlock& operator =(TBlock&& that) {
-        // CYM_LOG_NFO("sys::TBlock<>::operator=(TBlock&&)::"<< this << "::c=" << mCount << "::n=" << mNext);
+        // SYS_LOG_NFO("sys::TBlock<>::operator=(TBlock&&)::"<< this << "::c=" << mCount << "::n=" << mNext);
         if (&that == this)
           return *this;
         alloc(that.mCount);
@@ -88,7 +88,7 @@ namespace sys {
       inline T*   data()     const { return mData; }
       
       void push(T&& e) { 
-        // CYM_LOG_NFO("sys::TBlock<>::push(T&&)::c=" << mCount << "::n=" << mNext);
+        // SYS_LOG_NFO("sys::TBlock<>::push(T&&)::c=" << mCount << "::n=" << mNext);
         if (mLast == mCount)
           extend(2 + (mCount / 2) + (mCount / 2) % 2);
         // sAlloc.construct(mData + mLast, std::forward<T>(e));
@@ -97,7 +97,7 @@ namespace sys {
       }
       
       void push(const T& e) { 
-        // CYM_LOG_NFO("sys::TBlock<>::push(T&)::c=" << mCount << "::n=" << mNext);
+        // SYS_LOG_NFO("sys::TBlock<>::push(T&)::c=" << mCount << "::n=" << mNext);
         if (mLast == mCount)
           extend(2 + (mCount / 2) + (mCount / 2) % 2);
         // sAlloc.construct(mData + mLast, e);
@@ -138,7 +138,7 @@ namespace sys {
       }
       
       void extend(int c = 2) {
-        // CYM_LOG_NFO("sys::TBlock<>::extend("<< c <<")::c=" << mCount << "::l=" << mLast);
+        // SYS_LOG_NFO("sys::TBlock<>::extend("<< c <<")::c=" << mCount << "::l=" << mLast);
         if (c < 1)
           return;
         c += mCount;
@@ -153,7 +153,7 @@ namespace sys {
       }
       
       void shrink() {
-        // CYM_LOG_NFO("sys::TBlock<>::shrink()::c=" << mCount << "::n=" << mNext);
+        // SYS_LOG_NFO("sys::TBlock<>::shrink()::c=" << mCount << "::n=" << mNext);
         mCount = mLast;
         T* pTemp = nullptr;
         // new block
@@ -167,7 +167,7 @@ namespace sys {
       }
       
       void clear() { 
-        // CYM_LOG_NFO("sys::TBlock<>::clear()::c=" << mCount << "::n=" << mNext);
+        // SYS_LOG_NFO("sys::TBlock<>::clear()::c=" << mCount << "::n=" << mNext);
         if (mCount == 0) 
           return;
         for (uint i = 0; i < mLast; i++)
@@ -177,7 +177,7 @@ namespace sys {
       }
       
       void free() {
-        // CYM_LOG_NFO("sys::TBlock<>::free()::"<< this << "::c=" << mCount << "::n=" << mNext);
+        // SYS_LOG_NFO("sys::TBlock<>::free()::"<< this << "::c=" << mCount << "::n=" << mNext);
         if (mCount == 0) 
           return;
         for (uint i = 0; i < mLast; i++)
@@ -197,7 +197,7 @@ namespace sys {
       // void rend();
     protected:
       void alloc(uint c = 2) {
-        // CYM_LOG_NFO("sys::TBlock<>::alloc(" << c << ")::c=" << mCount << "::n=" << mNext);
+        // SYS_LOG_NFO("sys::TBlock<>::alloc(" << c << ")::c=" << mCount << "::n=" << mNext);
         if (c < 1)
           return;
         for (uint i = 0; i < mLast; i++)

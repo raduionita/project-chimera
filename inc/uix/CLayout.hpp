@@ -60,7 +60,7 @@ namespace uix {
             sArea.w = (mHints & ELayout::ADJUST) || (sArea.w == AUTO || sArea.w == ZERO) ? tArea.w : sArea.w;
             sArea.h = (mHints & ELayout::ADJUST) || (sArea.h == AUTO || sArea.h == ZERO) ? tArea.h : sArea.h;
             // debug
-            CYM_LOG_NFO("uix::CLayout::TItem::area(SArea{"<< tArea <<"})" << " sArea:" << sArea);
+            SYS_LOG_NFO("uix::CLayout::TItem::area(SArea{"<< tArea <<"})" << " sArea:" << sArea);
             // return calculated area 
             return mObject->area(sArea); // CWindow or CLayout
           }
@@ -70,10 +70,10 @@ namespace uix {
       SArea    mArea   = {0};
       int      mHints  = {int(ELayout::ADJUST)};
     public:
-      inline CLayout(int eHints = int(ELayout::LAYOUT)) :        mArea{AUTO},  mHints{eHints|ELayout::ADJUST} { CYM_LOG_NFO("uix::CLayout::CLayout(int)::" << this); }
-      inline CLayout(int eHints,    const SArea& tArea = AUTO) : mArea{tArea}, mHints{eHints}                 { CYM_LOG_NFO("uix::CLayout::CLayout(SArea&,int)::" << this); }
-      inline CLayout(ELayout eHint, const SArea& tArea = AUTO) : mArea{tArea}, mHints{eHint|ELayout::LAYOUT}  { CYM_LOG_NFO("uix::CLayout::CLayout(SArea&,ELayout)::" << this); }
-      inline ~CLayout() { CYM_LOG_NFO("uix::CLayout::~CLayout()::" << this); }
+      inline CLayout(int eHints = int(ELayout::LAYOUT)) :        mArea{AUTO},  mHints{eHints|ELayout::ADJUST} { SYS_LOG_NFO("uix::CLayout::CLayout(int)::" << this); }
+      inline CLayout(int eHints,    const SArea& tArea = AUTO) : mArea{tArea}, mHints{eHints}                 { SYS_LOG_NFO("uix::CLayout::CLayout(SArea&,int)::" << this); }
+      inline CLayout(ELayout eHint, const SArea& tArea = AUTO) : mArea{tArea}, mHints{eHint|ELayout::LAYOUT}  { SYS_LOG_NFO("uix::CLayout::CLayout(SArea&,ELayout)::" << this); }
+      inline ~CLayout() { SYS_LOG_NFO("uix::CLayout::~CLayout()::" << this); }
     protected:
       virtual bool area(const SArea&);
     public:
@@ -91,7 +91,7 @@ namespace uix {
       std::vector<CItem*> mItems;
     public:
       using CLayout::CLayout;
-      ~CBoxLayout() { CYM_LOG_NFO("uix::CBoxLayout::~CBoxLayout()::" << this); for (auto& pItem : mItems) { if (pItem) { delete pItem; pItem = nullptr; } }; }
+      ~CBoxLayout() { SYS_LOG_NFO("uix::CBoxLayout::~CBoxLayout()::" << this); for (auto& pItem : mItems) { if (pItem) { delete pItem; pItem = nullptr; } }; }
       using CLayout::operator=;
     public:
       inline CItem* operator [](typename decltype(mItems)::size_type i) { return mItems[i]; }

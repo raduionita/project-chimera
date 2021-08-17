@@ -2189,7 +2189,7 @@ typedef void (APIENTRYP PFNGLDRAWARRAYSPROC)(GLenum mode, GLint first, GLsizei c
 GLAPI PFNGLDRAWARRAYSPROC glDrawArrays;
 
 typedef void (APIENTRYP PFNGLDRAWELEMENTSPROC)(GLenum mode, GLsizei count, GLenum type, const void *indices);
-/** void glDrawElements(GLenum mode {GL_POINTS|GL_LINES|GL_TRIANGLES}, GLsizei count {no.render.indices}, GLenum getType {GL_UNSIGNED_INT}, const GLvoid* offset {to.the.first.to.be.rendered) */
+/** void glDrawElements(GLenum mode {GL_POINTS|GL_LINES|GL_TRIANGLES}, GLsizei count {no.render.getIndices}, GLenum getType {GL_UNSIGNED_INT}, const GLvoid* offset {to.the.first.to.be.rendered) */
 GLAPI PFNGLDRAWELEMENTSPROC glDrawElements;
 
 typedef void (APIENTRYP PFNGLPOLYGONOFFSETPROC)(GLfloat factor, GLfloat units);

@@ -19,10 +19,10 @@ namespace uix {
       using CModule::operator=;
     protected:
       static CApplication* sInstance;
-      sys::spo<CConsole>  mConsole  {nullptr};
+      sys::spo<CConsole>   mConsole  {nullptr};
       bool                 mRunning  {false};
       CStyle*              mStyle    {nullptr};
-      sys::spo<CLoop>     mLoop     {nullptr};
+      sys::spo<CLoop>      mLoop     {nullptr};
     public: // ctor
       CApplication(int=0);
       ~CApplication();
@@ -55,14 +55,14 @@ namespace uix {
 
 #define DECLARE_APPLICATION(CLS)                                                                                       \
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {                      \
-  CYM_LOG_NFO("   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " INIT");                                \
+  SYS_LOG_NFO("   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " INIT");                                \
   try {                                                                                                                \
     CLS app;                                                                                                           \
     INT result = app.load();                                                                                           \
-    CYM_LOG_NFO("   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " EXIT");                              \
+    SYS_LOG_NFO("   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " EXIT");                              \
     return result;                                                                                                     \
   } catch (sys::CException& ex) {                                                                                      \
-    CYM_LOG_ERR("FATAL! " << ex);                                                                                      \
+    SYS_LOG_ERR("FATAL! " << ex);                                                                                      \
     return -1;                                                                                                         \
   }                                                                                                                    \
 }                                                                                                                     //

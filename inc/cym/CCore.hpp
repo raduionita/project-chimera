@@ -11,7 +11,7 @@
 #include "cym/CScene.hpp"
 #include "cym/CFont.hpp"
 
-#include "sys/CSingleton.hpp"
+#include "sys/TSingleton.hpp"
 #include "sys/CException.hpp"
 
 namespace cym {
@@ -52,21 +52,22 @@ namespace cym {
       virtual inline sys::spo<CCodecManager>& setCodecManager(sys::spo<CCodecManager> pManager) { return mCodecManager = pManager; }
       
       static sys::spo<CShaderManager>& getShaderManager() { return getSingleton()->mShaderManager; }
-      virtual inline void               setShaderManager(sys::spo<CShaderManager> pManager) { mShaderManager = pManager; }
+      virtual inline void              setShaderManager(sys::spo<CShaderManager> pManager) { mShaderManager = pManager; }
       
       static sys::spo<CMaterialManager>& getMaterialManager() { return getSingleton()->mMaterialManager; }
-      virtual inline void                 setMaterialManager(sys::spo<CMaterialManager> pManager) { mMaterialManager = pManager; }
+      virtual inline void                setMaterialManager(sys::spo<CMaterialManager> pManager) { mMaterialManager = pManager; }
       
       static sys::spo<CTextureManager>& getTextureManager() { return getSingleton()->mTextureManager; }
-      virtual inline void                setTextureManager(sys::spo<CTextureManager> pManager) { mTextureManager = pManager; }
+      virtual inline void               setTextureManager(sys::spo<CTextureManager> pManager) { mTextureManager = pManager; }
       
       static sys::spo<CGeometryManager>& getGeometryManager() { return getSingleton()->mGeometryManager; }
-      virtual inline void              setGeometryManager(sys::spo<CGeometryManager> pManager) { mGeometryManager = pManager; }
+      virtual inline void               setGeometryManager(sys::spo<CGeometryManager> pManager) { mGeometryManager = pManager; }
       
       static sys::spo<CSceneManager>& getSceneManager() { return getSingleton()->mSceneManager; }
-      virtual inline void              setSceneManager(sys::spo<CSceneManager> pManager) { mSceneManager = pManager; }
+      virtual inline void             setSceneManager(sys::spo<CSceneManager> pManager) { mSceneManager = pManager; }
       
-      static sys::spo<CRenderSystem> setRenderSystem(sys::spo<CRenderSystem> pSystem) { return getSingleton()->mRenderSystem = pSystem; }
+      static sys::spo<CRenderSystem>& getRenderSystem() { return getSingleton()->mRenderSystem; }
+      virtual inline void             setRenderSystem(sys::spo<CRenderSystem> pSystem) { mRenderSystem = pSystem; }
       
 // @todo: connects(and befriends) all *System(s)
   };

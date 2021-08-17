@@ -96,21 +96,21 @@ namespace cym {
   using uint   = sys::uint;
   using ulong  = sys::ulong;
   
-  using CString                  = sys::CString;
-  template<typename V> using CSet                 = sys::CSet<V>;
-  template<typename K, typename V> using CMap               = sys::CMap<K,V>;
-  template<typename V> using CVector              = sys::CVector<V>;
+  using CString     = sys::CString;
+  template<typename V> using CSet    = sys::CSet<V>;
+  template<typename K, typename V> using CMap  = sys::CMap<K,V>;
+  template<typename V> using CVector = sys::CVector<V>;
   
-  using rgb   = glm::vec3;
-  using rgba  = glm::vec4;
-  using name  = std::string;
-  using color = glm::vec4;
+  using string = sys::string;
+  using rgb    = glm::vec3;
+  using rgba   = glm::vec4;
+  using color  = glm::vec4;
   
   union pixel { union rgb { sys::uint rgba; struct { sys::ubyte r, g, b, a; }; }; union bgr { sys::uint bgra; struct { sys::ubyte b, g, r, a; }; }; };
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  enum class EPolymode { POINTS = 0b001, WIREFRAME = 0b010, SOLID = 0b100, };
+  enum class EPolymode { POINT = 0b001, WIRE = 0b010, SOLID = 0b100, };
   
   enum class ECulling { NONE, CLOCKWISE, CW = CLOCKWISE, COUNTERCLOCKWISE, CCW = COUNTERCLOCKWISE, };
   

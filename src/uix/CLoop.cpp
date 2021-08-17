@@ -3,29 +3,29 @@
 
 namespace uix {
   CLoop::CLoop() : mApplication{CApplication::instance()} {
-    CYM_LOG_NFO("uix::CLoop::CLoop()::" << this);
+    SYS_LOG_NFO("uix::CLoop::CLoop()::" << this);
   }
   
   CLoop::~CLoop() {
-    CYM_LOG_NFO("uix::CLoop::~CLoop()::" << this);
+    SYS_LOG_NFO("uix::CLoop::~CLoop()::" << this);
   }
   
   void CLoop::init() {
-    CYM_LOG_NFO("uix::CLoop::init()::" << this);
+    SYS_LOG_NFO("uix::CLoop::init()::" << this);
   }
   
   void CLoop::done() {
-    CYM_LOG_NFO("uix::CLoop::done()::" << this);
+    SYS_LOG_NFO("uix::CLoop::done()::" << this);
   }
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   CEventLoop::CEventLoop() : CLoop() {
-    CYM_LOG_NFO("uix::CEventLoop::CEventLoop()::" << this);
+    SYS_LOG_NFO("uix::CEventLoop::CEventLoop()::" << this);
   }
   
   void CEventLoop::loop() {
-    CYM_LOG_NFO("uix::CEventLoop::loop()::" << this);
+    SYS_LOG_NFO("uix::CEventLoop::loop()::" << this);
     init();
     DWORD     nCurTicks{::GetTickCount()};
     MSG       sMSG;
@@ -46,32 +46,32 @@ namespace uix {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   CGameLoop::CGameLoop(int nMaxLoops/*=10*/, int nTicksPerSec/*=25*/) : CLoop(), mMaxLoops{nMaxLoops}, mTicksPerSec{nTicksPerSec} {
-    CYM_LOG_NFO("uix::CGameLoop::CGameLoop(CApplication*)::" << this);
+    SYS_LOG_NFO("uix::CGameLoop::CGameLoop(CApplication*)::" << this);
   }
   
   CGameLoop::CGameLoop(FTick&& cTick) : CLoop(), mTick{std::move(cTick)} {
-    CYM_LOG_NFO("uix::CGameLoop::CGameLoop(TCallback)::" << this);
+    SYS_LOG_NFO("uix::CGameLoop::CGameLoop(TCallback)::" << this);
   }
   
   CGameLoop::CGameLoop(FTick&& cTick, FDraw&& cDraw) : CLoop() {
-    CYM_LOG_NFO("uix::CGameLoop::CGameLoop(TCallback&&, TCallback&&)::" << this);
+    SYS_LOG_NFO("uix::CGameLoop::CGameLoop(TCallback&&, TCallback&&)::" << this);
     tick(std::move(cTick));
     draw(std::move(cDraw));
   }
   
   CGameLoop::CGameLoop(FTick&& cTick, FDraw&& cDraw, FRead&& cRead) : CLoop() {
-    CYM_LOG_NFO("uix::CGameLoop::CGameLoop(TCallback&&, TCallback&&, TCallback&&)::" << this);
+    SYS_LOG_NFO("uix::CGameLoop::CGameLoop(TCallback&&, TCallback&&, TCallback&&)::" << this);
     tick(std::move(cTick));
     draw(std::move(cDraw));
     read(std::move(cRead));
   }
   
   CGameLoop::~CGameLoop() {
-    CYM_LOG_NFO("uix::CGameLoop::~CGameLoop()::" << this);
+    SYS_LOG_NFO("uix::CGameLoop::~CGameLoop()::" << this);
   }
   
   void CGameLoop::loop() {
-    CYM_LOG_NFO("uix::CGameLoop::loop()::" << this);
+    SYS_LOG_NFO("uix::CGameLoop::loop()::" << this);
     
     init();
     

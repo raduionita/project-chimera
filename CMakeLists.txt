@@ -12,9 +12,9 @@ add_compile_definitions(UIX_EVENT_HANDLE=1)
 add_compile_definitions(UIX_EVENT_APPLICATION=0)
 add_compile_definitions(UIX_EVENT_PROPAGATE=1)
 add_compile_definitions(UIX_EVENT_MOUSEMOVE=0)
-add_compile_definitions(CYM_LOGGER=1)
-add_compile_definitions(CYM_LOGGER_INFO)
-add_compile_definitions(CYM_LOGGER_COUT)
+add_compile_definitions(SYS_LOGGER=1)
+add_compile_definitions(SYS_LOGGER_INFO)
+add_compile_definitions(SYS_LOGGER_COUT)
 add_compile_definitions(APP_BUILD=APP_EDIT)
 
 include_directories(inc)
@@ -24,7 +24,7 @@ link_directories(lib)
 file(GLOB CYM "src/sys/*.cpp" "src/glc/*.cpp" "src/ogl/*.cpp" "src/cym/*.cpp" "src/uix/*.cpp")
 file(GLOB APP "src/app/*.cpp")
 
-add_library(cym ${CYM} inc/cym/TManager.hpp)
-add_executable(app ${APP})
+add_library(cym ${CYM} inc/cym/TManager.hpp inc/app/CTool.hpp)
+add_executable(app ${APP} src/app/CTool.cpp)
 
 target_link_libraries(app cym) # libgdi32.a libopengl32.a

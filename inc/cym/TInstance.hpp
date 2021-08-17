@@ -3,7 +3,7 @@
 
 #include "cym/cym.hpp"
 #include "sys/TPointer.hpp"
-#include "sys/CSingleton.hpp"
+#include "sys/TSingleton.hpp"
 
 namespace cym {
   class CInstance;
@@ -45,7 +45,7 @@ namespace cym {
     public:
       TInstance(sys::spo<T> pInstance) : mInstance{pInstance} { mLoaded = (mInstance == true); }
       TInstance(const TInstance& that) : mInstance{that.mInstance} { mLoaded = (mInstance == true); }
-      ~TInstance() { CYM_LOG_NFO("cym::TInstance<"<< typeid(T).name() <<">::~TInstance()::" << this); }
+      ~TInstance() { SYS_LOG_NFO("cym::TInstance<"<< typeid(T).name() <<">::~TInstance()::" << this); }
     public:
       // access operators
       inline T& operator  *() const noexcept { return mInstance.raw(); }

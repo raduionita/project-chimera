@@ -2,7 +2,7 @@
 
 namespace uix {
   bool CPopup::fullscreen(uint nHints/*=7*/) {
-    CYM_LOG_NFO("uix::CPopup::fullscreen(int)::" << this);
+    SYS_LOG_NFO("uix::CPopup::fullscreen(int)::" << this);
     
     // @todo: on (app) exit/quit revert
     

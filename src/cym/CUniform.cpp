@@ -9,7 +9,7 @@ namespace cym {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   CUniform& CUniform::operator = (const GLvoid* pValue) {
-    CYM_LOG_NFO("cym::CUniform::operator =(GLvoid*)");
+    SYS_LOG_NFO("cym::CUniform::operator =(GLvoid*)");
     switch(mType) {
       case GL_BOOL:       GLCALL(::glProgramUniform1i(mShader->mID, mLocation, *((GLint*)pValue)));              break;
       case GL_BOOL_VEC2:  GLCALL(::glProgramUniform2iv(mShader->mID, mLocation, mComponents, ((GLint*)pValue))); break;

@@ -21,12 +21,13 @@ namespace cym {
       friend class CResourceManager;
       friend class CResourceLoader;
       enum EState { EMPTY = 0, LOADED = 1, READY = 2, };
+    private:
+      bool      mInstance {false}; // true = a copy of the original inside it's manager
     protected:
       EState    mState    {EState::EMPTY};
-      cym::name mName;
-      bool      mInstance {false};
+      sys::string mName;
     public:
-      CResource(const cym::name& tName = "") : mName{tName} { };
+      CResource(const sys::string& tName = "") : mName{tName} { };
       CResource(CResource&&) = delete;
       CResource(const CResource& that) {  
         mInstance = true;
@@ -38,8 +39,8 @@ namespace cym {
       CResource& operator =(const CResource&) = delete;
       CResource& operator =(CResource&&) = delete;
     public:
-      inline void             setName(const cym::name& tName) { mName = tName; }
-      inline const cym::name& getName()                       { return mName; }
+      inline void             setName(const sys::string& tName) { mName = tName; }
+      inline const sys::string& getName()                       { return mName; }
       inline bool             isInstance() const              { return mInstance; }
   };
   

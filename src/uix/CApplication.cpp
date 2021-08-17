@@ -5,7 +5,7 @@ namespace uix {
   CApplication* CApplication::sInstance{nullptr};
   
   CApplication::CApplication(int nCmdShow/*=0*/) : CModule() {
-    CYM_LOG_NFO("uix::CApplication::CApplication()::" << this);
+    SYS_LOG_NFO("uix::CApplication::CApplication()::" << this);
     assert(!sInstance && "CApplication::sIntastace already defined.");
     sInstance = this;
     
@@ -14,7 +14,7 @@ namespace uix {
   }
   
   CApplication::~CApplication() {
-    CYM_LOG_NFO("uix::CApplication::~CApplication()::" << this);
+    SYS_LOG_NFO("uix::CApplication::~CApplication()::" << this);
     // DELETE(mConsole);
     // DELETE(mLoop);
   }
@@ -23,14 +23,14 @@ namespace uix {
   
   CStyle* CApplication::style() {
     if (!mStyle) {
-      CYM_LOG_NFO("uix::CApplication::style()::" << this);
+      SYS_LOG_NFO("uix::CApplication::style()::" << this);
       style(new CStyle);
     }
     return mStyle;
   }
   
   bool CApplication::style(CStyle* pStyle) {
-    CYM_LOG_NFO("uix::CApplication::style(CStyle*)::" << this);
+    SYS_LOG_NFO("uix::CApplication::style(CStyle*)::" << this);
     if (mStyle != nullptr && mStyle != pStyle) {
       DELETE(mStyle);
     }
@@ -38,10 +38,10 @@ namespace uix {
   }
   
   bool CApplication::init() {
-    CYM_LOG_NFO("uix::CApplication::init()::" << this);
+    SYS_LOG_NFO("uix::CApplication::init()::" << this);
   
     if (!CModule::init()) {
-      CYM_LOG_NFO("[CApplication] CApplication::init() failed!");
+      SYS_LOG_NFO("[CApplication] CApplication::init() failed!");
       ::MessageBox(NULL, "[CApplication] CApplication::init() failed!", "Error", MB_OK);
       return false;
     }
@@ -52,13 +52,13 @@ namespace uix {
   }
   
   bool CApplication::tick(float fElapsed/*=0*/) {
-    // CYM_LOG_NFO("uix::CApplication::tick("<< fElapsed <<")::" << this);
+    // SYS_LOG_NFO("uix::CApplication::tick("<< fElapsed <<")::" << this);
     onTick(fElapsed);
     return true;
   }
   
   bool CApplication::free() {
-    CYM_LOG_NFO("uix::CApplication::free()::" << this);
+    SYS_LOG_NFO("uix::CApplication::free()::" << this);
     onFree();
     return CModule::free();
   }
@@ -69,38 +69,38 @@ namespace uix {
   }
   
   int  CApplication::load() {
-    CYM_LOG_NFO("uix::CApplication::load()::" << this);
+    SYS_LOG_NFO("uix::CApplication::load()::" << this);
     try {
-      CYM_LOG_NFO("uix::CApplication::load()::init");
+      SYS_LOG_NFO("uix::CApplication::load()::init");
       init();
       
-      CYM_LOG_NFO("uix::CApplication::load()::exec");
-      try { exec(); } catch (sys::exception& ex) { CYM_LOG_ERR("EXEC exception! " << ex); } 
+      SYS_LOG_NFO("uix::CApplication::load()::exec");
+      try { exec(); } catch (sys::exception& ex) { SYS_LOG_ERR("EXEC exception! " << ex); } 
       
-      CYM_LOG_NFO("uix::CApplication::load()::free");
+      SYS_LOG_NFO("uix::CApplication::load()::free");
       free();
       
-      CYM_LOG_NFO("uix::CApplication::load()::exit");
+      SYS_LOG_NFO("uix::CApplication::load()::exit");
       exit();
       
-      CYM_LOG_NFO("uix::CApplication::load()::poll");
+      SYS_LOG_NFO("uix::CApplication::load()::poll");
       poll();
     
       return 0;
     } catch (sys::exception& ex) {
-      CYM_LOG_ERR("LOAD exception! " << ex);
+      SYS_LOG_ERR("LOAD exception! " << ex);
       return -1;
     }
   }
   
   void CApplication::exec() {
-    CYM_LOG_NFO("uix::CApplication::exec()::" << this);
+    SYS_LOG_NFO("uix::CApplication::exec()::" << this);
     // -> loop
     loop();
   }
   
   void CApplication::loop() {
-    CYM_LOG_NFO("uix::CApplication::loop()::" << this);
+    SYS_LOG_NFO("uix::CApplication::loop()::" << this);
     if (mLoop)
       mLoop->loop();
     else
@@ -109,13 +109,13 @@ namespace uix {
   }
   
   bool CApplication::quit(int nCode/*=0*/) {
-    CYM_LOG_NFO("uix::CApplication::quit(int)::" << this);
+    SYS_LOG_NFO("uix::CApplication::quit(int)::" << this);
     mRunning = false;
     return true;
   }
   
   bool CApplication::exit(int nCode/*=0*/) {
-    CYM_LOG_NFO("uix::CApplication::exit(int)::" << this);
+    SYS_LOG_NFO("uix::CApplication::exit(int)::" << this);
     ::PostQuitMessage(nCode);
     return true;
   }

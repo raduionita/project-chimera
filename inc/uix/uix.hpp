@@ -4,7 +4,7 @@
 #include "sys/sys.hpp"
 #include "sys/CLogger.hpp"
 #include "sys/CException.hpp"
-#include "sys/CSingleton.hpp"
+#include "sys/TSingleton.hpp"
 
 // #include "./SArea.hpp"
 
