@@ -1,8 +1,18 @@
-//
-// Created by Radu on 2019-10-07.
-//
+#ifndef __cym_cframebuffer_hpp__
+#define __cym_cframebuffer_hpp__
 
-#ifndef CPP_CHIMERA_CFRAMEBUFFER_HPP
-#define CPP_CHIMERA_CFRAMEBUFFER_HPP
+#include "cym/cym.hpp"
+#include "cym/CObject.hpp"
+#include "cym/CTexture.hpp"
 
-#endif //CPP_CHIMERA_CFRAMEBUFFER_HPP
+namespace cym {
+  class CFramebuffer : public CObject {
+      
+  };
+  
+  class CShadowbuffer : public CObject {
+      
+  };
+}
+
+#endif //__cym_cframebuffer_hpp__

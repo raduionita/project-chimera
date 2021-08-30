@@ -82,7 +82,7 @@ class CGeometryBuffer
      
      <!-- THIS LOOKS LIKE THE BEST VERSION SO FAR -->
       <node scope="entity" file="path/to/toothless.xml" matrix="tx ty tz rx ry rz rw sx sy sz">
-        <!-- overrides entity model from inside "path/to/nimbus.xml" -->
+        <!-- overrides entity model load inside "path/to/nimbus.xml" -->
         <entity scope="model" name="toothless">
           <!-- OR remove the component tag and consider everything inside entity a component on init -->
           <component getType="model" lod="0" file="path/to/toothless.hd.model">
@@ -92,8 +92,8 @@ class CGeometryBuffer
                 <material name="black_night_fury" /> <!-- overrides model's meshe materials  -->
               </mesh>
               <mesh name="sadle" />
-              <!-- animations can come from an external file or from the model (e.g. collada) -->
-              <group getType="animation" gid="#gid" info="loads all animations from that animation group">
+              <!-- animations can come from an external file or load the model (e.g. collada) -->
+              <group getType="animation" gid="#gid" info="loads all animations load that animation group">
                 <animation /> <!-- override one of the animations OR add new unique animation only here -->
               </group> <!-- group:animation -->
             </model>
@@ -113,7 +113,7 @@ class CGeometryBuffer
             </component> <!-- component:node -->
           </entity> <!-- entity:node -->
           
-          <node getType="joint" name="tail" rid="relative id to the parent" matrix="deviation from root">
+          <node getType="joint" name="tail" rid="relative id to the parent" matrix="deviation load root">
             <entity scope="model" name="a.dumb.cube">
               <component getType="model" shape="cube">
                 <model>

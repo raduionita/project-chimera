@@ -24,7 +24,7 @@
 
 namespace app {
   void CApplication::exec() {
-    SYS_LOG_NFO( "app::CApplication::exec()::" << this);
+    SYS_LOG_NFO("app::CApplication::exec()::" << this);    
     
 // @todo: onInit
     app::CEditWindow* pMain    {new app::CEditWindow};
@@ -62,18 +62,19 @@ namespace app {
     pMain->show();
     pContext->vsync(true);
     pContext->current(pRight);
-    
-    cym::CCore::load();
+  
+    cym::CCore::boot();
     
     auto tArea {pRight->area()};
     
     SYS_LOG_NFO("tArea" << tArea);
     
-    cym::CCore::getRenderSystem()->setViewport(0,0,tArea.w,tArea.h);
+    cym::CRenderSystem::getSingleton().setViewport(0,0,tArea.w,tArea.h);
+    cym::CRenderSystem::getSingleton().setPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   
     // return;
     
-    // mGrid = new app::CGrid{app::CGrid::XZ, 1.f};
+    mGrid = new app::NGrid{app::NGrid::XZ, 10.f};
     
     auto shd {cym::CShader{"../../res/shaders/simple/perspective.hlsl"}};
     
@@ -82,17 +83,17 @@ namespace app {
 // @todo: NULL shader
 // @todo: NULL (all) resource types
 // @todo: create/init/load NULL texture on engine init/load // all geo w/o textures use the NULL texture
-    auto t01 {cym::CCore::getTextureManager()->load(cym::null{}, 32u)};
+    auto t01 {cym::CTextureManager::load(cym::null{}, 32u)};
          t01->setWrapping(cym::CTexture::EWrapping::CLAMP_TO_EDGE);
          
   //auto mdl {cym::CCore::getGeometryManager()->load(sys::file{"../../res/models/ambulance/Ambulance.dae"}, cym::CGeometryManager::EOption::VERTICES)};
     
-    auto scn {cym::CCore::getSceneManager()->load("scene")};
+    mScene = cym::CSceneManager::make("scene");
   
-    auto n00 {new cym::NModel{cym::CCore::getGeometryManager()->load(glm::rect{20.f,20.f}, 5u, glm::Y, cym::CGeometry::DEFAULT)}};
-    auto n0x {new cym::NModel{cym::CCore::getGeometryManager()->load(glm::cube{2.f}, 2u, cym::CGeometry::DEFAULT)}};
-    auto n0y {new cym::NModel{cym::CCore::getGeometryManager()->find(n0x->getGeometry()->getName())}};
-    auto n0z {new cym::NModel{cym::CCore::getGeometryManager()->find(n0x->getGeometry()->getName())}};
+    auto n00 {new cym::NModel{cym::CGeometryManager::load(glm::rect{20.f, 20.f}, 5u, glm::Y, cym::CGeometry::DEFAULT)}};
+    auto n0x {new cym::NModel{cym::CGeometryManager::load(glm::cube{2.f}, 2u, cym::CGeometry::DEFAULT)}};
+    auto n0y {new cym::NModel{cym::CGeometryManager::find(n0x->getGeometry()->getName())}};
+    auto n0z {new cym::NModel{cym::CGeometryManager::find(n0x->getGeometry()->getName())}};
     auto c00 {new cym::NCamera{glm::vec3{0.f, 0.f,-1.f}, 90.f, (glm::real(tArea.w)/glm::real(tArea.h)), 0.1f,  10.f}};
     auto c01 {new cym::NCamera{glm::vec3{0.f}          ,100.f, (glm::real(tArea.w)/glm::real(tArea.h)), 0.1f, 100.f}};
     auto cxx = c00;
@@ -100,23 +101,23 @@ namespace app {
 // @todo: 2 cameras 2 viewports
 
     
-    scn->push(n00, glm::xform{glm::vec3{ 0.0f,-1.0f, 0.0f}});
-    scn->push(n0x, glm::xform{glm::vec3{-1.0f, 0.0f, 0.0f}}); // w/ transform structure
-    scn->push(n0y, glm::xform{glm::vec3{ 0.0f,-1.0f, 0.0f}});
-    scn->push(n0z, glm::xform{glm::vec3{ 0.0f, 0.0f,-1.0f}});
+    mScene->push(n00, glm::xform{glm::vec3{ 0.0f,-1.0f, 0.0f}});
+    mScene->push(n0x, glm::xform{glm::vec3{-1.0f, 0.0f, 0.0f}}); // w/ transform structure
+    mScene->push(n0y, glm::xform{glm::vec3{ 0.0f,-1.0f, 0.0f}});
+    mScene->push(n0z, glm::xform{glm::vec3{ 0.0f, 0.0f,-1.0f}});
     
-    auto s04 = scn->push(c00, glm::xform{glm::vec3{ 0.0f, 5.0f, 5.0f}});
-    auto s05 = scn->push(c01, glm::xform{glm::vec3{10.0f,15.0f,15.0f}});
+    auto s04 = mScene->push(c00, glm::xform{glm::vec3{ 0.0f, 5.0f, 5.0f}});
+    auto s05 = mScene->push(c01, glm::xform{glm::vec3{10.0f,15.0f,15.0f}});
     
-    auto n0f {new cym::NModel{cym::CCore::getGeometryManager()->load(c00->getFrustum())}};
-    auto s0f = scn->push(n0f);
+    auto n0f {new cym::NModel{cym::CGeometryManager::load(c00->getFrustum())}};
+    auto s0f = mScene->push(n0f);
     
 // @todo: (edit mode): when loading nodes/models/lights/etc. create their debug geometry & separate them (so they're toggable)
 // @todo: (game mode): when loading entities don't load debug stuff
     
 // @todo: matrix/transform w/ controller: update on loop, when u get the matrix it's already up to date
     
-    SYS_LOG_NFO("scene:" << (scn));
+    SYS_LOG_NFO("scene:" << (*mScene));
     
 // @todo: add (debug) elements (grid,gizmo)
       
@@ -174,6 +175,17 @@ namespace app {
     
 // @todo: debug phase
   // draw  grid, gizmo + bbox(es)...
+  
+      M = mGrid->getMatrix();
+      
+// @TODO find shader for this drawable
+//       shd = CShaderManager::find();
+  
+      shd.bind(true);
+      shd.uniform("u_sTexture", t01);
+      shd.uniform("u_mPVM", P*V*M/* * vertex */);
+      
+      mGrid->draw();
       
 // @todo: pRenderSystem->render(CDrawable);
   // tDrawable.vao.bind(true);
@@ -181,7 +193,7 @@ namespace app {
   // GLCALL(::glDrawElements(GL_TRIANGLES, tDrawable.ibo.count(), GL_UNSIGNED_INT, GL_NULL));
       
 // @todo: proper scene CQuery here
-      auto tResult {scn->find({})};
+      auto tResult {mScene->find({})};
       auto tModels {tResult->getModels()};
       for (auto& tNode : tModels) {
         auto pGeometry {tNode->getGeometry()};
@@ -201,7 +213,7 @@ namespace app {
       }
   
   
-      GLCALL(::glFlush());
+      // GLCALL(::glFlush());
       
 // @todo: CWindow::update()
       pContext->swap();

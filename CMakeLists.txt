@@ -24,7 +24,7 @@ link_directories(lib)
 file(GLOB CYM "src/sys/*.cpp" "src/glc/*.cpp" "src/ogl/*.cpp" "src/cym/*.cpp" "src/uix/*.cpp")
 file(GLOB APP "src/app/*.cpp")
 
-add_library(cym ${CYM} inc/cym/TManager.hpp inc/app/CTool.hpp)
-add_executable(app ${APP} src/app/CTool.cpp)
+add_library(cym ${CYM})
+add_executable(app ${APP})
 
 target_link_libraries(app cym) # libgdi32.a libopengl32.a

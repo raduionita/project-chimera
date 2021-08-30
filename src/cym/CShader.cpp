@@ -127,8 +127,8 @@ namespace cym {
     GLCALL(::glDeleteProgram(mID));
   }
   
-  void CShader::bind(bool state) const { 
-    log::dbg << "cym::CShader::bind(bool)::" << this << log::end;
+  void CShader::bind(bool state) const {
+    SYS_LOG_DBG("cym::CShader::bind(bool)::" << this);
     GLCALL(::glUseProgram(state ? mID : 0)); 
   }
   
@@ -156,7 +156,7 @@ namespace cym {
     // @todo: there should be a warn here if not found
   }
   
-  void CShader::uniform(const cym::CString& name, const sys::spo<CTexture>& tex) {
+  void CShader::uniform(const cym::CString& name, const sys::ptr<CTexture>& tex) {
     GLint loc = uniform(name);
     if (loc != GL_NOT_FOUND) {
       tex->bind();
@@ -182,7 +182,7 @@ namespace cym {
     // @todo: there should be a warn here if not found
   }
   
-  void CShader::sampler(const CString& name, const sys::spo<CTexture>& tex) {
+  void CShader::sampler(const CString& name, const sys::ptr<CTexture>& tex) {
     GLint loc = uniform(name);
     if (loc != GL_NOT_FOUND) {
       tex->bind();
@@ -191,5 +191,126 @@ namespace cym {
       log::wrn << "cym::CShader::sampler(CString&,PTexture&)::" << this << " Uniform NOT found!" << log::end;
     }
     // @todo: there should be a warn here if not found
-  } 
+  }
+  
+  // manager /////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  CShaderManager::CShaderManager()  { 
+    SYS_LOG_NFO("cym::CShaderManager::CShaderManager()"); 
+  }
+  
+  CShaderManager::~CShaderManager() { 
+    SYS_LOG_NFO("cym::CShaderManager::~CShaderManager()"); 
+  }
+  
+  void CShaderManager::boot() { 
+    SYS_LOG_DBG("cym::CShaderManager::boot()");
+    static auto& self {CShaderManager::getSingleton()};
+    
+    // grid
+      // grid+axor
+        // hints: debug + lines
+        // uniform: show sub-units(bool) = re-render grid for each square
+        // uniforms:colors
+      // arrows
+        // hints:debug + triangles
+        // uniforms:colors
+        // uniforms:hight of axor
+    
+    // gizmo
+      // axor
+        // hints:debug + lines
+        // uniforms:hight of axor
+        // uniforms:color
+      // planes+arrows
+        // hints:debug + triangles
+        // uniforms:color
+        // uniforms:hight of axor (for triangles position)
+    
+  }
+  
+  PShader CShaderManager::find(int iHints) {
+    static auto& self {CShaderManager::getSingleton()};
+  }
+  
+  // loaders /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  void TShaderLoader<sys::file>::load(sys::ptr<CResourceLoader>) {
+    SYS_LOG_NFO("cym::TShaderLoader<sys::file>::load(sys::ptr<CResourceLoader>)::" << this);
+    
+    
+    
+  }
 }
+
+// @TODO: isTessellated => GL_PATCHES
+
+// @TODO scope?
+  // debug
+  // render/scene/draw
+
+// @TODO rendering strategies
+  // null
+  // geometry/lighting (w/ deffered)
+  // deffered vs forward
+  // selector
+  // emitter
+  // instancing/buildboarding
+  // shadow (map vs volume)
+  // occlussion
+  
+// @TODO material
+  // smooth / faced
+  // 2 sided
+  // wireframe
+  
+// @TODO lighting models
+  // null (no color)  
+  // gouraud (vertex shading)
+  // phong (=ambient + diffuse + specular)
+  // blinn (=ambient + diffuse + specular + ior)
+  // lambert (ambient + diffuse)
+  // cook_torrance
+
+// @TODO features
+  // animated | static
+  // instanced | single
+  // illuminated/shaded | flat
+  // materials: multi, single, none - only diffuse color?
+  // selector
+  // motion blur
+  // parallax/normals?
+
+// @TODO CShaderManager::find(HINT | HINT | HINT | HINT)
+  // check if the current one matches and return
+  // loop through all shaders and find best match
+  // else return a debug shader
+  
+// @TODO CShader::bind(CMaterial)
+// @TODO CShader::bind(CGeometry)...
+  // load uniforms into shader
+
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  

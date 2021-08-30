@@ -18,16 +18,18 @@
 #include <array>
 
 namespace cym {
-  class CScene;
-  class CNode; 
-  class CCell; 
-  class COctree; 
+  class CNode;
+  class CCell;
+  class COctree;
   class CQuery;
-  class CResult; 
+  class CResult;
+  class CScene;
   
+  class CNodeLoader; template<typename T> class TNodeLoader;
   class CSceneLoader; template<typename T> class TSceneLoader;
   
   class CSceneManager;
+  class CNodeManager;
   
   class CComponent;
   
@@ -40,7 +42,7 @@ namespace cym {
   
   // nodes ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  enum ENode { NONE = -1, BASIC = 0, SCENE = 1, JOINT, ENTITY/*=3*/, LIGHT, CAMERA/*=5*/, FORCE, DRAWABLE, MODEL/*=8*/ = DRAWABLE + 1, EMITTER = DRAWABLE + 2 };
+  enum ENode : int { NONE = -1, BASIC = 0, SCENE = 1, JOINT, ENTITY/*=3*/, LIGHT, CAMERA/*=5*/, FORCE, DRAWABLE, MODEL/*=8*/ = DRAWABLE + 1, EMITTER = DRAWABLE + 2 };
   
   class CNode {
       friend class CScene;
@@ -58,23 +60,23 @@ namespace cym {
       id_t                                   mID {sID++};
 // @todo: code for mDirty = false // when everything got updated
       bool                                   mDirty {true}; // = something changed
-      sys::string                              mName;
+      sys::string                            mName;
       glm::aabb                              mAABB;
       // transform
       glm::xform                             mTransform;
         glm::vec3& mPosition;
         glm::quat& mOrientation; 
-        glm::vec3& mScale;
-      std::map<name_t, sys::spo<CNode>>      mNodes;
+        glm::vec3& mScale; 
+      std::map<name_t,sys::ptr<CNode>>       mNodes;
 /* @todo: rename to parent // parent: if null => root node */
-      sys::wpo<CNode>                        mRoot;
+      sys::ptr<CNode>                        mRoot;
       // cell linked to this node
-      sys::wpo<CCell>                        mCell;
+      sys::ptr<CCell>                        mCell;
     public:
       CNode(const sys::string& tName, const glm::aabb& = 0, const glm::xform& = 0);
       virtual ~CNode();
     public:
-      inline sys::spo<CNode> operator [](const name_t& tName) const { auto it {mNodes.find(tName)}; return it == mNodes.end() ? nullptr : it->second; } 
+      inline sys::ptr<CNode> operator [](const name_t& tName) const { auto it {mNodes.find(tName)}; return it == mNodes.end() ? nullptr : it->second; } 
     public:
       friend std::ostream& operator <<(std::ostream&, const CNode&);
       friend const sys::CLogger::ELevel& operator <<(const sys::CLogger::ELevel&, const CNode&);
@@ -139,17 +141,19 @@ namespace cym {
       /* set (local) scale (uniform,scalar) */
               inline void setScale(const glm::real s) { setScale(glm::vec3{s}); }
     public: // as parent 
+      /* */
+      sys::ptr<CResult> find(const CQuery&);
       /* attach tNode to this, add to mNodes and extend this.mAABB */
-      void            push(sys::spo<CNode> tNode);
+      void            push(sys::ptr<CNode> tNode);
       /* pop CNode by name, and return it */
-      sys::spo<CNode> pull(const sys::string& tName);
+      sys::ptr<CNode> pull(const sys::string& tName);
     public: // as child
-      /** detach from current parent => rootless node */
+      /** detach load current parent => rootless node */
       void yield();
       /** cling this to a parent (tParent::push(this)) */
-      void cling(sys::spo<CNode> tParent);
-      /** from one parent (this.mRoot) to another parent (tParent) */
-      void shift(sys::spo<CNode> tParent);
+      void cling(sys::ptr<CNode> tParent);
+      /** load one parent (this.mRoot) to another parent (tParent) */
+      void shift(sys::ptr<CNode> tParent);
       /** extend this.mAABB (and all its ancestors) by tAABB  */
       void extend(const glm::aabb& tAABB);
       /** rebuild this.mAABB (and all its ancestors) using children's mAABBs  */
@@ -244,7 +248,7 @@ namespace cym {
     public:
       enum EModel { POINT, OMNI = POINT, DIRECT, SPOT, AREA };
     protected:
-      // sys::spo<ILight> mLight;
+      // sys::ptr<ILight> mLight;
         // type = POINT/OMNI, DIRECT, SPOT, AREA
           // type = POINT
             // position == glm::vec3 (POINT,SPOT)
@@ -577,6 +581,8 @@ namespace cym {
     public:
       virtual inline bool  isDrawable() const override final { return true; }
       virtual inline ENode getType()    const override { throw sys::exception("NOT IMPLEMENTED",__FILE__,__LINE__); }
+    public:
+      virtual inline void draw() { }
   };
   
   template<> class TNode<ENode::MODEL> : public TNode<ENode::DRAWABLE> {
@@ -593,20 +599,20 @@ namespace cym {
       
       
       
-      sys::spo<CGeometry> mGeometry;
+      sys::ptr<CGeometry> mGeometry;
 // @todo: move collider at scene(node) level, as a component/plugin (for physics)?!
     //cym::CCollider mCollider;
     public:
       using TNode<ENode::DRAWABLE>::TNode;
       /* node from geometry */
-      TNode(sys::spo<CGeometry> pGeometry);
+      TNode(sys::ptr<CGeometry> pGeometry);
       /* node from geometry w/ custom name */
-      TNode(const sys::string& tName, sys::spo<CGeometry> pGeometry);
+      TNode(const sys::string& tName, sys::ptr<CGeometry> pGeometry);
     public:
       virtual inline bool  isModel() const override final { return true; }
       virtual inline ENode getType() const override { return ENode::MODEL; }
     public:
-      inline void                setGeometry(sys::spo<CGeometry> pGeometry) { mGeometry = pGeometry; mAABB = pGeometry->getAABB(); }
+      inline void                setGeometry(sys::ptr<CGeometry> pGeometry) { mGeometry = pGeometry; mAABB = pGeometry->getAABB(); }
       inline decltype(mGeometry) getGeometry() const { return mGeometry; }
   }; typedef TNode<ENode::MODEL> NModel;
   
@@ -628,15 +634,15 @@ namespace cym {
       friend class CCell;
       friend class CQuery;
     protected:
-      sys::vector<sys::spo<TNode<ENode::ENTITY>>> mNodes;
+      sys::vector<sys::ptr<TNode<ENode::ENTITY>>> mNodes;
     public:
       /* return found nodes */
       inline const decltype(mNodes)& getNodes() const { return mNodes; }
       /* return found nodes */
       inline const decltype(mNodes)& getEntities() const { return mNodes; }
       /* return found drawable (model,emitter) nodes */
-      inline const sys::vector<sys::spo<TNode<ENode::DRAWABLE>>> getDrawables() {
-        sys::vector<sys::spo<TNode<ENode::DRAWABLE>>> tDrawables;
+      inline const sys::vector<sys::ptr<TNode<ENode::DRAWABLE>>> getDrawables() {
+        sys::vector<sys::ptr<TNode<ENode::DRAWABLE>>> tDrawables;
         // for each node:scene in mNodes -> for each node:? in node:scene  
         for (auto& tNode : mNodes) for (auto& [tName,tChild] : tNode->mNodes) if (tChild->isDrawable()) {
           tDrawables.push_back(sys::static_pointer_cast<TNode<ENode::DRAWABLE>>(tChild)); 
@@ -644,16 +650,16 @@ namespace cym {
         return tDrawables;
       }
       /* return found model nodes */
-      inline const sys::vector<sys::spo<TNode<ENode::MODEL>>> getModels() {
-        sys::vector<sys::spo<TNode<ENode::MODEL>>> tModels;
+      inline const sys::vector<sys::ptr<TNode<ENode::MODEL>>> getModels() {
+        sys::vector<sys::ptr<TNode<ENode::MODEL>>> tModels;
         for (auto& tNode : mNodes) for (auto& [tName,tChild] : tNode->mNodes) if (tChild->isModel()) {
           tModels.push_back(sys::static_pointer_cast<TNode<ENode::MODEL>>(tChild)); 
         } 
         return tModels;
       }
       /* return geometries from found nodes */
-      inline const sys::vector<sys::spo<CGeometry>> getGeometries() {
-        sys::vector<sys::spo<CGeometry>> tGeometries;
+      inline const sys::vector<sys::ptr<CGeometry>> getGeometries() {
+        sys::vector<sys::ptr<CGeometry>> tGeometries;
         for (auto& tNode : mNodes) for (auto& [tName,tChild] : tNode->mNodes) if (tChild->isModel()) {
           auto tModel = sys::static_pointer_cast<TNode<ENode::MODEL>>(tChild);
           tGeometries.push_back(tModel->getGeometry()); 
@@ -674,12 +680,12 @@ namespace cym {
       using ENode = ENode;
       enum class EOrder { NONE = -1, FRONT_TO_BACK, FB = FRONT_TO_BACK, BACK_TO_FRONT, BF = BACK_TO_FRONT, };
     public:
-      sys::spo<glm::frustum> mFrustum; // defaults to empty = not ued
+      sys::ptr<glm::frustum> mFrustum; // defaults to empty = not ued
       EOrder                 mOrder {EOrder::NONE};
       ENode                  mType  {ENode::BASIC};
       int                    mLimit {-1};
     private:
-      sys::spo<CResult> mResult;
+      sys::ptr<CResult> mResult;
     public:
       CQuery() : mResult{new CResult} { }
       CQuery(const glm::frustum& tFrustum) : mFrustum{new glm::frustum{tFrustum}}, mResult{new CResult} { }
@@ -726,9 +732,9 @@ namespace cym {
   // -> mMaxAABB // AABB from splitting (assigned on creation, from parent)
   // -> mMinAABB // AABB from elements inside it (min CONNOT be > max), like an element bounding box
       sys::wpo<CCell>                             mRoot;
-      sys::array<sys::spo<CCell>,8>               mCells; // 1/8th of aabb // main, top, DOWN, front, back, left, right
-      sys::vector<sys::spo<TNode<ENode::ENTITY>>> mNodes;   // data (if too big for children & too small for this.mParent
-// @todo: multiple LEAVES: sys::array<sys::spo<CLeaf>,7> mLeaves; // hold data
+      sys::array<sys::ptr<CCell>,8>               mCells; // 1/8th of aabb // main, top, DOWN, front, back, left, right
+      sys::vector<sys::ptr<TNode<ENode::ENTITY>>> mNodes;   // data (if too big for children & too small for this.mParent
+// @todo: multiple LEAVES: sys::array<sys::ptr<CLeaf>,7> mLeaves; // hold data
     protected:
       /* create root-level cell, depth = 0 */
       CCell();
@@ -742,49 +748,56 @@ namespace cym {
       friend std::ostream& operator <<(std::ostream&, const CCell&);
       friend const sys::CLogger::ELevel& operator <<(const sys::CLogger::ELevel& type, const CCell& cell);
     public:
-      inline bool isRoot() const { return mRoot == nullptr; /*OR mType == EType::ROOT*/ }
+      inline bool                    isRoot()   const { return mRoot == nullptr; /*OR mType == EType::ROOT*/ }
       inline const decltype(mNodes)& getNodes() const { return mNodes; }
-      inline const glm::aabb& getAABB() const { return mAABB; }
+      inline const glm::aabb&        getAABB()  const { return mAABB; }
     public:
       /* pull&return all nodes from self & all children, used when extending root's AABB */
-      sys::vector<sys::spo<TNode<ENode::ENTITY>>> cull();
+      sys::vector<sys::ptr<TNode<ENode::ENTITY>>> cull();
       /* push tNode to this cell (or its children), tForce it if already compared AABB's */
-      void push(sys::spo<TNode<ENode::ENTITY>> tNode, bool tForce = false);
+      void push(sys::ptr<TNode<ENode::ENTITY>> tNode, bool tForce = false);
       /* find scene nodes using a CQuery + glm::frustum */
-      sys::spo<CResult> find(const CQuery& tQuery);
+      sys::ptr<CResult> find(const CQuery& tQuery);
   };
   
 // @todo: CCellManager need something to re-use cells (so u don't keep allocating memory)
   
   // scene ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
+
+// @TODO make CScene a TNode<ENode::SCENE> 
+  // CScene becomes it's own root(mNode)  
+
   /*TNode<ENode::SCENE>*/ class CScene : /*public TNode<ENode::BASIC>,*/ public cym::CResource {
       friend class CSceneLoader;
       friend class CSceneManager;
     protected:
-      sys::spo<cym::CNode> mNode;
-      sys::spo<cym::CCell> mCell;
+      sys::ptr<cym::CNode> mNode;
+      sys::ptr<cym::CCell> mCell;
     public:
       CScene(const sys::string& tName = "default");
-      CScene(sys::spo<CSceneLoader>);
+      CScene(sys::ptr<CSceneLoader>);
       ~CScene();
     public:
       friend std::ostream& operator <<(std::ostream&, const CScene&);
       friend const sys::CLogger::ELevel& operator <<(const sys::CLogger::ELevel&, const CScene&);
     public:
       /* return the root node (never null) */
-      inline sys::spo<CNode> getRoot() const { return mNode; }
+      inline sys::ptr<CNode> getRoot() const { return mNode; }
     public:
       /* load using a loader */
-      virtual void load(sys::spo<CSceneLoader>) final;
+      virtual void load(sys::ptr<CSceneLoader>) final;
       /* find scene nodes using a CQuery + glm::frustum */
-      sys::spo<CResult> find(const CQuery&);
+      sys::ptr<CResult> find(const CQuery&);
+      /* CScene::push(cym::TNode<ENode::ENTITY>*) */
+      sys::ptr<TNode<ENode::ENTITY>> push(TNode<ENode::ENTITY>* pNode);
+      /* CScene::push(sys::ptr<cym::TNode<ENode::ENTITY>>) */
+      sys::ptr<TNode<ENode::ENTITY>> push(sys::ptr<TNode<ENode::ENTITY>> pNode);
       /* CScene::push(cym::TNode<ENode::MODEL>&&) // add node (of type) to scene */
-      template<const ENode E> sys::spo<TNode<ENode::ENTITY>> push(TNode<E>&& rNode, const glm::xform& tXForm = glm::ZERO) {
+      template<const ENode E> sys::ptr<TNode<ENode::ENTITY>> push(TNode<E>&& rNode, const glm::xform& tXForm = glm::ZERO) {
         SYS_LOG_NFO("cym::CScene::push(cym::TNode<E>&&, glm::xform)::" << this);
         // create a node:scene
-        sys::spo<TNode<E>>             tNode   {new TNode<E>{std::move(rNode)}};
-        sys::spo<TNode<ENode::ENTITY>> tEntity {new TNode<ENode::ENTITY>{tNode->getName(), glm::ZERO, tXForm}};
+        sys::ptr<TNode<E>>             tNode   {new TNode<E>{std::move(rNode)}};
+        sys::ptr<TNode<ENode::ENTITY>> tEntity {new TNode<ENode::ENTITY>{tNode->getName(), glm::ZERO, tXForm}};
         // attach tNode to node:scene
         tEntity->push(tNode);
         // insert node:entity at CScene:node (xml's start/root node) 
@@ -795,11 +808,11 @@ namespace cym {
         return tEntity;
       }
       /* CScene::push(new cym::TNode<ENode::MODEL>{IGeometry}) // add node (of type) to scene */
-      template<const ENode E> sys::spo<TNode<ENode::ENTITY>> push(TNode<E>* pNode, const glm::xform& tXForm = glm::ZERO) {
+      template<const ENode E> sys::ptr<TNode<ENode::ENTITY>> push(TNode<E>* pNode, const glm::xform& tXForm = glm::ZERO) {
         SYS_LOG_NFO("cym::CScene::push(cym::TNode<E>*, glm::xform&)::" << this);
         // create a node:scene
-        sys::spo<TNode<E>>             tNode   {pNode};
-        sys::spo<TNode<ENode::ENTITY>> tEntity {new TNode<ENode::ENTITY>{tNode->getName(), glm::ZERO, tXForm}};
+        sys::ptr<TNode<E>>             tNode   {pNode};
+        sys::ptr<TNode<ENode::ENTITY>> tEntity {new TNode<ENode::ENTITY>{tNode->getName(), glm::ZERO, tXForm}};
         // attach tNode to node:scene
         tEntity->push(tNode);
         // insert node:entity at CScene:node (xml's start/root node) 
@@ -809,11 +822,11 @@ namespace cym {
         // return the entity node
         return tEntity;
       }
-      /* CScene::push(sys::spo<cym::TNode<ENode::MODEL>>{IGeometry}) // add node (of type) to scene */
-      template<const ENode E> sys::spo<TNode<ENode::ENTITY>> push(sys::spo<TNode<E>> tNode, const glm::xform& tXForm = glm::ZERO) {
-        SYS_LOG_NFO("cym::CScene::push(sys::spo<cym::TNode<"<< E <<">>, glm::xform&, sys::spo<cym::TNode<E>>)::" << this);
+      /* CScene::push(sys::ptr<cym::TNode<ENode::MODEL>>{IGeometry}) // add node (of type) to scene */
+      template<const ENode E> sys::ptr<TNode<ENode::ENTITY>> push(sys::ptr<TNode<E>> tNode, const glm::xform& tXForm = glm::ZERO) {
+        SYS_LOG_NFO("cym::CScene::push(sys::ptr<cym::TNode<"<< E <<">>, glm::xform&, sys::ptr<cym::TNode<E>>)::" << this);
         // create a node:scene
-        sys::spo<TNode<ENode::ENTITY>> tEntity {new TNode<ENode::ENTITY>{tNode->getName(), glm::ZERO, tXForm}};
+        sys::ptr<TNode<ENode::ENTITY>> tEntity {new TNode<ENode::ENTITY>{tNode->getName(), glm::ZERO, tXForm}};
         // attach tNode to node:entity
         tEntity->push(tNode);
         // insert node:entity at CScene:node (xml's start/root node) 
@@ -831,22 +844,38 @@ namespace cym {
         return tEntity;
       }
       /* add model to scene through a node, return the node:scene owner */
-      sys::spo<TNode<ENode::ENTITY>> push(sys::spo<CGeometry>, const glm::xform& = glm::ZERO);
+      sys::ptr<TNode<ENode::ENTITY>> push(sys::ptr<CGeometry>, const glm::xform& = glm::ZERO);
   };
   
   // loaders /////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  class CNodeLoader : public CResourceLoader {
+      friend class CNode;
+      friend class CNodeManager;
+    protected:
+      ENode mType {ENode::ENTITY};
+    public:
+      using CResourceLoader::CResourceLoader;
+      inline CNodeLoader(const ENode eNode, const sys::string tName) : CResourceLoader(tName + "|E:" + sys::to_string((int)eNode)), mType{eNode} { SYS_LOG_NFO("cym::CNodeLoader::CNodeLoader(ENode,sys::string&)::" << this); }
+      inline ~CNodeLoader() { SYS_LOG_NFO("cym::CNodeLoader::~CNodeLoader()::" << this); }
+  };
+  
+  template<typename T> class TNodeLoader : public CNodeLoader { 
+    public:
+    //virtual inline T& getSource();
+  };
   
   class CSceneLoader : public CResourceLoader {
       friend class CScene;
       friend class CSceneManager;
     public:
       using CResourceLoader::CResourceLoader;
-      inline CSceneLoader(const sys::string& tName) : CResourceLoader(tName) { SYS_LOG_NFO("cym::CSceneLoader::CSceneLoader(sys::string&)::" << this);  }
+      inline CSceneLoader(const sys::string& tName) : CResourceLoader(tName) { SYS_LOG_NFO("cym::CSceneLoader::CSceneLoader(sys::string&)::" << this); }
       inline ~CSceneLoader() { SYS_LOG_NFO("cym::CSceneLoader::~CSceneLoader()::" << this); }
     public:
-      virtual inline void load(sys::spo<CResourceLoader>) { throw sys::exception("CSceneLoader::load() NOT overriden!",__FILE__,__LINE__);  };
+      virtual inline void load(sys::ptr<CResourceLoader>) { throw sys::exception("CSceneLoader::load() NOT overriden!",__FILE__,__LINE__);  };
     public:
-      template<typename T> inline static sys::spo<TSceneLoader<T>> from(const T& tSource) { return new TSceneLoader<T>{tSource}; }
+      template<typename T> inline static sys::ptr<TSceneLoader<T>> from(const T& tSource) { return new TSceneLoader<T>{tSource}; }
       template<typename T, typename... Args> inline static sys::string name(const T& tSource, Args&&... args) { return TSceneLoader<T>::name(tSource, std::forward<Args>(args)...); }
   };
   
@@ -863,7 +892,7 @@ namespace cym {
       inline TSceneLoader(const sys::file& tFile) : CSceneLoader(tFile.path()), mFile{tFile} { };
     public:
       inline static sys::string name(const sys::file& tFile) { return tFile.path(); }
-      virtual void load(sys::spo<CResourceLoader>) override;
+      virtual void load(sys::ptr<CResourceLoader>) override;
     public:
       inline sys::file& getFile() { return mFile; }
   };
@@ -874,54 +903,55 @@ namespace cym {
       friend class CScene;
       friend class CSceneLoader;
     protected:
-      sys::map<sys::string,sys::spo<CScene>> mScenes;
+      sys::map<sys::string,sys::ptr<CScene>> mScenes;
     public:
       CSceneManager();
       ~CSceneManager();
     public:
+      inline static void boot() { CSceneManager::getSingleton(); }
       /*  */
-      static void save(sys::spo<CScene> pScene) {
-        static auto pThis {cym::CSceneManager::getSingleton()};
-        SYS_LOG_NFO("cym::CSceneManager::save(sys::spo<CScene>)::" << pThis);
-        pThis->mScenes.insert(std::pair(pScene->mName, pScene));
+      static void save(sys::ptr<CScene> pScene) {
+        static auto& self {cym::CSceneManager::getSingleton()};
+        SYS_LOG_NFO("cym::CSceneManager::save(sys::ptr<CScene>)");
+        self.mScenes.insert(std::pair(pScene->mName, pScene));
       }
       /*  */
-      static sys::spo<CScene> load(sys::spo<CSceneLoader> pSceneLoader) {
-        static auto self {cym::CGeometryManager::getSingleton()};
-        SYS_LOG_NFO("cym::CSceneManager::load(sys::spo<CSceneLoader>)::" << self);
+      static sys::ptr<CScene> make(sys::ptr<CSceneLoader> pSceneLoader) {
+        static auto& self {cym::CGeometryManager::getSingleton()};
+        SYS_LOG_NFO("cym::CSceneManager::load(sys::ptr<CSceneLoader>)");
         
         if (!pSceneLoader) return nullptr;
         
-        sys::spo<CScene> pScene {new CScene{pSceneLoader->getName()}};
-        
-        sys::async([pScene, pSceneLoader](){
-          
+        sys::ptr<CScene> pScene {new CScene{pSceneLoader->getName()}};
+  
+        sys::task([pScene, pSceneLoader]() {
+    
           // loads using codes or other TSceneLoader::load() 
           pSceneLoader->load(pSceneLoader);
-          
+    
           // process additional stuff (sub loaders)
 // @todo: something here?! (ex: for CGeometry sub-meshes are loaded)
-          
+    
           // finaly load everyting into pScene
           pScene->load(pSceneLoader);
-          
-        }, sys::EAsync::SPAWN);
+    
+        }, sys::ETask::ASYNC);
         
         CSceneManager::save(pScene);
         
         return pScene;
       }
       /*  */
-      static sys::spo<CScene> load(const char* tName) {
-        return CSceneManager::load(std::string{tName});
+      static sys::ptr<CScene> make(const char* tName) {
+        return CSceneManager::make(std::string{tName});
       }
       /*  */
-      static sys::spo<CScene> load(const sys::string& tName) {
-        static auto self {cym::CSceneManager::getSingleton()};
-        SYS_LOG_NFO("cym::CSceneManager::load(sys::string&)::" << self);
-        sys::spo<CScene> pScene;
+      static sys::ptr<CScene> make(const sys::string& tName) {
+        static auto& self {cym::CSceneManager::getSingleton()};
+        SYS_LOG_NFO("cym::CSceneManager::load(sys::string&)");
+        sys::ptr<CScene> pScene;
         // 
-        if (!sys::find(tName, self->mScenes, pScene)) {
+        if (!sys::find(tName, self.mScenes, pScene)) {
           pScene = new CScene;
           CSceneManager::save(pScene);
         }
@@ -929,11 +959,11 @@ namespace cym {
         return pScene;
       }
       /*  */
-      template<typename T, typename... Args> static sys::spo<CScene> load(const T& tSource, Args&&... args) {
-        static auto self {cym::CSceneManager::getSingleton()};
-        SYS_LOG_NFO("cym::CSceneManager::load(T&,Args&&)::" << self);
+      template<typename T, typename... Args> static sys::ptr<CScene> make(const T& tSource, Args&&... args) {
+        static auto& self {cym::CSceneManager::getSingleton()};
+        SYS_LOG_NFO("cym::CSceneManager::load(T&,Args&&)");
         
-        sys::spo<CScene> pScene {new CScene};
+        sys::ptr<CScene> pScene {new CScene};
         
 // @todo: move to CSceneManager::load(pSceneLoader)
         CSceneManager::save(pScene);
@@ -1009,13 +1039,14 @@ namespace cym {
       }
   };
   
-  class CNodeManager: public cym::TResourceManager<CNode> {
+  class CNodeManager : public cym::TResourceManager<CNode>, public sys::TSingleton<CSceneManager> {
     protected:
-      sys::vector<sys::spo<CNode>> mNodes;
+      sys::vector<sys::ptr<CNode>> mNodes;
     public:
-      CNodeManager();
-      ~CNodeManager();
+      inline CNodeManager() { }
+      inline ~CNodeManager() { }
     public:
+      inline static void load() { CNodeManager::getSingleton(); }
   };
 }
 

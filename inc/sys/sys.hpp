@@ -35,15 +35,14 @@ namespace sys {
   class CLogger;
   class CMemory;
   class CTimer;
-  class CStream;
-  enum EPointer { SHARED = 1, WEAK = 2, UNIQUE = 2 };
-  template<typename T, EPointer E> class TPointer;
+  template<typename T> class TPointer;
   template<typename T> class CEntry;
   template<typename T> class CRegistry;
   template<typename T> class TSingleton;
   template<typename T, typename A> class TBlock;
   template <typename T> class TIterator;
-  class CThreader;
+  class CTask;
+  class CStream; class CStream; typedef sys::TPointer<CStream> PStream;
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -80,10 +79,10 @@ namespace sys {
   using file        = sys::CFile;
   using stream      = sys::CStream;
   using exception   = sys::CException;
-  template<typename T> using ptr     = sys::TPointer<T, EPointer::SHARED>;
-  template<typename T> using spo     = sys::TPointer<T, EPointer::SHARED>;
-  template<typename T> using wpo     = sys::TPointer<T, EPointer::WEAK>;
-  template<typename T> using upo     = sys::TPointer<T, EPointer::UNIQUE>;
+  template<typename T> using ptr     = sys::TPointer<T>;
+  template<typename T> using spo     = sys::TPointer<T>;
+  template<typename T> using wpo     = sys::TPointer<T>;
+  template<typename T> using upo     = sys::TPointer<T>;
   
   
   using string                  = std::string;

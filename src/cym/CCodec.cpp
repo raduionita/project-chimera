@@ -4,32 +4,40 @@
 namespace cym {
   // manager //////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  void CCodecManager::addCodec(const sys::spo<CCodec> pCodec) {
-    SYS_LOG_NFO("cym::CCodecManager::addCodec(sys::spo<CCodec>)::" << pCodec->getType());
-    static auto pThis {cym::CCodecManager::getSingleton()};
-    pThis->mCodecs.insert(std::pair(pCodec->getType(), pCodec));
+  CCodecManager::CCodecManager() { 
+    SYS_LOG_NFO("cym::CCodecManager::CCodecManager()"); 
   }
   
-  sys::spo<CCodec> CCodecManager::getCodec(const std::string& ext) {
+  CCodecManager::~CCodecManager() { 
+    SYS_LOG_NFO("cym::CCodecManager::~CCodecManager()"); 
+  }
+  
+  void CCodecManager::addCodec(PCodec&& pCodec) {
+    SYS_LOG_NFO("cym::CCodecManager::addCodec(PCodec&&)::" << pCodec->getType());
+    static auto& self {cym::CCodecManager::getSingleton()};
+    self.mCodecs.insert(std::pair(pCodec->getType(), std::move(pCodec)));
+  }
+  
+  PCodec& CCodecManager::getCodec(const std::string& ext) {
     SYS_LOG_NFO("cym::CCodecManager::getCodec(std::string&)::" << ext);
-    static auto self {cym::CCodecManager::getSingleton()};
-    auto it = self->mCodecs.find(ext);
-    if (it == self->mCodecs.end())
+    static auto& self {cym::CCodecManager::getSingleton()};
+    auto it = self.mCodecs.find(ext);
+    if (it == self.mCodecs.end())
       throw sys::exception("CANNOT decode "+ ext +" file setType!",__FILE__,__LINE__);
     return it->second;
   }
   
   // texture:dds /////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  void TCodec<CTexture,ECodec::DDS>::decode(sys::spo<CResourceLoader>& pResourceLoader) {
-    auto        pTextureLoader = sys::static_pointer_cast<cym::TTextureLoader<sys::CFile>>(pResourceLoader);
+  void TCodec<CTexture,ECodec::DDS>::decode(PResourceLoader pResourceLoader) {
+    auto        pTextureLoader = sys::static_pointer_cast<cym::TTextureLoader<sys::file>>(pResourceLoader);
     sys::CFile& rFile          = pTextureLoader->getFile();
     
-    SYS_LOG_NFO("cym::TCodec<CTexture,ECodec::DDS>::decode(sys::spo<CResourceLoader>)::" << this << " FILE:" << rFile);
+    SYS_LOG_NFO("cym::TCodec<CTexture,ECodec::DDS>::decode(PResourceLoader)::" << this << " FILE:" << rFile);
     
     sys::throw_if(!rFile.open(), "Cannot open DDS file!"); // + rFile.path());
     
-    sys::spo<sys::stream> pStream = pTextureLoader->getStream();
+    sys::ptr<sys::stream> pStream = pTextureLoader->getStream();
     
     char ftype[4];
     rFile.read(ftype, 4);
@@ -108,15 +116,15 @@ namespace cym {
     }
   }
   
-  void TCodec<CTexture,ECodec::TGA>::decode(sys::spo<CResourceLoader>& pResourceLoader) {
-    auto pTextureLoader = sys::static_pointer_cast<cym::TTextureLoader<sys::CFile>>(pResourceLoader);
+  void TCodec<CTexture,ECodec::TGA>::decode(PResourceLoader pResourceLoader) {
+    auto pTextureLoader = sys::static_pointer_cast<cym::TTextureLoader<sys::file>>(pResourceLoader);
     sys::CFile& rFile = pTextureLoader->getFile();
   
-    SYS_LOG_NFO("cym::TCodec<CTexture,ECodec::TGA>::decode(sys::spo<CResourceLoader>)::" << this << " FILE:" << rFile);
+    SYS_LOG_NFO("cym::TCodec<CTexture,ECodec::TGA>::decode(PResourceLoader)::" << this << " FILE:" << rFile);
   
     sys::throw_if(!rFile.open(), "Cannot open TGA file!"); // + rFile.path());
   
-    sys::spo<sys::stream> pStream = pTextureLoader->getStream();
+    sys::ptr<sys::stream> pStream = pTextureLoader->getStream();
     
     sys::uint & rWidth  = pTextureLoader->width, 
               & rHeight = pTextureLoader->height, 
@@ -189,15 +197,15 @@ namespace cym {
     }
   }
     
-  void TCodec<CTexture,ECodec::BMP>::decode(sys::spo<CResourceLoader>& pResourceLoader) {
-    auto pTextureLoader = sys::static_pointer_cast<cym::TTextureLoader<sys::CFile>>(pResourceLoader);
+  void TCodec<CTexture,ECodec::BMP>::decode(PResourceLoader pResourceLoader) {
+    auto pTextureLoader = sys::static_pointer_cast<cym::TTextureLoader<sys::file>>(pResourceLoader);
     sys::CFile& rFile   = pTextureLoader->getFile();
   
-    SYS_LOG_NFO("cym::TCodec<CTexture,ECodec::BMP>::decode(sys::spo<CResourceLoader>)::" << this << " FILE:" << rFile);
+    SYS_LOG_NFO("cym::TCodec<CTexture,ECodec::BMP>::decode(PResourceLoader)::" << this << " FILE:" << rFile);
   
     sys::throw_if(!rFile.open(), "Cannot open BMP file!"); // + rFile.path());
   
-    sys::spo<sys::stream> pStream = pTextureLoader->getStream();
+    sys::ptr<sys::stream> pStream = pTextureLoader->getStream();
     
     sys::uint  &rWidth  = pTextureLoader->width, 
                &rHeight = pTextureLoader->height, 
@@ -232,11 +240,11 @@ namespace cym {
   
   // model:obj ///////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  void TCodec<CGeometry,ECodec::OBJ>::decode(sys::spo<CResourceLoader>& pResourceLoader) {
-    auto        pGeometryLoader = sys::static_pointer_cast<cym::TGeometryLoader<sys::CFile>>(pResourceLoader);
-    sys::CFile& rFile        = pGeometryLoader->getFile();
+  void TCodec<CGeometry,ECodec::OBJ>::decode(PResourceLoader pResourceLoader) {
+    auto       pGeometryLoader {sys::static_pointer_cast<cym::TGeometryLoader<sys::file>>(pResourceLoader)};
+    sys::file& rFile           {pGeometryLoader->getFile()};
     
-    SYS_LOG_NFO("cym::TCodec<CGeometry,ECodec::OBJ>::decode(CResourceData&)::" << this << " FILE:" << rFile);
+    SYS_LOG_NFO("cym::TCodec<CGeometry,ECodec::OBJ>::decode(PResourceLoader)::" << this << " FILE:" << rFile);
     
     sys::throw_if(!rFile.open(), "Cannot open file!"); // + rFile.path());
     
@@ -256,8 +264,8 @@ namespace cym {
     
     sys::block<SIndex> tIndices;
     
-    sys::map<sys::string, sys::spo<CMaterialLoader>> tMaterialLoaders;
-    sys::spo<CMaterialLoader>                        tMaterialLoader;
+    sys::map<sys::string, sys::ptr<CMaterialLoader>> tMaterialLoaders;
+    sys::ptr<CMaterialLoader>                        tMaterialLoader;
     sys::string                                       tName;
     
     while (!rFile.eof()) {
@@ -465,7 +473,7 @@ namespace cym {
       // vertices[i].texcoord = texcoord[index];
   }
   
-  void TCodec<CGeometry,ECodec::OBJ>::decodeMaterial(const sys::string& tFile, sys::map<sys::string, sys::spo<CMaterialLoader>>& tMaterialLoaders, bool& tDone) {
+  void TCodec<CGeometry,ECodec::OBJ>::decodeMaterial(const sys::string& tFile, sys::map<sys::string, PMaterialLoader>& tMaterialLoaders, bool& tDone) {
     SYS_LOG_NFO("cym::TCodec<CGeometry,ECodec::OBJ>::decodeMaterial(...)::" << "FILE:" << tFile);
     
     tMaterialLoaders.clear();                                                                 // unload prev loaded .mtl files
@@ -478,7 +486,7 @@ namespace cym {
       return;
     }
     
-    sys::spo<CMaterialLoader> tMaterialLoader;
+    sys::ptr<CMaterialLoader> tMaterialLoader;
     
     char* zLine = new char[2048];
     while(fs.peek() != -1) {
@@ -498,61 +506,61 @@ namespace cym {
         ::sscanf(zLine, "%s", tBuff);
         std::string tMatr(tBuff);
   
-        // tMaterialLoaders.insert(std::pair<sys::string, sys::spo<CMaterialLoader>>{tMatr, tMatr}});
+        // tMaterialLoaders.insert(std::pair<sys::string, sys::ptr<CMaterialLoader>>{tMatr, tMatr}});
         tMaterialLoader = tMaterialLoaders[tMatr] = new CMaterialLoader{tMatr};
         
         continue;
       } else if (sys::strncmp(zLine, "Ka", 2)) {
         zLine += 3;
-        auto& tColor {tMaterialLoader->getChannelLoader(cym::CChannel::AMBIENT)->getColor()};
+        auto& tColor {tMaterialLoader->getChannelLoader(cym::EChannel::AMBIENT)->getColor()};
         ::sscanf(zLine, "%f %f %f\n", &tColor.r, &tColor.g, &tColor.b);
         continue;
         continue;
       } else if (sys::strncmp(zLine, "Kd", 2)) {
         zLine += 3;
-        auto& tColor {tMaterialLoader->getChannelLoader(cym::CChannel::DIFFUSE)->getColor()};
+        auto& tColor {tMaterialLoader->getChannelLoader(cym::EChannel::DIFFUSE)->getColor()};
         ::sscanf(zLine, "%f %f %f\n", &tColor.r, &tColor.g, &tColor.b);
         continue;
       } else if (sys::strncmp(zLine, "Ks", 2)) {
         zLine += 3;
-        auto& tColor {tMaterialLoader->getChannelLoader(cym::CChannel::SPECULAR)->getColor()};
+        auto& tColor {tMaterialLoader->getChannelLoader(cym::EChannel::SPECULAR)->getColor()};
         ::sscanf(zLine, "%f %f %f\n", &tColor.r, &tColor.g, &tColor.b);
         continue;
       } else if (sys::strncmp(zLine, "Kt", 2)) {
         zLine += 3;
-        auto& tColor {tMaterialLoader->getChannelLoader(cym::CChannel::TRANSPARENCY)->getColor()};
+        auto& tColor {tMaterialLoader->getChannelLoader(cym::EChannel::TRANSPARENCY)->getColor()};
         ::sscanf(zLine, "%f %f %f\n", &tColor.r, &tColor.g, &tColor.b);
         continue;
       } else if (sys::strncmp(zLine, "Ke", 2)) {
         zLine += 3;
-        auto& tColor {tMaterialLoader->getChannelLoader(cym::CChannel::EMISSION)->getColor()};
+        auto& tColor {tMaterialLoader->getChannelLoader(cym::EChannel::EMISSION)->getColor()};
         ::sscanf(zLine, "%f %f %f\n", &tColor.r, &tColor.g, &tColor.b);
         continue;
       } else if (sys::strncmp(zLine, "Ni", 2)) {
         zLine += 3;
-        auto& tLevel {tMaterialLoader->getChannelLoader(cym::CChannel::REFRCTION)->getLevel()};
+        auto& tLevel {tMaterialLoader->getChannelLoader(cym::EChannel::REFRCTION)->getLevel()};
         ::sscanf(zLine, "%f", &tLevel);
         continue;
       } else if (sys::strncmp(zLine, "Ns", 2)) {
         zLine += 3;
-        auto& tLevel {tMaterialLoader->getChannelLoader(cym::CChannel::SPECULAR)->getLevel()};
+        auto& tLevel {tMaterialLoader->getChannelLoader(cym::EChannel::SPECULAR)->getLevel()};
         ::sscanf(zLine, "%f", &tLevel);
         continue;
       } else if (sys::strncmp(zLine, "map_Ka", 6)) {
         zLine += 7;
-        tMaterialLoader->getChannelLoader(cym::CChannel::AMBIENT)->setTextureLoader(new cym::TTextureLoader<sys::CFile>{zLine});
+        tMaterialLoader->getChannelLoader(cym::EChannel::AMBIENT)->setTextureLoader(new cym::TTextureLoader<sys::CFile>{zLine});
         continue;
       } else if (sys::strncmp(zLine, "map_Kd", 6)) {
         zLine += 7;
-        tMaterialLoader->getChannelLoader(cym::CChannel::DIFFUSE)->setTextureLoader(new cym::TTextureLoader<sys::CFile>{zLine});
+        tMaterialLoader->getChannelLoader(cym::EChannel::DIFFUSE)->setTextureLoader(new cym::TTextureLoader<sys::CFile>{zLine});
         continue;
       } else if (sys::strncmp(zLine, "map_Ks", 6)) {
         zLine += 7;
-        tMaterialLoader->getChannelLoader(cym::CChannel::SPECULAR)->setTextureLoader(new cym::TTextureLoader<sys::CFile>{zLine});
+        tMaterialLoader->getChannelLoader(cym::EChannel::SPECULAR)->setTextureLoader(new cym::TTextureLoader<sys::CFile>{zLine});
         continue;
       } else if (sys::strncmp(zLine, "map_Ns", 6)) {
         zLine += 7;
-        tMaterialLoader->getChannelLoader(cym::CChannel::NORMAL)->setTextureLoader(new cym::TTextureLoader<sys::CFile>{zLine});
+        tMaterialLoader->getChannelLoader(cym::EChannel::NORMAL)->setTextureLoader(new cym::TTextureLoader<sys::CFile>{zLine});
         continue;
       } else {
         char* ptr;
@@ -586,11 +594,11 @@ namespace cym {
   
   // model:dae ///////////////////////////////////////////////////////////////////////////////////////////////////////
  
-  void TCodec<CGeometry,ECodec::DAE>::decode(sys::spo<CResourceLoader>& pResourceLoader) {
-    auto        pGeometryLoader = sys::static_pointer_cast<cym::TGeometryLoader<sys::CFile>>(pResourceLoader);
-    sys::CFile& rFile        = pGeometryLoader->getFile();
+  void TCodec<CGeometry,ECodec::DAE>::decode(PResourceLoader pResourceLoader) {
+    auto       pGeometryLoader = sys::static_pointer_cast<cym::TGeometryLoader<sys::file>>(pResourceLoader);
+    sys::file& rFile           = pGeometryLoader->getFile();
     
-    SYS_LOG_NFO("cym::TCodec<CGeometry,ECodec::DAE>::decode(sys::spo<CResourceLoader>)::" << this << " FILE:" << rFile);
+    SYS_LOG_NFO("cym::TCodec<CGeometry,ECodec::DAE>::decode(PResourceLoader)::" << this << " FILE:" << rFile);
     
     sys::throw_if(!rFile.open(), "Cannot open file!"); // + rFile.path());
     
@@ -605,7 +613,7 @@ namespace cym {
     const auto& tGeometries = (*tTree)["library_geometries"];
     
     if (pGeometryLoader->hasFlag(EOption::VERTICES)) {
-      // SYS_LOG_NFO("cym::CDAECodec::decode(sys::spo<CResourceLoader>)::geometry:start" );
+      // SYS_LOG_NFO("cym::CDAECodec::decode(sys::ptr<CResourceLoader>)::geometry:start" );
       
       uint iLastIndex {0};
       
@@ -639,7 +647,7 @@ namespace cym {
           std::map<std::string, uint>               hStrides;
           
           {
-            for (auto& tInput : tMesh->findByName("make")) {
+            for (auto& tInput : tMesh->findByName("load")) {
               auto tSource = tInput->attribute("source")->ref;
               if (tSource->name == "source") {
                 auto  tSemantic   = tInput->attribute("semantic");
@@ -667,7 +675,7 @@ namespace cym {
             }
           }
           
-          const auto&                           tInputs = tTriangles->findByName("make");
+          const auto&                           tInputs = tTriangles->findByName("load");
           const uint                            nInputs = tInputs.size();
           std::unordered_map<std::string, uint> hInputs;
             
@@ -676,7 +684,7 @@ namespace cym {
               uint nOffset   = tInput->attribute("offset")->toInt();
               auto tSemantic = tInput->attribute("semantic");
               if (*tSemantic == "VERTEX") {
-                for (auto& tTemp : tVertices->findByName("make")) {
+                for (auto& tTemp : tVertices->findByName("load")) {
                   hInputs[tTemp->attribute("semantic")->toString()] = nOffset;
                 }
               } else {
@@ -689,7 +697,7 @@ namespace cym {
           const uint nVertices {3};                                        // vertices per poly (triangle)
           const auto& tP = (*tTriangles)["p"]; // indices
           std::vector<uint> aP; 
-          aP.reserve(nTriangles * nVertices * tTriangles->countByName("make")); // triangles * vertices * no_of_inputs_inside_triangles
+          aP.reserve(nTriangles * nVertices * tTriangles->countByName("load")); // triangles * vertices * no_of_inputs_inside_triangles
           
           {
             auto tStream = tP->text.toStream();
@@ -766,7 +774,7 @@ namespace cym {
           pMeshLoader->getRange().nEnd = rLayout.count();
           // done
         } else if (tPolylist != nullptr) {
-          const auto tInputs    = (*tPolylist).findByName("make");
+          const auto tInputs    = (*tPolylist).findByName("load");
           const uint nInputs    = tInputs.size();
           
           std::map<std::string, std::vector<float>> hSources;
@@ -777,7 +785,7 @@ namespace cym {
               auto tSemantic = tInput->attribute("semantic");
               
               bool bVertex   = *tSemantic == "VERTEX";
-              auto tSource   = bVertex ? tInput->attribute("source")->ref->child("make")->attribute("source")->ref 
+              auto tSource   = bVertex ? tInput->attribute("source")->ref->child("load")->attribute("source")->ref 
                                        : tInput->attribute("source")->ref;
               
               auto        tFloatArray = tSource->child("float_array");
@@ -818,7 +826,7 @@ namespace cym {
             for (auto& tInput : tInputs) {
               auto tSemantic = tInput->attribute("semantic");
               bool bVertex = *tSemantic == "VERTEX";
-              auto tSource = bVertex ? tInput->attribute("source")->ref->child("make")->attribute("source")->ref : tInput->attribute("source")->ref;
+              auto tSource = bVertex ? tInput->attribute("source")->ref->child("load")->attribute("source")->ref : tInput->attribute("source")->ref;
               hInputs[tSemantic->toString()]/*o*/= {tInput->attribute("offset")->toInt(), bVertex};
             }
             
@@ -924,7 +932,7 @@ namespace cym {
         }
       }
       
-      // SYS_LOG_NFO("cym::CDAECodec::decode(sys::spo<CResourceLoader>)::geometry:done" );
+      // SYS_LOG_NFO("cym::CDAECodec::decode(sys::ptr<CResourceLoader>)::geometry:done" );
     }
     
   //const auto& tMaterials   = (*tTree)["library_materials"];
@@ -934,7 +942,7 @@ namespace cym {
     const auto& tImages      = (*tTree)["library_images"];
 
     if (pGeometryLoader->hasFlag(EOption::MATERIALS)) {
-      // SYS_LOG_NFO("cym::CDAECodec::decode(sys::spo<CResourceLoader>)::material:start" );
+      // SYS_LOG_NFO("cym::CDAECodec::decode(sys::ptr<CResourceLoader>)::material:start" );
       
       for (const auto& tInstance : tScenes->findByName("instance_controller")) {
         const auto& tController = tInstance->attribute("url")->ref;
@@ -964,41 +972,41 @@ namespace cym {
           }
           
           if (tComponent->name == "emission") {
-            auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::CChannel::EMISSION);
+            auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::EChannel::EMISSION);
             if (tColor) {
               tColor->text.toStream() >> std::pair((float*)pChannelLoader->getColor(), 4);
             }
             if (tTexture) {
-              pChannelLoader->setTextureLoader(new TTextureLoader<sys::CFile>{std::string(rFile.folder()) + sys::string(tFile.value.from + 8, tFile.value.size - 8)});
+              pChannelLoader->setTextureLoader(new TTextureLoader<sys::file>{std::string(rFile.folder()) + sys::string(tFile.value.from + 8, tFile.value.size - 8)});
             }
           } else if (tComponent->name == "diffuse") {
-            auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::CChannel::DIFFUSE);
+            auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::EChannel::DIFFUSE);
             if (tColor){
               tColor->text.toStream() >> std::pair((float*)pChannelLoader->getColor(), 4);
             }
             if (tTexture) {
-              pChannelLoader->setTextureLoader(new TTextureLoader<sys::CFile>{std::string(rFile.folder()) + sys::string(tFile.value.from + 8, tFile.value.size - 8)});
+              pChannelLoader->setTextureLoader(new TTextureLoader<sys::file>{std::string(rFile.folder()) + sys::string(tFile.value.from + 8, tFile.value.size - 8)});
             }
           } else if (tComponent->name == "ambient") {
             
           } else if (tComponent->name == "specular") {
-            auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::CChannel::SPECULAR);
+            auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::EChannel::SPECULAR);
             if (tColor){
               tColor->text.toStream() >> std::pair((float*)pChannelLoader->getColor(), 4);
             }
             if (tTexture) {
-              pChannelLoader->setTextureLoader(new TTextureLoader<sys::CFile>{std::string(rFile.folder()) + sys::string(tFile.value.from + 8, tFile.value.size - 8)});
+              pChannelLoader->setTextureLoader(new TTextureLoader<sys::file>{std::string(rFile.folder()) + sys::string(tFile.value.from + 8, tFile.value.size - 8)});
             }
           } else if (tComponent->name == "transparent") { // opacity
-            auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::CChannel::TRANSPARENCY);
+            auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::EChannel::TRANSPARENCY);
             if (tColor){
               tColor->text.toStream() >> std::pair((float*)pChannelLoader->getColor(), 4);
             }
           } else if (tComponent->name == "index_of_refraction") {
-            auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::CChannel::REFRCTION);
+            auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::EChannel::REFRCTION);
             pChannelLoader->getLevel() = (*tComponent)["float"]->text.toInt();
           } else if (tComponent->name == "shininess") {
-            auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::CChannel::SPECULAR);
+            auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::EChannel::SPECULAR);
             pChannelLoader->getLevel() = (*tComponent)["float"]->text.toInt();
           }
         }
@@ -1007,7 +1015,7 @@ namespace cym {
         
         if (tExtra) for (auto& tItem : tExtra->child("technique")->children) {
           if (tItem->name == "spec_level") {
-            auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::CChannel::SPECULAR);
+            auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::EChannel::SPECULAR);
             pChannelLoader->getLevel() = tItem->text.toFloat();
           } else if (tItem->name == "bump") {
             const auto& tTexture = (*tItem)["texture"];
@@ -1018,14 +1026,14 @@ namespace cym {
               const auto& tImage = tImages->findById(tInitFrom->text.value);
               tFile  = (*tImage)["init_from"]->text;
               
-              auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::CChannel::NORMAL);
+              auto pChannelLoader = pMaterialLoader->getChannelLoader(cym::EChannel::NORMAL);
               pChannelLoader->setTextureLoader(new TTextureLoader<sys::CFile>{std::string(rFile.folder()) + sys::string(tFile.value.from + 8, tFile.value.size - 8)});
             }
           }
         }
       }
       
-      // SYS_LOG_NFO("cym::CDAECodec::decode(sys::spo<CResourceLoader>)::material:done" );
+      // SYS_LOG_NFO("cym::CDAECodec::decode(sys::ptr<CResourceLoader>)::material:done" );
     }
 
     if (pGeometryLoader->hasFlag(EOption::SKELETON)) {
@@ -1133,11 +1141,11 @@ namespace cym {
   
   // scene:scene (xml) ///////////////////////////////////////////////////////////////////////////////////////////////
   
-  void TCodec<CScene,ECodec::SCENE>::decode(sys::spo<CResourceLoader>& pResourceLoader) {
+  void TCodec<CScene,ECodec::SCENE>::decode(PResourceLoader pResourceLoader) {
     auto       pSceneLoader = sys::static_pointer_cast<cym::TSceneLoader<sys::file>>(pResourceLoader);
     sys::file& rFile        = pSceneLoader->getFile();
     
-    SYS_LOG_NFO("cym::TCodec<CScene,ECodec::SCENE>::decode(sys::spo<CResourceLoader>)::" << this << " FILE:" << rFile);
+    SYS_LOG_NFO("cym::TCodec<CScene,ECodec::SCENE>::decode(PResourceLoader)::" << this << " FILE:" << rFile);
     
     sys::throw_if(!rFile.open(), "Cannot open file!"); // + rFile.path());
     

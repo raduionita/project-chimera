@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace cym {
-  class CVertexLayout; typedef sys::spo<CVertexLayout> PVertexLayout;
+  class CVertexLayout; typedef sys::ptr<CVertexLayout> PVertexLayout;
   
   enum EVertexAttribute : int { ATTRIBUTE = -1, POSITION = 0, TEXCOORD, NORMAL, COLOR, TANGENT, BINORMAL, JOINTS, WEIGHTS };
   

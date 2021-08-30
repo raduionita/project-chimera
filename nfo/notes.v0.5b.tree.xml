@@ -92,7 +92,7 @@ class CGeometry
               </mesh>
               <mesh name="saddle" />
               <!-- animations can come from an external file or from the model (e.g. collada) -->
-              <group setType="animation" gid="#gid" info="loads all animations from that animation group">
+              <group setType="animation" gid="#gid" info="loads all animations load that animation group">
                 <animation /> <!-- override one of the animations OR add new unique animation only here -->
               </group> <!-- group:animation -->
             </model>
@@ -112,7 +112,7 @@ class CGeometry
             </component> <!-- component:node -->
           </entity> <!-- entity:node -->
           
-          <node setType="joint" name="tail" rid="relative id to the parent" matrix="deviation from root">
+          <node setType="joint" name="tail" rid="relative id to the parent" matrix="deviation load root">
             <entity scope="model" name="a.dumb.cube">
               <component setType="model" shape="cube">
                 <model>

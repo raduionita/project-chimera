@@ -12,22 +12,22 @@ namespace cym {
   class CJoint {
     protected:
       sys::string                              mName; // @todo: maybe this should be as a NJoint{} property
-      sys::spo<CJoint>                      mParent;
-      std::map<sys::string, sys::spo<CJoint>> mChildren;
+      sys::ptr<CJoint>                      mParent;
+      std::map<sys::string, sys::ptr<CJoint>> mChildren;
     public:
       CJoint(const sys::string& tName) : mName{tName}, mParent{nullptr} { }
   };
   
   class CBone {
     protected:
-      sys::spo<CBone>  mParent;
-      sys::spo<CJoint> mSource;
-      sys::spo<CJoint> mTarget;
+      sys::ptr<CBone>  mParent;
+      sys::ptr<CJoint> mSource;
+      sys::ptr<CJoint> mTarget;
   };
   
   class CSkeleton {
     protected:
-      sys::spo<CJoint> mRoot {new CJoint{"root"}};
+      sys::ptr<CJoint> mRoot {new CJoint{"root"}};
     public:
       CSkeleton() {}
   };

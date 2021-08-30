@@ -74,7 +74,7 @@ namespace glm {
     for (ushort i = 0; i < decltype(t.scale)::size; i++)
       oss << t.scale[i] << ',';
     oss << ")]";
-    sys::CLogger::getSingleton()->push(oss.str());
+    sys::CLogger::push(oss.str());
     return type;
   }  
   

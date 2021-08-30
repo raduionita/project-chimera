@@ -136,6 +136,10 @@ namespace glm {
   template<typename T> glm::aabb transform(const glm::aabb& a, const glm::txform<T>& t) { const glm::mat4 M{t.toMatrix()}; glm::aabb b{M * a.min, M * a.max}; b.normalize(); return b; }
   
   inline extern glm::aabb normalize(const glm::aabb& a) { glm::aabb b{a}; b.normalize(); return b; }
+  
+  inline extern glm::aabb extend(const glm::aabb& lhs, const glm::aabb& rhs) { return glm::aabb{glm::min(lhs.min,rhs.min), glm::max(lhs.max,rhs.max)}; }
+  
+  template<typename T> inline extern glm::aabb extend(const glm::aabb& lhs, const glm::tvec3<T>& rhs) { return glm::aabb{glm::min(lhs.min,rhs), glm::max(lhs.max,rhs)}; }
 }
 
 #endif //__glm_caabb_hpp__

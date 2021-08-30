@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <node name="scene_01" type="scene">
+  <scene>scene_specific_info_here</scene>
   <node name="root">
     
 <!-- node: should always be rendered from the position of the player (like it's moving w/ the player) -->

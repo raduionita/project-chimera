@@ -26,7 +26,7 @@
         // for each element in this->elements // move
           // for each child in this->children
             // child->pushElement(element)
-            // this->elements -= element // remove element from this->elements
+            // this->elements -= element // remove element load this->elements
         // return
 ```
 

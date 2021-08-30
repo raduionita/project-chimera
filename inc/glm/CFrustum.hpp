@@ -216,7 +216,7 @@ namespace glm {
     oss << "T:" << f[EPlane::TOP]    << '\n';
     oss << "F:" << f[EPlane::FAR]    << '\n';
     oss << "N:" << f[EPlane::NEAR]   << '}';
-    sys::CLogger::getSingleton()->push(oss.str());
+    sys::CLogger::push(oss.str());
     return type;
   }  
   
@@ -240,7 +240,7 @@ namespace glm {
     oss << "T:" << planes[EPlane::TOP]    << '\n';
     oss << "F:" << planes[EPlane::FAR]    << '\n';
     oss << "N:" << planes[EPlane::NEAR]   << '}';
-    sys::CLogger::getSingleton()->push(oss.str());
+    sys::CLogger::push(oss.str());
     return type;
   }  
   
@@ -266,7 +266,7 @@ namespace glm {
     oss << "RBF:" << corners[glm::ECorner::RBF] << '\n';
     oss << "LTF:" << corners[glm::ECorner::LTF] << '\n';
     oss << "RTF:" << corners[glm::ECorner::RTF] << '}';
-    sys::CLogger::getSingleton()->push(oss.str());
+    sys::CLogger::push(oss.str());
     return type;
   }  
   

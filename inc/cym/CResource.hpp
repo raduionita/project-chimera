@@ -13,18 +13,19 @@
 #include <any>
 
 namespace cym {
-  class CResource;
+  class CResource;        typedef sys::ptr<CResource>       PResource;
   class CResourceManager;
-  class CResourceLoader;
+  class CResourceLoader;  typedef sys::ptr<CResourceLoader> PResourceLoader;
   
   class CResource { // loadable entity/file/object
       friend class CResourceManager;
       friend class CResourceLoader;
-      enum EState { EMPTY = 0, LOADED = 1, READY = 2, };
+    public:
+      enum EState { EMPTY = 0, LOADED = 1, PARTIAL = 2, READY = 3, };
     private:
-      bool      mInstance {false}; // true = a copy of the original inside it's manager
+      bool        mInstance{false}; // true = a copy of the original inside it's manager
     protected:
-      EState    mState    {EState::EMPTY};
+      EState      mState{EState::EMPTY};
       sys::string mName;
     public:
       CResource(const sys::string& tName = "") : mName{tName} { };
@@ -32,16 +33,17 @@ namespace cym {
       CResource(const CResource& that) {  
         mInstance = true;
         mState = that.mState;
-        mName = that.mName;
+        mName  = that.mName;
       }
       virtual ~CResource() { };
     public:
       CResource& operator =(const CResource&) = delete;
       CResource& operator =(CResource&&) = delete;
     public:
-      inline void             setName(const sys::string& tName) { mName = tName; }
-      inline const sys::string& getName()                       { return mName; }
-      inline bool             isInstance() const              { return mInstance; }
+      inline void               setName(const sys::string& tName) { mName = tName; }
+      inline const sys::string& getName()                         { return mName; }
+      inline bool               isInstance() const                { return mInstance; }
+      inline EState             getState() const                  { return mState; }
   };
   
   class CResourceLoader  {
@@ -54,17 +56,17 @@ namespace cym {
       CResourceLoader(const sys::string& tName) : mName{tName} { };
       virtual ~CResourceLoader() = default;
     public:
-      virtual void load(sys::spo<CResourceLoader>) { throw sys::exception("CResourceLoader::load() NOT overriden!",__FILE__,__LINE__);  };
+      virtual void load(sys::ptr<CResourceLoader>) { throw sys::exception("CResourceLoader::load() NOT overriden!",__FILE__,__LINE__);  };
     public:
       sys::string& getName() { return mName; }
   };
   
-  class CResourceManager  {
+  class CResourceManager : public CManager {
       friend class CResource;
       friend class CResourceLoader;
     public:
-      CResourceManager() { };
-      virtual ~CResourceManager() { };
+      CResourceManager() = default;
+      virtual ~CResourceManager() = default;
   };
   
   template<typename T> class TResourceManager : public CResourceManager {

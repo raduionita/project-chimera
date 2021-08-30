@@ -151,6 +151,10 @@ namespace cym {
         return 0;
     }
   }
+  
+  
+// @TODO inline glm::vec4 rgba(glm::float r, glm::float g, glm::float b, glm::float a) { return glm::vec4{r,g,b,a}; }
+// @TODO inline glm::vec4 rgba(glm::uint r, glm::uint g, glm::uint b, glm::uint a) { return cym::rgba((float)(r)/255.f, ...)
 }
 
 #endif //__cym_hpp__

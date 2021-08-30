@@ -5,7 +5,10 @@
 
 namespace cym {
   class CManager {
-      
+    public:
+      virtual ~CManager() = default;
+    public:
+      inline static void load() { }
   };
   
   template<typename T> class TManager : public CManager {

@@ -9,7 +9,7 @@
 namespace app {
   class CViewport {
     public:
-    // sys::spo<cym::CCamera> mCamera
+    // sys::ptr<cym::CCamera> mCamera
     public:
       CViewport(/*uix::CWindow* pParent, uix::CContext* pContext*/);
       virtual ~CViewport() = default;

@@ -22,12 +22,12 @@ namespace sys {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   const CLogger::ELevel& operator <<(const CLogger::ELevel& eLevel, const CLogger::EManipulator& eManipulator) {
-    static auto sLogger = CLogger::getSingleton();
+    static auto& sLogger {CLogger::getSingleton()};
     // emptyness guard
-    if (sLogger->mOutput.empty())
+    if (sLogger.mOutput.empty())
       return eLevel;
     // logging level matches
-    if (int(eLevel) <= int(sLogger->level())) {
+    if (int(eLevel) <= int(sLogger.level())) {
       // prefix
       time_t nTime  = std::time(nullptr);
       auto   oLocal = std::localtime(&nTime);
@@ -48,12 +48,12 @@ namespace sys {
       switch (eManipulator) {
         default: break;
         case CLogger::EManipulator::NL: {
-          sLogger->mOutput.append("\n");
+          sLogger.mOutput.append("\n");
           break;
         }
         case CLogger::EManipulator::END: {
           std::stringstream stream;
-          std::string&      output = sLogger->mOutput; 
+          std::string&      output = sLogger.mOutput; 
           stream << output;
           output.clear();
           std::string line;
@@ -64,19 +64,19 @@ namespace sys {
               output.append("                            ");
             output.append(line).append("\n");
           }
-          sLogger->provider()->log(output);
+          sLogger.provider()->log(output);
           break;
         }
       }
     }
     // clear output
-    sLogger->mOutput.clear();
+    sLogger.mOutput.clear();
     // chaining
     return eLevel;
   }
     
-  CLogger* operator <<(CLogger*, const std::string& output) {
-    return CLogger::getSingleton()->push(output);
+  CLogger& operator <<(CLogger&, const std::string& output) {
+    return CLogger::push(output);
   }
     
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -35,7 +35,7 @@ namespace cym {
       bool init();
       void free();
     public:
-      inline static sys::wpo<CRenderSystem> load() { return CRenderSystem::getSingleton(); }
+      inline static void boot() { CRenderSystem::getSingleton(); }
     public:
       inline void useBlend(bool b) { if /* on */ (b) { if ((mEnabled & BLEND) == 0) { GLCALL(::glEnable(GL_BLEND)); mEnabled |= BLEND; } /* do nothing if it has flag */ } else if /*off*/  ((mEnabled & BLEND)) { GLCALL(::glDisable(GL_BLEND)); mEnabled &= ~BLEND; } /* else do nothing if it doesn't have flag */ }
       inline bool setBlendFunc(GLenum s, GLenum d) { if (mBlendFunc.first != s || mBlendFunc.second != d) { useBlend(true); GLCALL(::glBlendFunc(s,d)); mBlendFunc.first = s; mBlendFunc.second = d; return true; } return false; }

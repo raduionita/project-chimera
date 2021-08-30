@@ -2,17 +2,20 @@
 #include "cym/CCodec.hpp"
 
 namespace cym {
-  CMesh::~CMesh() {
-    SYS_LOG_NFO("cym::CMesh::~CMesh()::" << this);
+  // mesh ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  CMesh::CMesh(const std::string& tName) : cym::CResource(tName) { 
+    SYS_LOG_NFO("cym::CMesh::CMesh(sys::string&)::" << this);
   }
+  
+  CMesh::~CMesh() { 
+    SYS_LOG_NFO("cym::CMesh::~CMesh()::" << this << " NAME:" << mName);
+  }
+  
+  // geometry ////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   CGeometry::CGeometry(const sys::string& tName) : cym::CResource(tName) {
-    SYS_LOG_NFO("cym::CGeometry::CGeometry(const sys::string&)::" << this);
-  }
-  
-  CGeometry::CGeometry(sys::spo<CGeometryLoader> pLoader) {
-    SYS_LOG_NFO("cym::CGeometry::CGeometry(sys::spo<CGeometryLoader>)::" << this);
-    load(pLoader);
+    SYS_LOG_NFO("cym::CGeometry::CGeometry(sys::string&)::" << this);
   }
   
   CGeometry::~CGeometry() {
@@ -20,80 +23,157 @@ namespace cym {
      //CGeometryManager::kill(this->mName);
   }
   
-  void CGeometry::load(sys::spo<CGeometryLoader> pLoader) {
-    SYS_LOG_NFO("cym::CGeometry::load(sys::spo<CGeometryLoader>)::" << this);
-    
-    cym::CGeometryBuffer& rBuffer = pLoader->mGeometryBuffer;
-    
-    rBuffer.pack();
-    
-    mVAO = new cym::CVertexArray;
-    mIBO = new cym::CIndexBuffer{rBuffer.getLayout().data(), rBuffer.getLayout().size(), rBuffer.getLayout().count()};
-    mVLO = new cym::CVertexLayout{cym::CVertexLayout::SEQUENTIAL};
-    mVBO = new cym::CVertexBuffer{rBuffer.getStream().size(), rBuffer.getStream().count()};
-  
-// @todo merge geometries: CGeometryBuffer + CGeometryBuffer or rBuffer.concat(CGeometry) 
-
-// @todo: CGeometryBuffer could/should have an array of CGeometries
-
-    // for (auto& rBuffer : rData.geometries) 
-    for (auto&& [name,in] : rBuffer.getInputs()) {
-      // load vbo & layout
-      mVBO->data(in);
-      mVLO->read(in);
-      // infer mAABB from geometry
-      if (in->attribute() == EVertexAttribute::POSITION) {
-        auto pi = static_cast<cym::CPositionInput*>(in);
-        for (auto& tVec : pi->input()) {
-          mAABB.min.x = glm::min(mAABB.min.x,tVec.x); mAABB.min.y = glm::min(mAABB.min.y,tVec.y); mAABB.min.z = glm::min(mAABB.min.z,tVec.z);
-          mAABB.max.x = glm::max(mAABB.max.x,tVec.x); mAABB.max.y = glm::max(mAABB.max.y,tVec.y); mAABB.max.z = glm::max(mAABB.max.z,tVec.z);
+  void CGeometry::draw() {
+    if (mState == CResource::EState::READY) {
+      mVAO->bind();
+      mIBO->bind();
+      for (auto& [tName,pMesh] : mMeshes) {
+        if (!pMesh->mHidden) {
+          // SYS_LOG_NFO("cym::CGeometry::draw()::" << this << " mName:" << mName << " mesh:" << tName << " P:" << ((GLenum)pMesh->mPrimitive) << " S:" << pMesh->mRange.getStart() << " C:" << pMesh->mRange.getCount());
+          GLCALL(::glDrawElements((GLenum)(pMesh->mPrimitive), pMesh->mRange.getCount(), pMesh->mRange.getType(), (void*)(pMesh->mRange.getStart() * cym::sizeOf(pMesh->mRange.getType()))));
         }
       }
     }
-    
-    mVAO->load(*mVBO,*mVLO);
   }
-  
-  void CGeometry::draw() {
-    mVAO->bind(); 
-    mIBO->bind(); 
-    for (auto& [tName,pMesh] : mMeshes) {
-      GLCALL(::glDrawElements((GLenum)(pMesh->mPrimitive), pMesh->mRange.getCount(), pMesh->mRange.getType(), (void*)(pMesh->mRange.getStart() * cym::sizeOf(pMesh->mRange.getType()))));
-    }
-  }
-  
-  void CMesh::draw() { mGeometry->mVAO->bind(); mGeometry->mIBO->bind(); GLCALL(::glDrawElements((GLenum)(mPrimitive), mRange.getCount(), mRange.getType(), (void*)(mRange.getStart() * cym::sizeOf(mRange.getType())))); }
   
   // managers ////////////////////////////////////////////////////////////////////////////////////////////////////////
   
+  CMeshManager::CMeshManager()  { 
+    SYS_LOG_NFO("cym::CMeshManager::CMeshManager()");
+  }
+  
+  CMeshManager::~CMeshManager() { 
+    SYS_LOG_NFO("cym::CMeshManager::~CMeshManager()");
+  }
+  
+  PMesh CMeshManager::load(PMeshLoader pLoader) {
+    SYS_LOG_NFO("cym::CMeshManager::load(PMeshLoader)");
+    // manager
+    static auto& self {cym::CMeshManager::getSingleton()};
+    
+    const auto& tName {pLoader->getName()};
+    
+    PMesh   pMesh {new CMesh{tName}};
+    
+// @TODO save?
+    
+    pLoader->load(pMesh);
+    
+    // material (will load async)
+    pMesh->mMaterial  = CMaterialManager::load(pLoader->mMaterialLoader);
+    // other stuff
+    pMesh->mHidden    = pLoader->mHidden;
+    pMesh->mRange     = {pLoader->mRange.nStart, pLoader->mRange.nEnd - pLoader->mRange.nStart};
+    pMesh->mPrimitive = pLoader->mPrimitive;
+    // state
+    pMesh->mState     = CResource::EState::READY;
+    // return
+    return pMesh;
+  }
+  
   CGeometryManager::CGeometryManager()  { 
-    SYS_LOG_NFO("cym::CGeometryManager::CGeometryManager()::" << this); 
+    SYS_LOG_NFO("cym::CGeometryManager::CGeometryManager()");
   }
   
   CGeometryManager::~CGeometryManager() { 
-    SYS_LOG_NFO("cym::CGeometryManager::~CGeometryManager()::" << this);
+    SYS_LOG_NFO("cym::CGeometryManager::~CGeometryManager()");
     //for (auto it = mGeometrys.begin(); it != mGeometrys.end(); )
       //CGeometryManager::kill(it->second);
   }
   
-  // loaders /////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
-  void TGeometryLoader<sys::file>::load(sys::spo<CResourceLoader> pResourceLoader) {
-    SYS_LOG_NFO("cym::TGeometryLoader<sys::file>::load(sys::spo<CResourceLoader>)::" << this);
-    
-    auto pCodec = cym::CCodecManager::getCodec(mFile.ext());
-    
-    // @todo: this gets deleted after returns from ->decode(sys::spo<CCGeometryLoader>)
-    
-    pCodec->decode(pResourceLoader);
+  PGeometry CGeometryManager::load(PGeometryLoader pLoader, bool bSearch/*=true*/) {
+    SYS_LOG_NFO("cym::CGeometryManager::load(PGeometryLoader,bool)");
+    // manager
+    static auto& self {cym::CGeometryManager::getSingleton()};
+    // process CGeometryLoader into CGeometry 
+    if (pLoader) {
+      PGeometry   pGeometry;
+      const auto& tName {pLoader->getName()};
+      // if externaly loaded: try to find it 
+      if (bSearch && sys::find(/*needle*/tName,/*haystack*/self.mGeometries,/*destination*/pGeometry)) {
+        // do nothing
+      } else {
+        // new geometry
+        pGeometry = new CGeometry{tName};
+        // and persist it to CGeometryManager
+        CGeometryManager::save(pGeometry);
+        // async
+        sys::task([pGeometry, pLoader](){
+          // load on THREAD
+          pLoader->load(pGeometry);
+          // attach flags
+          pGeometry->mFlags = pLoader->mFlags;
+          // sub-meshes
+          for (auto&& [_,pMeshLoader] : pLoader->mMeshLoaders) {
+            // load
+            PMesh pMesh {CMeshManager::load(pMeshLoader)};
+            // attach to geometry
+            pGeometry->addMesh(pMesh);
+          }
+          // infer mAABB from geometry
+          for (auto&& [name,in] : pLoader->mGeometryBuffer.getInputs()) {
+            if (in->attribute() == EVertexAttribute::POSITION) {
+              auto pi {static_cast<cym::CPositionInput*>(in)};
+              for (auto& tVec : pi->values()) {
+                pGeometry->mAABB.extend(tVec); 
+              }
+            }
+          }
+          // set state to loaded = all data was read (needs opengl stuff)
+          pGeometry->mState = CResource::EState::LOADED;
+        },[pGeometry,pLoader](){
+          // opengl on MAIN
+          cym::CGeometryBuffer& rBuffer = pLoader->mGeometryBuffer;
+          // pack (remove excess data)
+          rBuffer.pack();
+          // init opengl stuff
+          pGeometry->mVAO = new cym::CVertexArray;
+          pGeometry->mIBO = new cym::CIndexBuffer{rBuffer.getLayout().data(), rBuffer.getLayout().size(), rBuffer.getLayout().count()};
+          pGeometry->mVLO = new cym::CVertexLayout{cym::CVertexLayout::SEQUENTIAL};
+          pGeometry->mVBO = new cym::CVertexBuffer{rBuffer.getStream().size(), rBuffer.getStream().count()};
+        
+// @TODO merge geometries: CGeometryBuffer + CGeometryBuffer or rBuffer.concat(CGeometry) 
+      
+// @TODO: CGeometryBuffer could/should have an array of CGeometries
+      
+          // for (auto& rBuffer : rData.geometries) 
+          for (auto&& [name,in] : rBuffer.getInputs()) {
+            // load vbo & layout
+            pGeometry->mVBO->data(in);
+            pGeometry->mVLO->read(in);
+          }
+          // load vertex array
+          pGeometry->mVAO->load(*(pGeometry->mVBO),*(pGeometry->mVLO));
+          // set state to ready
+          pGeometry->mState = CResource::EState::READY; 
+        });
+      }
+      // done: return found or created CGeometry
+      return pGeometry;
+    } else {
+// @TODO: return/create null geometry (like a box or icon/question.mark) + persist it (if this is the first time) 
+      return nullptr;
+    }
   }
   
-  void TGeometryLoader<glm::cube>::load(sys::spo<CResourceLoader> pResourceLoader) {
-    SYS_LOG_NFO("cym::TGeometryLoader<glm::SCube>::load(sys::spo<CResourceLoader>)");
+  // loaders /////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  void TGeometryLoader<sys::file>::load(PGeometry pGeometry) {
+    SYS_LOG_NFO("cym::TGeometryLoader<sys::file>::load(PGeometry)::" << this);
+    
+    auto pCodec {cym::CCodecManager::getCodec(mFile.ext())};
+    
+// @TODO this gets deleted after returns from ->decode(PGeometryLoader)...can u not delete it
+    
+    pCodec->decode(this);
+  }
+  
+  void TGeometryLoader<glm::cube>::load(PGeometry pGeometry) {
+    SYS_LOG_NFO("cym::TGeometryLoader<glm::cube>::load(PGeometry)");
     
 // @todo: implement mDivisions
     
-    auto    pGeometryLoader = sys::static_pointer_cast<TGeometryLoader<glm::SCube>>(pResourceLoader);
+    auto    pGeometryLoader = this; // sys::static_pointer_cast<TGeometryLoader<glm::cube>>(pResourceLoader);
     const glm::SCube& rCube = pGeometryLoader->getCube();
     // geo buffer
     auto& rGeometryBuffer   = pGeometryLoader->getGeometryBuffer();
@@ -269,10 +349,10 @@ namespace cym {
     pMeshLoader->getRange().nEnd   = rLayout.size();
   }
   
-  void TGeometryLoader<glm::rect>::load(sys::spo<CResourceLoader> pResourceLoader) {
-    SYS_LOG_NFO("cym::TGeometryLoader<glm::rect>::load(sys::spo<CResourceLoader>)");
+  void TGeometryLoader<glm::rect>::load(PGeometry pGeometry) {
+    SYS_LOG_NFO("cym::TGeometryLoader<glm::rect>::load(PGeometry)");
     
-    auto       pGeometryLoader = sys::static_pointer_cast<TGeometryLoader<glm::rect>>(pResourceLoader);
+    auto       pGeometryLoader = this; // sys::static_pointer_cast<TGeometryLoader<glm::rect>>(pResourceLoader);
     glm::rect& rRect           = pGeometryLoader->geRectangle();
     
     auto& rGeometryBuffer = pGeometryLoader->getGeometryBuffer();
@@ -389,10 +469,10 @@ namespace cym {
     pMeshLoader->getRange().nEnd   = rLayout.size();
   }
   
-  void TGeometryLoader<glm::frustum>::load(sys::spo<CResourceLoader> pResourceLoader) {
-    SYS_LOG_NFO("cym::TGeometryLoader<glm::frustum>::load(sys::spo<CResourceLoader>)");
+  void TGeometryLoader<glm::frustum>::load(PGeometry pGeometry) {
+    SYS_LOG_NFO("cym::TGeometryLoader<glm::frustum>::load(PGeometry)");
     
-    auto       pGeometryLoader = sys::static_pointer_cast<TGeometryLoader<glm::frustum>>(pResourceLoader);
+    auto       pGeometryLoader = this; // sys::static_pointer_cast<TGeometryLoader<glm::frustum>>(pResourceLoader);
     glm::frustum& rFrustum     = pGeometryLoader->getFrustum();
     
     auto& rGeometryBuffer      = pGeometryLoader->getGeometryBuffer();
@@ -404,7 +484,7 @@ namespace cym {
     
     auto& rPositions = rGeometryBuffer.getStream().make("positions", new cym::CPositionInput);
     auto& rTexcoords = rGeometryBuffer.getStream().make("texcoords", new cym::CTexcoordInput);
-    auto& rNormals   = rGeometryBuffer.getStream().make("normals", new cym::CNormalInput);
+    auto& rNormals   = rGeometryBuffer.getStream().make("normals",   new cym::CNormalInput);
     auto& rLayout    = rGeometryBuffer.getLayout();
     
     const uint  kDivisions {pGeometryLoader->mDivisions};    // @todo: divisions
@@ -481,7 +561,7 @@ namespace cym {
     auto& rBinormals = rGeometryBuffer.getStream().make("binormals", new cym::CBinormalInput); rBinormals.grow(kNumVertices);
     auto& rIndices   = rLayout.indices();
     // basically: for each triangle
-    for(uint i = 0; i < kNumIndices; i+=3) {
+    for (uint i = 0; i < kNumIndices; i+=3) {
       // index of each vertex of this triangle
       ushort i0 = rIndices[i+0];
       ushort i1 = rIndices[i+1];

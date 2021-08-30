@@ -8,7 +8,7 @@
 #include "sys/CStream.hpp"
 #include "sys/TSingleton.hpp"
 #include "sys/CException.hpp"
-#include "sys/CThreader.hpp"
+#include "sys/CTask.hpp"
 #include "cym/TInstance.hpp"
 #include "glm/CVector.hpp"
 #include "ogl/CTexture.hpp"
@@ -16,9 +16,9 @@
 #include <functional>
 
 namespace cym {
-  class CTexture;        
+  class CTexture;           typedef sys::ptr<CTexture>       PTexture;
   class CTextureManager;
-  class CTextureLoader;
+  class CTextureLoader;     typedef sys::ptr<CTextureLoader> PTextureLoader;
   template<typename T> class TTextureLoader;
   
   // resources ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,6 +69,8 @@ namespace cym {
         NONE            = 0b00000000'00000000, //
         MIPMAPS         = 0b00001000'00000000, //
       };
+    private:
+      static constexpr GLenum sCubeMapTargets[6] = {GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, };
     protected:
       GLint   mSlot     {0};             // move to COGLTexture
       GLenum  mTarget   {GL_TEXTURE_2D}; // move to COGLTexture
@@ -82,15 +84,7 @@ namespace cym {
     public:
       using cym::CResource::CResource;
       CTexture(const std::string& = "");
-      CTexture(sys::spo<CTextureLoader>);
       ~CTexture();
-    public: // actions
-      virtual GLvoid   bind(bool=true) const override;
-              GLvoid   bind(GLint);
-      GLvoid           sampler(CShader*);
-      virtual void     load(sys::spo<CTextureLoader>) final;
-    public:
-      // template<typename T> static PTexture from(const T& src) { return manager()->init(src); }
     public: // get/set-ers
       void          setFiltering(EFiltering eFiltering);
       void          setWrapping(EWrapping eWrapping) const;
@@ -106,9 +100,10 @@ namespace cym {
       inline void   setDepth(GLsizei d)   { mDepth = d; }
 // @todo: move to RenderState or something, slot is not dependent on this texture 
       inline GLint  getSlot() const { return mSlot; }
-      
-      friend inline GLbitfield operator |(const CTexture::EWrapping&, const CTexture::EWrapping&);
-      friend inline GLbitfield operator |(const CTexture::EFiltering&, const CTexture::EWrapping&);
+    public: // actions
+      virtual GLvoid   bind(bool=true) const override;
+              GLvoid   bind(GLint);
+              GLvoid   sampler(CShader*);
   };
   
   inline GLbitfield operator |(const CTexture::EWrapping& lhs, const CTexture::EWrapping& rhs) { return (GLbitfield)((GLbitfield)(lhs) | (GLbitfield)(rhs)); }
@@ -130,7 +125,7 @@ namespace cym {
       using EFlag = CTexture::EFlag;
       enum EHint { MIPMAPS = 1 };
     public:
-      sys::spo<sys::stream> mStream;
+      sys::PStream mStream;
     // properties
       uint         flags   {0};
       uint         width   {0};
@@ -142,27 +137,29 @@ namespace cym {
       bool         alpha  {false};
     public:
       using cym::CResourceLoader::CResourceLoader;
+      inline CTextureLoader(const sys::string& tName) : CResourceLoader(tName) { SYS_LOG_NFO("cym::CTextureLoader::CTextureLoader(sys::string&)::" << this);  }
+      inline ~CTextureLoader() { SYS_LOG_NFO("cym::CTextureLoader::~CTextureLoader()::" << this); }
     public:
-      virtual inline void         load(sys::spo<CResourceLoader>) { throw sys::exception("CTextureLoader::load() NOT overriden!",__FILE__,__LINE__);  };
+      virtual inline void         load(PTexture) { throw sys::exception("CTextureLoader::load(PTexture) NOT overriden!",__FILE__,__LINE__);  };
     public:
-      template<typename T> inline static sys::spo<TTextureLoader<T>> from(const T& tSource) { return new TTextureLoader<T>{tSource}; }
+      template<typename T> inline static sys::ptr<TTextureLoader<T>> from(const T& tSource) { return new TTextureLoader<T>{tSource}; }
       template<typename T, typename... Args> inline static sys::string name(const T& tSource, Args&&... args) { return TTextureLoader<T>::name(tSource, std::forward<Args>(args)...); }
     public:
-      inline sys::spo<sys::CStream> getStream() { if (mStream == nullptr) { mStream = new sys::stream; } return mStream; }
+      inline sys::PStream& getStream() { if (mStream == nullptr) { mStream = new sys::stream; } return mStream; }
   };
   
-  template<typename T> class TTextureLoader : public cym::CTextureLoader {
-      typedef std::function<void(sys::spo<TTextureLoader<T>>)> function_type;
-    protected:
-      T             mSource;
-      sys::string     mName;
-      function_type mFunction;
+  template<typename T> class TTextureLoader : public cym::CTextureLoader { 
     public:
-      TTextureLoader(const T& tSource, const sys::string& tName, function_type tFunction) : mSource{tSource}, mName{tName}, mFunction{tFunction} {}
-    public:
-      virtual inline void load(sys::spo<CResourceLoader> pLoader) override { mFunction(sys::static_pointer_cast<cym::TTextureLoader<T>>(pLoader)); }
-    public:
-      inline T& getSource() const { return mSource; }
+      using cym::CTextureLoader::CTextureLoader;
+    //   typedef std::function<void(sys::ptr<TTextureLoader<T>>)> function_type;
+    // protected:
+    //   T             mSource;
+    //   sys::string   mName;
+    //   function_type mFunction;
+    // public:
+    //   TTextureLoader(const T& tSource, const sys::string& tName, function_type tFunction) : mSource{tSource}, mName{tName}, mFunction{tFunction} {}
+    // public:
+    //   inline T& getSource() const { return mSource; }
   };
   
   template<> class TTextureLoader<sys::file> : public CTextureLoader {
@@ -173,7 +170,7 @@ namespace cym {
     public:
       TTextureLoader(const sys::file& tFile) : CTextureLoader(name(tFile)), mFile{tFile} { };
     public:
-      virtual void load(sys::spo<CResourceLoader>) override;
+      virtual void load(PTexture) override;
     public:
       inline static sys::string name(const sys::file& tFile) { return tFile.path(); }
     public:
@@ -190,64 +187,48 @@ namespace cym {
     public:
       inline static sys::string name(const cym::null&, const cym::uint l) { return std::string("null:") + sys::to_string(l) + 'x' + sys::to_string(l); }
     public:
-      virtual void load(sys::spo<CResourceLoader>) override;
+      virtual void load(PTexture) override;
   };
   
   // manager /////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   class CTextureManager : public cym::TResourceManager<CTexture>, public sys::TSingleton<CTextureManager> {
-      friend class CTexture;
-      friend class CTextureLoader;
+      friend class cym::CTexture;
+      friend class cym::CTextureLoader;
+      friend class sys::TSingleton<cym::CTextureManager>;
     protected:
-      sys::map<std::string, sys::spo<CTexture>> mTextures;
-    public:
+      sys::map<std::string, sys::ptr<CTexture>> mTextures;
+    protected:
       CTextureManager();
       ~CTextureManager();
     public:
+      inline static void boot() { CTextureManager::getSingleton(); }
       /* remeber/cache texture  */
-      static void save(sys::spo<CTexture> pTexture) {
-        static auto pThis {CTextureManager::getSingleton()};
-        SYS_LOG_NFO("cym::CTextureManager::save(sys::spo<CTexture>)::" << pThis);
-        pThis->mTextures.insert(std::pair(pTexture->mName, pTexture));
+      static void save(PTexture pTexture) {
+        static auto& self {CTextureManager::getSingleton()};
+        SYS_LOG_NFO("cym::CTextureManager::save(PTexture)");
+        self.mTextures.insert(std::pair(pTexture->mName, pTexture));
       }
       /* load texture from texture loader */
-      static sys::spo<CTexture> load(sys::spo<CTextureLoader> pTextureLoader) {
-        static auto pThis {cym::CTextureManager::getSingleton()};
-        SYS_LOG_NFO("cym::CTextureManager::load(sys::spo<CTextureLoader>)::" << pThis);
-        
-        if (!pTextureLoader) return nullptr;
-        
-        sys::spo<CTexture> pTexture = new CTexture{pTextureLoader->getName()};
-        
-        sys::async([&pTexture, pTextureLoader](){
-          
-          pTextureLoader->load(pTextureLoader);
-          
-// @todo: load tex ASAP using lowes rez/mip, ASYNC the rest of the mips/high-rez
-          
-          pTexture->load(pTextureLoader);
-          
-        }, sys::EAsync::SPAWN);
-        
-        CTextureManager::save(pTexture);
-        
-        return pTexture;
-      }
+      static PTexture load(PTextureLoader pLoader, bool bSearch=true);
+      /* load PTexture using a TTextureLoader */
+      template<typename T> inline static PTexture load(sys::ptr<TTextureLoader<T>> pLoader, bool bSearch = true) { return CTextureManager::load(PTextureLoader{pLoader},bSearch); }
       /* load texture routing to a texture loader // = load(sys::CFile{"path/to/texture.tex"}) */
-      template<typename T, typename... Args> static sys::spo<CTexture> load(const T& tSource, Args&&... args) {
-        static auto pThis {cym::CTextureManager::getSingleton()};
-        SYS_LOG_NFO("cym::CTextureManager::load(T&,Args&&)::" << pThis);
-        
-        sys::spo<CTexture> pTexture;
-        
+      template<typename T, typename... Args> static PTexture load(const T& tSource, Args&&... args) {
+        SYS_LOG_NFO("cym::CTextureManager::load(T&,Args&&)");
+        // manager
+        static auto& self {cym::CTextureManager::getSingleton()};
+        // container resource
+        PTexture pTexture;
+        // name of the resource
         const sys::string& tName {CTextureLoader::name(tSource,std::forward<Args>(args)...)};
-        
-        if (!sys::find(tName, pThis->mTextures, pTexture)) {
-          sys::spo<CTextureLoader> tLoader = new TTextureLoader<T>{tSource, std::forward<Args>(args)...};
+        // search for it first
+        if (!sys::find(tName, self.mTextures, pTexture)) {
+          PTextureLoader tLoader{new TTextureLoader<T>{tSource, std::forward<Args>(args)...}};
           // this will return an empty geometry imediatly, and async load its data (meshs,materials,textures,vbos)
-          pTexture = CTextureManager::load(tLoader);
+          pTexture = CTextureManager::load(tLoader, false);
         }
-        
+        // return copy of 
         return {new CTexture{*pTexture}};
       }
   };

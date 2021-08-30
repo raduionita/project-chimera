@@ -5,21 +5,60 @@
 #include "cym/cym.hpp"
 #include "cym/CResource.hpp"
 #include "cym/CTexture.hpp"
-#include "cym/CProperty.hpp"
+#include "cym/TProperty.hpp"
 #include "cym/TInstance.hpp"
 
+
+// @TODO class CMaterial
+// @TODO class CTexture extends CMaterial
+// @TODO class CSurface extends CMaterial // surface has all properties that CMaterial has now
+
+// OR
+
+// @TODO class CMaterial
+//       sys::table<sys::string, PProperty> mProperties; // a list of properties
+//       each property knows how to bind to the shader
+
+// @TODO class TProperty<CTexture>  extends CProperty
+// @TODO class TProperty<CMaterial> extends CProperty
+// @TODO class TProperty<CGroup>    extends CProperty
+//       sys::table<sys::string,PProperty> mProperties // texture (or other material) + value/level
+
+
 namespace cym {
-  class CMateriaLoader;
-  class CChannelLoader;
+  class CMaterialLoader;  typedef sys::ptr<CMaterialLoader> PMaterialLoader;
+  class CChannelLoader;   typedef sys::ptr<CChannelLoader>  PChannelLoader;
   class CMaterialManager;
-  class CMaterial;
-  class CChannel;
+  class CMaterial;        typedef sys::ptr<CMaterial>       PMaterial;
+  class CChannel;         typedef sys::ptr<CChannel>        PChannel;
+  
+  enum class EChannel : uint { NONE = 0, DIFFUSE = 1, AMBIENT, NORMAL, SPECULAR, EMISSION, TRANSPARENCY, REFRCTION };
+  
+  class CGroup; typedef sys::ptr<CGroup> PGroup;
   
   // resources ///////////////////////////////////////////////////////////////////////////////////////////////////////
   
+// @TODO use CProperty
+// CChannel = wrapper around map of properties
+
+// @TODO replace CChannel w/ CGroup
+  class CGroup {
+    protected:
+      
+// @TODO reaplce w/ sys::vector<sys::pair<EProperty,PProperty>>
+      sys::map<sys::string, PProperty> mProperties;
+
+    public:
+      PProperty& getProperty(const sys::string& tName) { return sys::find_or_throw(tName, mProperties, sys::exception("Property"+ tName +" NOT found!",__FILE__,__LINE__)); }
+      template<EProperty E> void setProperty(const sys::string& tName, TProperty<E>* pProperty) { mProperties.insert(std::pair{tName, pProperty}); }
+      template<EProperty E> void setProperty(const sys::string& tName, sys::ptr<TProperty<E>> pProperty) { mProperties.insert(std::pair{tName, pProperty}); }
+  };
+
+  
+  
   class CChannel : cym::CResource {
     public:
-      enum EType  : uint { NONE = 0, DIFFUSE = 1, AMBIENT, NORMAL, SPECULAR, EMISSION, TRANSPARENCY, REFRCTION };
+      using EType = EChannel;
     public:
       ~CChannel();
     public:
@@ -34,7 +73,7 @@ namespace cym {
       friend class CMaterialManager;
     protected:
       cym::rgba          mColor;
-      sys::spo<CTexture> mTexture;
+      sys::ptr<CTexture> mTexture;
     public:
       virtual inline EType getType() const override { return CChannel::EType::AMBIENT; }
   };
@@ -45,7 +84,7 @@ namespace cym {
       friend class CMaterialManager;
     protected:
       cym::rgba          mColor;
-      sys::spo<CTexture> mTexture;
+      sys::ptr<CTexture> mTexture;
     public:
       virtual inline EType getType() const override { return CChannel::EType::DIFFUSE; }
   };
@@ -55,7 +94,7 @@ namespace cym {
       friend class CMaterialLoader;
       friend class CMaterialManager;
     protected:
-      sys::spo<CTexture> mTexture;
+      sys::ptr<CTexture> mTexture;
     public:
       virtual inline EType getType() const override { return CChannel::EType::NORMAL; }
   };
@@ -65,7 +104,7 @@ namespace cym {
       friend class CMaterialLoader;
       friend class CMaterialManager;
     protected:
-      sys::spo<CTexture> mTexture;
+      sys::ptr<CTexture> mTexture;
       cym::rgba          mColor;
       glm::real          mLevel;
     public:
@@ -78,27 +117,39 @@ namespace cym {
       friend class CGeometry;
       friend class CMaterialLoader;
       friend class CMaterialManager;
-      using EChannel = cym::CChannel::EType;
     protected:
-      sys::CMap<EChannel,sys::spo<CChannel>> mChannels;
+      sys::map<EChannel,PChannel> mChannels;
+      
+// @TODO reaplce w/ sys::vector<sys::pair<EChannel,PChannel>>
+      sys::map<EChannel, PGroup> mGroups;
+      
+      
+      
     public:
       using cym::CResource::CResource;
-      CMaterial(const sys::string& tName = "") : cym::CResource(tName) { }
+      CMaterial(const sys::string& = "");
       ~CMaterial();
-    public: // bind to shader?!, should trickle down to channel & texture
-      template<typename T> bool bind(sys::spo<T>) { throw sys::CException("NOT IMPLEMENTED",__FILE__,__LINE__); return false; }
     public:
-      inline bool                isTransparent() const                        { return mChannels.find(EChannel::TRANSPARENCY) != mChannels.end(); }
+      inline bool                isTransparent() const                      { return mChannels.find(EChannel::TRANSPARENCY) != mChannels.end(); }
+      /* */
+      inline void                addChannel(sys::ptr<CChannel> pChannel)    { mChannels[pChannel->getType()] = pChannel; }
+      template<EChannel T> inline void   addChannel(sys::ptr<TChannel<T>> pChannel) { mChannels[pChannel->getType()] = pChannel; }
+      /* */
+      inline sys::ptr<CChannel>&                    getChannel(EChannel eChannel)                { return mChannels[eChannel]; }
+      template<EChannel T> inline sys::ptr<TChannel<T>>     getChannel()  { return sys::static_pointer_cast<TChannel<T>>(mChannels[T]); }
+      inline sys::ptr<TChannel<EChannel::AMBIENT>>  getAmbient()  { return sys::static_pointer_cast<TChannel<EChannel::AMBIENT>>(mChannels[EChannel::AMBIENT]); }
+      inline sys::ptr<TChannel<EChannel::DIFFUSE>>  getDiffuse()  { return sys::static_pointer_cast<TChannel<EChannel::DIFFUSE>>(mChannels[EChannel::DIFFUSE]); }
+      inline sys::ptr<TChannel<EChannel::NORMAL>>   getNormal()   { return sys::static_pointer_cast<TChannel<EChannel::NORMAL>>(mChannels[EChannel::NORMAL]); }
+      inline sys::ptr<TChannel<EChannel::SPECULAR>> getSpecular() { return sys::static_pointer_cast<TChannel<EChannel::SPECULAR>>(mChannels[EChannel::SPECULAR]); }
       
-      inline void                addChannel(sys::spo<CChannel> pChannel)    { mChannels[pChannel->getType()] = pChannel; }
-      template<EChannel T> inline void   addChannel(sys::spo<TChannel<T>> pChannel) { mChannels[pChannel->getType()] = pChannel; }
       
-      inline sys::spo<CChannel>&                    getChannel(EChannel eChannel)                { return mChannels[eChannel]; }
-      template<EChannel T> inline sys::spo<TChannel<T>>     getChannel()  { return sys::static_pointer_cast<TChannel<T>>(mChannels[T]); }
-      inline sys::spo<TChannel<EChannel::AMBIENT>>  getAmbient()  { return sys::static_pointer_cast<TChannel<EChannel::AMBIENT>>(mChannels[EChannel::AMBIENT]); }
-      inline sys::spo<TChannel<EChannel::DIFFUSE>>  getDiffuse()  { return sys::static_pointer_cast<TChannel<EChannel::DIFFUSE>>(mChannels[EChannel::DIFFUSE]); }
-      inline sys::spo<TChannel<EChannel::NORMAL>>   getNormal()   { return sys::static_pointer_cast<TChannel<EChannel::NORMAL>>(mChannels[EChannel::NORMAL]); }
-      inline sys::spo<TChannel<EChannel::SPECULAR>> getSpecular() { return sys::static_pointer_cast<TChannel<EChannel::SPECULAR>>(mChannels[EChannel::SPECULAR]); }
+      inline PGroup& operator [](EChannel e) { return getGroup(e); }
+      inline PGroup& getGroup(EChannel e)                 { auto it {mGroups.find(e)}; if (it == mGroups.end()) { mGroups.insert(std::pair{e,new CGroup{}}); } return mGroups[e]; }
+      inline void    setGroup(EChannel e, PGroup& pGroup) { mGroups[e] = pGroup; }
+      
+    public: // actions
+      /* bind to shader?!, should trickle down to channel & texture */
+      template<typename T> bool bind(sys::ptr<T>) { throw sys::CException("NOT IMPLEMENTED",__FILE__,__LINE__); return false; }
   };
   
   // loaders /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -106,19 +157,19 @@ namespace cym {
   class CChannelLoader : public CResourceLoader {
     protected:
       // fields
-      sys::spo<cym::CTextureLoader> mTextureLoader;
-      cym::rgba                      mColor;
-      glm::real                      mLevel {1.f};
+      PTextureLoader mTextureLoader;
+      cym::rgba      mColor;
+      glm::real      mLevel {1.f};
     public:
-      bool                           hasTextureLoader() { return mTextureLoader == true; }
-      sys::spo<cym::CTextureLoader>& useTextureLoader() { if (!mTextureLoader) mTextureLoader = new CTextureLoader; return mTextureLoader; }
-      sys::spo<cym::CTextureLoader>& getTextureLoader() { return mTextureLoader; }
-      void                           setTextureLoader(sys::spo<cym::CTextureLoader> pLoader) { mTextureLoader = pLoader; }
+      bool           hasTextureLoader() { return mTextureLoader != nullptr; }
+      PTextureLoader getTextureLoader() { return mTextureLoader; }
+      void           setTextureLoader(PTextureLoader pLoader) { mTextureLoader = pLoader; }
+      PTextureLoader useTextureLoader() { if (!mTextureLoader) { mTextureLoader = new CTextureLoader; } return mTextureLoader; }
       
-      cym::rgba&                     getColor() { return mColor; }
-      void                           setColor(const cym::rgba& c) { mColor = c; }
-      glm::real&                     getLevel() { return mLevel; }
-      void                           setLevel(const glm::real l) { mLevel = l; }
+      cym::rgba&      getColor() { return mColor; }
+      void            setColor(const cym::rgba& c) { mColor = c; }
+      glm::real&      getLevel() { return mLevel; }
+      void            setLevel(const glm::real l) { mLevel = l; }
   };
   
   class CMaterialLoader : public CResourceLoader {
@@ -127,17 +178,17 @@ namespace cym {
     public:
       enum EHint { BLINN = 1, PHONG = 2, LAMBERT = 4 };
     protected:
-      std::map<cym::CChannel::EType,sys::spo<cym::CChannelLoader>> mChannelLoaders;
-      std::map<sys::string, sys::string>                           mUnknowns;
+      std::map<EChannel,PChannelLoader> mChannelLoaders;
+      std::map<sys::string,sys::string> mUnknowns;
     public:// ctors
       using cym::CResourceLoader::CResourceLoader;
     public:
     public:
-      virtual void load(sys::spo<CResourceLoader>) {  };
+      inline virtual void load(PMaterial) { SYS_LOG_NFO("cym::CMaterialLoader::load(PMaterial)::" << this); }
     public:
-      sys::spo<cym::CChannelLoader>&                                getChannelLoader(cym::CChannel::EType eType) { auto& pLoader = mChannelLoaders[eType]; if (!pLoader) pLoader = new CChannelLoader; return pLoader; }
-      sys::map<cym::CChannel::EType,sys::spo<cym::CChannelLoader>>& getChannelLoaders()                          { return mChannelLoaders; }
-      void                                                               addUnknown(const std::string& key, const std::string& val) { mUnknowns[key] = val; }
+      PChannelLoader&                    getChannelLoader(cym::CChannel::EType eType) { auto& pLoader = mChannelLoaders[eType]; if (!pLoader) pLoader = new CChannelLoader; return pLoader; }
+      sys::map<EChannel,PChannelLoader>& getChannelLoaders()                          { return mChannelLoaders; }
+      void                               addUnknown(const std::string& key, const std::string& val) { mUnknowns[key] = val; }
   };
   
   template<typename T> class TMaterialLoader : public CMaterialLoader { };
@@ -146,106 +197,36 @@ namespace cym {
       friend class CMaterial;
       friend class CMaterialManager;
     protected:
-      sys::CFile mFile;
+      sys::file mFile;
     public:
-      TMaterialLoader(const sys::CFile& tFile) : mFile{tFile} { };
+      TMaterialLoader(const sys::file& tFile) : mFile{tFile} { };
     public:
-      inline static std::string name(const sys::CFile& tFile) { return tFile.path(); }
+      inline static std::string name(const sys::file& tFile) { return tFile.path(); }
     public:
-      sys::CFile& getFile() { return mFile; }
+      sys::file& getFile() { return mFile; }
   };
   
   // managers ////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   class CMaterialManager : public cym::TResourceManager<CMaterial>, public sys::TSingleton<CMaterialManager> {
-      friend class CMaterial;
-      friend class CMaterialLoader;
+      friend class cym::CMaterial;
+      friend class cym::CMaterialLoader;
+      friend class sys::TSingleton<cym::CMaterialManager>;
     protected:
-      sys::CMap<std::string, sys::spo<CMaterial>> mMaterials;
-    public:
+      sys::CMap<std::string,cym::PMaterial> mMaterials;
+    protected:
       CMaterialManager();
       ~CMaterialManager();
     public:
+      inline static void boot() { CMaterialManager::getSingleton(); }
       /* remember CMaterial inside CMaterialManager */
-      static void save(sys::spo<CMaterial> pMaterial) {
-        static auto pThis {CMaterialManager::getSingleton()};
-        SYS_LOG_NFO("cym::CMaterialManager::save(sys::spo<CMaterial>)::" << pThis);
-        pThis->mMaterials.insert(std::pair(pMaterial->mName, pMaterial));
+      static void save(PMaterial pMaterial) {
+        static auto& self {CMaterialManager::getSingleton()};
+        SYS_LOG_NFO("cym::CMaterialManager::save(PMaterial)");
+        self.mMaterials.insert(std::pair(pMaterial->mName, pMaterial));
       }
       /* load CMaterial using a CMaterialLoader */
-      static sys::spo<CMaterial> load(sys::spo<CMaterialLoader> pMaterialLoader, bool bExternal = true) {
-        static auto pThis {cym::CMaterialManager::getSingleton()};
-        SYS_LOG_NFO("cym::CMaterialManager::load(sys::spo<CMaterialLoader>)::" << pThis);
-        // process material loader into a material
-        if (pMaterialLoader) {
-          sys::spo<CMaterial> pMaterial = new CMaterial{pMaterialLoader->getName()};
-          // spawn task to thread
-          sys::async([pMaterial, pMaterialLoader](){
-            // load loader
-            pMaterialLoader->load(pMaterialLoader);
-            // for each channel loader
-            for (auto&& [eType, pChannelLoader] : pMaterialLoader->mChannelLoaders) {
-              switch (eType) {
-                case CChannel::EType::AMBIENT: {
-                  SYS_LOG_NFO("cym::CMaterialManager::load(...)::AMBIENT");
-                  
-                  auto  pChannel = new TChannel<CChannel::EType::AMBIENT>{};
-                  
-                  if (pChannelLoader->hasTextureLoader())
-                    pChannel->mTexture = CTextureManager::load(pChannelLoader->useTextureLoader());
-                  
-                  pChannel->mColor   = pChannelLoader->getColor();
-                  
-                  pMaterial->addChannel(pChannel);
-                } break;
-                case CChannel::EType::DIFFUSE: {
-                  SYS_LOG_NFO("cym::CMaterialManager::load(...)::DIFFUSE");
-                  
-                  auto pChannel = new TChannel<CChannel::EType::DIFFUSE>{};
-                  
-                  if (pChannelLoader->hasTextureLoader()) {
-                    pChannel->mTexture = CTextureManager::load(pChannelLoader->useTextureLoader());
-                  }
-                    
-                  pChannel->mColor   = pChannelLoader->getColor();
-                  
-                  pMaterial->addChannel(pChannel);
-                } break;
-                case CChannel::EType::NORMAL: {
-                  SYS_LOG_NFO("cym::CMaterialManager::load(...)::NORMAL");
-                  
-                  auto  pChannel = new TChannel<CChannel::EType::NORMAL>{};
-                  
-                  if (pChannelLoader->hasTextureLoader())
-                    pChannel->mTexture = CTextureManager::load(pChannelLoader->useTextureLoader());;
-                  
-                  pMaterial->addChannel(pChannel);
-                } break;
-                case CChannel::EType::SPECULAR: {
-                  SYS_LOG_NFO("cym::CMaterialManager::load(...)::SPECULAR");
-                  
-                  auto  pChannel = new TChannel<CChannel::EType::SPECULAR>{};
-                  
-                  if (pChannelLoader->hasTextureLoader())
-                    pChannel->mTexture = CTextureManager::load(pChannelLoader->useTextureLoader());;
-                    
-                  pChannel->mColor   = pChannelLoader->getColor();
-                  
-                  pMaterial->addChannel(pChannel);
-                } break;
-                default: break;
-              }
-            }
-          }, sys::EAsync::SPAWN);
-          // save material
-          CMaterialManager::save(pMaterial);
-          // return material
-          return pMaterial;
-        } else {
-// @todo: return null material
-          return nullptr;
-        }
-      }
+      static PMaterial load(PMaterialLoader pLoader, bool bSearch=true);
   };
   
 // @todo

@@ -30,8 +30,9 @@ namespace app {
       // app:CGameViewport
       
       
-      
-      sys::spo<app::NGrid> mGrid;
+// @TODO grid shoul contain a node NOT be a node
+      sys::ptr<app::NGrid>  mGrid;
+      sys::ptr<cym::CScene> mScene;
     protected:
       virtual void exec() override;
     protected: // app events

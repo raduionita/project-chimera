@@ -37,13 +37,13 @@ namespace cym {
     public:
       typedef           T  resource_type;
       typedef           T* pointer_type;
-      typedef sys::spo<T>  instance_type;
+      typedef sys::ptr<T>  instance_type;
     protected:
-      sys::spo<T> mInstance {nullptr};
+      sys::ptr<T> mInstance {nullptr};
     public:
       using CInstance::CInstance;
     public:
-      TInstance(sys::spo<T> pInstance) : mInstance{pInstance} { mLoaded = (mInstance == true); }
+      TInstance(sys::ptr<T> pInstance) : mInstance{pInstance} { mLoaded = (mInstance == true); }
       TInstance(const TInstance& that) : mInstance{that.mInstance} { mLoaded = (mInstance == true); }
       ~TInstance() { SYS_LOG_NFO("cym::TInstance<"<< typeid(T).name() <<">::~TInstance()::" << this); }
     public:
@@ -52,7 +52,7 @@ namespace cym {
       inline T* operator ->() const noexcept { return mInstance.ptr(); }
       // assignment operators
       TInstance& operator  =(const TInstance& that) { if (this != &that) { mInstance = that.mInstance; mLoaded = (mInstance == true); } return *this; }
-      TInstance& operator  =(sys::spo<T> pInstance) { mInstance = pInstance; mLoaded = (mInstance == true); }
+      TInstance& operator  =(sys::ptr<T> pInstance) { mInstance = pInstance; mLoaded = (mInstance == true); }
       // bool operators
       bool       operator ==(std::nullptr_t) { return mInstance == nullptr; }
       bool       operator ==(bool state)     { return state ? mInstance != nullptr : mInstance == nullptr; }
@@ -66,10 +66,10 @@ namespace cym {
     protected:
       virtual void             init() { }
     public:
-      static inline TInstance* from(sys::spo<T> tSource) { auto pInstance {new TInstance<T>(tSource)}; return pInstance; }
-      inline virtual void      load(sys::spo<T> pInstance) final { mInstance = pInstance; mLoaded = (mInstance == true); } 
+      static inline TInstance* from(sys::ptr<T> tSource) { auto pInstance {new TInstance<T>(tSource)}; return pInstance; }
+      inline virtual void      load(sys::ptr<T> pInstance) final { mInstance = pInstance; mLoaded = (mInstance == true); } 
     public:
-      inline sys::spo<T> getInstance() const { return mInstance; }
+      inline sys::ptr<T> getInstance() const { return mInstance; }
       inline const T*    getPointer()  const { return mInstance.ptr(); }
       inline const T&    getResource() const { return mInstance.raw(); }
   }; 

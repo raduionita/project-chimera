@@ -2,9 +2,6 @@
 #include "cym/CCodec.hpp"
 
 namespace cym {
-  
-  // node ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
 // @todo: replace std::map<name_t,CNode*> with std::map<id_t,CNode*> 
   uint CNode::sID {0};
   
@@ -17,8 +14,8 @@ namespace cym {
     SYS_LOG_NFO("cym::CNode::~CNode()::" << this/* << " NAME:" << mName*/); 
   }
   
-  void CNode::push(sys::spo<CNode> tNode) {
-    SYS_LOG_NFO("cym::CNode::push(sys::spo<TNode<"<< tNode->getType() <<">>)::" << this/* << " E:" << getType()*/);
+  void CNode::push(sys::ptr<CNode> tNode) {
+    SYS_LOG_NFO("cym::CNode::push(sys::ptr<TNode<"<< tNode->getType() <<">>)::" << this/* << " E:" << getType()*/);
     // prevend double insert 
     auto it = mNodes.find(tNode->mName);
     
@@ -34,12 +31,12 @@ namespace cym {
     extend(tNode->mAABB);
   }
   
-  sys::spo<CNode> CNode::pull(const sys::string& tName) {
+  sys::ptr<CNode> CNode::pull(const sys::string& tName) {
     SYS_LOG_NFO("cym::CNode::pull(sys::string&)::" << this);
     // get node from mNodes
     auto it = mNodes.find(tName);
     if (it != mNodes.end()) {
-      sys::spo<CNode> tNode {it->second};
+      sys::ptr<CNode> tNode {it->second};
       // remove from mNodes
       mNodes.erase(it);
       //  shrink this AABB, and this.mRoot's AABB // rebuild this.mAABB from this.mNodes (children's) mAABB's      
@@ -61,14 +58,14 @@ namespace cym {
     }
   }
   
-  void CNode::cling(sys::spo<CNode> tParent) {
-    SYS_LOG_NFO("cym::CNode::cling(sys::spo<CNode>)::" << this);
+  void CNode::cling(sys::ptr<CNode> tParent) {
+    SYS_LOG_NFO("cym::CNode::cling(sys::ptr<CNode>)::" << this);
     // attach to parent/this.mRoot
     tParent->push(this);
   }
   
-  void CNode::shift(sys::spo<CNode> tParent) {
-    SYS_LOG_NFO("cym::CNode::shift(sys::spo<CNode>)::" << this);
+  void CNode::shift(sys::ptr<CNode> tParent) {
+    SYS_LOG_NFO("cym::CNode::shift(sys::ptr<CNode>)::" << this);
     // yield + cling | combined // = move from one parent to another
     // yield
     if (mRoot) {
@@ -111,12 +108,12 @@ namespace cym {
   
   // node::model /////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  TNode<ENode::MODEL>::TNode(sys::spo<CGeometry> pGeometry) : TNode<ENode::DRAWABLE>(sys::string{"model@"}+pGeometry->getName(), pGeometry->getAABB()), mGeometry{pGeometry} { 
-    SYS_LOG_NFO("cym::TNode<ENode::MODEL>::TNode(sys::spo<CGeometry>)::" << this/* << " NAME:" << pGeometry->getName()*/);
+  TNode<ENode::MODEL>::TNode(sys::ptr<CGeometry> pGeometry) : TNode<ENode::DRAWABLE>(sys::string{"model@"}+pGeometry->getName(), pGeometry->getAABB()), mGeometry{pGeometry} { 
+    SYS_LOG_NFO("cym::TNode<ENode::MODEL>::TNode(sys::ptr<CGeometry>)::" << this/* << " NAME:" << pGeometry->getName()*/);
   }
   
-  TNode<ENode::MODEL>::TNode(const sys::string& tName, sys::spo<CGeometry> pGeometry) : TNode<ENode::DRAWABLE>(tName, pGeometry->getAABB()), mGeometry{pGeometry} { 
-    SYS_LOG_NFO("cym::TNode<ENode::MODEL>::TNode(sys::string&,sys::spo<CGeometry>)::" << this/* << " NAME:" << mName*/);
+  TNode<ENode::MODEL>::TNode(const sys::string& tName, sys::ptr<CGeometry> pGeometry) : TNode<ENode::DRAWABLE>(tName, pGeometry->getAABB()), mGeometry{pGeometry} { 
+    SYS_LOG_NFO("cym::TNode<ENode::MODEL>::TNode(sys::string&,sys::ptr<CGeometry>)::" << this/* << " NAME:" << mName*/);
   }
   
   // node::camera ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -162,7 +159,7 @@ namespace cym {
     mAABB.max.z = tRoot->mAABB.max.z - (tBack ? hZ : 0.f);
   }
   
-  sys::vector<sys::spo<TNode<ENode::ENTITY>>> CCell::cull() {
+  sys::vector<sys::ptr<TNode<ENode::ENTITY>>> CCell::cull() {
     SYS_LOG_NFO("cym::CCell::cull()::" << this);
     // get ALL children elements
     decltype(mNodes) tNodes;
@@ -186,7 +183,7 @@ namespace cym {
     return tNodes;
   }
   
-  void CCell::push(sys::spo<TNode<ENode::ENTITY>> tNode, bool tForce/*=false*/) {
+  void CCell::push(sys::ptr<TNode<ENode::ENTITY>> tNode, bool tForce/*=false*/) {
     
 // @todo: if tNode.mTransform.isIdentity() // = 0 // => no aabb change
     
@@ -198,7 +195,7 @@ namespace cym {
       
       // if node's AABB is point (has not volume) or is zero 
       if (kAABB.isPoint()) {
-        SYS_LOG_NFO("cym::CCell::push(sys::spo<TNode<ENode::ENTITY>>," << tForce <<")::" << this << " INSIDE (point)");
+        SYS_LOG_NFO("cym::CCell::push(sys::ptr<TNode<ENode::ENTITY>>," << tForce <<")::" << this << " INSIDE (point)");
         // do nothing (basically, insert it here)
         mNodes.push_back(tNode);
         return;
@@ -212,7 +209,7 @@ namespace cym {
         // for each cell(type) in this.mCells
         for (auto& tType : kTypes) {
           // DO NOT create useless cells // find a way to test agains (potential) child cells W/O creating them
-          sys::spo<CCell>& tCell = mCells[tType];
+          sys::ptr<CCell>& tCell = mCells[tType];
           const bool bCell {tCell != nullptr};
           if (bCell) {
             tAABB = tCell->mAABB;
@@ -235,7 +232,7 @@ namespace cym {
           }
           // if node.aabb INSIDE cell.aabb
           if (glm::compare(tAABB,kAABB) == glm::ECompare::INSIDE) {
-            SYS_LOG_NFO("cym::CCell::push(sys::spo<TNode<ENode::ENTITY>>," << tForce <<")::" << this << " INSIDE (child)");
+            SYS_LOG_NFO("cym::CCell::push(sys::ptr<TNode<ENode::ENTITY>>," << tForce <<")::" << this << " INSIDE (child)");
             // create only if it's inside
             if (!bCell) {
               tCell = new CCell{this, tAABB, tType};
@@ -246,23 +243,23 @@ namespace cym {
           }
         }
         // else (if not inside any child) add tNode to mNodes  this.mNodes += node
-        SYS_LOG_NFO("cym::CCell::push(sys::spo<TNode<ENode::ENTITY>>," << tForce <<")::" << this << " INSIDE (here)");
+        SYS_LOG_NFO("cym::CCell::push(sys::ptr<TNode<ENode::ENTITY>>," << tForce <<")::" << this << " INSIDE (here)");
         mNodes.push_back(tNode);
         return;
       } else {
         // else (if not inside any child) add tNode to mNodes  this.mNodes += node
-        SYS_LOG_NFO("cym::CCell::push(sys::spo<TNode<ENode::ENTITY>>," << tForce <<")::" << this << " INSIDE (direct)");
+        SYS_LOG_NFO("cym::CCell::push(sys::ptr<TNode<ENode::ENTITY>>," << tForce <<")::" << this << " INSIDE (direct)");
         mNodes.push_back(tNode);
         return;
       }
     // else (OUTSIDE or INTERSECT) but NOT root => try to push to parent (go up, since parent needs expanding too)
     } else if (mRoot != nullptr) {
-      SYS_LOG_NFO("cym::CCell::push(sys::spo<TNode<ENode::ENTITY>>)::" << this << " OUTSIDE|INTERSECT (non-root)");
+      SYS_LOG_NFO("cym::CCell::push(sys::ptr<TNode<ENode::ENTITY>>)::" << this << " OUTSIDE|INTERSECT (non-root)");
       mRoot->push(tNode);
       return;
     // else (OUTSIDE or INTERSECT) // expand the tree // (here) mTrunk = nullptr
     } else {
-      SYS_LOG_NFO("cym::CCell::push(sys::spo<TNode<ENode::ENTITY>>)::" << this << " OUTSIDE|INTERSECT (root)");
+      SYS_LOG_NFO("cym::CCell::push(sys::ptr<TNode<ENode::ENTITY>>)::" << this << " OUTSIDE|INTERSECT (root)");
       // get ALL children elements // tCulled will hold all CNode(s), including from this cell
       auto tCulled {cull()};
       // store node here
@@ -280,7 +277,7 @@ namespace cym {
     }
   }
   
-  sys::spo<CResult> CCell::find(const CQuery& tQuery) {
+  sys::ptr<CResult> CCell::find(const CQuery& tQuery) {
     // SYS_LOG_NFO("cym::CCell::find(CQuery&)::" << this);
     
     // add each note in this cell (if it matches condition)
@@ -309,8 +306,8 @@ namespace cym {
     SYS_LOG_NFO("cym::CScene::CScene(sys::string&)::" << this); 
   }
   
-  CScene::CScene(sys::spo<CSceneLoader> pLoader) : mNode{new TNode<ENode::BASIC>{"root"}}, mCell{new CCell} {
-    SYS_LOG_NFO("cym::CScene::CScene(sys::spo<CSceneLoader>)::" << this);
+  CScene::CScene(sys::ptr<CSceneLoader> pLoader) : mNode{new TNode<ENode::BASIC>{"root"}}, mCell{new CCell} {
+    SYS_LOG_NFO("cym::CScene::CScene(sys::ptr<CSceneLoader>)::" << this);
     load(pLoader);
   }
   
@@ -318,8 +315,8 @@ namespace cym {
     SYS_LOG_NFO("cym::CScene::~CScene()::" << this << " NAME:" << mName);
   }
   
-  void CScene::load(sys::spo<CSceneLoader>) {
-    SYS_LOG_NFO("cym::CScene::load(sys::spo<CSceneLoader>)::" << this);
+  void CScene::load(sys::ptr<CSceneLoader>) {
+    SYS_LOG_NFO("cym::CScene::load(sys::ptr<CSceneLoader>)::" << this);
 
 // @todo: remember mRoot already exists // DO NOT create another one
     
@@ -330,7 +327,7 @@ namespace cym {
 
   }
   
-  sys::spo<CResult> CScene::find(const CQuery& tQuery) {
+  sys::ptr<CResult> CScene::find(const CQuery& tQuery) {
     // SYS_LOG_NFO("cym::CScene::find(CQuery&)::" << this);
     
     // forward the query to the root cell to run it recursivelly down the cells
@@ -341,14 +338,36 @@ namespace cym {
     return tQuery.mResult;
   }
   
-  sys::spo<TNode<ENode::ENTITY>> CScene::push(sys::spo<CGeometry> pGeometry, const glm::xform& tXForm/*=0*/) {
-    SYS_LOG_NFO("cym::CScene::push(sys::spo<CGeometry>)::" << this);
+  sys::ptr<TNode<ENode::ENTITY>> CScene::push(TNode<ENode::ENTITY>* pNode) {
+    SYS_LOG_NFO("cym::CScene::push(TNode<ENode::ENTITY>*)::" << this);
+    // wrap shared pointer
+    sys::ptr<TNode<ENode::ENTITY>> tNode {pNode};
+    // insert entity
+    mNode->push(tNode);
+    // insert node:entity in CScene:cell (scene's octree-like structure),
+    mCell->push(tNode);
+    // return the entity
+    return tNode;
+  }
+  
+  sys::ptr<TNode<ENode::ENTITY>> CScene::push(sys::ptr<TNode<ENode::ENTITY>> pNode) {
+    SYS_LOG_NFO("cym::CScene::push(sys::ptr<TNode<ENode::ENTITY>>)::" << this);
+    // insert entity
+    mNode->push(pNode);
+    // insert node:entity in CScene:cell (scene's octree-like structure),
+    mCell->push(pNode);
+    // return the entity
+    return pNode;
+  }
+  
+  sys::ptr<TNode<ENode::ENTITY>> CScene::push(sys::ptr<CGeometry> pGeometry, const glm::xform& tXForm/*=0*/) {
+    SYS_LOG_NFO("cym::CScene::push(sys::ptr<CGeometry>)::" << this);
     // name it
     const sys::string& tName {sys::string{"model@"} + pGeometry->getName()};
     // create a node:entity
-    sys::spo<TNode<ENode::ENTITY>> tEntity {new TNode<ENode::ENTITY>{tName, glm::ZERO, tXForm}};
+    sys::ptr<TNode<ENode::ENTITY>> tEntity {new TNode<ENode::ENTITY>{tName, glm::ZERO, tXForm}};
     // create a node:model
-    sys::spo<TNode<ENode::MODEL>>  tModel  {new TNode<ENode::MODEL>{tName,pGeometry}};
+    sys::ptr<TNode<ENode::MODEL>>  tModel  {new TNode<ENode::MODEL>{tName,pGeometry}};
     // attach node:model to node:scene
     tEntity->push(tModel);
     // insert node:entity at CScene:node (xml's start/root node)
@@ -362,23 +381,23 @@ namespace cym {
   // managers ////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   CSceneManager::CSceneManager()  { 
-    SYS_LOG_NFO("cym::CSceneManager::CSceneManager()::" << this); 
+    SYS_LOG_NFO("cym::CSceneManager::CSceneManager()"); 
   }
   
   CSceneManager::~CSceneManager() { 
-    SYS_LOG_NFO("cym::CSceneManager::~CSceneManager()::" << this);
+    SYS_LOG_NFO("cym::CSceneManager::~CSceneManager()");
     //for (auto it = mScenes.begin(); it != mScenes.end(); )
       //CSceneManager::kill(it->second);
   }
   
   // loaders /////////////////////////////////////////////////////////////////////////////////////////////////////////
   
-  void TSceneLoader<sys::file>::load(sys::spo<CResourceLoader> pResourceLoader) {
-    SYS_LOG_NFO("cym::TSceneLoader<sys::file>::load(sys::spo<CResourceLoader>)::" << this);
+  void TSceneLoader<sys::file>::load(sys::ptr<CResourceLoader> pResourceLoader) {
+    SYS_LOG_NFO("cym::TSceneLoader<sys::file>::load(sys::ptr<CResourceLoader>)::" << this);
     
     auto pCodec = cym::CCodecManager::getCodec(mFile.ext());
     
-// @todo: this gets deleted after returns from ->decode(sys::spo<CGeometryLoader>)
+// @todo: this gets deleted after returns from ->decode(sys::ptr<CGeometryLoader>)
     
     pCodec->decode(pResourceLoader);
   }
@@ -411,7 +430,7 @@ namespace cym {
       tSpaces--;
     }
     
-    sys::CLogger::getSingleton()->push(oss.str());
+    sys::CLogger::push(oss.str());
     return type;
   }
   
@@ -453,7 +472,7 @@ namespace cym {
       tSpaces--;
     }
     
-    sys::CLogger::getSingleton()->push(oss.str());
+    sys::CLogger::push(oss.str());
     return type;
   }
   
@@ -472,20 +491,20 @@ namespace cym {
   
   const sys::CLogger::ELevel& operator <<(const sys::CLogger::ELevel& type, const CScene& scene) {
     std::ostringstream oss;
-    oss << "scene:" << '\n';
+    // oss << "scene:" << '\n';
     oss << ".node:" << '\n';
     oss << *(scene.mNode);
     oss << '\n';
     oss << ".cell:" << '\n';
     oss << *(scene.mCell);
-    sys::CLogger::getSingleton()->push(oss.str());
+    sys::CLogger::push(oss.str());
     return type;
   }
   
   std::ostream& operator <<(std::ostream& out, const CScene& scene) {
-    out << "scene:" << '\n';
+    // out << "scene:" << '\n';
     out << ".node:" << '\n';
-    out << *(scene.mNode);
+    out << *(scene.getRoot());
     out << '\n';
     out << ".cell:" << '\n';
     out << *(scene.mCell);

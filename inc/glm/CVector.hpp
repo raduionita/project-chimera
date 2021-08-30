@@ -611,7 +611,7 @@ namespace glm {
     for (ushort        i = 0; i < s; i++)
       oss << v[i] << ',';
     oss << ')';
-    sys::CLogger::getSingleton()->push(oss.str());
+    sys::CLogger::push(oss.str());
     return type;
   }  
   

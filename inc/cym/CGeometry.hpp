@@ -5,7 +5,7 @@
 #include "sys/TSingleton.hpp"
 #include "sys/CFile.hpp"
 #include "sys/CStream.hpp"
-#include "sys/CThreader.hpp"
+#include "sys/CTask.hpp"
 #include "sys/TBlock.hpp"
 #include "sys/CException.hpp"
 #include "cym/cym.hpp"
@@ -26,11 +26,11 @@
 #include <unordered_map>
 
 namespace cym {
-  class CGeometry; 
-  class CMesh;
+  class CGeometry; typedef sys::ptr<CGeometry> PGeometry;
+  class CMesh;     typedef sys::ptr<CMesh>     PMesh;
   
-  class CGeometryLoader; template<typename T> class TGeometryLoader;
-  class CMeshLoader;     template<typename T> class TMeshLoader;
+  class CGeometryLoader; template<typename T> class TGeometryLoader; typedef sys::ptr<CGeometryLoader> PGeometryLoader;
+  class CMeshLoader;     template<typename T> class TMeshLoader;     typedef sys::ptr<CMeshLoader>     PMeshLoader;
   
   class CGeometryManager;
   
@@ -42,19 +42,19 @@ namespace cym {
       friend class CGeometryBuffer;
     public:
       typedef EVertexAttribute EAttribute; 
-      typedef uint32_t         count_type;
+      typedef uint32_t         count_t;
     public:
       CGeometryInput() = default;
       virtual ~CGeometryInput() = default;
     public:
       virtual inline EAttribute  attribute() const { throw sys::exception("NOT IMPLEMENTED",__FILE__,__LINE__); }
-      virtual inline count_type  stride()    const { throw sys::exception("NOT IMPLEMENTED",__FILE__,__LINE__); }
-      virtual inline count_type  size()      const { throw sys::exception("NOT IMPLEMENTED",__FILE__,__LINE__); }
+      virtual inline count_t     stride()    const { throw sys::exception("NOT IMPLEMENTED", __FILE__, __LINE__); }
+      virtual inline count_t     size()      const { throw sys::exception("NOT IMPLEMENTED", __FILE__, __LINE__); }
       virtual inline bool        empty()     const { throw sys::exception("NOT IMPLEMENTED",__FILE__,__LINE__); }
-      virtual inline count_type  count()     const { throw sys::exception("NOT IMPLEMENTED",__FILE__,__LINE__); }
+      virtual inline count_t     count()     const { throw sys::exception("NOT IMPLEMENTED", __FILE__, __LINE__); }
       virtual inline const void* data()      const { throw sys::exception("NOT IMPLEMENTED",__FILE__,__LINE__); }
       virtual inline GLenum      type()      const { throw sys::exception("NOT IMPLEMENTED",__FILE__,__LINE__); }
-      virtual inline count_type  width()     const { throw sys::exception("NOT IMPLEMENTED",__FILE__,__LINE__); }
+      virtual inline count_t     width()     const { throw sys::exception("NOT IMPLEMENTED", __FILE__, __LINE__); }
       virtual inline void        push(const void*) { throw sys::exception("NOT IMPLEMENTED",__FILE__,__LINE__); }
   };
   
@@ -62,42 +62,41 @@ namespace cym {
       friend class CGeometryBuffer;
     public:
       typedef CGeometryInput::EAttribute EAttribute; 
-      typedef T value_type;
-      typedef std::vector<T> input_type;
+      typedef T                          value_t;
+      typedef std::vector<T>             input_t;
     protected:
-      std::vector<T> mInput;
+      std::vector<T> mValues;
     public: // ctors
       using CGeometryInput::CGeometryInput;
     public: // operators
-      value_type& operator [](count_type i) { assert(i < mInput.size() && "out of bounds"); return mInput[i]; }
-      void        operator +=(T&& v) { mInput.push_back(std::move(v)); }
+      value_t& operator [](count_t i) { assert(i < mValues.size() && "out of bounds"); return mValues[i]; }
+      void     operator +=(T&& v)     { mValues.push_back(std::move(v)); }
     public: // cats
-      operator       T*()       { return static_cast<T*>(mInput.data()); }
-      operator const T*() const { return static_cast<const T*>(mInput.data()); }
-    public: // 
-      virtual inline EAttribute  attribute() const   override { return A; }
-      virtual inline count_type  stride()    const   override { return sizeof(T); }
-      virtual inline count_type  size()      const   override { return mInput.size() * sizeof(T); }
-      virtual inline bool        empty()     const   override { 
-        return mInput.size() == 0; 
-      }
-      virtual inline count_type  count()     const   override { return mInput.size(); }
-      virtual inline const void* data()      const   override { return static_cast<const void*>(mInput.data()); }
-      virtual inline GLenum      type()      const   override { return E; }
-      virtual inline count_type  width()     const   override { return W; }
-      virtual inline void        push(const void* v) override { const T* p = static_cast<const T*>(v); mInput.push_back(*p); }
-              inline void        push(T&& v)                  { mInput.push_back(std::move(v)); }
-              inline void        push(const T& v)             { mInput.push_back(v); }
-              inline T&          next()                       { return mInput.emplace_back(T{}); }
-              inline void              grow(count_type n)           { mInput.resize(n); }
-              inline const input_type& input() const { return mInput; }
+      operator       T*()       { return static_cast<T*>(mValues.data()); }
+      operator const T*() const { return static_cast<const T*>(mValues.data()); }
+    public: // get/setters
+      virtual inline EAttribute            attribute() const   override { return A; }
+      virtual inline count_t               stride()    const   override { return sizeof(T); }
+      virtual inline count_t               size()      const   override { return mValues.size() * sizeof(T); }
+      virtual inline bool                  empty()     const   override { return mValues.size() == 0; }
+      virtual inline count_t               count()     const   override { return mValues.size(); }
+      virtual inline const void*           data()      const   override { return static_cast<const void*>(mValues.data()); }
+      virtual inline GLenum                type()      const   override { return E; }
+      virtual inline count_t               width()     const   override { return W; }
+              inline const std::vector<T>& values()    const            { return mValues; }
+    public: // actions
+      virtual inline void                  push(const void* v) override { const T* p = static_cast<const T*>(v); mValues.push_back(*p); }
+              inline void                  push(T&& v)                  { mValues.push_back(std::move(v)); }
+              inline void                  push(const T& v)             { mValues.push_back(v); }
+              inline T&                    next()                       { return mValues.emplace_back(T{}); }
+              inline void                  grow(count_t n)              { mValues.resize(n); }
   };
   
   class CGeometryStream {
       friend class CGeometry;
       friend class CGeometryBuffer;
     public:
-      typedef CGeometryInput::count_type count_type;
+      typedef CGeometryInput::count_t count_type;
     protected:
       std::map<sys::string,CGeometryInput*> mInputs; // positions, normals, texcoords, texcoords2 (multi material), binormals...
     public:
@@ -129,8 +128,8 @@ namespace cym {
   class CGeometryLayout {
       friend class CGeometryBuffer;
     public:
-      typedef uint32_t                   value_type;
-      typedef CGeometryInput::count_type count_type;
+      typedef uint32_t                value_type;
+      typedef CGeometryInput::count_t count_type;
     protected:
       std::vector<value_type> mIndices; // int[] // int array
     public:
@@ -183,31 +182,33 @@ namespace cym {
   // resources ///////////////////////////////////////////////////////////////////////////////////////////////////////
   
   class CMesh : public cym::CResource, public cym::CDrawable {
-      friend class IMesh;
       friend class CGeometry;
       friend class CMeshLoader;
       friend class CMeshManager;
       friend class CGeometryLoader;
       friend class CGeometryManager;
     public:
-      typedef sys::spo<CMesh> ptr_type;
-      typedef sys::string       name_type;
+      typedef sys::string name_type;
     protected:
-      cym::EPrimitive     mPrimitive {cym::EPrimitive::TRIANGLES};
-      cym::CBufferRange   mRange;
-      sys::spo<CMaterial> mMaterial;
-      // parent geometry
-      sys::wpo<CGeometry> mGeometry;
+      cym::PMaterial    mMaterial;
+      bool              mHidden    {false};
+      cym::EPrimitive   mPrimitive {cym::EPrimitive::TRIANGLES};
+      cym::CBufferRange mRange;
+      // cym::PGeometry    mGeometry;
     public:
-      CMesh(const std::string& tName) : cym::CResource(tName) { }
-      CMesh(sys::spo<CGeometry> pGeometry) : mGeometry{pGeometry} { }
+      using cym::CResource::CResource;
+      CMesh(const std::string& tName);
       ~CMesh();
     public:
+      inline bool hasMaterial() const                { return mMaterial != nullptr; }
       inline void setMaterial(decltype(mMaterial) m) { mMaterial = m; }
-      inline bool hasMaterial() const { return mMaterial != nullptr; }
-      inline void setRange(const CBufferRange& r) { mRange = r; }
-    public:// drawable
-      virtual void draw() override;
+      inline void setRange(const CBufferRange& r)    { mRange = r; }
+      inline const cym::CBufferRange& getRange() const { return mRange; }
+      inline void setHidden(bool b = true)           { mHidden = b; }
+      inline bool isHidden()                         { return mHidden; }
+      inline cym::EPrimitive getPrimitive() const { return mPrimitive; }
+    public:
+      inline virtual void draw() { }
   };
   
   class CGeometry : public cym::CResource, public cym::CDrawable {
@@ -241,32 +242,33 @@ namespace cym {
         CCW        = FLAG << 18,
       };
     private:
-      sys::spo<CVertexArray>  mVAO;
-      sys::spo<CVertexBuffer> mVBO;
-      sys::spo<CIndexBuffer>  mIBO;
-      sys::spo<CVertexLayout> mVLO;
+      sys::ptr<CVertexArray>  mVAO;
+      sys::ptr<CVertexBuffer> mVBO;
+      sys::ptr<CIndexBuffer>  mIBO;
+      sys::ptr<CVertexLayout> mVLO;
     protected:
-      uint                                       mFlags {EFlag::CCW};
-      std::map<CMesh::name_type,sys::spo<CMesh>> mMeshes;
-      glm::aabb                                  mAABB;
-// @todo: mSkeleton // sys::spo<CSkeleton>                        mSkeleton {new CSkeleton};
+      uint                        mFlags {EFlag::CCW};
+      sys::map<sys::string,PMesh> mMeshes;
+      glm::aabb                   mAABB;
+// @todo: mSkeleton // sys::ptr<CSkeleton>                        mSkeleton {new CSkeleton};
 // @todo: mAnimator // animations list wrapper // this should be common among other similar (skeleton) models
     public: // ctors
       using cym::CResource::CResource;
       CGeometry(const sys::string& tName = "");
-      CGeometry(sys::spo<CGeometryLoader>);
       ~CGeometry();
     public: // operators
-      inline sys::spo<CMesh>& operator [](uint i)               { return getMesh(i); }
-      inline sys::spo<CMesh>& operator [](const sys::string& n) { return getMesh(n); }
+      inline PMesh& operator [](uint i)               { return getMesh(i); }
+      inline PMesh& operator [](const sys::string& n) { return getMesh(n); }
     public: // get/setters
-      inline void             addMesh(sys::spo<CMesh> pMesh) { /*pMesh->mGeometry = this;*/ mMeshes.insert(std::pair(pMesh->mName, pMesh)); }
-      inline sys::spo<CMesh>& getMesh(const sys::string& name) { return mMeshes[name]; }
-      inline sys::spo<CMesh>& getMesh(uint i) { assert(i < mMeshes.size()); for (auto it = mMeshes.begin(); it != mMeshes.end(); ++it, i--) if (i == 0) return it->second; throw sys::exception("OUT OF BOUNDS", __FILE__, __LINE__); }
-      inline uint             getFlags() const { return mFlags; }
-      inline const glm::aabb& getAABB() const { return mAABB; }
+      inline size_t           getCount() const { return mMeshes.size(); }
+      inline const sys::map<sys::string,PMesh>& getMeshes() const { return mMeshes; }
+      inline void             addMesh(PMesh pMesh)             { /* pMesh->mGeometry = this; */ auto it {mMeshes.find(pMesh->mName)}; if (it == mMeshes.end()) { mMeshes.insert(std::pair(pMesh->mName, pMesh)); } }
+      inline PMesh&           getMesh(const sys::string& name) { return mMeshes[name]; }
+      inline PMesh&           getMesh(uint i)                  { assert(i < mMeshes.size()); for (auto it = mMeshes.begin(); it != mMeshes.end(); ++it, i--) if (i == 0) return it->second; throw sys::exception("OUT OF BOUNDS", __FILE__, __LINE__); }
+      inline uint             getFlags() const                 { return mFlags; }
+      inline const glm::aabb& getAABB() const                  { return mAABB; }
     public: // actions
-      virtual void load(sys::spo<CGeometryLoader>) final;
+      inline  void bind() { mVAO->bind(); mIBO->bind(); }
       virtual void draw() override;
   };
 
@@ -280,52 +282,52 @@ namespace cym {
       friend class CGeometryManager;
       typedef struct { uint nStart, nEnd; } range_type;
     protected:
-      cym::EPrimitive                mPrimitive {cym::EPrimitive::TRIANGLES};
-      range_type                     mRange;
-      sys::spo<cym::CMaterialLoader> mMaterialLoader;
+      bool            mHidden {false};
+      cym::EPrimitive mPrimitive {cym::EPrimitive::TRIANGLES};
+      range_type      mRange;
+      PMaterialLoader mMaterialLoader;
     public:
       using cym::CResourceLoader::CResourceLoader;
     public:
-      virtual void load() {
-        SYS_LOG_NFO("cym::CMeshLoader::load()::" << this);
-      }
+      inline virtual void load(PMesh) { SYS_LOG_NFO("cym::CMeshLoader::load(PMesh)::" << this); }
     public:
       inline decltype(mMaterialLoader)& getMaterialLoader() { if (!mMaterialLoader) mMaterialLoader = new CMaterialLoader; return mMaterialLoader; }
       inline decltype(mMaterialLoader)& useMaterialLoader(const std::string& tName) { if (!mMaterialLoader) mMaterialLoader = new CMaterialLoader{tName}; else mMaterialLoader->getName() = tName; return mMaterialLoader; }
-      inline void                       setMaterialLoader(sys::spo<CMaterialLoader> pLoader) { mMaterialLoader = pLoader; }
+      inline void                       setMaterialLoader(sys::ptr<CMaterialLoader> pLoader) { mMaterialLoader = pLoader; }
       inline range_type&                getRange() { return mRange; }
       inline void                       setRange(uint tStart, uint tEnd) { mRange.nStart = tStart; mRange.nEnd = tEnd; }
       inline void                       setRangeStart(uint tStart) { mRange.nStart = tStart; }
       inline void                       setRangeEnd(uint tEnd) { mRange.nEnd = tEnd; }
       inline void                       setPrimitive(const cym::EPrimitive ep) { mPrimitive = ep; }
+      inline void                       setHidden(bool b = true) { mHidden = b; }
   };
   
   class CGeometryLoader : public CResourceLoader {
       friend class CGeometry;
       friend class CGeometryManager;
-      typedef std::map<std::string, sys::spo<CMeshLoader>> mesh_map;
+      typedef std::map<std::string,PMeshLoader> mesh_map;
     public:
       using EFlag = CGeometry::EFlag;
     protected:
-      uint                                         mFlags {EFlag::CCW};
-      cym::CGeometryBuffer                         mGeometryBuffer;
-      std::map<std::string, sys::spo<CMeshLoader>> mMeshLoaders;
+      uint                              mFlags {EFlag::CCW};
+      cym::CGeometryBuffer              mGeometryBuffer;
+      std::map<std::string,PMeshLoader> mMeshLoaders;
     public:
       using CResourceLoader::CResourceLoader;
-      CGeometryLoader(const sys::string& tName, uint eFlags = EFlag::DEFAULT) : CResourceLoader(tName), mFlags{eFlags} { SYS_LOG_NFO("cym::CGeometryLoader::CGeometryLoader(sys::string&,ushort)::" << this);  }
-      ~CGeometryLoader() { SYS_LOG_NFO("cym::CGeometryLoader::~CGeometryLoader()::" << this); }
+      inline CGeometryLoader(const sys::string& tName, uint eFlags = EFlag::DEFAULT) : CResourceLoader(tName), mFlags{eFlags} { SYS_LOG_NFO("cym::CGeometryLoader::CGeometryLoader(sys::string&,ushort)::" << this);  }
+      inline ~CGeometryLoader() { SYS_LOG_NFO("cym::CGeometryLoader::~CGeometryLoader()::" << this); }
     public:
-      virtual inline void load(sys::spo<CResourceLoader>) { throw sys::exception("CGeometryLoader::load(sys::spo<CResourceLoader>) NOT overriden!",__FILE__,__LINE__);  };
+      inline virtual void load(PGeometry) { SYS_LOG_NFO("cym::CGeometryLoader::load(PGeometry)::" << this); }
     public:
       inline uint                   getFlags()                              { return mFlags; }
       inline bool                   hasFlag(EFlag e)                        { return mFlags & e; }
       inline bool                   hasFlags(uint es)                       { return mFlags & es; }
       inline cym::CGeometryBuffer&  getGeometryBuffer()                     { return mGeometryBuffer; }
       inline mesh_map&              getMeshLoaders()                        { return mMeshLoaders; }
-      inline sys::spo<CMeshLoader>& getMeshLoader(const std::string& tName) { auto& pLoader = mMeshLoaders[tName]; if (!pLoader) pLoader = new CMeshLoader{tName}; return pLoader; }
-      inline sys::spo<CMeshLoader>& newMeshLoader(const std::string& tName) { auto& pLoader = mMeshLoaders[tName]; pLoader = new CMeshLoader{tName}; return pLoader; }
+      inline PMeshLoader&           getMeshLoader(const std::string& tName) { auto& pLoader = mMeshLoaders[tName]; if (!pLoader) pLoader = new CMeshLoader{tName}; return pLoader; }
+      inline PMeshLoader&           newMeshLoader(const std::string& tName) { auto& pLoader = mMeshLoaders[tName]; pLoader = new CMeshLoader{tName}; return pLoader; }
     public:
-      template<typename T> inline static sys::spo<TGeometryLoader<T>> from(const T& tSource) { return new TGeometryLoader<T>{tSource}; }
+      template<typename T> inline static sys::ptr<TGeometryLoader<T>> from(const T& tSource) { return new TGeometryLoader<T>{tSource}; }
       template<typename T, typename... Args> inline static sys::string name(const T& tSource, Args&&... args) { return TGeometryLoader<T>::name(tSource, std::forward<Args>(args)...); }
     public:
       inline decltype(cym::CGeometryBuffer::mStream)& getStream() { return mGeometryBuffer.mStream; }
@@ -341,8 +343,8 @@ namespace cym {
     public:
       inline TGeometryLoader(const sys::CFile& tFile, uint eFlags = EFlag::DEFAULT) : CGeometryLoader(tFile.path(), eFlags), mFile{tFile} { };
     public:
-      inline static sys::string name(const sys::CFile& tFile) { return tFile.path(); }
-      virtual void load(sys::spo<CResourceLoader>) override;
+      inline static sys::string name(const sys::file& tFile) { return tFile.path(); }
+      virtual void load(PGeometry) override;
     public:
       inline sys::file& getFile() { return mFile; }
   };
@@ -359,7 +361,7 @@ namespace cym {
       inline TGeometryLoader(const glm::SCube& tCube, uint nXD, uint nYD, uint nZD, uint eFlags = EFlag::DEFAULT) : CGeometryLoader(name(tCube, nXD, nYD, nZD), eFlags), mCube{tCube}, mXDivisions{nXD}, mYDivisions{nYD}, mZDivisions{nZD} { }
     public:
       inline static sys::string name(const glm::SCube& tCube, uint nXD = 1u, uint nYD = 1u, uint nZD = 1u) { return std::string("cube:")+sys::to_string(tCube.length,3)+"|"+std::to_string(nXD)+"x"+std::to_string(nYD)+"x"+std::to_string(nZD); }
-      virtual void load(sys::spo<CResourceLoader>) override;
+      virtual void load(PGeometry) override;
     public:
       inline glm::SCube& getCube() { return mCube; }
   };
@@ -374,7 +376,7 @@ namespace cym {
       inline TGeometryLoader(const glm::rect& tRect, uint nDivisions, const glm::vec3& vUp, uint eFlags = EFlag::DEFAULT) : CGeometryLoader(name(tRect, nDivisions, vUp), eFlags), mRectangle{tRect}, mDivisions{nDivisions}, mUp{vUp} { }
     public:
       inline static sys::string name(const glm::rect& tRect, uint nDivisions = 1u, const glm::vec3& vAxis = glm::Y, uint eFlags = EFlag::DEFAULT) { return std::string("rect:") + sys::to_string(tRect.width, 3) + 'x' + sys::to_string(tRect.height, 3) + '|' + std::to_string(nDivisions) + '|' + sys::to_string(vAxis, 1); }
-      virtual void load(sys::spo<CResourceLoader>) override;
+      virtual void load(PGeometry) override;
     public:
       inline glm::rect& geRectangle() { return mRectangle; }
   };
@@ -388,139 +390,88 @@ namespace cym {
       inline TGeometryLoader(const glm::frustum& tFrustum, const uint nDivisions, const uint eFlags = EFlag::DEFAULT) : CGeometryLoader(name(tFrustum, nDivisions), eFlags), mFrustum{tFrustum}, mDivisions{nDivisions} { }
     public:
       inline static sys::string name(const glm::frustum& f, const glm::uint d=1u, uint e=EFlag::DEFAULT) { return std::string("frustum:") +'|'+ sys::to_string(d); }
-      virtual void load(sys::spo<CResourceLoader>) override;
+      virtual void load(PGeometry) override;
     public:
       inline glm::frustum& getFrustum() { return mFrustum; }
   };
-  
-// @todo: pGeometryLoader->load(pGeometryLoader) there MUST be a better way, init() or exec() or run()  
   
   // manager /////////////////////////////////////////////////////////////////////////////////////////////////////////
   
 // @todo: CAnimatorManager
 // @todo: CAnimationManager
   
+  class CMeshManager : public cym::TResourceManager<CMesh>, public sys::TSingleton<CMeshManager> {
+      friend class CMesh;
+      friend class CMeshLoader;
+      friend class sys::TSingleton<CMeshManager>;
+    protected:
+      CMeshManager();
+      ~CMeshManager();
+    public:
+      static PMesh load(PMeshLoader pLoader);
+  };
+
   class CGeometryManager : public cym::TResourceManager<CGeometry>, public sys::TSingleton<CGeometryManager> {
       friend class CGeometry;
       friend class CGeometryLoader;
+      friend class sys::TSingleton<CGeometryManager>;
     public:
       using EFlag = CGeometry::EFlag;
     protected:
-      std::map<sys::string, sys::spo<CGeometry>> mGeometries;
-    public:
+      std::map<sys::string,PGeometry> mGeometries;
+    protected:
       CGeometryManager();
       ~CGeometryManager();
     public:
+      inline static void boot() { CGeometryManager::getSingleton(); }
       /* remove geometry and return it */
-      static sys::spo<CGeometry> pull(const sys::string& tName) {
-        static auto self {cym::CGeometryManager::getSingleton()};
-        SYS_LOG_NFO("cym::CGeometryManager::pull(sys::string&)::" << self);
-        
-        return self->mGeometries.extract(tName).mapped();
+      static PGeometry pull(const sys::string& tName) {
+        SYS_LOG_NFO("cym::CGeometryManager::pull(sys::string&)");
+        static auto& self {cym::CGeometryManager::getSingleton()};
+        return self.mGeometries.extract(tName).mapped();
       }
       /* destroy geometry */
-      static bool kill(const sys::string& tName) {
-        static auto self {cym::CGeometryManager::getSingleton()};
-        SYS_LOG_NFO("cym::CGeometryManager::kill(sys::string&)::" << self);
-        
-        return self->mGeometries.size() < self->mGeometries.erase(tName);
+      static bool drop(const sys::string& tName) {
+        SYS_LOG_NFO("cym::CGeometryManager::drop(sys::string&)");
+        static auto& self {cym::CGeometryManager::getSingleton()};
+        return self.mGeometries.size() < self.mGeometries.erase(tName);
       }
       /* find geometry */
-      static sys::spo<CGeometry> find(const std::string& tName) {
-        static auto pThis {cym::CGeometryManager::getSingleton()};
-        sys::spo<CGeometry> pGeometry;
-        auto it = pThis->mGeometries.find(tName);
-        if (it != pThis->mGeometries.end()) {
+      static PGeometry find(const std::string& tName) {
+        SYS_LOG_NFO("cym::CGeometryManager::find(sys::string&)");
+        static auto& self {cym::CGeometryManager::getSingleton()};
+        PGeometry pGeometry;
+        auto it = self.mGeometries.find(tName);
+        if (it != self.mGeometries.end()) {
           pGeometry = it->second;
         }
         return {new CGeometry{*pGeometry}};
       }
       /* persist geometry */
-      static void save(sys::spo<CGeometry> pGeometry) {
-        static auto pThis {cym::CGeometryManager::getSingleton()};
-        SYS_LOG_NFO("cym::CGeometryManager::save(sys::spo<CGeometry>)::" << pThis);
-        pThis->mGeometries.insert(std::pair(pGeometry->mName, pGeometry));
+      static void save(PGeometry pGeometry) {
+        SYS_LOG_NFO("cym::CGeometryManager::save(PGeometry)");
+        static auto& self {cym::CGeometryManager::getSingleton()};
+        self.mGeometries.insert(std::pair(pGeometry->mName, pGeometry));
       }
-      /* load CGeometry using a CGeometryLoader */
-      static sys::spo<CGeometry> load(sys::spo<CGeometryLoader> pGeometryLoader, bool bExternal = true) {
-        static auto self {cym::CGeometryManager::getSingleton()};
-        SYS_LOG_NFO("cym::CGeometryManager::load(sys::spo<cym::CGeometryLoader>)::" << self);
-        
-        
-        // sys::spo<CGeometry> pGeometry = new CGeometry{pLoader};
-          // ::constructor
-            // .load(pLoader) 
-          // ::load(pLoader)
-            // if (this->getState() == DONE)
-              // return/exit = this is already loaded
-              
-              
-            // if (pLoader->getState() == INITED)
-              // pLoader->load(this)
-            // else if (pLoader->getState() == LOADING) 
-              // return/exit, 'cause it's a work in progress
-            // (else = DONE)
-              // continue/do nothing
-            // 
-        
-        
-        
-        
-        
-        // process CGeometryLoader into CGeometry 
-        if (pGeometryLoader) {
-          sys::spo<CGeometry> pGeometry;
-          const auto&         tName {pGeometryLoader->getName()};
-          // if externaly loaded: try to find it 
-          if (bExternal && sys::find(/*needle*/tName, /*haystack*/self->mGeometries, /*destination*/pGeometry)) {
-            // do nothing
-          } else {
-            // new geometry
-            pGeometry = new CGeometry{pGeometryLoader->getName()};
-            // spawn task to a thread
-            sys::async([pGeometry, pGeometryLoader](){
-              // process TGeometryLoader<T>
-              pGeometryLoader->load(pGeometryLoader);
-              // attach flags
-              pGeometry->mFlags = pGeometryLoader->mFlags;
-              // for each mesh loaders
-              for (auto&& [sMesh, pMeshLoader] : pGeometryLoader->mMeshLoaders) {
-                // mesh = one segment/piece of a CGeometry // like, wheel of a car 
-                sys::spo<CMesh> pMesh {new CMesh{pMeshLoader->getName()}};
-                // here u can make materials load ASYNC (decoupled from model loading) // model should render even w/o materials
-                pMesh->mMaterial  = CMaterialManager::load(pMeshLoader->mMaterialLoader);
-                pMesh->mRange     = {pMeshLoader->mRange.nStart, pMeshLoader->mRange.nEnd - pMeshLoader->mRange.nStart};
-                pMesh->mPrimitive = pMeshLoader->mPrimitive;
-                pMesh->mGeometry  = pGeometry;
-                // add pMesh to CGeometry's meshes
-                pGeometry->addMesh(pMesh);
-              }
-              // load loader
-              pGeometry->load(pGeometryLoader);
-            }, sys::EAsync::SPAWN);
-            // persist to CGeometryManager
-            CGeometryManager::save(pGeometry);
-          }
-          // done: return found or created CGeometry
-          return pGeometry;
-        } else {
-// @todo: return/create null geometry + persist it (if this is the first time) 
-          return nullptr;
-        }
-      }
+      /* load PGeometry using a CGeometryLoader */
+      static PGeometry load(PGeometryLoader pLoader, bool bSearch = true);
+      /* load PGeometry using a TGeometryLoader */
+      template<typename T> inline static PGeometry load(sys::ptr<TGeometryLoader<T>> pLoader, bool bSearch = true) { return CGeometryManager::load(CGeometryLoader{pLoader},bSearch); }
       /* load geometry routing to a geometry loader */
-      template<typename T, typename... Args> static sys::spo<CGeometry> load(const T& tSource, Args&&... args) {
-        static auto pThis {CGeometryManager::getSingleton()};
-        SYS_LOG_NFO("cym::CGeometryManager::load(T&,Args&&)::" << pThis);
+      template<typename T, typename... Args> static PGeometry load(const T& tSource, Args&&... args) {
+        SYS_LOG_NFO("cym::CGeometryManager::load(T&,Args&&)");
+        // manager
+        static auto& self {CGeometryManager::getSingleton()};
         // temp geo for output
-        sys::spo<CGeometry> pGeometry;
+        PGeometry pGeometry;
         // gen name for seach
-        const sys::string tName {CGeometryLoader::name(tSource,std::forward<Args>(args)...)};
+        const sys::string tName{CGeometryLoader::name(tSource,std::forward<Args>(args)...)};
         // try to find stored CGeometry and set it to (this local) pGeometry
-        if (!sys::find(/*needle*/tName, /*haystack*/pThis->mGeometries, /*destination*/pGeometry)) {
-          sys::spo<CGeometryLoader> tLoader = new TGeometryLoader<T>{tSource, std::forward<Args>(args)...};
+        if (!sys::find(/*needle*/tName, /*haystack*/self.mGeometries, /*destination*/pGeometry)) {
+          // put a custom loader into a generic loader (virtual load() methods will apply)
+          PGeometryLoader tLoader{new TGeometryLoader<T>{tSource, std::forward<Args>(args)...}};
           // this will return an empty geometry imediatly, and async load its data (meshs,materials,textures,vbos)
-          pGeometry = CGeometryManager::load(tLoader,false);
+          pGeometry = CGeometryManager::load(tLoader, false);
         }
         // return copy of CGeometry
         return {new CGeometry{*pGeometry}};

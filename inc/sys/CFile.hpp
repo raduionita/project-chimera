@@ -66,7 +66,7 @@ namespace sys {
   };
   
   inline const CLogger::ELevel& operator <<(const CLogger::ELevel& type, const CFile& file) {
-    CLogger::getSingleton()->push(file.path());
+    CLogger::push(file.path());
     return type;
   }
 }

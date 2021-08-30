@@ -352,7 +352,7 @@ namespace glm {
       }
       oss << ')' << '\n';
     }
-    sys::CLogger::getSingleton()->push(oss.str());
+    sys::CLogger::push(oss.str());
     return type;
   }  
   

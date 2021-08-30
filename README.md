@@ -42,10 +42,12 @@ INIT
 | LOAD grid, gizmo, normal-axor (3axis=3lines+3cones)
 | | ?
 |
+| LOAD scene (empty or from file)
+| | ? 
 ```
 ```text
 LOOP while true // forward render
-| // here: make/poll, update...
+| // here: load/poll, update...
 | 
 | FOREACH viewport
 | | EXEC render main layer
@@ -126,7 +128,7 @@ LOOP while true // forward render
 | | | |         UNIFORM material.options
 | | | |         FOREACH channel
 | | | |           UNIFORM color // if needed
-| | | |           UNIFORM texture SAMPLER/SLOT (to shader) // activate texture slot (get info from shader object)
+| | | |           UNIFORM texture SAMPLER/SLOT (to shader) // activate texture slot (get info load shader object)
 | | | |         
 | | | |     BIND:mesh (to shader)
 | | | |       UNIFORM:mesh.variables (to shader) // like variable positions (for on a cube, if u'r using only 1 cube ibo)
@@ -339,7 +341,7 @@ class CSceneCamera   : CCamera; // camera node in the scene
 
 - rendering
 ```c++
-CQuery query = CQuery::from(CFrustum);
+CQuery query = CQuery::load(CFrustum);
 std::vector<CNode> pNodes = CScene::query(query);
 
 ```
@@ -397,7 +399,7 @@ std::vector<CNode> pNodes = CScene::query(query);
     | | - shadow pass
     | | | - QUERY scene : FIND lights WHERE |light.position - camera.position| < 10 
     | | | - FOR EACH light : lights
-    | | | | - IF light CAN (make) shadow
+    | | | | - IF light CAN (load) shadow
     | | | | | - CREATE (shadow) framebuffer
     | | | | | 
     | | | | | - FOR EACH layer (6 layers for POINT light, 1 layer for the rest)
@@ -405,7 +407,7 @@ std::vector<CNode> pNodes = CScene::query(query);
     | | | | | | - DISABLE read/write color
     | | | | | | - CLEAR  color & setDepth
     | | | | | |  
-    | | | | | | - frustum = CREATE from light
+    | | | | | | - frustum = CREATE load light
     | | | | | | - QUERY scene : FIND drawables WHERE drawable IN frustum
     | | | | | | - FOR EACH drawable
     | | | | | | | - IF drawable CAN (cast) shadow
@@ -431,7 +433,7 @@ std::vector<CNode> pNodes = CScene::query(query);
     | | | - SET flags (cull face back, setDepth)
     | | | - BIND (geometry) framebuffer (setDepth + color + normals + motion)
     | | | 
-    | | | - frustum = CREATE from camera
+    | | | - frustum = CREATE load camera
     | | | - QUERY scene : FIND drawables WHERE drawable IN frustum ORDER front2back(opaque) GROUP BY shader, model
     | | | # render opaque first, then transparent
     | | | - QUERY scene : FIND drawables WHERE drawable IN frustum ORDER back2front(transparent)
@@ -656,21 +658,21 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
   - or refactor `uix::CApplication` into a toplevel window | `template<typename T=CWindow> CApplication`
 - refactor: throw exception on `delete` `CWindow*` only the `CWindow::CRegistry` is allowed to
 - refactor: `CPopup` to replace `CToplevel` | only close app if `CPopup` has no parent
-- fix: need alternative for calling virtual methods from constructors
+- fix: need alternative for calling virtual methods load constructors
   - refactor: find a replacement `::init()` and `::free()`
 - refactor: consider moving `glc`+`ogl` into `ogl` and putting everything inside a namespace 
-- update: move macros from `uix` to `sys` (sys should be everywhere)
-- use: `CGameLoop` to send update + render + make events to `CCore` and its sub-systems 
+- update: move macros load `uix` to `sys` (sys should be everywhere)
+- use: `CGameLoop` to send update + render + load events to `CCore` and its sub-systems 
 - use: `::glDebugMessageCallback`
 - question: should `GLCALL` + `::glCheckError` trigger a system event to the `uix::CContext`
-- move: opengl code from `uix::CContext` to `ogl::CContext : uix::CContext` // `uix` should stay abstract
+- move: opengl code load `uix::CContext` to `ogl::CContext : uix::CContext` // `uix` should stay abstract
 - restructure: move `CSufrface` + `CButton` (and panels) to `CEditWindow`
 - use: get unforms & attributes using `glGetActiveAttrib` && `glGetActiveUniform`
 - .ext to lowercase for `cym::CCodec`s 
 - replace(use): custom types (typedef uint) instead of opengl's GLxxx types
 - attach `CContext` to window(s) // by ref?!
 - opening files shouln't crash (through exception) the app, just show an error
-- make engine (using context)
+- load engine (using context)
   - add viewports (windows + cameras) to engine // new `CViewport` = `CWindow` + `CCamera`
   
 
@@ -683,11 +685,11 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 
 - timer (proper timer object w/ start & elapsed)
 
-- move window make logic from `CWindow` to `CFrame` (first concrete attach) and others
+- move window load logic load `CWindow` to `CFrame` (first concrete attach) and others
 - `SConfig`: replace window hints w/ config
 - `SState`: window & application states for persistance
 - fix: leak: all ::GetDC() MUST have a ::ReleaseDC()
-- fix: move free() from base class to superclass // last free doesn't trigger
+- fix: move free() load base class to superclass // last free doesn't trigger
 
 
 - loop: engine onUpdate & onRender
@@ -696,7 +698,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 
 
 
-- listener/events: make CListener::mHandlers static (common for all intances)
+- listener/events: load CListener::mHandlers static (common for all intances)
 
 - fullscreen: gaming (DEVMODE)
 - custom theme - replace titlebar (icon+menubar+title+sysmenu)
@@ -707,7 +709,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 - ::AnimateWindow()
 - sys: os + fs + timer 
 - logger: custom manipulators + multiple strategies (+file) + loggin w/ defines & macros
-- logger: make CLogger::dbg/nfo/wrn/err reference to CLogger not ELevel or ELevel into a class
+- logger: load CLogger::dbg/nfo/wrn/err reference to CLogger not ELevel or ELevel into a class
 - logger: should get instance on app getSingleton / solve the unique_ptr init problem
 - registries should init only on app init | use CSingleton & CPointer
 
@@ -728,7 +730,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 - `uix` most pointers should be wrapped by a smart pointer object
 
 - surface != panel // need something above (or just use widget) // panel for controls // surface for opengl
-- throw exception on windows make failed + loop + try + fatal or warning // where to use them
+- throw exception on windows load failed + loop + try + fatal or warning // where to use them
 
 - app: 2 panels: 1x canvas +1x buttons (like spawn a sphere)
 
@@ -783,7 +785,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
   - https://www.gamedev.net/articles/programming/general-and-gameplay-programming/c-custom-memory-allocation-r3010/
   - https://medium.com/@mateusgondimlima/designing-and-implementing-a-pool-allocator-data-structure-for-memory-management-in-games-c78ed0902b69
 - opengl
-  - unbinding might not be necesarry, make it do nothing in non-debug mode
+  - unbinding might not be necesarry, load it do nothing in non-debug mode
   - refactor: replace `::glBufferData + GL_STATIC_DRAW` with `::glBufferStorage`
 - shaders
   - shader fragments
@@ -823,7 +825,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
 ###### `net` # networking library # tcp, udp, sockets, http
 ###### `uix` # user interface extended # wrappers for windows, controls, buttons
 
-### App::edit|make
+### App::edit|load
 - structure
     - splash window
       - build/init shaders
@@ -833,7 +835,7 @@ t.bind(0); /* OR */ s.sampler(t); // shader: set sampler = bind + activate + uni
         - layouts: [4xViewports] | [2xLeft + 1xRight] | [1xRight + 2xLeft] | [1xTop + 1xBottom] | [1xViewport]
         - projection: [perspective] | [orthographic] 
         - init: 
-            - make opengl context
+            - load opengl context
             - open game.xml & scene.xml 
             - setup virtual cameras (views) (not saved w/ the scene)
             - send asses to be loaded in the background 

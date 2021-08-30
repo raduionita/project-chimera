@@ -56,7 +56,7 @@ namespace cym {
     public:
       CDataBuffer();
       template<typename T> CDataBuffer(const T* pData, GLsize nSize, GLcount nCount=1, EType eType=EType::NONE, GLenum eUsage=GL_STATIC_DRAW) { 
-        // SYS_LOG_NFO("cym::CDataBuffer::CDataBuffer(T*," << nSize << ",EType,GLenum)::" << this);
+        SYS_LOG_NFO("cym::CDataBuffer::CDataBuffer(T*," << nSize << "," << nCount << ",EType,GLenum)::" << this);
         assert(nSize != 0 && "CDataBuffer CANNOT be size=0!");
         mSize   = nSize;
         mCount  = nCount;

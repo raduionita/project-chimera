@@ -2,7 +2,6 @@
 #define __cym_ccore_hpp__
 
 #include "cym/cym.hpp"
-#include "cym/CRenderSystem.hpp"
 #include "cym/CMaterial.hpp"
 #include "cym/CTexture.hpp"
 #include "cym/CGeometry.hpp"
@@ -11,33 +10,14 @@
 #include "cym/CScene.hpp"
 #include "cym/CFont.hpp"
 
+#include "cym/CRenderSystem.hpp"
+
 #include "sys/TSingleton.hpp"
 #include "sys/CException.hpp"
 
 namespace cym {
   class CCore : public sys::TSingleton<CCore> {
     protected:
-      sys::spo<CRenderSystem> mRenderSystem;
-      
-      // CAudioSystem*
-      // COverlaySystem*
-      // CInputSystem*
-      // CPhysicsSystem*
-      
-      // CTaskManager*
-      
-      // CSceneManager*
-      // CMaterialManager*
-      // CBufferManager* ? vbo/ibo
-      
-      sys::spo<CShaderManager>   mShaderManager;
-      sys::spo<CMaterialManager> mMaterialManager;
-      sys::spo<CTextureManager>  mTextureManager;
-      sys::spo<CGeometryManager> mGeometryManager;
-      sys::spo<CSceneManager>    mSceneManager;
-      
-      sys::spo<CCodecManager>    mCodecManager;
-      
       bool mInited {false};
     public:
       CCore();
@@ -46,28 +26,30 @@ namespace cym {
       bool init();
       void free();
     public:
-      static sys::wpo<CCore> load() { return CCore::getSingleton(); }
+      static void boot() { CCore::getSingleton(); }
     public:
-      static sys::spo<CCodecManager>&         getCodecManager() { return getSingleton()->mCodecManager; }
-      virtual inline sys::spo<CCodecManager>& setCodecManager(sys::spo<CCodecManager> pManager) { return mCodecManager = pManager; }
+      // CAudioSystem*
+      // COverlaySystem*
+      // CInputSystem*
+      // CPhysicsSystem*
       
-      static sys::spo<CShaderManager>& getShaderManager() { return getSingleton()->mShaderManager; }
-      virtual inline void              setShaderManager(sys::spo<CShaderManager> pManager) { mShaderManager = pManager; }
+      // CTaskManager*
       
-      static sys::spo<CMaterialManager>& getMaterialManager() { return getSingleton()->mMaterialManager; }
-      virtual inline void                setMaterialManager(sys::spo<CMaterialManager> pManager) { mMaterialManager = pManager; }
+      // CBufferManager* ? vbo/ibo
       
-      static sys::spo<CTextureManager>& getTextureManager() { return getSingleton()->mTextureManager; }
-      virtual inline void               setTextureManager(sys::spo<CTextureManager> pManager) { mTextureManager = pManager; }
-      
-      static sys::spo<CGeometryManager>& getGeometryManager() { return getSingleton()->mGeometryManager; }
-      virtual inline void               setGeometryManager(sys::spo<CGeometryManager> pManager) { mGeometryManager = pManager; }
-      
-      static sys::spo<CSceneManager>& getSceneManager() { return getSingleton()->mSceneManager; }
-      virtual inline void             setSceneManager(sys::spo<CSceneManager> pManager) { mSceneManager = pManager; }
-      
-      static sys::spo<CRenderSystem>& getRenderSystem() { return getSingleton()->mRenderSystem; }
-      virtual inline void             setRenderSystem(sys::spo<CRenderSystem> pSystem) { mRenderSystem = pSystem; }
+      // static cym::CCodecManager&    getCodecManager() { return CCodecManager::getSingleton(); }
+      //
+      // static cym::CShaderManager&   getShaderManager() { return CShaderManager::getSingleton(); }
+      //
+      // static cym::CMaterialManager& getMaterialManager() { return CMaterialManager::getSingleton(); }
+      //
+      // static cym::CTextureManager&  getTextureManager() { return CTextureManager::getSingleton(); }
+      //
+      // static cym::CGeometryManager& getGeometryManager() { return CGeometryManager::getSingleton(); }
+      //
+      // static cym::CSceneManager&    getSceneManager() { return CSceneManager::getSingleton(); }
+      //
+      // static cym::CRenderSystem&    getRenderSystem() { return CRenderSystem::getSingleton(); }
       
 // @todo: connects(and befriends) all *System(s)
   };

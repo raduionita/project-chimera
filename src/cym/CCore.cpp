@@ -13,22 +13,22 @@ namespace cym {
   
   bool CCore::init() {
     SYS_LOG_NFO("cym::CCore::init()::" << this);
-    
-    setMaterialManager(new cym::CMaterialManager);
-    setTextureManager(new cym::CTextureManager);
-    setGeometryManager(new cym::CGeometryManager);
-    setShaderManager(new cym::CShaderManager);
-    setSceneManager(new cym::CSceneManager);
-    
-    setCodecManager(new cym::CCodecManager);
-      getCodecManager()->addCodec(new TCodec<CTexture,ECodec::DDS>);
-      getCodecManager()->addCodec(new TCodec<CTexture,ECodec::TGA>);
-      getCodecManager()->addCodec(new TCodec<CTexture,ECodec::BMP>);
-      getCodecManager()->addCodec(new TCodec<CGeometry,ECodec::DAE>);
-      getCodecManager()->addCodec(new TCodec<CGeometry,ECodec::OBJ>);
-      getCodecManager()->addCodec(new TCodec<CScene,ECodec::SCENE>);
   
-    setRenderSystem(new cym::CRenderSystem);
+    cym::CMaterialManager::boot();
+    cym::CTextureManager::boot();
+    cym::CGeometryManager::boot();
+    cym::CShaderManager::boot();
+    cym::CSceneManager::boot();
+  
+    cym::CCodecManager::boot();
+      cym::CCodecManager::addCodec(new TCodec<CTexture,ECodec::DDS>);
+      cym::CCodecManager::addCodec(new TCodec<CTexture,ECodec::TGA>);
+      cym::CCodecManager::addCodec(new TCodec<CTexture,ECodec::BMP>);
+      cym::CCodecManager::addCodec(new TCodec<CGeometry,ECodec::DAE>);
+      cym::CCodecManager::addCodec(new TCodec<CGeometry,ECodec::OBJ>);
+      cym::CCodecManager::addCodec(new TCodec<CScene,ECodec::SCENE>);
+  
+    cym::CRenderSystem::boot();
     
     return mInited = true;
   }

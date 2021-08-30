@@ -12,6 +12,8 @@
 #include <unordered_map>
 
 namespace cym {
+  class CShader; typedef sys::ptr<CShader> PShader;
+  
   // resources /////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   class CShader : public CResource, public CObject {
@@ -52,17 +54,17 @@ namespace cym {
       GLint uniform(const CString& name);
       void  uniform(const CString& name, float x, float y, float z, float w);
       void  uniform(const CString& name, float x);
-      void  uniform(const CString& name, const sys::spo<CTexture>&);
+      void  uniform(const CString& name, const sys::ptr<CTexture>&);
       void  uniform(const CString& name, const glm::mat4& m);
       void  sampler(const CString& name, GLuint);
-      void  sampler(const CString& name, const sys::spo<CTexture>&);
+      void  sampler(const CString& name, const sys::ptr<CTexture>&);
   };
   
   // loaders /////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   class CShaderLoader : public CResourceLoader {
     public:
-      virtual void load(sys::spo<CResourceLoader>) override { throw sys::exception("CShaderLoader::load() NOT overriden!",__FILE__,__LINE__);  };
+      virtual void load(sys::ptr<CResourceLoader>) override { throw sys::exception("CShaderLoader::load() NOT overriden!",__FILE__,__LINE__);  };
   };
   
   template<typename T> class TShaderLoader : public CShaderLoader { };
@@ -71,17 +73,27 @@ namespace cym {
     protected:
       std::vector<sys::file> mFile;
     public:
-      virtual void load(sys::spo<CResourceLoader>) override;
+      virtual void load(sys::ptr<CResourceLoader>) override;
   };
   
   // manager /////////////////////////////////////////////////////////////////////////////////////////////////////////
       
   class CShaderManager : public cym::TResourceManager<CShader>, public sys::TSingleton<CShaderManager> {
+      friend class cym::CShader;
+      friend class cym::CShaderLoader;
+      friend class sys::TSingleton<CShaderManager>;
+    protected:
+      sys::table<sys::string,PShader> mShaders;
+    protected:
+      CShaderManager();
+      ~CShaderManager();
     public:
-      inline CShaderManager()  { SYS_LOG_NFO("cym::CShaderManager::CShaderManager()::" << this); }
-      inline ~CShaderManager() { SYS_LOG_NFO("cym::CShaderManager::~CShaderManager()::" << this); }
-    public:
-      template<typename T> static sys::spo<CShader> load(const std::string& tName, const T& tSource) {
+      /* boot up shader manager */
+      static void boot();
+      /* find shader using hints */
+      static PShader find(int iHints);
+      /* load shader and remember it */
+      template<typename T> static PShader load(const std::string& tName, const T& tSource) {
         
         return nullptr;
       }

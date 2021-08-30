@@ -298,7 +298,7 @@ namespace glm {
   template <typename T> const sys::CLogger::ELevel& operator <<(const sys::CLogger::ELevel& type, const glm::tquat<T>& q) {
     std::ostringstream oss;
     oss << "q(" << q.w << ',' << q.x << ',' << q.y << ',' << q.z << ')';
-    sys::CLogger::getSingleton()->push(oss.str());
+    sys::CLogger::push(oss.str());
     return type;
   }
   

@@ -64,7 +64,7 @@ namespace glm {
   template<typename T> inline const sys::CLogger::ELevel& operator <<(const sys::CLogger::ELevel& type, const TPlane<T>& p) {
     std::ostringstream oss;
     oss << "p[n(" << p.x << ',' << p.y << ',' << p.z << ")," << p.d << ']';
-    sys::CLogger::getSingleton()->push(oss.str());
+    sys::CLogger::push(oss.str());
     return type;
   }  
   

@@ -25,7 +25,6 @@ namespace sys {
       byte* data(byte*, size_t, uint = 0);
       byte* data(size_t, uint = 0);
   };
-  
 }
 
 #endif //__sys_cstream_hpp__

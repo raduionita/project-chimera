@@ -5,6 +5,7 @@
 #include "sys/CLogger.hpp"
 
 #include <cmath>
+#include <cassert>
 
 #undef NEAR
 #undef FAR
@@ -332,43 +333,44 @@ namespace glm {
   /* linear interpolation */
   template<typename T, typename S> inline T mix(const T& A, const T& B, const S& t) { 
     return B + t * (B - A); 
-  } 
+  }
+  // quadratic bezier (3 component interpolation)
+  template<typename T, typename S> inline T mix(const T& A, const T& B, const T& C, const S& t)  {
+    T D {glm::mix(A, B, t)}; // D = A + t(B - A)
+    T E {glm::mix(B, C, t)}; // E = B + t(C - B)
+    // T P = glm::mix(D, E, t); // P = D + t(E - D)
+    return glm::mix(D, E, t); // P;
+  }
+  // cubic bezier (4 component interpolation)
+  template<typename T, typename S> inline T mix(const T& A, const T& B, const T& C, const T& D, const S& t) {
+    T E {glm::mix(A, B, t)};
+    T F {glm::mix(B, C, t)};
+    T G {glm::mix(C, D, t)};
+    // T P {glm::mix(E, F, G, t};
+    return glm::mix(E, F, G, t); // P
+  }
   
   /* linear interpolation */
   template<typename T, typename S> inline T lerp(const T& A, const T& B, const S& t) { 
     return glm::mix(A,B,t); 
   } 
   
-  // quadratic bezier (3 component interpolation)
-  template<typename T, typename S> inline T mix(const T& A, const T& B, const T& C, const S& t)  {
-    T D = glm::mix(A, B, t); // D = A + t(B - A)
-    T E = glm::mix(B, C, t); // E = B + t(C - B)
-    T P = glm::mix(D, E, t); // P = D + t(E - D)
-    return P;
-  }
-  
-  // cubic bezier (4 component interpolation)
-  template<typename T, typename S> inline T mix(const T& A, const T& B, const T& C, const T& D, const S& t) { 
-    
-    T E = glm::mix(A, B, t);
-    T F = glm::mix(B, C, t);
-    T G = glm::mix(C, D, t);
-    T P = glm::mix(E, F, G, t);
-    return P;
-  }
-  
   // clamp value between a min(left) and a max(right)
   template<typename T> inline T clamp(T value, T left, T right) {
     return std::min(std::max(value, left), right);
   }  
-  
   // clamp value between a min(left) and a max(right)
   template<typename T> inline T clamp(T value, T limit = T(0)) {
     return value < limit ? limit : value;
   }
   
+  /* glm::aabb = glm::extend(glm::aabb,glm::aabb) // merge 2 aabbs */
+  inline extern glm::aabb extend(const glm::aabb& lhs, const glm::aabb& rhs);
+  /* glm::aabb = glm::extend(glm::aabb, glm::vec3) // extend aabb by vector (position) */
+  template<typename T> inline extern glm::aabb extend(const glm::aabb& lhs, const glm::tvec3<T>& rhs);
+  
   // clamp vector between 2 vector limits
-  template<typename T, const ushort n> inline glm::tvec<T, n> clamp(const glm::tvec<T, n>& v, const glm::tvec<T, n>& left, const glm::tvec<T, n>& right) {
+  template<typename T, const ushort n> inline glm::tvec<T,n> clamp(const glm::tvec<T, n>& v, const glm::tvec<T, n>& left, const glm::tvec<T, n>& right) {
     return min(max(v, left), right);
   }
   

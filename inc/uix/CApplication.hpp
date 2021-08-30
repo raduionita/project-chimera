@@ -1,6 +1,7 @@
 #ifndef __uix_capplication_hpp__
 #define __uix_capplication_hpp__
 
+#include "sys/TPointer.hpp"
 #include "uix/uix.hpp"
 #include "uix/CModule.hpp"
 #include "uix/CListener.hpp"
@@ -19,10 +20,10 @@ namespace uix {
       using CModule::operator=;
     protected:
       static CApplication* sInstance;
-      sys::spo<CConsole>   mConsole  {nullptr};
+      sys::ptr<CConsole>   mConsole  {nullptr};
       bool                 mRunning  {false};
       CStyle*              mStyle    {nullptr};
-      sys::spo<CLoop>      mLoop     {nullptr};
+      sys::ptr<CLoop>      mLoop     {nullptr};
     public: // ctor
       CApplication(int=0);
       ~CApplication();

@@ -116,26 +116,27 @@ namespace sys {
     public: // friends
       friend const CLogger::ELevel& operator <<(const CLogger::ELevel&, const CLogger::EManipulator&);
       template<typename T> friend const CLogger::ELevel& operator <<(const CLogger::ELevel&, const T&);
-      friend CLogger* operator <<(CLogger*, const std::string&);
+      friend CLogger& operator <<(CLogger&, const std::string&);
     public:
-      template<typename T> CLogger* push(const T& output) {
+      template<typename T> static CLogger& push(const T& output) {
+        static auto& sLogger {CLogger::getSingleton()}; 
 #if   defined(SYS_LOGGER_DEBUG)
-      mLevel = ELevel::DEBUG;
+      sLogger.mLevel = ELevel::DEBUG;
 #elif defined(SYS_LOGGER_INFO)
-      mLevel = ELevel::INFO;
+      sLogger.mLevel = ELevel::INFO;
 #elif defined(SYS_LOGGER_WARN)
-      mLevel = ELevel::WARN;
+      self.mLevel = ELevel::WARN;
 #elif defined(SYS_LOGGER_ERROR)
-      mLevel = ELevel::ERROR;
+      self.mLevel = ELevel::ERROR;
 #elif defined(SYS_LOGGER_FATAL)
-      mLevel = ELevel::ERROR;
+      self.mLevel = ELevel::ERROR;
 #elif defined(SYS_LOGGER_NONE)
-      mLevel = ELevel::NONE;
+      self.mLevel = ELevel::NONE;
 #endif//SYS_LOGGER_NONE
       std::stringstream ss;
       ss << output;
-      mOutput.append(ss.str());
-      return this;
+      sLogger.mOutput.append(ss.str());
+      return sLogger;
     }
     public: // get&set
       void   level(ELevel&& eLevel) { mLevel = std::move(eLevel); }
@@ -145,7 +146,7 @@ namespace sys {
   };
   
   template<typename T> const CLogger::ELevel& operator <<(const CLogger::ELevel& type, const T& output) {
-    CLogger::getSingleton()->push(output);
+    CLogger::push(output);
     return type;
   }
   

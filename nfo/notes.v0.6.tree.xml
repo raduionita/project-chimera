@@ -23,7 +23,7 @@
           <node scope="joint" name="sadle">
             <entity scope="model" name="hiccup" />
           </node> <!-- node:joint -->
-          <node scope="joint" name="tail" rid="relative id to the parent" matrix="deviation from root">
+          <node scope="joint" name="tail" rid="relative id to the parent" matrix="deviation load root">
             
           </node> <!-- node:joint -->
         </node> <!-- node:joint -->
