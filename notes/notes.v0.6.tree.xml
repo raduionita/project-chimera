@@ -1,0 +1,49 @@
+<root>
+  <data>
+    <entity scope="light" uid="unique id"/>
+    <!-- when saving most entities go here - the ones in scene are just references -->
+    <animation name="" file="" info="for what skeleton?!" />
+    <group getType="animation" gid="gid" info="based on skeleton getType">
+      <animation aid="#aid" name="" file="" info="for what skeleton?!" />
+    </group>
+  </data>
+  <game name="">
+    <node scope="scene">
+      <node scope="root" info="unmutable - parent 2 all entities and nodes">
+        <!-- ... -->
+      </node>
+    </node> <!-- node:scene -->
+    
+<!-- multiple scenes -->
+    
+    <node scope="scene">
+      <node scope="entity" file="path/to/toothless.xml" matrix="tx ty tz rx ry rz rw sx sy sz">
+        <node scope="joint" name="root" rid="root" matrix="...">
+          <entity scope="model" ref="#toothless.model" /> <!-- if no reference found postpone it until found -->
+          <node scope="joint" name="sadle">
+            <entity scope="model" name="hiccup" />
+          </node> <!-- node:joint -->
+          <node scope="joint" name="tail" rid="relative id to the parent" matrix="deviation load root">
+            
+          </node> <!-- node:joint -->
+        </node> <!-- node:joint -->
+      </node> <!-- node:entity -->
+      
+      
+    </node>
+  </game>
+</root>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

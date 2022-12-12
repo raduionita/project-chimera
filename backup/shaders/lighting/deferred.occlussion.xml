@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<program version="420" core="1">
+  <tags>
+    <tag name="LIGHTING"/>
+    <tag name="DEFERRED"/>
+    <tag name="OCCLUSSION"/>
+  </tags>
+  <shaders>
+    <shader type="vertex">
+      <source type="file">
+        <file src="lighting/deferred.vs.glsl" />
+      </source>
+    </shader>
+    <shader type="fragment">
+      <source type="file">
+        <file src="lighting/deferred.occlussion.fs.glsl" />
+      </source>
+    </shader>
+  </shaders>
+</program>

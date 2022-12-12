@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<program version="420" core="1">
+  <tags>
+    <tag name="GEOMETRY"/>
+    <tag name="DEFERRED"/>
+    <tag name="SINGLE"/>
+    <tag name="PARALLAX"/>
+  </tags>
+  <shaders>
+    <shader type="vertex">
+      <source type="file">
+        <file src="geometry/deferred.single.parallax.vs.glsl" />
+      </source>
+    </shader>
+    <shader type="fragment">
+      <source type="file">
+        <file src="geometry/deferred.parallax.fs.glsl" />
+      </source>
+    </shader>
+  </shaders>
+</program>

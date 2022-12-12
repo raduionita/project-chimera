@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<program version="420" core="1">
+  <tags>
+    <tag name="LIGHTING"/>
+    <tag name="DEFERRED"/>
+  </tags>
+  <shaders>
+    <shader type="vertex">
+      <source type="file">
+        <file src="lighting/deferred.vs.glsl" />
+      </source>
+      <!--source type="string">
+        #version 420 core
+        void main(void) {
+          const vec4 vertices[4] = vec4[4](
+            vec4(-1.0, -1.0, 0.0, 1.0),
+            vec4( 1.0, -1.0, 0.0, 1.0),
+            vec4(-1.0,  1.0, 0.0, 1.0),
+            vec4( 1.0,  1.0, 0.0, 1.0));
+          gl_Position = vertices[gl_VertexID];
+        }
+      </source-->
+    </shader>
+    <shader type="fragment">
+      <structs>
+        <struct name="Camera">
+          <fields>
+            <field type="vec3"  name="vPosition" />
+          </fields>
+        </struct>
+        <struct name="Scene">
+          <fields>
+            <field type="uint" name="nDirectLights" value="1" />
+            <field type="uint" name="nPointLights" />
+            <field type="uint" name="nSpotLights" />
+          </fields>
+        </struct>
+        <struct name="Light">
+          <fields>
+            <field type="float" name="fAmbientIntensity" />
+            <field type="vec3"  name="vColor" />
+            <field type="float" name="fDiffuseIntensity" />
+          </fields>
+        </struct>
+        <struct name="DirectLight" extends="Light">
+          <fields>
+            <field type="vec3"  name="vDirection" />
+            <field type="mat4"  name="mVP" />
+          </fields>
+        </struct>
+        <struct name="PointLight" extends="Light">
+          <fields>
+            <field type="vec3"  name="vPosition" />
+            <field type="float" name="fK0" />
+            <field type="float" name="fK1" />
+            <field type="float" name="fK2" />
+          </fields>
+        </struct>
+        <struct name="SpotLight" extends="PointLight">
+          <fields>
+            <field type="vec3"  name="vDirection" />
+            <field type="float" name="fCutoff" />
+            <field type="mat4"  name="mVP" />
+            <field type="mat4"  name="test" />
+          </fields>
+        </struct>
+        <struct name="Renderer">
+          <fields>
+            <field type="uint"  name="nWidth" />
+            <field type="uint"  name="nHeight" />
+          </fields>
+        </struct>
+      </structs>
+      <uniforms>
+        <uniform type="Renderer"     name="oRenderer" />
+        <uniform type="Camera"       name="oCamera" />
+        <uniform type="DirectLight"  name="oDirectLight" />
+        <uniform type="PointLight"   name="oPointLight" />
+        <uniform type="SpotLight"    name="oSpotLights[99]" />
+        <uniform type="Scene"        name="oScene" />
+        <uniform type="float"        name="fPcfSize" value="1.0" />
+        <uniform type="float"        name="fPcfStep" value="1.0" />
+      </uniforms>
+      <varyings>
+        <!--varying></varying-->
+      </varyings>
+      <subroutines>
+        <!-- subroutine -->
+      </subroutines>
+      <outputs>
+        <output location="0" type="vec4" name="f_vColor" />
+      </outputs>
+      <source type="file">
+        <file src="lighting/deferred.fs.glsl" />
+      </source>
+    </shader>
+  </shaders>
+</program>
