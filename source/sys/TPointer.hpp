@@ -1,10 +1,11 @@
-#ifndef __mem_TPointer_hpp__
-#define __mem_TPointer_hpp__
+#ifndef __sys_tpointer_hpp__
+#define __sys_tpointer_hpp__
 
-#include "mem/mem.hpp" 
+#include "sys/sys.hpp" 
+
 #include <atomic>
 
-namespace mem {
+namespace sys {
   template<typename T> class TPointer {
       typedef std::atomic_uint32_t C;
     private:
@@ -34,6 +35,6 @@ namespace mem {
 
       }
   };
-} // namespace mem
+} // namespace sys
 
-#endif //__mem_TPointer_hpp__
+#endif //__sys_tpointer_hpp__

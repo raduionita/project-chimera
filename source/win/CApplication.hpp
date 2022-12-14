@@ -28,14 +28,14 @@ namespace win {
 
 #define DECLARE_APPLICATION(CLS)                                                                                       \
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {                      \
-  SYS_LOG_NFO("   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " INIT");                                \
+  LOGNFO("   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " INIT");                                     \
   try {                                                                                                                \
     CLS app;                                                                                                           \
     INT result = app.exec();                                                                                           \
-    SYS_LOG_NFO("   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " EXIT");                              \
+    LOGNFO("   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " EXIT");                                   \
     return result;                                                                                                     \
   } catch (sys::CException& ex) {                                                                                      \
-    SYS_LOG_ERR("FATAL! " << ex);                                                                                      \
+    LOGERR("FATAL! " << ex);                                                                                           \
     return -1;                                                                                                         \
   }                                                                                                                    \
 }

@@ -18,6 +18,7 @@ namespace sys {
   template<typename T> class TPointer;
   template<typename T> class TReference;
   template<typename T> class TSingleton;
+  template<typename T> class TBlock;
 } // namespace sys
 
 namespace sys {

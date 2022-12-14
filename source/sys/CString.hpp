@@ -2,6 +2,7 @@
 #define __sys_cstring_hpp__
 
 #include "sys/sys.hpp"
+
 #include <string>
 
 namespace sys {

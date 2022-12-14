@@ -1,9 +1,9 @@
-#ifndef __mem_TReference_hpp__
-#define __mem_TReference_hpp__
+#ifndef __sys_treference_hpp__
+#define __sys_treference_hpp__
 
-#include "mem/mem.hpp"
+#include "sys/sys.hpp"
 
-namespace mem {
+namespace sys {
   template<typename T> class TReference {
     private:
       T& mReference;
@@ -15,4 +15,4 @@ namespace mem {
   };
 } // namespace mem
 
-#endif //__mem_TReference_hpp__
+#endif //__sys_treference_hpp__

@@ -1,5 +1,5 @@
-#ifndef __sys_CApplication_hpp__
-#define __sys_CApplication_hpp__
+#ifndef __sys_capplication_hpp__
+#define __sys_capplication_hpp__
 
 #include "sys/sys.hpp"
 #include "sys/CException.hpp"
@@ -25,4 +25,4 @@ int main(int argc, char** argv) {                                               
   }                                                                                                                    \
 }
 
-#endif //__sys_CApplication_hpp__
+#endif //__sys_capplication_hpp__
