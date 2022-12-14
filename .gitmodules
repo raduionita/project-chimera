@@ -2,4 +2,3 @@
 	path = vendor/libpng
 	url = https://github.com/glennrp/libpng
 	branch = libpng16
-
