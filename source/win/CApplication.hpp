@@ -26,6 +26,7 @@ namespace win {
   };
 } // namespace win
 
+#undef DECLARE_APPLICATION
 #define DECLARE_APPLICATION(CLS)                                                                                       \
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {                      \
   LOGNFO("   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " INIT");                                     \

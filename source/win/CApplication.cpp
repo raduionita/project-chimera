@@ -58,6 +58,7 @@ namespace win {
 
   bool CApplication::tick() {
     onTick(0);
+    return false;
   }
 
   // events

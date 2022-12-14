@@ -1,13 +1,11 @@
 #include "app/CApplication.hpp"
 
-#include <iostream>
-
 namespace app {
   CApplication::CApplication() { }
 
   int CApplication::exec(int argc, char** argv) {
 
-    std::cout << "app::CApplication::exec()\n";
+    LOGDBG("app::CApplication::exec()");
 
     return 0;
   }

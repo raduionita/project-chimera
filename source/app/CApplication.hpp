@@ -11,6 +11,6 @@ namespace app {
     public:
       int exec(int argc, char** argv);
   };
-} // namespace app
+} // namespace appto
 
 #endif //__app_capplication_hpp__

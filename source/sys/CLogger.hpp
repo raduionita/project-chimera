@@ -4,13 +4,20 @@
 #include "sys/sys.hpp"
 #include "sys/TSingleton.hpp"
 
+#include <iostream>
+
 namespace sys {
-    class CLogger : public TSingleton<CLogger> {
-        
-    };
+  class CLogger : public TSingleton<CLogger> {
+    public:
+      CLogger();
+  };
 } // namespace sys
 
-// LOGDBG // #define LOGDBG(msg) CLogger::getInstance() << ELogLevel::DEBUG << msg << ELogManipulator::NL;
+#define LOGDBG(msg) std::cout << msg << "\n";
+#define LOGNFO(msg) std::cout << msg << "\n";
+#define LOGWRN(msg) std::cout << msg << "\n";
+#define LOGERR(msg) std::cout << msg << "\n";
+// #define LOGDBG(msg) CLogger::getInstance() << ELogLevel::DEBUG << msg << ELogManipulator::NL;
 // LOGNFO
 // LOGWRN
 // LOGERR
