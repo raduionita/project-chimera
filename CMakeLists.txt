@@ -19,7 +19,7 @@ add_compile_definitions(CYM_CONTEXT_OPENGL)
 
 include_directories(source)
 
-link_directories(vendors)
+link_directories(vendor)
 link_directories(binary)
 
 file(GLOB CYM "source/sys/*.cpp" "source/glm/*.cpp" "source/cym/*.cpp" "source/win/*.cpp")

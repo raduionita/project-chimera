@@ -7,8 +7,8 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/source",
                 "${workspaceFolder}/source/**",
-                "${workspaceFolder}/vendors",
-                "${workspaceFolder}/vendors/**"
+                "${workspaceFolder}/vendor",
+                "${workspaceFolder}/vendor/**"
             ],
             "defines": [
                 "_DEBUG",
