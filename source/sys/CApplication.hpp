@@ -4,6 +4,7 @@
 #include "sys/sys.hpp"
 #include "sys/CException.hpp"
 #include "sys/CLogger.hpp"
+#include "sys/CBenchmark.hpp"
 
 namespace sys {
   class CApplication {
@@ -18,14 +19,15 @@ namespace sys {
 #undef DECLARE_APPLICATION
 #define DECLARE_APPLICATION(CLS)                                                                                       \
 int main(int argc, char** argv) {                                                                                      \
-  LOGDBG("   ::main(int,char**)");                                                                                     \
+  LOGTAG("   ::main(int,char**)");                                                                                     \
+  LOGDBG(".");                                                                                                         \
   try {                                                                                                                \
     CLS app;                                                                                                           \
     int rez = app.exec(argc, argv);                                                                                    \
-    LOGNFO("   ::main(int,char**)::" << rez);                                                                          \
+    LOGNFO("::" << rez);                                                                                               \
     return rez;                                                                                                        \
   } catch (sys::CException& ex) {                                                                                      \
-    LOGERR("   ::main(int,char**)::ERROR:" << ex);                                                                     \
+    LOGERR("::ERROR:" << ex);                                                                                          \
     return -1;                                                                                                         \
   }                                                                                                                    \
 }

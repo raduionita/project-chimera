@@ -28,5 +28,12 @@ namespace sys {
   template<typename T> using ref = sys::TReference<T>;
 } // namespace sys
 
+struct {
+    template<typename T> inline T&& operator <<(T& lval) {
+        return static_cast<T&&>(lval);
+    }
+} RVAL;
+#define rval (RVAL) <<
+
 
 #endif //__sys_hpp__

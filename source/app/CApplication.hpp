@@ -5,7 +5,7 @@
 #include "sys/CApplication.hpp"
 
 namespace app {
-  class CApplication : public sys::CApplication {
+  class CApplication : public sys::CApplication { // win::CApplication // cym::CApplication
     public:
       CApplication();
     public:

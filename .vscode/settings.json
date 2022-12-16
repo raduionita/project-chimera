@@ -23,7 +23,6 @@
     "cstdio": "cpp",
     "cstdlib": "cpp",
     "ctime": "cpp",
-    "cwchar": "cpp",
     "cwctype": "cpp",
     "deque": "cpp",
     "list": "cpp",
@@ -52,5 +51,6 @@
     "typeinfo": "cpp",
     "cassert": "cpp",
     "map": "cpp"
-  }
+  },
+  "editor.tabSize": 2
 }

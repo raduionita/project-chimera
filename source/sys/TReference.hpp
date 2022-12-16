@@ -4,14 +4,17 @@
 #include "sys/sys.hpp"
 
 namespace sys {
-  template<typename T> class TReference {
-    private:
-      T& mReference;
+  template <typename T> class TReference {
+      friend class TPointer<T>;
+    protected:
+      T*& mReference;
     public:
-      TReference(T& rReference) : mReference{rReference} { 
-        // sdasd
-      }
-      ~TReference() = default;
+      TReference(TPointer<T>& pPointer) : mReference{pPointer} { };
+      TReference(TReference& that) : mReference{that.mReference} { };
+      TReference(const T&&) = delete;
+    public:
+      inline T*& operator ->() const noexcept { return mReference; }
+      inline T&  operator  *() const noexcept { return *mReference; }
   };
 } // namespace mem
 
