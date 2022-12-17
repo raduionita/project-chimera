@@ -2,6 +2,6 @@
 
 namespace cym {
   CApplication::CApplication() {
-    
+    // ?!
   }
 } // namespace cym

@@ -2,14 +2,15 @@
 #define __app_capplication_hpp__
 
 #include "app/app.hpp"
-#include "sys/CApplication.hpp"
+#include "cym/CApplication.hpp"
 
 namespace app {
-  class CApplication : public sys::CApplication { // win::CApplication // cym::CApplication
+  class CApplication : public cym::CApplication {
     public:
       CApplication();
     public:
-      int exec(int argc, char** argv);
+      virtual void onInit() override;
+      virtual void onTick(int=0) override;
   };
 } // namespace appto
 

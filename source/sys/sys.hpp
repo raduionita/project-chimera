@@ -9,6 +9,11 @@
   #define DS '/'
 #endif//_WIN32
 
+#undef DELETE
+#define DELETE(what) delete what;what=nullptr;
+#define UNUSED(x)
+#define ASSERT(cond) assert(cond)
+
 namespace sys {
   class CApplication;
   class CError;

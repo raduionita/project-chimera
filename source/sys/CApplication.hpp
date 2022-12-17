@@ -12,7 +12,8 @@ namespace sys {
       CApplication();
       virtual ~CApplication() = default;
     public:
-      virtual int exec(int argc, char** argv) = 0;
+      virtual int exec();
+      virtual int exec(int argc, char** argv);
   };
 } // namespace sys
 

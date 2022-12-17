@@ -14,16 +14,18 @@
 
 #include <iostream>
 
+#undef ERROR
+
 namespace sys {
   class CLogger : public TSingleton<CLogger> {
-      enum ELevel {
+      enum class ELevel : int {
         NONE  = 0,         //  0
         ERROR = 1,         //  1
         WARN  = 2 | ERROR, //  3 = 2 + 1
         INFO  = 4 | WARN,  //  7 = 4 + 2 = 1
         DEBUG = 8 | INFO,  // 15 = 8 + 4 + 2 + 1
       };
-      enum EManipulator {
+      enum class EManipulator : int {
         END = 0,
         NL  = 1,
         TAB = 2,
