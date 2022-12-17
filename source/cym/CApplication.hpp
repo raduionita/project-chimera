@@ -8,6 +8,8 @@ namespace cym {
   class CApplication : public win::CApplication {
     public:
       CApplication();
+    public:
+      
   };
 } // namespace cym
 

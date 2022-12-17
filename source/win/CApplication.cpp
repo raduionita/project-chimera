@@ -1,11 +1,15 @@
 #include "win/CApplication.hpp"
 
 namespace win {
+  CApplication* CApplication::sInstance{nullptr};
+  
   // ctors
   
   CApplication::CApplication() {
 
   }
+
+  // 
 
   // actions
 

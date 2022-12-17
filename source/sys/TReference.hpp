@@ -9,6 +9,7 @@ namespace sys {
     protected:
       T*& mReference;
     public:
+      TReference(T*& pPointer) : mReference{pPointer} { };
       TReference(TPointer<T>& pPointer) : mReference{pPointer} { };
       TReference(TReference& that) : mReference{that.mReference} { };
       TReference(const T&&) = delete;

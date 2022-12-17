@@ -79,7 +79,8 @@
 			"locale": "cpp",
 			"mutex": "cpp",
 			"optional": "cpp",
-			"variant": "cpp"
+			"variant": "cpp",
+			"iomanip": "cpp"
 		}
 	}
 }

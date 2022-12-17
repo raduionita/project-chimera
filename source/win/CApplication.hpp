@@ -6,15 +6,21 @@
 
 namespace win {
   class CApplication : public sys::CApplication {
-      bool mRunning {true};
+    protected:
+      static CApplication* sInstance;
+      bool                 mRunning {true}; // TODO: atomic bool
     public:
       CApplication();
     public:
+      static inline CApplication* getInstance() { return sInstance; }
+      inline bool isRunning() const { return mRunning; }
+    public:
       int  exec();
     private:
+      // setup/cleanup
       bool init();
       bool free();
-
+      // actions
       void loop();
       bool exit();
       bool tick();
@@ -29,14 +35,15 @@ namespace win {
 #undef DECLARE_APPLICATION
 #define DECLARE_APPLICATION(CLS)                                                                                       \
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {                      \
-  LOGNFO("   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " INIT");                                     \
+  LOGTAG("   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)");                                                               \
+  LOGNFO("::" << hInstance << " INIT");                                                                                \
   try {                                                                                                                \
     CLS app;                                                                                                           \
     INT result = app.exec();                                                                                           \
-    LOGNFO("   ::WinMain(HINSTANCE,HINSTANCE,LPSTR,int)::" << hInstance << " EXIT");                                   \
+    LOGNFO("::" << hInstance << " EXIT");                                                                              \
     return result;                                                                                                     \
   } catch (sys::CException& ex) {                                                                                      \
-    LOGERR("FATAL! " << ex);                                                                                           \
+    LOGERR("::FATAL! " << ex);                                                                                         \
     return -1;                                                                                                         \
   }                                                                                                                    \
 }

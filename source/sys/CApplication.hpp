@@ -9,8 +9,8 @@
 namespace sys {
   class CApplication {
     public:
-      CApplication() { }
-      virtual ~CApplication() { }
+      CApplication();
+      virtual ~CApplication() = default;
     public:
       virtual int exec(int argc, char** argv) = 0;
   };
