@@ -5,9 +5,10 @@ namespace cym {
   class CScene;
   class CNode;
 
-  class CScreen;
-  class CLayer;
   class CSurface;
+  class CLayer;
+  class CScreen;
+  class CScreenManager;
 } // namespace cym
 
 #endif //__cym_hpp__

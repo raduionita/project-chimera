@@ -24,10 +24,10 @@ include_directories(source)
 link_directories(vendor)
 link_directories(binary)
 
-file(GLOB CYM "source/sys/*.cpp" "source/glm/*.cpp" "source/cym/*.cpp" "source/win/*.cpp")
+file(GLOB CYM "source/sys/*.cpp" "source/win/*.cpp" "source/glm/*.cpp" "source/cym/*.cpp")
 file(GLOB APP "source/app/*.cpp" "source/main.cpp")
 
-add_compile_definitions(CONTEXT_OPENGL)
+add_compile_definitions(CONTEXT_OPENGL) # CONTEXT_WINDOW CONTEXT_OPENGL
 
 # LOGGER
 if(LOGGER)

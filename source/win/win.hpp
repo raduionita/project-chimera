@@ -5,8 +5,7 @@
 #include <windows.h>
 
 namespace win {
-  template<typename T> class TApplication;
-  class CApplication;
+  constexpr int ZERO =  0;
 
   class CObject;
     class CWindow;
@@ -18,6 +17,9 @@ namespace win {
         class CCanvas;
       class CDialog;
       class CConsole;
+
+  class CApplication;
+  template<typename T> class TApplication;
 } // namespace win
 
 

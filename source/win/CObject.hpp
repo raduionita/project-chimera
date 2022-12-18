@@ -4,6 +4,15 @@
 #include "win/win.hpp"
 
 namespace win {
+  class CObjectRegistry {
+    public:
+      CObjectRegistry() = default;
+      ~CObjectRegistry();
+    public:
+      void insert(CObject* pObject);
+      void remove(CObject* pObject);
+  };
+
   class CObject {
     public:
       CObject() = default;

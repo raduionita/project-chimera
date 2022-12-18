@@ -2,16 +2,17 @@
 #define __cym_capplication_hpp__
 
 #include "cym/cym.hpp"
+#include "cym/CContext.hpp"
 #include "win/CApplication.hpp"
 
 namespace cym {
   class CApplication : public win::CApplication {
     public:
       CApplication();
+      ~CApplication();
     public:
-      using win::CApplication::onInit;
-      using win::CApplication::onFree;
-      using win::CApplication::onTick;
+      virtual bool init() override;
+      virtual bool tick(float fElapsed=0.f) override;
   };
 } // namespace cym
 

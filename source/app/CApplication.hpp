@@ -8,9 +8,10 @@ namespace app {
   class CApplication : public cym::CApplication {
     public:
       CApplication();
+      ~CApplication();
     public:
       virtual void onInit() override;
-      virtual void onTick(int=0) override;
+      virtual void onTick(float=0.f) override;
   };
 } // namespace appto
 

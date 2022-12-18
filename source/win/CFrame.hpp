@@ -4,10 +4,19 @@
 #include "win/CWindow.hpp"
 
 namespace win {
-  class CFrame : public CWindow {
-      friend class TApplication<CFrame>;
+  class CFrame : public win::CWindow {
+      friend class win::CApplication;
+      friend class win::TApplication<CFrame>;
+      using super = win::CWindow;
+    private:
+      CFrame();
+    public:
+      ~CFrame();
+    public:
+      CFrame(win::CWindow* pParent);
     protected:
-      virtual void init() override { }
+      virtual bool init() override;
+      virtual bool free() override;
   };
 } // namespace win
 

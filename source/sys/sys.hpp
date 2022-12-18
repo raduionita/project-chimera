@@ -9,6 +9,12 @@
   #define DS '/'
 #endif//_WIN32
 
+#define RETURNCN(cond)       if(cond)return
+#define RETURNCV(cond,val)   if(cond)return val
+#define GET3RDARG(arg0,arg1,arg2,...) arg2
+#define CHOOSERETURN(...)    GET3RDARG(__VA_ARGS__, RETURNCV, RETURNCN,)
+#define RETURN(...)          CHOOSERETURN(__VA_ARGS__)(__VA_ARGS__)
+
 #undef DELETE
 #define DELETE(what) delete what;what=nullptr;
 #define UNUSED(x)

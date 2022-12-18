@@ -6,81 +6,43 @@
 #include "sys/CLogger.hpp"
 #include "win/win.hpp"
 #include "win/CFrame.hpp"
+#include "win/CConsole.hpp"
 
 namespace win {
-  template<typename T> class TApplication : public sys::CApplication, public T {
-    // or typename std::enable_if<std::is_base_of<CWindow, T>::value, void>::type
-      static_assert(std::is_base_of<CWindow, T>::value, "T must be derived from CWindow");
+  class CApplication : public sys::CApplication {
+      using super = sys::CApplication;
     protected:
-      static TApplication* sInstance;
+      static CApplication* sInstance;
       bool                 mRunning {true}; // TODO: atomic bool
     public:
-      inline        bool          isRunning() const { return mRunning; }
-      static inline TApplication* getInstance() { return sInstance; }
+      CApplication();
+      ~CApplication();
+    public:
+      inline static CApplication* getInstance() { return sInstance; }
+      inline bool isRunning() const { return mRunning; }
     public:
       // start
-      virtual int exec() override {
-        try {
-          init();
-          // try to loop
-          try {
-            loop();
-          } catch (sys::CException& ex) {
-            // TODO
-          }
-          // cleanup
-          free();
-          // exit
-          quit(0);
-          // last inputs
-          poll();
-          // done
-          return 0;
-        } catch (sys::CException& e) {
-          // TODO: log error
-          return -1;
-        }
-      }
-
-      void init() {
-        T::init();
-        onInit();
-      }
-
-      void free() {
-        T::free();
-        onFree();
-      }
-
-      void loop() {
-        while (mRunning) {
-          tick();
-        }
-      }
-
-      void tick() {
-        onTick(0);
-      }
-
-      void quit(int nCode=0) {
-        mRunning = false;
-      }
-
-      bool poll() {
-        return false;
-      }
-
+      virtual int  exec();
+      // init/clean
+      virtual bool init();
+              bool free();
+      // actions
+              void loop();
+      virtual bool tick(float fElapsed=0.f);
+              void quit(int nCode=0);
+              bool poll();
       // events
-      virtual void onInit() { }
-      virtual void onTick(int=0) { mRunning = false; }
-      virtual void onFree() { }
+      virtual void onInit();
+      virtual void onTick(float=0.f);
+      virtual void onFree();
   };
 
-  template<typename T> TApplication<T>* TApplication<T>::sInstance{nullptr};
-
-  class CApplication : public TApplication<CFrame> {
+  template<typename T> class TApplication : public CApplication, public T {
+      using super = T;
+      static_assert(std::is_base_of<CWindow, T>::value, "T must be derived from CWindow");
     public:
-      CApplication();
+      TApplication() : T() { }
+      ~TApplication() = default;
   };
 } // namespace win
 
