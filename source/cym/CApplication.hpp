@@ -3,10 +3,10 @@
 
 #include "cym/cym.hpp"
 #include "cym/CContext.hpp"
-#include "win/CApplication.hpp"
+#include "uix/CApplication.hpp"
 
 namespace cym {
-  class CApplication : public win::CApplication {
+  class CApplication : public uix::CApplication {
     public:
       CApplication();
       ~CApplication();

@@ -1,7 +1,8 @@
 #ifndef __sys_hpp__
 #define __sys_hpp__
 
-#if defined(WIN32) || defined(_WIN32) || defined(__CYGWIN__)
+// directory separator
+#if defined(PLATFORM_WINDOWS)
   #define DIRECTORY_SEPARATOR '\\'
   #define DS '\\'
 #else
@@ -9,6 +10,7 @@
   #define DS '/'
 #endif//_WIN32
 
+// macros
 #define RETURNCN(cond)       if(cond)return
 #define RETURNCV(cond,val)   if(cond)return val
 #define GET3RDARG(arg0,arg1,arg2,...) arg2

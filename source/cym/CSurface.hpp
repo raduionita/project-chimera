@@ -2,7 +2,7 @@
 #define __cym_csurface_hpp__
 
 #include "sys/sys.hpp"
-#include "win/CWindow.hpp"
+#include "uix/CWindow.hpp"
 
 namespace cym {
   class CSurface {
@@ -13,7 +13,7 @@ namespace cym {
 
   class CConsoleSurface : public CSurface {
     protected:
-      CHAR_INFO* mBuffer {nullptr};
+      //CHAR_INFO* mBuffer {nullptr};
     public:
       CConsoleSurface() = default;
       ~CConsoleSurface() = default;

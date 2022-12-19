@@ -4,6 +4,12 @@ project(chimera VERSION 0.1.0)
 set(LOGGER ON)
 set(BENCHMARK OFF)
 
+# definitions
+include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeDefs.txt)
+
+# set(CMAKE_C_COMPILER /opt/homebrew/opt/llvm@14/bin/clang)
+# set(CMAKE_CXX_COMPILER /opt/homebrew/opt/llvm@14/bin/clang++)
+set(CMAKE_cxx_attributes_on_using_declarations)
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -24,10 +30,8 @@ include_directories(source)
 link_directories(vendor)
 link_directories(binary)
 
-file(GLOB CYM "source/sys/*.cpp" "source/win/*.cpp" "source/glm/*.cpp" "source/cym/*.cpp")
-file(GLOB APP "source/app/*.cpp" "source/main.cpp")
-
-add_compile_definitions(CONTEXT_OPENGL) # CONTEXT_WINDOW CONTEXT_OPENGL
+# files
+include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeFiles.txt)
 
 # LOGGER
 if(LOGGER)
@@ -47,7 +51,7 @@ else()
   list(FILTER CYM EXCLUDE REGEX ".*CBenchmark\\.cpp$")
 endif()
 
-add_library(cym ${CYM})
+add_library(cym ${SYS} ${UIX} ${CYM})
 add_executable(app ${APP})
 
 target_link_libraries(app cym) 

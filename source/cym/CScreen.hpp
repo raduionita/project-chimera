@@ -4,7 +4,7 @@
 #include "cym/cym.hpp"
 #include "sys/TSingleton.hpp"
 #include "sys/CLogger.hpp"
-#include "win/CWindow.hpp"
+#include "uix/CWindow.hpp"
 
 #include <list>
 #include <vector>
@@ -29,7 +29,7 @@ namespace cym {
   class CScreen {
       friend class CScreenManager;
     protected:
-      win::CWindow*&          mParent;
+      uix::CWindow*&          mParent;
     private:
       cym::CSurface*          mSurface {nullptr};
       std::list<cym::CLayer*> mLayers;

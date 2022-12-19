@@ -1,0 +1,29 @@
+# platform
+if (MINGW) 
+  add_compile_definitions(PLATFORM_WINDOWS)
+elseif (APPLE) # mac, ios
+  add_compile_definitions(PLATFORM_MACOS)
+elseif (LINUX)
+  add_compile_definitions(PLATFORM_LINUX)
+else()
+  add_compile_definitions(PLATFORM_UNKNOWN)
+endif()
+
+# compiler
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  add_definitions(COMPILER_CLANG)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  add_compile_definitions(COMPILER_MINGW)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "cygwin")
+  add_compile_definitions(COMPILER_CYGWIN)
+else()
+  add_compile_definitions(COMPILER_UNKNOWN)
+endif()
+
+# add_compile_definitions(MAKE_STATIC_LIBRARIES=true)
+# add_compile_definitions(SPLIT_SHARED_LIBRARIES=false)
+# add_compile_definitions(BUILD_SHARED_LIBS=false)
+# add_compile_definitions(LLVM_AR_PATH=/opt/homebrew/opt/llvm@14/llvm-ar)
+
+# context
+add_compile_definitions(CONTEXT_OPENGL) # CONTEXT_WINDOW CONTEXT_OPENGL
