@@ -1,17 +1,17 @@
 # platform
-if (MINGW) 
+if(MINGW) 
   add_compile_definitions(PLATFORM_WINDOWS)
-elseif (APPLE) # mac, ios
+elseif(APPLE) # mac, ios
   add_compile_definitions(PLATFORM_MACOS)
-elseif (LINUX)
+elseif(LINUX)
   add_compile_definitions(PLATFORM_LINUX)
 else()
   add_compile_definitions(PLATFORM_UNKNOWN)
 endif()
 
 # compiler
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  add_definitions(COMPILER_CLANG)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+add_compile_definitions(COMPILER_CLANG)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   add_compile_definitions(COMPILER_MINGW)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "cygwin")

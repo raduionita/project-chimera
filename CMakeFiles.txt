@@ -1,7 +1,7 @@
 # sys
 file(GLOB SYS "source/sys/*.cpp")
 
-if (PLATFORM_WINDOWS)
+if(PLATFORM_WINDOWS)
 file(GLOB UIX  "source/win/*.cpp" "source/uix/*.cpp")
 elseif (PLATFORM_LINUX)
 file(GLOB UIX  "source/unx/*.cpp" "source/uix/*.cpp")

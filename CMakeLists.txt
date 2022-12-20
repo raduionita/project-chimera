@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(chimera VERSION 0.1.0)
 
+# definitions
+include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeDefs.txt)
+
 set(LOGGER ON)
 set(BENCHMARK OFF)
 
@@ -20,9 +23,6 @@ set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 
 # CMAKE_CURRENT_BINARY_DIR
 file(COPY ${CMAKE_CURRENT_LIST_DIR}/assets DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets)
-
-# definitions
-include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeDefs.txt)
 
 include_directories(source)
 
