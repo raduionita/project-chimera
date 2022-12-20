@@ -10,4 +10,4 @@ file(GLOB UIX  "source/osx/*.cpp" "source/uix/*.cpp")
 endif()
 
 file(GLOB CYM "source/glm/*.cpp" "source/cym/*.cpp")
-file(GLOB APP "source/app/*.cpp" "source/main.cpp")
+file(GLOB APP "source/app/*.cpp" "source/main.cpp") 

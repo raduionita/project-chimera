@@ -4,12 +4,8 @@ project(chimera VERSION 0.1.0)
 set(LOGGER ON)
 set(BENCHMARK OFF)
 
-# definitions
-include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeDefs.txt)
-
 # set(CMAKE_C_COMPILER /opt/homebrew/opt/llvm@14/bin/clang)
 # set(CMAKE_CXX_COMPILER /opt/homebrew/opt/llvm@14/bin/clang++)
-set(CMAKE_cxx_attributes_on_using_declarations)
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -24,6 +20,9 @@ set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 
 # CMAKE_CURRENT_BINARY_DIR
 file(COPY ${CMAKE_CURRENT_LIST_DIR}/assets DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets)
+
+# definitions
+include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeDefs.txt)
 
 include_directories(source)
 
