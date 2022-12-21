@@ -2,6 +2,28 @@
 #define __uix_capplication_hpp__
 
 #include "uix/uix.hpp"
+#include "sys/CApplication.hpp"
+
+namespace {
+  class CApplication : public sys::CApplication {
+    public:
+      // start
+      virtual int  exec();
+      // init/clean
+      virtual bool init();
+              bool free();
+      // actions
+              void loop();
+      virtual bool tick(float fElapsed=0.f);
+              void quit(int nCode=0);
+              bool poll();
+      // events
+      virtual void onInit();
+      virtual void onTick(float=0.f);
+      virtual void onFree();
+  };
+} // namespace
+
 
 #if defined(PLATFORM_WINDOWS)
 #include "win/CApplication.hpp"

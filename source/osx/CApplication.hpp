@@ -5,9 +5,9 @@
 #include "sys/CApplication.hpp"
 
 namespace osx {
-  class CApplication : public sys::CApplication  {
+  class CApplication : public sys::CApplication {
     public:
-      
+    
   };
 } // namespace osx
 

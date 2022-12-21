@@ -1,7 +1,6 @@
 #ifndef __osx_hpp__
 #define __osx_hpp__
 
-
 namespace osx {
   class CWindow;
 } // namespace osx

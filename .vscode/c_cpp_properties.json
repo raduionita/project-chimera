@@ -3,8 +3,6 @@
         {
             "name": "GCC",
             "includePath": [
-                "${workspaceFolder}",
-                "${workspaceFolder}/**",
                 "${workspaceFolder}/source",
                 "${workspaceFolder}/source/**",
                 "${workspaceFolder}/vendor",
@@ -32,8 +30,6 @@
         {
             "name": "Clang",
             "includePath": [
-                "${workspaceFolder}",
-                "${workspaceFolder}/**",
                 "${workspaceFolder}/source",
                 "${workspaceFolder}/source/**",
                 "${workspaceFolder}/vendor",
