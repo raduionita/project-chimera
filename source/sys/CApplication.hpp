@@ -2,35 +2,35 @@
 #define __sys_capplication_hpp__
 
 #include "sys/sys.hpp"
-#include "sys/CException.hpp"
-#include "sys/CLogger.hpp"
-#include "sys/CBenchmark.hpp"
+#include "sys/CExecutable.hpp"
 
 namespace sys {
-  class CApplication {
+  class CApplication : public CExecutable {
+      using super = sys::CExecutable;
+    protected:
+      static const CApplication* sInstance;
+      bool                       mRunning {true}; // TODO: atomic bool
     public:
       CApplication();
-      virtual ~CApplication() = default;
+      ~CApplication();
     public:
-      virtual int exec();
-      virtual int exec(int argc, char** argv);
+      inline static const CApplication* getInstance() { return sInstance; }
+      inline bool isRunning() const { return mRunning; }
+    public:
+      virtual int  exec() override;
+      // init/clean
+      virtual bool init();
+              bool free();
+      // actions
+              void loop();
+      virtual bool tick(float fElapsed=0.f);
+              void quit(int nCode=0);
+              bool poll();
+      // events
+      virtual void onInit();
+      virtual void onTick(float=0.f);
+      virtual void onFree();
   };
 } // namespace sys
-
-#undef DECLARE_APPLICATION
-#define DECLARE_APPLICATION(CLS)                                                                                       \
-int main(int argc, char** argv) {                                                                                      \
-  LOGTAG("   ::main(int,char**)");                                                                                     \
-  LOGDBG(".");                                                                                                         \
-  try {                                                                                                                \
-    CLS app;                                                                                                           \
-    int rez = app.exec(argc, argv);                                                                                    \
-    LOGNFO("::" << rez);                                                                                               \
-    return rez;                                                                                                        \
-  } catch (sys::CException& ex) {                                                                                      \
-    LOGERR("::ERROR:" << ex);                                                                                          \
-    return -1;                                                                                                         \
-  }                                                                                                                    \
-}
 
 #endif //__sys_capplication_hpp__

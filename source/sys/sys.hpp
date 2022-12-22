@@ -23,7 +23,8 @@
 #define ASSERT(cond) assert(cond)
 
 namespace sys {
-  class CApplication;
+  class CExecutable;
+    class CApplication;
   class CError;
   class CException;
   class CLogger;

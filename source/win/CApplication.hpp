@@ -1,6 +1,10 @@
 #ifndef __win_capplication_hpp__
 #define __win_capplication_hpp__
 
+#include "sys/sys.hpp"
+
+#ifdef PLATFORM_WINDOWS
+
 #include "sys/CApplication.hpp"
 #include "sys/CException.hpp"
 #include "sys/CLogger.hpp"
@@ -11,30 +15,6 @@
 namespace win {
   class CApplication : public sys::CApplication {
       using super = sys::CApplication;
-    protected:
-      static CApplication* sInstance;
-      bool                 mRunning {true}; // TODO: atomic bool
-    public:
-      CApplication();
-      ~CApplication();
-    public:
-      inline static CApplication* getInstance() { return sInstance; }
-      inline bool isRunning() const { return mRunning; }
-    public:
-      // start
-      virtual int  exec();
-      // init/clean
-      virtual bool init();
-              bool free();
-      // actions
-              void loop();
-      virtual bool tick(float fElapsed=0.f);
-              void quit(int nCode=0);
-              bool poll();
-      // events
-      virtual void onInit();
-      virtual void onTick(float=0.f);
-      virtual void onFree();
   };
 
   template<typename T> class TApplication : public CApplication, public T {
@@ -61,5 +41,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     return -1;                                                                                                         \
   }                                                                                                                    \
 }
+
+#endif // PLATFORM_WINDOWS
 
 #endif //__win_capplication_hpp__

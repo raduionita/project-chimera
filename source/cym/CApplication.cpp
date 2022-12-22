@@ -13,12 +13,12 @@ namespace cym {
 
   bool CApplication::init() {
     LOGDBG("cym::CApplication::init()");
-    return win::CApplication::init() 
+    return uix::CApplication::init() 
         && cym::CScreenManager::bootup();
   }
 
   bool CApplication::tick(float fElapsed) {
-    return win::CApplication::tick(fElapsed)
+    return uix::CApplication::tick(fElapsed)
         && cym::CScreenManager::update();
   }
 } // namespace cym

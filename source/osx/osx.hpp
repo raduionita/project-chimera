@@ -2,6 +2,7 @@
 #define __osx_hpp__
 
 namespace osx {
+  class CApplication;
   class CWindow;
 } // namespace osx
 

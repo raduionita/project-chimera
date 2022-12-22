@@ -1,15 +1,15 @@
 #include "app/CApplication.hpp"
-#include "win/CFrame.hpp"
+#include "uix/CFrame.hpp"
 
 namespace app {
   // ctor
-  CApplication::CApplication() {
-    LOGDBG("app::CApplication::CApplication()");
-  } 
-  // dtor
-  CApplication::~CApplication() {
-    LOGDBG("app::CApplication::~CApplication()");
-  }
+  // CApplication::CApplication() {
+  //   LOGDBG("app::CApplication::CApplication()");
+  // } 
+  // // dtor
+  // CApplication::~CApplication() {
+  //   LOGDBG("app::CApplication::~CApplication()");
+  // }
 
   void CApplication::onInit() {
     LOGDBG("app::CApplication::onInit()");
