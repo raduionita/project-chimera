@@ -3,19 +3,23 @@
 
 #include "uix/uix.hpp"
 
-namespace uix {
-#if defined(PLATFORM_WINDOWS)
+#ifdef PLATFORM_WINDOWS
 #include "win/CFrame.hpp"
+namespace uix {
   using CFrame = win::CFrame;
-#elif defined(PLATFORM_LINUX)
-#include "unx/CFrame.hpp"
-  using CFrame = unx::CFrame;
-#elif defined(PLATFORM_MACOS)
-#include "osx/CFrame.hpp"
-  using CFrame = osx::CFrame;
-#else
-#error Unsupported platform!
-#endif //PLATFORM_XXXXX
 } // namespace uix
+#endif // PLATFORM_WINDOWS
+#ifdef PLATFORM_LINUX
+#include "nix/CFrame.hpp"
+namespace uix {
+  using CFrame = nix::CFrame;
+} // namespace uix
+#endif // PLATFORM_LINUX
+#ifdef PLATFORM_MACOS
+#include "osx/CFrame.hpp"
+namespace uix {
+  typedef osx::CFrame CFrame;
+} // namespace uix
+#endif // PLATFORM_MACOS
 
 #endif //__uix_cframe_hpp__

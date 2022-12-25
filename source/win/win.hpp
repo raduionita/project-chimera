@@ -1,6 +1,10 @@
 #ifndef __win_hpp__
 #define __win_hpp__
 
+#include "sys/sys.hpp"
+
+#ifdef PLATFORM_WINDOWS
+
 #define WIN32_LEAN_AND_MEAN // before <windows.h> exclude unusable stuff
 #include <windows.h>
 
@@ -22,5 +26,6 @@ namespace win {
   template<typename T> class TApplication;
 } // namespace win
 
+#endif // PLATFORM_WINDOW
 
 #endif //__win_hpp__

@@ -1,6 +1,8 @@
 #include "win/CFrame.hpp"
 #include "sys/CLogger.hpp"
 
+#ifdef PLATFORM_WINDOWS
+
 namespace win {
   // ctor
   CFrame::CFrame() {
@@ -28,3 +30,5 @@ namespace win {
     return true;
   }
 } // namespace win
+
+#endif // PLATFORM_WINDOWS

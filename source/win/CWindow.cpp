@@ -1,6 +1,8 @@
 #include "win/CWindow.hpp"
 #include "sys/CLogger.hpp"
 
+#ifdef PLATFORM_WINDOWS
+
 namespace win {
   // dtor
   CWindow::~CWindow() {
@@ -30,3 +32,5 @@ namespace win {
     return mState & EState::FREED;
   }
 } // namespace win
+
+#endif // PLATFORM_WINDOWS

@@ -49,5 +49,4 @@ struct {
 } RVAL;
 #define rval (RVAL) <<
 
-
 #endif //__sys_hpp__

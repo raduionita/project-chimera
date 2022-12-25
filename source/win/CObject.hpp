@@ -1,6 +1,8 @@
 #ifndef __win_cobject_hpp__
 #define __win_cobject_hpp__
 
+#ifdef PLATFORM_WINDOWS
+
 #include "win/win.hpp"
 
 namespace win {
@@ -20,5 +22,6 @@ namespace win {
   };
 } // namespace win
 
+#endif // PLATFORM_WINDOWS
 
-#endif //__win_cobject_hpp__
+#endif // __win_cobject_hpp__

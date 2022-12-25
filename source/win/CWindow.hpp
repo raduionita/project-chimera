@@ -1,6 +1,8 @@
 #ifndef __win_cwindow_hpp__
 #define __win_cwindow_hpp__
 
+#ifdef PLATFORM_WINDOWS
+
 #include "win/CObject.hpp"
 
 namespace win {
@@ -37,5 +39,6 @@ namespace win {
   };
 } // namespace win
 
+# endif // PLATFORM_WINDOWS
 
 #endif //__win_cwindow_hpp__

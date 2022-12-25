@@ -13,7 +13,7 @@ namespace sys {
       virtual ~CExecutable() = default;
     public:
       virtual int exec();
-      virtual int exec(int argc, char** argv);
+      void setArguments(int argc, char* argv[]);
   };
 } // namespace sys
 
@@ -24,7 +24,8 @@ int main(int argc, char** argv) {                                               
   LOGDBG(".");                                                                                                         \
   try {                                                                                                                \
     CLS exe;                                                                                                           \
-    int rez = exe.exec(argc, argv);                                                                                    \
+    exe.setArguments(argc, argv);                                                                                      \
+    int rez = exe.exec();                                                                                              \
     LOGNFO("::" << rez);                                                                                               \
     return rez;                                                                                                        \
   } catch (sys::CException& ex) {                                                                                      \

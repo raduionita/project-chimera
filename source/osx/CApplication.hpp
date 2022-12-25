@@ -1,8 +1,6 @@
 #ifndef __osx_capplication_hpp__
 #define __osx_capplication_hpp__
 
-#include "sys/sys.hpp"
-
 #ifdef PLATFORM_MACOS
 
 #include "osx/osx.hpp"
@@ -10,8 +8,10 @@
 
 namespace osx {
   class CApplication : public sys::CApplication {
+      using super = sys::CApplication;
     public:
-    
+      CApplication();
+      ~CApplication();
   };
 } // namespace osx
 

@@ -3,19 +3,23 @@
 
 #include "uix/uix.hpp"
 
-namespace uix {
-#if defined(PLATFORM_WINDOWS)
+#ifdef PLATFORM_WINDOWS
 #include "win/CConsole.hpp"
+namespace uix {
   using CConsole = win::CConsole;
-#elif defined(PLATFORM_LINUX)
-#include "unx/CConsole.hpp"
-  using CConsole = unx::CConsole;
-#elif defined(PLATFORM_MACOS)
-#include "osx/CConsole.hpp"
-  using CConsole = osx::CConsole;
-#else
-#error Unsupported platform!
-#endif //PLATFORM_XXXXX
 } // namespace uix
+#endif // PLATFORM_WINDOWS
+#ifdef PLATFORM_LINUX
+#include "nix/CConsole.hpp"
+namespace uix {
+  using CConsole = nix::CConsole;
+} // namespace uix
+#endif // PLATFORM_LINUX
+#ifdef PLATFORM_MACOS
+#include "osx/CConsole.hpp"
+namespace uix {
+  typedef osx::CConsole CConsole;
+} // namespace uix
+#endif // PLATFORM_MACOS
 
 #endif //__uix_cconsole_hpp__

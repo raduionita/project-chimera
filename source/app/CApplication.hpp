@@ -3,9 +3,11 @@
 
 #include "app/app.hpp"
 #include "cym/CApplication.hpp"
+#include "uix/CFrame.hpp"
 
 namespace app {
   class CApplication : public cym::CApplication {
+      uix::CFrame mFrame;
     public:
       CApplication();
       ~CApplication();

@@ -3,6 +3,7 @@ if(MINGW)
   add_compile_definitions(PLATFORM_WINDOWS)
 elseif(APPLE) # mac, ios
   add_compile_definitions(PLATFORM_MACOS)
+  set(framework Cocoa)
 elseif(LINUX)
   add_compile_definitions(PLATFORM_LINUX)
 else()

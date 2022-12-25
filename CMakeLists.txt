@@ -30,7 +30,9 @@ link_directories(vendor)
 link_directories(binary)
 
 # files
-include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeFiles.txt)
+# include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeFiles.txt)
+file(GLOB CYM "source/glm/*.cpp" "source/sys/*.cpp" "source/win/*.cpp" "source/nix/*.cpp" "source/osx/*.cpp" "source/uix/*.cpp" "source/cym/*.cpp")
+file(GLOB APP "source/app/*.cpp" "source/main.cpp") 
 
 # LOGGER
 if(LOGGER)
@@ -50,7 +52,8 @@ else()
   list(FILTER CYM EXCLUDE REGEX ".*CBenchmark\\.cpp$")
 endif()
 
-add_library(cym ${SYS} ${UIX} ${CYM})
+add_library(cym ${CYM})
 add_executable(app ${APP})
 
+target_link_libraries(app "-framework Cocoa")
 target_link_libraries(app cym) 
