@@ -26,9 +26,6 @@ namespace cym {
     static auto& self {CScreenManager::getSingleton()};
     for (auto& pScreen : self.mScreens) {
       sys::throw_if(pScreen->mSurface != nullptr, "CScreen must have a CSurface");
-      if (pScreen->mLayers.empty()) {
-        pScreen->mLayers.push_front(new cym::CLayer{pScreen->mSurface});
-      }
     }
     return true;
   }
@@ -66,7 +63,7 @@ namespace cym {
 
   bool CScreen::update(float fElapsed/*=0.f*/) {
     for (CLayer* pLayer : mLayers) {
-
+      pLayer->update(fElapsed);
     }
 
     // todo: present = merge layers into 1 surface

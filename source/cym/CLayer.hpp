@@ -11,18 +11,27 @@ namespace cym {
     public:
       CLayer(cym::CSurface*& pSurface) : mSurface{pSurface} { };
       ~CLayer() = default;
+    public:
+      bool update(float fElapsed = 0.f) { 
+
+        // todo: render scene
+
+        return true;
+      }
   };
 } // namespace cym
 
 #endif //__cym_clayer_hpp__
 
-// CScreen
-  // CLayer[]
-    // CTarget
+// CLayer
+// CRaycastLayer
+// CPixelLayer
+// CGraphicLayer
+
 
 // CONTEXT == CONSOLE
   // CTarget = CGlyphSurface
-// CONTEXT = WINDOW
+// CONTEXT == WINDOW
   // CTarget = CPixelSurface
-// CONTEXT = OPENGL || DIRECTX || VULKAN
+// CONTEXT == OPENGL || DIRECTX || VULKAN
   // CTarget = CTextureSurface
