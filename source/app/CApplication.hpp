@@ -7,6 +7,7 @@
 
 namespace app {
   class CApplication : public cym::CApplication {
+    private:
       uix::CFrame mFrame;
     public:
       CApplication();

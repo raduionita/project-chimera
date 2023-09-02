@@ -1,34 +1,30 @@
-#include "win/CFrame.hpp"
+#include "uix/CFrame.hpp"
 #include "sys/CLogger.hpp"
 
-#ifdef PLATFORM_WINDOWS
-
-namespace win {
+namespace uix {
   // ctor
   CFrame::CFrame() {
-    LOGDBG("win::CFrame::CFrame()");
+    LOGDBG("uix::CFrame::CFrame()");
     init();
   }  
   // dtor
   CFrame::~CFrame() {
-    LOGDBG("win::CFrame::~CFrame()");
+    LOGDBG("uix::CFrame::~CFrame()");
     free();
   }
 
   // init
   bool CFrame::init() {
-    LOGDBG("win::CFrame::init()");
+    LOGDBG("uix::CFrame::init()");
     super::init();
 
     return true;
   }  
   // free
   bool CFrame::free() {
-    LOGDBG("win::CFrame::free()");
+    LOGDBG("uix::CFrame::free()");
     super::free();
 
     return true;
   }
-} // namespace win
-
-#endif // PLATFORM_WINDOWS
+} // namespace uix

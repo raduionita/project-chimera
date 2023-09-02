@@ -1,5 +1,7 @@
 #include "sys/CApplication.hpp"
 
+#include <chrono>
+
 namespace sys {
   const CApplication* CApplication::sInstance{nullptr};
 

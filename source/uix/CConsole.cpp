@@ -1,8 +1,6 @@
-#include "win/CConsole.hpp"
+#include "uix/CConsole.hpp"
 
-#ifdef PLATFORM_WINDOWS
-
-namespace win {
+namespace uix {
   bool CConsole::sMain{true};
   // ctor
   CConsole::CConsole() {
@@ -13,6 +11,4 @@ namespace win {
   CConsole::~CConsole() {
     sMain = mMain;
   }
-} // namespace win
-
-#endif // PLATFORM_WINDOWS
+} // namespace uix

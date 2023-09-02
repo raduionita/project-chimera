@@ -1,19 +1,17 @@
-#include "win/CWindow.hpp"
+#include "uix/CWindow.hpp"
 #include "sys/CLogger.hpp"
 
-#ifdef PLATFORM_WINDOWS
-
-namespace win {
+namespace uix {
   // dtor
   CWindow::~CWindow() {
-    LOGDBG("win::CWindow::~CWindow()");
+    LOGDBG("uix::CWindow::~CWindow()");
     CWindow::free();
   }
 
   // init
   bool CWindow::init() {
     RETURN((mState & EState::INITED),true);
-    LOGDBG("win::CWindow::init()");
+    LOGDBG("uix::CWindow::init()");
 
     mState = EState::INITED;
 
@@ -22,7 +20,7 @@ namespace win {
   // free
   bool CWindow::free() {
     RETURN((mState & EState::FREED),true);
-    LOGDBG("win::CWindow::free()");
+    LOGDBG("uix::CWindow::free()");
 
 
     mState = EState::FREED;
@@ -31,6 +29,4 @@ namespace win {
 
     return mState & EState::FREED;
   }
-} // namespace win
-
-#endif // PLATFORM_WINDOWS
+} // namespace uix

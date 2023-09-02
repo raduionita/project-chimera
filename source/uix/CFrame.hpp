@@ -1,25 +1,23 @@
 #ifndef __uix_cframe_hpp__
 #define __uix_cframe_hpp__
 
-#include "uix/uix.hpp"
+#include "uix/CWindow.hpp"
 
-#ifdef PLATFORM_WINDOWS
-#include "win/CFrame.hpp"
 namespace uix {
-  using CFrame = win::CFrame;
+  class CFrame : public uix::CWindow {
+      friend class uix::CApplication;
+      friend class uix::TApplication<CFrame>;
+      using super = uix::CWindow;
+    private:
+      CFrame();
+    public:
+      ~CFrame();
+    public:
+      CFrame(uix::CWindow* pParent);
+    protected:
+      virtual bool init() override;
+      virtual bool free() override;
+  };
 } // namespace uix
-#endif // PLATFORM_WINDOWS
-#ifdef PLATFORM_LINUX
-#include "nix/CFrame.hpp"
-namespace uix {
-  using CFrame = nix::CFrame;
-} // namespace uix
-#endif // PLATFORM_LINUX
-#ifdef PLATFORM_MACOS
-#include "osx/CFrame.hpp"
-namespace uix {
-  typedef osx::CFrame CFrame;
-} // namespace uix
-#endif // PLATFORM_MACOS
 
 #endif //__uix_cframe_hpp__

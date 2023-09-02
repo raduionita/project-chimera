@@ -1,25 +1,40 @@
 #ifndef __uix_cwindow_hpp__
 #define __uix_cwindow_hpp__
 
-#include "uix/uix.hpp"
+#include "uix/CObject.hpp"
 
-#ifdef PLATFORM_WINDOWS
-#include "win/CWindow.hpp"
 namespace uix {
-  using CWindow = win::CWindow;
+  class CWindow : public CObject {
+      friend class CFrame;
+      friend class CConsole;
+    public:
+      enum EState : int {
+        EMPTY      = ZERO,
+        INITED     = 1 <<  1,
+        PUSHED     = 1 <<  2,
+        RELEASED   = 1 <<  3,
+        FOCUSED    = 1 <<  4,
+        BLURRED    = 1 <<  5,
+        CHECKED    = 1 <<  6,
+        MINIMIZED  = 1 <<  7,
+        MAXIMIZED  = 1 <<  8,
+        FULLSCREEN = 1 <<  9,
+        PAINTING   = 1 << 10, 
+        CLICKED    = 1 << 11, 
+        DBLCLICKED = 1 << 12, 
+        DISABLED   = 1 << 13, 
+        FREED      = 1 << 14,
+      };
+    protected:
+      int mState {0};
+    private:
+      CWindow() = default;
+    public:
+      ~CWindow();
+    protected:
+      virtual bool init();
+      virtual bool free();
+  };
 } // namespace uix
-#endif // PLATFORM_WINDOWS
-#ifdef PLATFORM_LINUX
-#include "nix/CWindow.hpp"
-namespace uix {
-  using CWindow = nix::CWindow;
-} // namespace uix
-#endif // PLATFORM_LINUX
-#ifdef PLATFORM_MACOS
-#include "osx/CWindow.hpp"
-namespace uix {
-  typedef osx::CWindow CWindow;
-} // namespace uix
-#endif // PLATFORM_MACOS
 
 #endif //__uix_cwindow_hpp__

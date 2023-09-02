@@ -1,11 +1,11 @@
-#ifndef __win_cobject_hpp__
-#define __win_cobject_hpp__
+#ifndef __uix_cobject_hpp__
+#define __uix_cobject_hpp__
 
 #ifdef PLATFORM_WINDOWS
 
-#include "win/win.hpp"
+#include "uix/uix.hpp"
 
-namespace win {
+namespace uix {
   class CObjectRegistry {
     public:
       CObjectRegistry() = default;
@@ -20,8 +20,8 @@ namespace win {
       CObject() = default;
       virtual ~CObject() = default;
   };
-} // namespace win
+} // namespace uix
 
 #endif // PLATFORM_WINDOWS
 
-#endif // __win_cobject_hpp__
+#endif // __uix_cobject_hpp__
