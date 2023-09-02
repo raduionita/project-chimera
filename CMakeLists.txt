@@ -1,30 +1,29 @@
-cmake_minimum_required(VERSION 3.12)
-project(cpp:chimera)
+cmake_minimum_required(VERSION 3.0.0)
+project(chimera VERSION 0.1.0)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_STANDARD 20)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD_LIBRARIES "-static-libgcc -static-libstdc++ -lgdi32 -lcomctl32 -lcomdlg32 -lopengl32 ${CMAKE_CSS_STANDARD_LIBRARIES}") # -lwsock32 -lws2_32
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive")
+# set(CMAKE_CXX_STANDARD_LIBRARIES "-static-libgcc -static-libstdc++ -lgdi32 -lcomctl32 -lcomdlg32 -lopengl32 ${CMAKE_CSS_STANDARD_LIBRARIES}") # -lwsock32 -lws2_32
+# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive")
 
-#add_compile_definitions(GLC_DEBUG)
-add_compile_definitions(UIX_PLATFORM_WINDOWS)
-add_compile_definitions(UIX_EVENT_HANDLE=1)
-add_compile_definitions(UIX_EVENT_APPLICATION=0)
-add_compile_definitions(UIX_EVENT_PROPAGATE=1)
-add_compile_definitions(UIX_EVENT_MOUSEMOVE=0)
-add_compile_definitions(SYS_LOGGER=1)
-add_compile_definitions(SYS_LOGGER_INFO)
-add_compile_definitions(SYS_LOGGER_COUT)
-add_compile_definitions(APP_BUILD=APP_EDIT)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/output)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/output)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/output)
+set(CPACK_PROJECT_NAME ${PROJECT_NAME})
+set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 
-include_directories(inc)
+#file(COPY ${CMAKE_CURRENT_LIST_DIR}/assets DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets)
 
-link_directories(lib)
+include_directories(source)
 
-file(GLOB CYM "src/sys/*.cpp" "src/glc/*.cpp" "src/ogl/*.cpp" "src/cym/*.cpp" "src/uix/*.cpp")
-file(GLOB APP "src/app/*.cpp")
+link_directories(vendor)
+link_directories(output)
+
+file(GLOB CYM "source/glm/*.cpp" "source/sys/*.cpp" "source/cym/*.cpp")
+file(GLOB APP "source/app/*.cpp" "source/main.cpp") 
 
 add_library(cym ${CYM})
 add_executable(app ${APP})
 
-target_link_libraries(app cym) # libgdi32.a libopengl32.a
+target_link_libraries(app cym) 

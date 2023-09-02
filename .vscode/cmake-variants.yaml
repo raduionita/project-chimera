@@ -1,0 +1,35 @@
+    buildType:
+      default: debug
+      choices:
+        debug:
+          short: Debug
+          long: Emit debug information
+          buildType: Debug
+        release:
+          short: Release
+          long: Optimize generated code
+          buildType: Release
+
+    engine:
+      default: cpu
+      choices:
+        ogl:
+          short: OpenGL
+          long: OpenGL rendering
+          settings:
+            ENGINE: OpenGL
+        d3d:
+          short: Direct3D
+          long: Direct3D rendering
+          settings:
+            ENGINE: Direct3D
+        vlk:
+          short: Vulkan
+          long: Vulkan rendering
+          settings:
+            ENGINE: Vulkan
+        cpu:
+          short: Software
+          long: Software rendering
+          settings:
+            ENGINE: Software
