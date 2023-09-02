@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<node name="world_33" type="world">
-  <node type="scene" file="./path/to/scene.xml"/>
-  <node type="scene" file="./path/to/scene.xml"/>
-</node>
