@@ -1,32 +1,33 @@
 {
-  "configurations": [
-      {
-          "name": "GCC",
-          "includePath": [
-              "${workspaceFolder}/source",
-              "${workspaceFolder}/source/**",
-              "${workspaceFolder}/vendor",
-              "${workspaceFolder}/vendor/**"
-          ],
-          "defines": [
-              "_DEBUG",
-              "CYM_CONTEXT_OPENGL"
-          ],
-          "windowsSdkVersion": "10.0.19041.0",
-          "compilerPath": "C:/MinGWv9/bin/g++.exe",
-          "cStandard": "c17",
-          "cppStandard": "c++17",
-          "intelliSenseMode": "windows-gcc-x64",
-          "browse": {
-              "limitSymbolsToIncludedHeaders": true,
-              "databaseFilename": "",
-              "path": [
-                  "${workspaceFolder}"
-              ]
-          },
-          "compileCommands": "${workspaceFolder}/build/compile_commands.json",
-          "configurationProvider": "ms-vscode.cpptools"
-      }
-  ],
-  "version": 4
+    "configurations": [
+        {
+            "name": "Clang",
+            "includePath": [
+                "${workspaceFolder}/source",
+                "${workspaceFolder}/source/**",
+                "${workspaceFolder}/vendor",
+                "${workspaceFolder}/vendor/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "CONTEXT_OPENGL",
+                "PLATFORM_MACOS"
+            ],
+            "windowsSdkVersion": "10.0.19041.0",
+            "compilerPath": "/opt/homebrew/opt/llvm@14/bin/clang++",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "macos-clang-arm64",
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "",
+                "path": [
+                    "${workspaceFolder}"
+                ]
+            },
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
+            "configurationProvider": "ms-vscode.cpptools"
+        }
+    ],
+    "version": 4
 }

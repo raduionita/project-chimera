@@ -1,5 +1,3 @@
-#include <windows.h>
+#include "app/CApplication.hpp"
 
-INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-  return 0;
-}
+DECLARE_APPLICATION(app::CApplication)
