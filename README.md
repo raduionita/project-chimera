@@ -2,96 +2,117 @@
 
 ## 2023-09-02 ##########################################################################################################
 
-### `STRUCTURE`
-
-```cpp
-  app::CApplication : cym::CApplication
-    // window // CCanvas, CWindow, CImage?, CConsole
-    cym::CWindow
-      // layout
-      cym::CLayout
-        // screens // // grid | view (top|bottom, side|left, front|back)
-        cym::CScreen 
-          // layers // vector<CLayer>
-          cym::CLayer
-          cym::CLayer
-            // scene
-            cym::CScene
-                //
-    void onKeyPress()
-      // CEventManager::commit(CInputEvent)
-      // remember CInputEvent (MOUSE or KEYBOARD)
-    void update()
-      // input phase
-      // CEventManager::update()
-      // CControllerMaanger::update()
+### `structure`
+```c++
 
 
-
-  cym::CLayer : cym::CEventListener
-    // can receive evnts
-    // translates CEvent to CMessage => CMessageCoordinator
-  cym::CDebugLayer : cym::CLayer 
-  cym::CConsoleLayer : cym::CLayer
-  cym::CMenuLayer : cym::CLayer
-  cym::CHUDLayer : cym::CLayer
-  cym::CGameLayer : cym::CLayer
-  
-  cym::CEventManager
-    // events
-    cym::CEvent
-    cym::CEvent
-    // listeners
-    cym::CListener
-    cym::CListener
-    // update // on loop match event w/ listener
-    void update()
-      // for each listener
-        // for each input event
-          // send message to an listener (if active)
-
-  cym::CMessageCoordinator
-    // update // send message to listeners
-    void submit(cym::CMessage)
-      // send message to CController
-
-  cym::CControllerManager
-    // controllers
-    cym::CController
-    cym::CController
-    // update // process all controllers
-    void update(float dt)
-      // for each controller : update
-
-  cym::TController<T> // TController<CMenu>, TController<CScene>, CEntityController
-    // entity being controllerd
-    cym::CEntity
-    // messages
-    cym::CMessage // cym::CWalkMessage (move + animate)
-    cym::CMessage
-    // update // process all messages
-    void update(float dt)
-      // for each message : process
-
-
-  cym::TInstance<T> // T = CScene (same scene in different windows), CMaterial, CModel...
 ```
-### `L0GIC`
-```text
-  - INIT
-  | -
+###
+```c++
 
+// update
+  cym::CInputManager::update(float dt)
+    // CREATE input map
+    // FOR EACH layer=handler IN screen.layers
+      // game layer HANDLE input
+        // SUBMIT [move::front|back|left|right] input message(s)
+        // SUBMIT [look::up|down|left|right] input message(s)
+        // SUBMIT [move::up|down] (=jump) input message(s)
+      // tool layer HANDLE input
+        // SUBMIT [play animation] input message
+      // edit layer HANDLE input
+        // SUBMIT [hover] (hightlight node)
+        // SUBMIT [drag = MLbDown + MMove] 
+        // SUBMIT [select = MLbDown + MLbUp] // 
+        // SUBMIT (camera) [move:xyz] [?]
+        // SUBMIT (camera) [rotate:xyz] [MRbDown + MMove]
 
-  - LOOP
-  | - INPUTS
-  | |
-  |
-  | - UPDATE
-  | | 
-  |
-  | - RENDER 
-  | | 
+  cym::CControllerManager::update(float dt);
+    // FOR EACH controller IN
+      // UPDATE controller
+
+  cym::CIntersectResolver::update(float dt);
+    // 
+
+// render
+  cym::CSreenManager::render(float dt);
+    // FOR EACH window IN windows
+      // FOR EACH layer in window.screen.layers
+        // RENDER layer
+
+// screen
+
++ screen
+  + layer::logo
+  + layer::intro
+  + layer::debug
+  + layer::prompt "terminal"
+  + layer::load
+  + layer::menu
+  + layer::tool      +layer::info
+  + layer::edit      +layer::play
+
+// scene
+// 3rd player-controllerd human rider + weapon + in rain + talking + shooting + driving + riding a bike
+
++ node::scene
+  + controller::node ??
+
+  + node::force name="push"
+    + controller::node
+    | + on::tick // update position of linked node::model(s)
+    |
+    + force name="repulsor"
+    |
+    + node::joint "root"
+      + node::model ref="bike"
+    
+  + node::effect name="rain"
+    + controller::node
+    | + on::goin // attach rain effect (particle drops + wet material) to the node
+    | + on::tick // update rain effects for all nodes
+    | + on::exit // detach effect + material from the node
+    |
+    + effect name="rain"
+    | 
+    + node::joint "root"
+      + node::model ref="bike"
+      + node::model ref="rider"
+
+  + node::model "bike"
+    + controller::node
+    | + 
+    |
+    + model name="bike"
+    | + skeleton
+    | + material
+    |    
+    + node::joint "root"
+      + node::model "rider" link::loose
+      | + controller
+      | |
+      | + model name="rider"
+      | | + skeleton 
+      | | + material 
+      | |  
+      | + node::joint [root]
+      |   + node::camera name="camera" link::loose
+      |     + camera name="camera"
+      |   + node::joint [arm]
+      |     + node::joint [hand]
+      |       + node::model name="weapon"
+      |         + controller::node
+      |         | 
+      |         + model name="weapon"
+      |  
+      + node::joint name="wheel-front"
+      | + node::model name="wheel"
+      |   + model name="wheel"
+      |
+      + node::joint name="wheel-back"
+        + controller::node
 ```
+
 
 
 
