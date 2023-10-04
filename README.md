@@ -5,11 +5,6 @@
 ### `structure`
 ```c++
 
-
-```
-###
-```c++
-
 // update
   cym::CInputManager::update(float dt)
     // CREATE input map
@@ -42,75 +37,96 @@
 
 // screen
 
-+ screen
-  + layer::logo
-  + layer::intro
-  + layer::debug
-  + layer::prompt "terminal"
-  + layer::load
-  + layer::menu
-  + layer::tool      +layer::info
-  + layer::edit      +layer::play
 
 // scene
 // 3rd player-controllerd human rider + weapon + in rain + talking + shooting + driving + riding a bike
 
-+ node::scene
-  + controller::node ??
-
-  + node::force name="push"
-    + controller::node
-    | + on::tick // update position of linked node::model(s)
++ node::root
+  + node::scene [hidden]
+  | + data::scene
+  + node::scene [active]
     |
-    + force name="repulsor"
+    + node::gizmo "tool"
+      + node::node [root]
+        + data::node
+          + node::model ref="bike" link::tight
     |
-    + node::joint "root"
-      + node::model ref="bike"
-    
-  + node::effect name="rain"
-    + controller::node
-    | + on::goin // attach rain effect (particle drops + wet material) to the node
-    | + on::tick // update rain effects for all nodes
-    | + on::exit // detach effect + material from the node
-    |
-    + effect name="rain"
-    | 
-    + node::joint "root"
-      + node::model ref="bike"
-      + node::model ref="rider"
-
-  + node::model "bike"
-    + controller::node
-    | + 
-    |
-    + model name="bike"
-    | + skeleton
-    | + material
-    |    
-    + node::joint "root"
-      + node::model "rider" link::loose
-      | + controller
-      | |
-      | + model name="rider"
-      | | + skeleton 
-      | | + material 
-      | |  
-      | + node::joint [root]
-      |   + node::camera name="camera" link::loose
-      |     + camera name="camera"
-      |   + node::joint [arm]
-      |     + node::joint [hand]
-      |       + node::model name="weapon"
-      |         + controller::node
-      |         | 
-      |         + model name="weapon"
-      |  
-      + node::joint name="wheel-front"
-      | + node::model name="wheel"
-      |   + model name="wheel"
+    + node::model "planet"
+      + data::model "planet"
+      | + model
+      |   + material
       |
-      + node::joint name="wheel-back"
-        + controller::node
+      + node::node [root]
+        + data::node
+          + node::force name="push"
+            + data::force [circular] name="repulsor"
+            |
+            + node::node "root"
+              + node::model ref="bike"
+    |  
+    + node::entity name="storm"
+      + data::node
+        + node::node
+        | + data::node
+        |   + node::effect "rain"
+        |     + data::effect
+        |       + effect
+        + node::node      
+          + data::node
+            + node::force "push"
+              + data::force
+                + force
+    |
+    + node::model "carrige"
+      + data::model name="carrige"
+      | + model name="carrige"
+      |   + skeleton
+      |   + material
+      |    
+      + node::node "horse"
+      | + data::node
+      |   + node::model "horse"
+      |     + model "horse"
+      + node::node "rider"
+        + data::node "rider&camera"
+        | + node::node
+        |   + node::node "rider"
+        |   | + data::node
+        |   |   + node::model "rider" link::loose
+        |   |     + data::model name="rider"
+        |   |     | + model
+        |   |     |   + skeleton 
+        |   |     |   + material 
+        |   |     + node::node [root]
+        |   |       + node::node [arm]
+        |   |         + node::node [hand]
+        |   |           + data::node "weapon"
+        |   |             + node::model name="weapon"
+        |   |               + data::model name="weapon"
+        |   |
+        |   + node::node "camera"
+        |     + data::node
+        |       + node::camera name="camera" link::loose
+        |         + data::camera name="camera"
+        |  
+        + node::node name="wheel-front"
+        | + data::node
+        |   + node::model name="wheel"
+        |     + data::model name="wheel"
+        |
+        + node::node name="wheel-back"
+    |
+    + node::node "army"
+      + node::node [root]
+        + node::node "root"
+          + data::node "dust"
+            + node::effect "dust"
+        + node::node "root"
+          + data::node "soldier"
+            + node::model "soldier"
+        + node::node "root"
+          + data::node "soldier"
+            + node::model "soldier"
 ```
 
 
@@ -125,3 +141,23 @@
 - `http://www.stuartmathews.com/index.php/gaming/938-a-simple-game-engine-architecture`
 - `https://youtu.be/L19dBX53M5M` (bennybox)
 - `https://gamasutra.com/blogs/MichaelKissner/20151027/257369/Writing_a_Game_Engine_from_Scratch__Part_1_Messaging.php`
+
+
+
+    CWindow
+       |
+       | (mouse event)
+       |
+       v
+     CLayer (on:mouse)
+       |
+       | (message)
+       |
+       v
+  CController (on:message)          CController
+       |                                 |
+       |                                 |
+       |                                 |
+       v                                 v
+     CModel                            CModel
+       

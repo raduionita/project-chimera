@@ -22,13 +22,13 @@ namespace sys {
       virtual bool init();
               bool free();
       // actions
-              void loop();
-      virtual bool tick(float fElapsed=0.f);
+      virtual void loop();
+      virtual bool tick(float fDelta);
               void quit(int nCode=0);
-              bool poll();
+      virtual bool poll();
       // events
       virtual void onInit();
-      virtual void onTick(float=0.f);
+      virtual void onTick(float);
       virtual void onFree();
   };
 } // namespace sys

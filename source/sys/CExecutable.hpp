@@ -2,9 +2,9 @@
 #define __sys_cexecutable_hpp__
 
 #include "sys/sys.hpp"
-// #include "sys/CLogger.hpp"
-// #include "sys/CBenchmark.hpp"
 #include "sys/CException.hpp"
+#include "sys/CLogger.hpp"
+// #include "sys/CBenchmark.hpp"
 
 namespace sys {
   class CExecutable {
@@ -20,16 +20,16 @@ namespace sys {
 #undef DECLARE_APPLICATION
 #define DECLARE_APPLICATION(CLS)                                                                                       \
 int main(int argc, char** argv) {                                                                                      \
-  /*LOGTAG("   ::main(int,char**)");*/                                                                                     \
-  /*LOGDBG(".");*/                                                                                                         \
+  LOGTAG("   ::main(int,char**)");                                                                                     \
+  LOGDBG("::MAIN");                                                                                                    \
   try {                                                                                                                \
     CLS exe;                                                                                                           \
     exe.setArguments(argc, argv);                                                                                      \
     int rez = exe.exec();                                                                                              \
-    /*LOGNFO("::" << rez);*/                                                                                               \
+    LOGNFO("::DONE=" << rez);                                                                                          \
     return rez;                                                                                                        \
-  } catch (sys::CException& ex) {                                                                                      \
-    /*LOGERR("::ERROR:" << ex);*/                                                                                          \
+  } catch (sys::CException& exp) {                                                                                     \
+    LOGERR("::ERROR::MAIN:" << exp);                                                                                   \
     return -1;                                                                                                         \
   }                                                                                                                    \
 }

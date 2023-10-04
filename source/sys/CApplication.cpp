@@ -5,23 +5,19 @@ namespace sys {
 
   // ctor
   CApplication::CApplication() {
-    // LOGDBG("sys::CApplication::CApplication()");
+    LOGDBG("sys::CApplication::CApplication()");
     sInstance = this;
   }  
   // dtor
   CApplication::~CApplication() {
-    // LOGDBG("sys::CApplication::~CApplication()");
+    LOGDBG("sys::CApplication::~CApplication()");
   }
 
   int CApplication::exec() {
     try {
       init();
-      // try to loop
-      try {
-        loop();
-      } catch (sys::CException& ex) {
-        // TODO
-      }
+      // main loop
+      loop();
       // cleanup
       free();
       // exit
@@ -30,8 +26,8 @@ namespace sys {
       poll();
       // done
       return 0;
-    } catch (sys::CException& e) {
-      // TODO: log error
+    } catch (sys::CException& exp) {
+      LOGERR("::ERROR::EXEC:" << exp);
       return -1;
     }
   }
@@ -47,23 +43,29 @@ namespace sys {
   }
 
   void CApplication::loop() {
-    // timers
-    auto  tTp1 = std::chrono::steady_clock::now();
-    auto  tTp2 = std::chrono::steady_clock::now();
-    std::chrono::duration<float> tElp;
-    float fElapsed = 0.f; 
-    while (mRunning) {
-      tTp2 = std::chrono::steady_clock::now();
-      tElp = tTp2 - tTp1;
-      tTp1 = tTp2;
-      fElapsed = tElp.count();
-      /*mRunning=*/ poll() && tick(fElapsed);
+    // try to loop
+    try {
+      // timers
+      auto  tTp1 = std::chrono::steady_clock::now();
+      auto  tTp2 = std::chrono::steady_clock::now();
+      std::chrono::duration<float> tElp;
+      float fDelta = 0.f; 
+      while (mRunning) {
+        tTp2 = std::chrono::steady_clock::now();
+        tElp = tTp2 - tTp1;
+        tTp1 = tTp2;
+        fDelta = tElp.count();
+        poll();
+        tick(fDelta);
+      }
+    } catch (sys::CException& ex) {
+      LOGERR("::ERROR::LOOP:" << ex);
     }
   }
 
-  bool CApplication::tick(float fElapsed) {
-    onTick(fElapsed);
-    return mRunning;
+  bool CApplication::tick(float fDelta) {
+    onTick(fDelta);
+    return true;
   }
 
   void CApplication::quit(int nCode) {
@@ -75,6 +77,6 @@ namespace sys {
   }
 
   void CApplication::onInit() { }
-  void CApplication::onTick(float fElapsed) { mRunning = false; }
+  void CApplication::onTick(float fDelta) { mRunning = false; }
   void CApplication::onFree() { }
 } // namespace sys

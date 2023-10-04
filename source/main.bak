@@ -1,0 +1,206 @@
+
+#include <exception>
+#include <iostream>
+#include <string>
+#include <chrono>
+
+[[maybe_unused]] constexpr const char* LOGPRE = "";
+#define LOGTAG(tag) [[maybe_unused]] constexpr const char* LOGPRE = tag;
+#define LOGDBG(msg) std::cout << "[DBG] " << LOGPRE << msg << "\n";
+#define LOGNFO(msg) std::cout << "[NFO] " << LOGPRE << msg << "\n";
+#define LOGWRN(msg) std::cout << "[WRN] " << LOGPRE << msg << "\n";
+#define LOGERR(msg) std::cout << "[ERR] " << LOGPRE << msg << "\n";
+
+namespace sys {
+  class CException : public std::exception {
+    protected:
+      std::string mMessage;
+      std::string mFile;
+      int         mLine;
+    public:
+      CException(const std::string& m) : mMessage{m} { } 
+    public:
+      CException& operator <<(const std::string& m) { mMessage.append(m); return *this; } 
+      friend std::ostream& operator <<(std::ostream&, const CException&);
+    public:
+      virtual const char* what() const throw() { return mMessage.c_str(); }
+  };
+  inline std::ostream& operator <<(std::ostream& o, const CException& e) { return o << "[EXCEPTION] [" << e.mFile << ":" << e.mLine << "] " << e.mMessage; }
+  
+  class CExecutable {
+    public:
+      CExecutable() = default;
+      virtual ~CExecutable() = default;
+    public:
+      virtual int exec() {
+        return 0;
+      }
+      void setArguments(int argc, char** argv) { }
+  };
+
+  class CApplication : public sys::CExecutable {
+      using super = sys::CExecutable;
+    protected:
+      static const CApplication* sInstance;
+      bool                       mRunning {true};
+    public:
+      // ctor
+      CApplication() {
+        LOGDBG("sys::CApplication::CApplication()");
+        sInstance = this;
+      }  
+      // dtor
+      ~CApplication() {
+        LOGDBG("sys::CApplication::~CApplication()");
+      }
+    public:
+      inline static const CApplication* getInstance() { return sInstance; }
+      inline bool isRunning() const { return mRunning; }
+    public:
+      virtual int  exec() override {
+        try {
+          init();
+          // main loop
+          loop();
+          // cleanup
+          free();
+          // exit
+          quit(0);
+          // last inputs
+          poll();
+          // done
+          return 0;
+        } catch (sys::CException& exp) {
+          LOGERR("::ERROR::EXEC:" << exp);
+          return -1;
+        }
+      }
+      // init/clean
+      virtual bool init() {
+        onInit(); 
+        return true;
+      }
+      void free() {
+        onFree();
+      }
+      // actions
+      void loop() { 
+        // try to loop
+        try {
+          // timers
+          auto  tTp1 = std::chrono::steady_clock::now();
+          auto  tTp2 = std::chrono::steady_clock::now();
+          std::chrono::duration<float> tElp;
+          float fElapsed = 0.f; 
+          while (mRunning) {
+            tTp2 = std::chrono::steady_clock::now();
+            tElp = tTp2 - tTp1;
+            tTp1 = tTp2;
+            fElapsed = tElp.count();
+            poll();
+            tick(fElapsed);
+          }
+        } catch (sys::CException& exp) {
+          LOGERR("::ERROR::LOOP:" << exp);
+        }
+      }
+      virtual bool tick(float fElapsed) {
+        onTick(fElapsed); 
+        return true;
+      }
+      void quit(int nCode) {
+        mRunning = false;
+      }
+      void poll() { }
+
+      virtual void onInit() { }
+      virtual void onTick(float fElapsed) { quit(0); }
+      virtual void onFree() { }
+  };
+  const CApplication* CApplication::sInstance{nullptr};
+} // namespace sys
+
+namespace uix {
+  class CEvent;
+  class CInputEvent; // PRESSED RELEASED
+  class CWindowEvent;
+  class CCommandEvent;
+} // namespace uix
+
+namespace cym {
+  class CDriver;
+  class CWindow; // : uix::CWindow (CCanvas CWindow CImage CConsole)
+    class CScreen;
+      class CLayer; // logo, intro, debug, load, console, menu, hud, tool|edit (), main(game,play)
+
+  class CPhisicsResolver;   // move entities based on forces acting on them 
+    // -> CFallingMessage (⬇ force acting on entity)
+  class CCollisionResolver; // checks intersections between entities
+    // -> CCollisionMessage
+
+
+  class CController;
+
+  //                                   // [CCollisionResolver] 
+  //                                                                       
+  // scene                                                                 
+  // - entity                          // CController<ENTITY> 
+  //                                   //                    
+  //   - model                                               
+  //     - geometry                                                                                     
+  //       - mesh:1                    // CController<MESH>
+  //         - material                //                  
+  //           - texture:diffuse                                                                                
+  //       - mesh:2                                                                                             
+  //         - material                // CController<MATERIAL> 
+  //           - texture:emissive      //                      
+  //     - skelet                      // CController<SKELET>
+  //       - joint:root                                      
+
+  class CApplication : public sys::CApplication {
+    public:
+      virtual bool init() override {
+        return sys::CApplication::init();
+      }
+      virtual bool tick(float fElapsed=0.f) override {
+        return sys::CApplication::tick(fElapsed);
+      }
+  };
+} // namespace cym
+
+#include <map>
+
+namespace app {
+  class CApplication : public cym::CApplication {
+    public:
+      virtual void onInit() override {
+        LOGDBG("app::CApplication::onInit()");
+
+        // create window(s)
+
+      }
+      virtual void onTick(float fElapsed=0.f) override {
+        LOGDBG("app::CApplication::onTick("<< fElapsed <<")");
+
+        // inputs
+        // update
+        // render
+
+        quit(0);
+      }
+  };
+} // namespace app
+
+int main(int argc, char** argv) {
+  LOGTAG("   ::main(int,char**)");
+  LOGDBG("::MAIN");
+  try {
+    app::CApplication app;
+    int rez = app.exec();
+    LOGNFO("::DONE=" << rez);
+    return rez;
+  } catch (sys::CException& exp) {
+    LOGERR("::ERROR::MAIN:" << exp);
+    return -1;
+  }
+}

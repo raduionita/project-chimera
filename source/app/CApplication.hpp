@@ -5,11 +5,15 @@
 #include "cym/CApplication.hpp"
 
 namespace app {
-  // app::CApplicaion : cym::CApplication : uix::CApplication : sys::CApplication : sys::CExecutable
-  class CApplication : public cym::CApplication {
-
+  class CApplication : public cym::CApplication { // .. uix::CApplication : sys::CApplication : sys::CExecutable
+      using super = cym::CApplication;
+    public:
+      virtual void onInit() override;
+      virtual void onTick(float fDelta) override;
   };
 } // namespace app
 
 
 #endif //__app_capplication_hpp__ 
+
+

@@ -3,6 +3,8 @@
 
 #include "uix/uix.hpp"
 
+#include "sys/CLogger.hpp"
+
 #ifdef PLATFORM_WINDOWS
 #include "win/CApplication.hpp"
 namespace uix {

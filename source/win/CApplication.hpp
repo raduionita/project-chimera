@@ -23,6 +23,8 @@ namespace win {
     public:
       TApplication() : T() { }
       ~TApplication() = default;
+    public:
+      virtual bool poll() override;
   };
 } // namespace win
 
