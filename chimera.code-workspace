@@ -80,7 +80,8 @@
 			"mutex": "cpp",
 			"optional": "cpp",
 			"variant": "cpp",
-			"iomanip": "cpp"
+			"iomanip": "cpp",
+			"condition_variable": "cpp"
 		}
 	}
 }
